@@ -12,5 +12,6 @@ export type CreateConnectionConfigControllerRequest = {
 };
 
 export type CreateConnectionConfigControllerResponse = {
-    connection: Connection;
+    success: boolean;
+    connection?: Connection;
 };

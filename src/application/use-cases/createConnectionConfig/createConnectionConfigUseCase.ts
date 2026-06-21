@@ -31,9 +31,23 @@ export class CreateConnectionConfigUseCase implements ICreateConnectionConfigUse
             throw new Error('Success is true but does not have an connection');
         }
 
-        await this.repository.save({connection: response.connection});
+        const connections = await this.repository.getConnections();
+        const alreadyExists = connections.find((c) => c.name === response.connection?.name);
 
-        return { connection: response.connection };
+        if (alreadyExists) {
+            this.logger.warning(`Connection with name ${response.connection.name} already exists`);
+            return {
+                success: false,
+                connection: undefined
+            };
+        }
+
+        await this.repository.saveConnection({ connection: response.connection });
+
+        return {
+            connection: response.connection,
+            success: true
+        };
     }
 
     private validate(params: CreateConnectionConfigParams): void {

@@ -1,5 +1,5 @@
 import { CreateAdventureServiceParams, CreateAdventureServiceReturn, ICreateAdventureService } from "./iCreateAdventureService";
-import { MINIMUIM_PLAYABLE_CHARACTERS, MINIMUM_NUMBER_SYSTEM_PROMPT, MINIMUM_PLAYABLE_CHARACTERS_WITHOUT_WM } from "../../constants/adventure";
+import { MINIMUM_NUMBER_SYSTEM_PROMPT, MINIMUM_PLAYABLE_CHARACTERS, MINIMUM_PLAYABLE_CHARACTERS_WITHOUT_WM } from "../../constants/adventure";
 import { Adventure } from "../../entities";
 import { ILogger } from "../../logger";
 import { IIdGenerator } from "../idGenerator";
@@ -22,8 +22,8 @@ export class CreateAdventureService implements ICreateAdventureService {
     }
 
     private validate(params: CreateAdventureServiceParams): void {
-        if (params.characters.length < MINIMUIM_PLAYABLE_CHARACTERS) {
-            throw new Error(`You need at least ${MINIMUIM_PLAYABLE_CHARACTERS} to create an adventure`);
+        if (params.characters.length < MINIMUM_PLAYABLE_CHARACTERS) {
+            throw new Error(`You need at least ${MINIMUM_PLAYABLE_CHARACTERS} to create an adventure`);
         }
 
         if (params.systemPrompt.length < MINIMUM_NUMBER_SYSTEM_PROMPT) {
