@@ -1,7 +1,8 @@
 import { Connection } from "../../../domain/entities";
 
 export interface ICreateConnectionConfigRepository {
-    save(params: CreateConnectionConfigRepositoryParams): Promise<boolean>;
+    saveConnection(params: CreateConnectionConfigRepositoryParams): Promise<boolean>;
+    getConnections(): Promise<Connection[]>;
 }
 
 export type CreateConnectionConfigRepositoryParams = {

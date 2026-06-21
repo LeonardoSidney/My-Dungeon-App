@@ -18,6 +18,7 @@ export class CreateConnectionConfigController implements ICreateConnectionConfig
         });
 
         return {
+            success: response.success,
             connection: response.connection
         };
     }

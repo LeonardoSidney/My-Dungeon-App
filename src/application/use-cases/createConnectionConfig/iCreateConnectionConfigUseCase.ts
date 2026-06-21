@@ -12,5 +12,6 @@ export type CreateConnectionConfigParams = {
 };
 
 export type CreateConnectionConfigReturn = {
-    connection: Connection
+    connection?: Connection,
+    success: boolean
 };
