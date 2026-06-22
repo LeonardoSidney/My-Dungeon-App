@@ -2,35 +2,35 @@ import { CONNECTION_STORAGE_NAMESPACE, STORAGE_NAMESPACE } from "../../../domain
 import { Connection } from "../../../domain/entities";
 import { ILogger } from "../../../domain/logger";
 import { IStorage } from "../../storage/iStorage";
-import { CreateConnectionConfigRepositoryParams, ICreateConnectionConfigRepository } from "./iCreateConnectionConfigRepository";
+import { IConnectionRepository, SaveConnectionParams } from "./iConnectionRepository";
 
-export class CreateConnectionConfigRepository implements ICreateConnectionConfigRepository {
+export class ConnectionRepository implements IConnectionRepository {
     constructor(
         private readonly logger: ILogger,
         private readonly storage: IStorage
     ) { }
 
-    public async saveConnection(params: CreateConnectionConfigRepositoryParams): Promise<boolean> {
-        this.logger.info("Executing CreateConnectionConfigRepository");
-        this.logger.debug("Executing CreateConnectionConfigRepository with params: ", params);
+    public async saveConnection(params: SaveConnectionParams): Promise<boolean> {
+        this.logger.info("Executing ConnectionRepository");
+        this.logger.debug("Executing ConnectionRepository with params: ", params);
         try {
             const { connection } = params;
             await this.storage.save(`${STORAGE_NAMESPACE}/${CONNECTION_STORAGE_NAMESPACE}`, connection);
         } catch (error) {
-            this.logger.error("Error on CreateConnectionConfigRepository", error);
+            this.logger.error("Error on ConnectionRepository", error);
             throw error;
         }
         return true;
     }
 
     public async getConnections(): Promise<Connection[]> {
-        this.logger.info("Executing CreateConnectionConfigRepository getConnections");
+        this.logger.info("Executing ConnectionRepository getConnections");
         try {
             const connections = await this.storage.load<Connection[]>(`${STORAGE_NAMESPACE}/${CONNECTION_STORAGE_NAMESPACE}`);
-            this.logger.debug("Executing CreateConnectionConfigRepository getConnections with connections: ", connections);
+            this.logger.debug("Executing ConnectionRepository getConnections with connections: ", connections);
             return connections || [];
         } catch (error) {
-            this.logger.error("Error on CreateConnectionConfigRepository getConnections", error);
+            this.logger.error("Error on ConnectionRepository getConnections", error);
             throw error;
         }
     }

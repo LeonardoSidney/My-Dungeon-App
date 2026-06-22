@@ -1,1 +1,1 @@
-export * from './ConnectionDTO';
+export * from './connectionDTO';
