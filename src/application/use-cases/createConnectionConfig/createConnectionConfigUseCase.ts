@@ -1,13 +1,13 @@
 import { ILogger } from "../../../domain/logger";
 import { ICreateConnectionConfigService } from "../../../domain/services/createConnectionConfig";
-import { ICreateConnectionConfigRepository } from "../../../infrastructure/repository";
+import { IConnectionRepository } from "../../../infrastructure/repository";
 import { CreateConnectionConfigParams, CreateConnectionConfigReturn, ICreateConnectionConfigUseCase } from "./iCreateConnectionConfigUseCase";
 
 export class CreateConnectionConfigUseCase implements ICreateConnectionConfigUseCase {
     constructor(
         private readonly logger: ILogger,
         private readonly service: ICreateConnectionConfigService,
-        private readonly repository: ICreateConnectionConfigRepository
+        private readonly connectionRepository: IConnectionRepository
     ) { }
     public async execute(params: CreateConnectionConfigParams): Promise<CreateConnectionConfigReturn> {
         this.logger.info('Executing CreateConnectionConfigUseCase', params);
@@ -31,7 +31,7 @@ export class CreateConnectionConfigUseCase implements ICreateConnectionConfigUse
             throw new Error('Success is true but does not have an connection');
         }
 
-        const connections = await this.repository.getConnections();
+        const connections = await this.connectionRepository.getConnections();
         const alreadyExists = connections.find((c) => c.name === response.connection?.name);
 
         if (alreadyExists) {
@@ -42,7 +42,7 @@ export class CreateConnectionConfigUseCase implements ICreateConnectionConfigUse
             };
         }
 
-        await this.repository.saveConnection({ connection: response.connection });
+        await this.connectionRepository.saveConnection({ connection: response.connection });
 
         return {
             connection: response.connection,

@@ -1,2 +1,1 @@
-export * from './createConnectionConfig';
-export * from './getConnections';
+export * from './connection';
