@@ -23,6 +23,14 @@ export class CreateConnectionConfigUseCase implements ICreateConnectionConfigUse
         const response = this.service.createConnectionConfig(createParams);
         this.logger.debug('CreateConnectionConfigService executed successfully', response);
         if (!response.success) {
+            if (response.error) {
+                return {
+                    success: false,
+                    connection: undefined,
+                    error: response.error
+                }
+            }
+
             const unknownErrorMessage = 'An unknown error occurred on CreateConnectionConfigService';
             throw new Error(response.error ?? unknownErrorMessage);
         }
@@ -38,7 +46,8 @@ export class CreateConnectionConfigUseCase implements ICreateConnectionConfigUse
             this.logger.warning(`Connection with name ${response.connection.name} already exists`);
             return {
                 success: false,
-                connection: undefined
+                connection: undefined,
+                error: `Connection with name ${response.connection.name} already exists`
             };
         }
 

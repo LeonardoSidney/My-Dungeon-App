@@ -1,10 +1,30 @@
-import { CreateAdventureController, CreateConnectionConfigController, GetConnectionsController, ICreateAdventureController, ICreateConnectionConfigController, IGetConnectionsController } from "../adapters/controllers";
-import { CreateAdventureUseCase, CreateConnectionConfigUseCase, GetConnectionsUseCase } from "../application/use-cases";
-import { CreateAdventureService, CreateConnectionConfigService } from "../domain/services";
-import { ConnectionRepository } from "./repository";
+import {
+    CreateAdventureController,
+    CreateConnectionConfigController,
+    GetConnectionsController,
+    GetModelsController,
+    ICreateAdventureController,
+    ICreateConnectionConfigController,
+    IGetConnectionsController,
+    IGetModelsController
+} from "../adapters/controllers";
+import {
+    CreateAdventureUseCase,
+    CreateConnectionConfigUseCase,
+    GetConnectionsUseCase,
+    GetModelsUseCase,
+} from "../application/use-cases";
+import {
+    CreateAdventureService,
+    CreateConnectionConfigService
+} from "../domain/services";
+import {
+    ConnectionRepository
+} from "./repository";
 import { Logger } from "./logger";
 import { UUIDGenerator } from "./providers";
 import { MobileStorage } from "./storage/mobileStorage";
+import { LlamaCppGateway } from "./http/llama-cpp";
 
 const logger = new Logger();
 const idGenerate = new UUIDGenerator();
@@ -18,13 +38,20 @@ export function createAdventureController(): ICreateAdventureController {
 
 export function createConnectionConfigController(): ICreateConnectionConfigController {
     const createConnectionConfigService = new CreateConnectionConfigService(logger, idGenerate);
-    const createConnectionRepository = new ConnectionRepository(logger, storage);
-    const createConnectionConfigUseCase = new CreateConnectionConfigUseCase(logger, createConnectionConfigService, createConnectionRepository);
+    const connectionRepository = new ConnectionRepository(logger, storage);
+    const createConnectionConfigUseCase = new CreateConnectionConfigUseCase(logger, createConnectionConfigService, connectionRepository);
     return new CreateConnectionConfigController(logger, createConnectionConfigUseCase);
 }
 
 export function getConnectionsController(): IGetConnectionsController {
-    const getConnectionsRepository = new ConnectionRepository(logger, storage);
-    const getConnectionsUseCase = new GetConnectionsUseCase(logger, getConnectionsRepository);
+    const connectionRepository = new ConnectionRepository(logger, storage);
+    const getConnectionsUseCase = new GetConnectionsUseCase(logger, connectionRepository);
     return new GetConnectionsController(logger, getConnectionsUseCase);
 }
+
+export function getModelsController(): IGetModelsController {
+    const llamaCppGateway = new LlamaCppGateway(logger);
+    const getModelsUseCase = new GetModelsUseCase(logger, llamaCppGateway);
+    return new GetModelsController(logger, getModelsUseCase);
+}
+

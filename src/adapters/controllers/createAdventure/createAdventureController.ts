@@ -8,7 +8,7 @@ export class CreateAdventureController implements ICreateAdventureController {
         private readonly useCase: ICreateAdventureUseCase
     ) { }
     public handle(request: CreateAdventureRequest): CreateAdventureResponse {
-        this.logger.info("Executing CreateAdventureController");
+        this.logger.info("Executing CreateAdventureController::handle");
         const { characters, name, systemPrompt, items, location, world, worldMaster } = request;
         const response = this.useCase.execute({
             characters,
