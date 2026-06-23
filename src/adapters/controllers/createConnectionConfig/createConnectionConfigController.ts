@@ -8,7 +8,7 @@ export class CreateConnectionConfigController implements ICreateConnectionConfig
         private readonly useCase: ICreateConnectionConfigUseCase
     ) { }
     public async handle(request: CreateConnectionConfigControllerRequest): Promise<CreateConnectionConfigControllerResponse> {
-        this.logger.info("Executing CreateConnectionConfigController");
+        this.logger.info("Executing CreateConnectionConfigController::handle");
         const { name, ip, port, auth } = request;
         const response = await this.useCase.execute({
             name,
@@ -19,7 +19,8 @@ export class CreateConnectionConfigController implements ICreateConnectionConfig
 
         return {
             success: response.success,
-            connection: response.connection
+            connection: response.connection,
+            error: response.error
         };
     }
 }

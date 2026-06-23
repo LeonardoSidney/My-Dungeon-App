@@ -1,8 +1,9 @@
 import { Connection } from "./Connection";
 
 export type Model = {
+    id: string;
     name: string;
     connection: Connection;
-    createdAt: Date;
-    updatedAt: Date;
+    nCtx: number;
+    ownedBy: string;
 };

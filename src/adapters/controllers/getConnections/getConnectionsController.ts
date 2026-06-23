@@ -9,7 +9,7 @@ export class GetConnectionsController implements IGetConnectionsController {
         private readonly useCase: IGetConnectionsUseCase
     ) {}
     public handle(): Promise<Connection[]> {
-        this.logger.info("Executing GetConnectionsController");
+        this.logger.info("Executing GetConnectionsController::handle");
         return this.useCase.execute();
     }
 }
