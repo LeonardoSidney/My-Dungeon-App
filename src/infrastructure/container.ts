@@ -1,30 +1,46 @@
 import {
     CreateAdventureController,
+    CreateAssistantController,
     CreateConnectionConfigController,
+    CreateSamplerController,
     GetConnectionsController,
     GetModelsController,
-    ICreateAdventureController,
-    ICreateConnectionConfigController,
-    IGetConnectionsController,
-    IGetModelsController
+    GetSamplersController
 } from "../adapters/controllers";
 import {
+    CreateAdventureService,
+    CreateAssistantService,
+    CreateConnectionConfigService,
+    CreateSamplerService,
+    GetSamplersService
+} from "../application/services";
+import {
     CreateAdventureUseCase,
+    CreateAssistantUseCase,
     CreateConnectionConfigUseCase,
+    CreateSamplerUseCase,
     GetConnectionsUseCase,
     GetModelsUseCase,
+    GetSamplersUseCase
 } from "../application/use-cases";
 import {
-    CreateAdventureService,
-    CreateConnectionConfigService
-} from "../domain/services";
-import {
-    ConnectionRepository
-} from "./repository";
+    ICreateAdventureController,
+    ICreateAssistantController,
+    ICreateConnectionConfigController,
+    ICreateSamplerController,
+    IGetConnectionsController,
+    IGetModelsController,
+    IGetSamplersController
+} from "../domain/controllers";
+import { LlamaCppGateway } from "./http/llama-cpp";
 import { Logger } from "./logger";
 import { UUIDGenerator } from "./providers";
-import { MobileStorage } from "./storage/mobileStorage";
-import { LlamaCppGateway } from "./http/llama-cpp";
+import {
+    AssistantRepository,
+    ConnectionRepository,
+    SamplerRepository
+} from "./repository";
+import { MobileStorage } from "./storage";
 
 const logger = new Logger();
 const idGenerate = new UUIDGenerator();
@@ -55,3 +71,23 @@ export function getModelsController(): IGetModelsController {
     return new GetModelsController(logger, getModelsUseCase);
 }
 
+export function createSamplerController(): ICreateSamplerController {
+    const createSamplerService = new CreateSamplerService(logger, idGenerate);
+    const samplerRepository = new SamplerRepository(logger, storage);
+    const createSamplerUseCase = new CreateSamplerUseCase(logger, samplerRepository, createSamplerService);
+    return new CreateSamplerController(logger, createSamplerUseCase);
+}
+
+export function getSamplersController(): IGetSamplersController {
+    const samplerRepository = new SamplerRepository(logger, storage);
+    const getSamplersService = new GetSamplersService();
+    const getSamplersUseCase = new GetSamplersUseCase(logger, getSamplersService, samplerRepository);
+    return new GetSamplersController(logger, getSamplersUseCase);
+}
+
+export function createAssistantController(): ICreateAssistantController {
+    const createAssistantService = new CreateAssistantService(logger, idGenerate);
+    const assistantRepository = new AssistantRepository(logger, storage);
+    const createAssistantUseCase = new CreateAssistantUseCase(logger, assistantRepository, createAssistantService);
+    return new CreateAssistantController(logger, createAssistantUseCase);
+}

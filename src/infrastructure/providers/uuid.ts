@@ -1,6 +1,6 @@
-import { IdGenerator } from "../../domain/services";
+import { IIdGenerator } from "../../domain/services";
 
-export class UUIDGenerator implements IdGenerator {
+export class UUIDGenerator implements IIdGenerator {
     public generate(): string {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
             const r = (Math.random() * 16) | 0;

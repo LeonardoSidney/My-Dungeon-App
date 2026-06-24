@@ -1,5 +1,3 @@
-import { LogLevelEnum } from "./logLevelEnum";
-
 export interface ILogger {
     debug(message: string, ...args: unknown[]): void;
     info(message: string, ...args: unknown[]): void;
@@ -9,3 +7,11 @@ export interface ILogger {
 }
 
 export type LogLevel = LogLevelEnum.DEBUG | LogLevelEnum.INFO | LogLevelEnum.WARN | LogLevelEnum.ERROR | LogLevelEnum.LOG;
+
+export enum LogLevelEnum {
+    DEBUG = 'debug',
+    INFO = 'info',
+    WARN = 'warn',
+    ERROR = 'error',
+    LOG = 'log'
+}
