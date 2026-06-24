@@ -1,4 +1,4 @@
-import { IStorage } from "./iStorage";
+// import { IStorage } from "./iStorage";
 
 // export class WebStorage implements IStorage { 
 //     async save(name: string, data: unknown): Promise<void> {

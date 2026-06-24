@@ -7,6 +7,7 @@ export * from './Item';
 export * from './Location';
 export * from './Model';
 export * from './Role';
+export * from './Sampler';
 export * from './SystemPrompt';
 export * from './Think';
 export * from './World';
