@@ -3,8 +3,9 @@ import {
     CreateAssistantController,
     CreateConnectionConfigController,
     CreateSamplerController,
+    GetAssistantsController,
     GetConnectionsController,
-    GetModelsController,
+    GetModelsFromProviderController,
     GetSamplersController
 } from "../adapters/controllers";
 import {
@@ -19,8 +20,9 @@ import {
     CreateAssistantUseCase,
     CreateConnectionConfigUseCase,
     CreateSamplerUseCase,
+    GetAssistantsUseCase,
     GetConnectionsUseCase,
-    GetModelsUseCase,
+    GetModelsFromProviderUseCase,
     GetSamplersUseCase
 } from "../application/use-cases";
 import {
@@ -28,8 +30,9 @@ import {
     ICreateAssistantController,
     ICreateConnectionConfigController,
     ICreateSamplerController,
+    IGetAssistantsController,
     IGetConnectionsController,
-    IGetModelsController,
+    IGetModelsFromProviderController,
     IGetSamplersController
 } from "../domain/controllers";
 import { LlamaCppGateway } from "./http/llama-cpp";
@@ -65,10 +68,10 @@ export function getConnectionsController(): IGetConnectionsController {
     return new GetConnectionsController(logger, getConnectionsUseCase);
 }
 
-export function getModelsController(): IGetModelsController {
+export function getModelsFromProviderController(): IGetModelsFromProviderController {
     const llamaCppGateway = new LlamaCppGateway(logger);
-    const getModelsUseCase = new GetModelsUseCase(logger, llamaCppGateway);
-    return new GetModelsController(logger, getModelsUseCase);
+    const getModelsUseCase = new GetModelsFromProviderUseCase(logger, llamaCppGateway);
+    return new GetModelsFromProviderController(logger, getModelsUseCase);
 }
 
 export function createSamplerController(): ICreateSamplerController {
@@ -80,7 +83,7 @@ export function createSamplerController(): ICreateSamplerController {
 
 export function getSamplersController(): IGetSamplersController {
     const samplerRepository = new SamplerRepository(logger, storage);
-    const getSamplersService = new GetSamplersService();
+    const getSamplersService = new GetSamplersService(logger);
     const getSamplersUseCase = new GetSamplersUseCase(logger, getSamplersService, samplerRepository);
     return new GetSamplersController(logger, getSamplersUseCase);
 }
@@ -90,4 +93,10 @@ export function createAssistantController(): ICreateAssistantController {
     const assistantRepository = new AssistantRepository(logger, storage);
     const createAssistantUseCase = new CreateAssistantUseCase(logger, assistantRepository, createAssistantService);
     return new CreateAssistantController(logger, createAssistantUseCase);
+}
+
+export function getAssistantsController(): IGetAssistantsController {
+    const assistantRepository = new AssistantRepository(logger, storage);
+    const getAssistantsUseCase = new GetAssistantsUseCase(logger, assistantRepository);
+    return new GetAssistantsController(logger, getAssistantsUseCase);
 }

@@ -7,7 +7,7 @@ export class CreateAssistantService implements ICreateAssistantService {
         private readonly idGenerate: IIdGenerator
     ) { }
     async createAssistant(params: CreateAssistantServiceParams): Promise<CreateAssistantServiceResponse> {
-        this.logger.info('Execute CreateAssistantService::createAssistant:');
+        this.logger.info('Execute CreateAssistantService::createAssistant');
         this.logger.debug('Execute CreateAssistantService::createAssistant - params: ', params);
         const { name, observation, model, sampler } = params;
         const createdAt = new Date();

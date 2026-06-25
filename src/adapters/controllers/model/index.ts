@@ -1,1 +1,1 @@
-export * from './getModelsController';
+export * from './getModelsFromProviderController';

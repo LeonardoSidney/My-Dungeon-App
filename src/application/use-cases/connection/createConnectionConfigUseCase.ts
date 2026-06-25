@@ -10,7 +10,7 @@ export class CreateConnectionConfigUseCase implements ICreateConnectionConfigUse
         private readonly connectionRepository: IConnectionRepository
     ) { }
     public async execute(params: CreateConnectionConfigParams): Promise<CreateConnectionConfigReturn> {
-        this.logger.info('Executing CreateConnectionConfigUseCase', params);
+        this.logger.info('Executing CreateConnectionConfigUseCase::execute');
         this.validate(params);
         const { name, ip, port, auth } = params;
         const createParams = {
@@ -28,7 +28,7 @@ export class CreateConnectionConfigUseCase implements ICreateConnectionConfigUse
                     success: false,
                     connection: undefined,
                     error: response.error
-                }
+                };
             }
 
             const unknownErrorMessage = 'An unknown error occurred on CreateConnectionConfigService';

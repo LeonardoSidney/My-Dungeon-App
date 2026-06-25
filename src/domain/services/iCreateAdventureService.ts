@@ -1,4 +1,4 @@
-import { Adventure, Character, Item, Location, SystemPrompt, World, WorldMaster } from "../../entities";
+import { Adventure, Character, Item, Location, SystemPrompt, World, WorldMaster } from "../entities";
 
 export interface ICreateAdventureService {
     createAdventure(params: CreateAdventureServiceParams): CreateAdventureServiceReturn;
@@ -12,10 +12,10 @@ export type CreateAdventureServiceParams = {
     location?: Location;
     world?: World;
     items?: Item[];
-}
+};
 
 export type CreateAdventureServiceReturn = {
     success: boolean;
     adventure?: Adventure;
     error?: string;
-}
+};

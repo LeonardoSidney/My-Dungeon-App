@@ -1,1 +1,1 @@
-export * from './getModelsUseCase';
+export * from './getModelsFromProviderUseCase';
