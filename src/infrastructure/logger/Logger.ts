@@ -1,9 +1,9 @@
 import { ILogger, LogLevel, LogLevelEnum } from "../../domain/logger";
 
 export class Logger implements ILogger {
-    private logLevel: LogLevel
-    constructor() { 
-        this.logLevel = LogLevelEnum.DEBUG
+    private logLevel: LogLevel;
+    constructor() {
+        this.logLevel = LogLevelEnum.DEBUG;
     }
 
     debug(message: string, ...args: unknown[]): void {
@@ -20,7 +20,7 @@ export class Logger implements ILogger {
 
     warning(message: string, ...args: unknown[]): void {
         if (this.logLevel <= LogLevelEnum.WARN) {
-            console.warn(`[WARN] ${message}`, ...args);
+            console.info(`[WARN] ${message}`, ...args);
         }
     }
 

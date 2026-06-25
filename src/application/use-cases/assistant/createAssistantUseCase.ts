@@ -39,9 +39,10 @@ export class CreateAssistantUseCase implements ICreateAssistantUseCase {
         const alreadyExists = assistants.some((assistant) => assistant.name === name);
 
         if (alreadyExists) {
+            this.logger.warning(`Assistant with name ${response.assistant.name} already exists`);
             return {
                 success: false,
-                error: "Assistant with this name already exists"
+                error: `Assistant with this name ${response.assistant.name} already exists`
             };
         }
 

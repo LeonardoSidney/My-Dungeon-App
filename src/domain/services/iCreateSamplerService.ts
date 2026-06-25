@@ -1,4 +1,4 @@
-import { MirostatEnum, Sampler } from "../../entities";
+import { MirostatEnum, Sampler } from "../entities";
 
 export interface ICreateSamplerService {
     createSampler(params: CreateSamplerServiceParams): CreateSamplerServiceResponse;

@@ -10,7 +10,7 @@ export class GetConnectionsUseCase implements IGetConnectionsUseCase {
     ) { }
 
     public execute(): Promise<Connection[]> {
-        this.logger.info('Executing GetConnectionsUseCase');
+        this.logger.info('Executing GetConnectionsUseCase::execute');
         return this.connectionRepository.getConnections();
     }
 }

@@ -7,7 +7,7 @@ export class CreateConnectionConfigService implements ICreateConnectionConfigSer
         private readonly idGenerate: IIdGenerator
     ) { }
     public createConnectionConfig(params: CreateConnectionConfigServiceParams): CreateConnectionConfigServiceReturn {
-        this.logger.info("Executing CreateConnectionConfigService");
+        this.logger.info("Executing CreateConnectionConfigService::createConnectionConfig");
         const { name, ip, port, auth } = params;
         const connection = {
             id: this.idGenerate.generate(),
