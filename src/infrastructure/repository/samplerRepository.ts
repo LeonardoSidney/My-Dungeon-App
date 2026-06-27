@@ -3,6 +3,7 @@ import { Sampler } from "../../domain/entities";
 import { ILogger } from "../../domain/logger";
 import { ISamplerRepository, SaveSamplerParams } from "../../domain/repository";
 import { IStorage } from "../../domain/storage";
+import { SamplerDTO } from "../dto";
 
 
 export class SamplerRepository implements ISamplerRepository {
@@ -15,11 +16,30 @@ export class SamplerRepository implements ISamplerRepository {
         this.logger.info("Executing SamplerRepository::getSamplers");
 
         try {
-            const samplers = await this.storage.load<Sampler[]>(`${STORAGE_NAMESPACE}/${SAMPLER_STORAGE_NAMESPACE}`);
-            this.logger.debug(`Executing SamplerRepository::getSamplers - samplers: `, samplers);
+            const samplers: Sampler[] = [];
+            const rawData = await this.storage.load<unknown[]>(`${STORAGE_NAMESPACE}/${SAMPLER_STORAGE_NAMESPACE}`);
+            this.logger.debug("Executing SamplerRepository::getSamplers - rawData: ", rawData);
+
+            if (rawData) {
+                const samplersDTO: SamplerDTO[] = [];
+                for (const samplerUnknown of rawData) {
+                    const sampler = SamplerDTO.fromStorage(samplerUnknown);
+                    if (sampler) {
+                        samplersDTO.push(sampler);
+                    }
+                }
+
+                samplers.push(...samplersDTO.map(dto => dto.toEntity()));
+
+                if (rawData.length !== samplers.length) {
+                    this.logger.warning("Some samplers were not converted to entity");
+                }
+            }
+
+            this.logger.debug("Executing SamplerRepository::getSamplers - samplers: ", samplers);
             return samplers || [];
         } catch (error) {
-            this.logger.error(`Error on SamplerRepository::getSamplers: ${error}`);
+            this.logger.error("Error on SamplerRepository::getSamplers", error);
             throw error;
         }
     }

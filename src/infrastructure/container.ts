@@ -1,47 +1,71 @@
 import {
+    CreateAbilityController,
     CreateAdventureController,
     CreateAssistantController,
     CreateConnectionConfigController,
     CreateSamplerController,
+    GetAbilitiesController,
     GetAssistantsController,
     GetConnectionsController,
     GetModelsFromProviderController,
-    GetSamplersController
+    GetSamplersController,
+    CreateStatusController,
+    GetStatusesController,
+    CreateProficiencyController,
+    GetProficienciesController
 } from "../adapters/controllers";
 import {
+    CreateAbilityService,
     CreateAdventureService,
     CreateAssistantService,
     CreateConnectionConfigService,
     CreateSamplerService,
-    GetSamplersService
+    GetSamplersService,
+    CreateStatusService,
+    CreateProficiencyService
 } from "../application/services";
 import {
+    CreateAbilityUseCase,
     CreateAdventureUseCase,
     CreateAssistantUseCase,
     CreateConnectionConfigUseCase,
     CreateSamplerUseCase,
+    GetAbilitiesUseCase,
     GetAssistantsUseCase,
     GetConnectionsUseCase,
     GetModelsFromProviderUseCase,
-    GetSamplersUseCase
+    GetSamplersUseCase,
+    CreateStatusUseCase,
+    GetStatusesUseCase,
+    CreateProficiencyUseCase,
+    GetProficienciesUseCase
 } from "../application/use-cases";
 import {
+    ICreateAbilityController,
     ICreateAdventureController,
     ICreateAssistantController,
     ICreateConnectionConfigController,
     ICreateSamplerController,
+    IGetAbilitiesController,
     IGetAssistantsController,
     IGetConnectionsController,
     IGetModelsFromProviderController,
-    IGetSamplersController
+    IGetSamplersController,
+    ICreateStatusController,
+    IGetStatusesController,
+    ICreateProficiencyController,
+    IGetProficienciesController
 } from "../domain/controllers";
 import { LlamaCppGateway } from "./http/llama-cpp";
 import { Logger } from "./logger";
 import { UUIDGenerator } from "./providers";
 import {
+    AbilityRepository,
     AssistantRepository,
     ConnectionRepository,
-    SamplerRepository
+    SamplerRepository,
+    StatusRepository,
+    ProficiencyRepository
 } from "./repository";
 import { MobileStorage } from "./storage";
 
@@ -99,4 +123,43 @@ export function getAssistantsController(): IGetAssistantsController {
     const assistantRepository = new AssistantRepository(logger, storage);
     const getAssistantsUseCase = new GetAssistantsUseCase(logger, assistantRepository);
     return new GetAssistantsController(logger, getAssistantsUseCase);
+}
+
+export function createAbilityController(): ICreateAbilityController {
+    const createAbilityService = new CreateAbilityService(logger, idGenerate);
+    const abilityRepository = new AbilityRepository(logger, storage);
+    const createAbilityUseCase = new CreateAbilityUseCase(logger, createAbilityService, abilityRepository);
+    return new CreateAbilityController(logger, createAbilityUseCase);
+}
+
+export function getAbilitiesController(): IGetAbilitiesController {
+    const abilityRepository = new AbilityRepository(logger, storage);
+    const getAbilitiesUseCase = new GetAbilitiesUseCase(logger, abilityRepository);
+    return new GetAbilitiesController(logger, getAbilitiesUseCase);
+}
+
+export function createStatusController(): ICreateStatusController {
+    const createStatusService = new CreateStatusService(logger, idGenerate);
+    const statusRepository = new StatusRepository(logger, storage);
+    const createStatusUseCase = new CreateStatusUseCase(logger, createStatusService, statusRepository);
+    return new CreateStatusController(logger, createStatusUseCase);
+}
+
+export function getStatusesController(): IGetStatusesController {
+    const statusRepository = new StatusRepository(logger, storage);
+    const getStatusesUseCase = new GetStatusesUseCase(logger, statusRepository);
+    return new GetStatusesController(logger, getStatusesUseCase);
+}
+
+export function createProficiencyController(): ICreateProficiencyController {
+    const createProficiencyService = new CreateProficiencyService(logger, idGenerate);
+    const proficiencyRepository = new ProficiencyRepository(logger, storage);
+    const createProficiencyUseCase = new CreateProficiencyUseCase(logger, createProficiencyService, proficiencyRepository);
+    return new CreateProficiencyController(logger, createProficiencyUseCase);
+}
+
+export function getProficienciesController(): IGetProficienciesController {
+    const proficiencyRepository = new ProficiencyRepository(logger, storage);
+    const getProficienciesUseCase = new GetProficienciesUseCase(logger, proficiencyRepository);
+    return new GetProficienciesController(logger, getProficienciesUseCase);
 }

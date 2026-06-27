@@ -1,3 +1,4 @@
+export * from './iCreateAbilityUseCase';
 export * from './iCreateAdventureUseCase';
 export * from './iCreateAssistantUseCase';
 export * from './iCreateConnectionConfigUseCase';
@@ -6,3 +7,8 @@ export * from './iGetAssistantsUseCase';
 export * from './iGetConnectionsUseCase';
 export * from './iGetModelsFromProviderUseCase';
 export * from './iGetSamplersUseCase';
+export * from './iGetAbilitiesUseCase';
+export * from './iCreateStatusUseCase';
+export * from './iGetStatusesUseCase';
+export * from './iCreateProficiencyUseCase';
+export * from './iGetProficienciesUseCase';

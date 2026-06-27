@@ -12,3 +12,6 @@ export * from './SystemPrompt';
 export * from './Think';
 export * from './World';
 export * from './WorldMaster';
+export * from './Ability';
+export * from './Status';
+export * from './Proficiency';
