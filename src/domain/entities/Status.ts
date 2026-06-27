@@ -1,4 +1,5 @@
 export type Status = {
+    id: string;
     name: string;
     activationWord: string;
     prompt: string;

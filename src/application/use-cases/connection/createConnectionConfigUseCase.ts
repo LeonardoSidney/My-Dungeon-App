@@ -40,6 +40,7 @@ export class CreateConnectionConfigUseCase implements ICreateConnectionConfigUse
         }
 
         const connections = await this.connectionRepository.getConnections();
+        this.logger.debug('ConnectionRepository executed successfully', connections);
         const alreadyExists = connections.find((c) => c.name === response.connection?.name);
 
         if (alreadyExists) {
