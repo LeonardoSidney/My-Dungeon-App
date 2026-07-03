@@ -9,7 +9,11 @@ export class Logger implements ILogger {
     private serializeArgs(args: unknown[]): unknown[] {
         return args.map(arg => {
             if (typeof arg === 'object' && arg !== null) {
-                return JSON.stringify(arg, null, 2);
+                try {
+                    return JSON.stringify(arg);
+                } catch {
+                    return String(arg);
+                }
             }
             return arg;
         });
