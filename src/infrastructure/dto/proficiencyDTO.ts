@@ -1,5 +1,5 @@
-import { Proficiency } from "../../domain/entities";
-import { isRecord, parseDate } from "./shared";
+import { Proficiency } from '@domain/entities';
+import { isRecord, parseDate } from './shared';
 
 export class ProficiencyDTO {
     constructor(
@@ -33,11 +33,11 @@ export class ProficiencyDTO {
         const updatedAt = parseDate(data.updatedAt);
 
         if (
-            typeof data.id !== "string" ||
-            typeof data.prompt !== "string" ||
-            typeof data.name !== "string" ||
-            typeof data.activationWord !== "string" ||
-            (data.observation !== undefined && typeof data.observation !== "string") ||
+            typeof data.id !== 'string' ||
+            typeof data.prompt !== 'string' ||
+            typeof data.name !== 'string' ||
+            typeof data.activationWord !== 'string' ||
+            (data.observation !== undefined && typeof data.observation !== 'string') ||
             !createdAt ||
             !updatedAt
         ) {

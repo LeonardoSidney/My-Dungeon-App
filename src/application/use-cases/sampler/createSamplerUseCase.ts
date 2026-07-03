@@ -1,7 +1,7 @@
-import { ILogger } from "../../../domain/logger";
-import { ISamplerRepository } from "../../../domain/repository";
-import { ICreateSamplerService } from "../../../domain/services";
-import { CreateSamplerUseCaseParams, CreateSamplerUseCaseResponse, ICreateSamplerUseCase } from "../../../domain/use-cases";
+import { ILogger } from '@domain/logger';
+import { ISamplerRepository } from '@domain/repository';
+import { ICreateSamplerService } from '@domain/services';
+import { CreateSamplerUseCaseParams, CreateSamplerUseCaseResponse, ICreateSamplerUseCase } from '@domain/use-cases';
 
 export class CreateSamplerUseCase implements ICreateSamplerUseCase {
     constructor(
@@ -9,12 +9,12 @@ export class CreateSamplerUseCase implements ICreateSamplerUseCase {
         private readonly samplerRepository: ISamplerRepository,
         private readonly service: ICreateSamplerService
     ) { }
-    public async execute(params: CreateSamplerUseCaseParams): Promise<CreateSamplerUseCaseResponse> {
-        this.logger.info("Execute CreateSamplerUseCase::execute");
+    async execute(params: CreateSamplerUseCaseParams): Promise<CreateSamplerUseCaseResponse> {
+        this.logger.info('Executing CreateSamplerUseCase::execute');
         this.validate(params);
-        this.logger.debug("CreateSamplerUseCase::execute - params", params);
+        this.logger.debug('CreateSamplerUseCase::execute - params', params);
         const response = this.service.createSampler(params);
-        this.logger.debug("CreateSamplerUseCase::execute - sampler created", response);
+        this.logger.debug('CreateSamplerUseCase::execute - sampler created', response);
 
         if (!response.success) {
             return {
@@ -28,19 +28,19 @@ export class CreateSamplerUseCase implements ICreateSamplerUseCase {
         if (alreadyExists) {
             return {
                 success: false,
-                error: "A sampler with this name already exists"
+                error: 'A sampler with this name already exists'
             };
         }
 
         if (!response.success) {
             return {
                 success: false,
-                error: response.error || "An unknown error occurred"
+                error: response.error || 'An unknown error occurred'
             };
         }
 
         if (!response.sampler) {
-            throw new Error("Something went wrong when creating the sampler");
+            throw new Error('Something went wrong when creating the sampler');
         }
 
         await this.samplerRepository.saveSampler({ sampler: response.sampler });
@@ -53,7 +53,7 @@ export class CreateSamplerUseCase implements ICreateSamplerUseCase {
 
     private validate(params: CreateSamplerUseCaseParams): void {
         if (!params.name?.trim()) {
-            throw new Error("A name is required to create a sampler");
+            throw new Error('A name is required to create a sampler');
         }
 
         if (
@@ -61,7 +61,7 @@ export class CreateSamplerUseCase implements ICreateSamplerUseCase {
             params.adaptativeTarget > 0 &&
             params.adaptativeTarget <= 1
         ) {
-            throw new Error("A valid adaptative target is required to create a sampler");
+            throw new Error('A valid adaptative target is required to create a sampler');
         }
 
         if (
@@ -69,7 +69,7 @@ export class CreateSamplerUseCase implements ICreateSamplerUseCase {
             params.adaptativeDecay > 0 &&
             params.adaptativeDecay <= 1
         ) {
-            throw new Error("A valid adaptative decay is required to create a sampler");
+            throw new Error('A valid adaptative decay is required to create a sampler');
         }
     }
 }

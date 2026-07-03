@@ -1,13 +1,14 @@
-import { ILogger } from "../../../domain/logger";
-import { CreateStatusServiceParams, CreateStatusServiceReturn, ICreateStatusService, IIdGenerator } from "../../../domain/services";
+import { ILogger } from '@domain/logger';
+import { CreateStatusServiceParams, CreateStatusServiceReturn, ICreateStatusService, IIdGenerator } from '@domain/services';
 
 export class CreateStatusService implements ICreateStatusService {
     constructor(
         private readonly logger: ILogger,
         private readonly idGenerator: IIdGenerator
     ) { }
+
     createStatus(params: CreateStatusServiceParams): CreateStatusServiceReturn {
-        this.logger.info("Executing CreateStatusService::createStatus");
+        this.logger.info('Executing CreateStatusService::createStatus');
 
         const createdAt = new Date();
         return {

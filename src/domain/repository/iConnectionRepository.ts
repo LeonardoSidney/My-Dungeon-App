@@ -1,4 +1,4 @@
-import { Connection } from "../entities";
+import { Connection } from '../entities';
 
 export interface IConnectionRepository {
     saveConnection(params: SaveConnectionParams): Promise<boolean>;

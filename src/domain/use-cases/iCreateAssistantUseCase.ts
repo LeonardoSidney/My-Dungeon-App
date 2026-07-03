@@ -1,4 +1,4 @@
-import { Assistant, Model, Sampler } from "../entities";
+import { Assistant, Model, Sampler } from '../entities';
 
 export interface ICreateAssistantUseCase {
     execute(params: CreateAssistantUseCaseParams): Promise<CreateAssistantUseCaseResponse>;

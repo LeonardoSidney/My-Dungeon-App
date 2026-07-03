@@ -1,5 +1,5 @@
-import { Status } from "../../domain/entities/Status";
-import { isRecord, parseDate } from "./shared";
+import { Status } from '@domain/entities';
+import { isRecord, parseDate } from './shared';
 
 export class StatusDTO {
     constructor(
@@ -33,11 +33,11 @@ export class StatusDTO {
         const updatedAt = parseDate(data.updatedAt);
 
         if (
-            typeof data.id !== "string" ||
-            typeof data.name !== "string" ||
-            typeof data.activationWord !== "string" ||
-            typeof data.prompt !== "string" ||
-            (data.observation !== undefined && typeof data.observation !== "string") ||
+            typeof data.id !== 'string' ||
+            typeof data.name !== 'string' ||
+            typeof data.activationWord !== 'string' ||
+            typeof data.prompt !== 'string' ||
+            (data.observation !== undefined && typeof data.observation !== 'string') ||
             !createdAt ||
             !updatedAt
         ) {

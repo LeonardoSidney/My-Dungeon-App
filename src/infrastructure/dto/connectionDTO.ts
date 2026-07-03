@@ -1,4 +1,5 @@
-import { Connection } from "../../domain/entities";
+import { Connection } from '@domain/entities';
+import { isRecord, parseDate } from './shared';
 
 export class ConnectionDTO {
     public readonly id: string;
@@ -30,15 +31,34 @@ export class ConnectionDTO {
         };
     }
 
-    public toDb() {
-        return {
-            id: this.id,
-            name: this.name,
-            ip: this.ip,
-            port: this.port,
-            auth: this.auth,
-            created_at: this.createdAt,
-            updated_at: this.updatedAt
-        };
+    static fromStorage(data: unknown): ConnectionDTO | null {
+        if (!isRecord(data)) {
+            return null;
+        }
+
+        const createdAt = parseDate(data.createdAt);
+        const updatedAt = parseDate(data.updatedAt);
+
+        if (
+            typeof data.id !== 'string' ||
+            typeof data.name !== 'string' ||
+            typeof data.ip !== 'string' ||
+            (data.port !== undefined && typeof data.port !== 'number') ||
+            (data.auth !== undefined && typeof data.auth !== 'string') ||
+            !createdAt ||
+            !updatedAt
+        ) {
+            return null;
+        }
+
+        return new ConnectionDTO({
+            id: data.id,
+            name: data.name,
+            ip: data.ip,
+            port: data.port,
+            auth: data.auth,
+            createdAt: createdAt,
+            updatedAt: updatedAt
+        });
     }
 }

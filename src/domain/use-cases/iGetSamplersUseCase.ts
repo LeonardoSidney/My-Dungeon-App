@@ -1,4 +1,4 @@
-import { Sampler } from "../entities";
+import { Sampler } from '../entities';
 
 export interface IGetSamplersUseCase {
     execute(): Promise<Sampler[]>;

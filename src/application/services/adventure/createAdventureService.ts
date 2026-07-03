@@ -1,14 +1,14 @@
-import { MINIMUM_NUMBER_SYSTEM_PROMPT, MINIMUM_PLAYABLE_CHARACTERS, MINIMUM_PLAYABLE_CHARACTERS_WITHOUT_WM } from "../../../domain/constants/adventure";
-import { Adventure } from "../../../domain/entities";
-import { ILogger } from "../../../domain/logger";
-import { CreateAdventureServiceParams, CreateAdventureServiceReturn, ICreateAdventureService, IIdGenerator } from "../../../domain/services";
+import { MINIMUM_NUMBER_SYSTEM_PROMPT, MINIMUM_PLAYABLE_CHARACTERS, MINIMUM_PLAYABLE_CHARACTERS_WITHOUT_WM } from '@domain/constants/adventure';
+import { Adventure } from '@domain/entities';
+import { ILogger } from '@domain/logger';
+import { CreateAdventureServiceParams, CreateAdventureServiceReturn, ICreateAdventureService, IIdGenerator } from '@domain/services';
 
 export class CreateAdventureService implements ICreateAdventureService {
     constructor(
         private readonly logger: ILogger,
         private readonly idGenerate: IIdGenerator
     ) { }
-    public createAdventure(params: CreateAdventureServiceParams): CreateAdventureServiceReturn {
+    createAdventure(params: CreateAdventureServiceParams): CreateAdventureServiceReturn {
         this.logger.info('Executing CreateAdventureService', params);
         this.validate(params);
         if (params.worldMaster) {
@@ -25,25 +25,27 @@ export class CreateAdventureService implements ICreateAdventureService {
             throw new Error(`You need at least ${MINIMUM_PLAYABLE_CHARACTERS} to create an adventure`);
         }
 
-        if (params.systemPrompt.length < MINIMUM_NUMBER_SYSTEM_PROMPT) {
+        if (params.systemPrompts.length < MINIMUM_NUMBER_SYSTEM_PROMPT) {
             throw new Error('A system prompt is required to create an adventure');
         }
     }
 
     private createAdventureWithWoldMaster(params: CreateAdventureServiceParams): CreateAdventureServiceReturn {
-        const { name, systemPrompt, characters, worldMaster, location, world, items } = params;
+        const { name, systemPrompts, characters, worldMaster, locations, worlds, items } = params;
+
+        const createdAt = new Date();
         const adventure: Adventure = {
             id: this.idGenerate.generate(),
             name,
             chat: [],
-            systemPrompt,
+            systemPrompts,
             characters,
             worldMaster,
-            location,
-            world,
+            locations,
+            worlds,
             items,
-            createdAt: new Date(),
-            updatedAt: new Date()
+            createdAt: createdAt,
+            updatedAt: createdAt
         };
 
         return {
@@ -53,7 +55,7 @@ export class CreateAdventureService implements ICreateAdventureService {
     }
 
     private createAdventureWithoutWorldMaster(params: CreateAdventureServiceParams): CreateAdventureServiceReturn {
-        const { name, systemPrompt, characters, worldMaster, location, world, items } = params;
+        const { name, systemPrompts, characters, worldMaster, locations, worlds, items } = params;
         if (characters.length < MINIMUM_PLAYABLE_CHARACTERS_WITHOUT_WM) {
             return {
                 success: false,
@@ -62,21 +64,24 @@ export class CreateAdventureService implements ICreateAdventureService {
 
         }
 
+        const createdAt = new Date();
+        const adventure: Adventure = {
+            id: this.idGenerate.generate(),
+            name,
+            chat: [],
+            systemPrompts,
+            characters,
+            worldMaster,
+            locations,
+            worlds,
+            items,
+            createdAt: createdAt,
+            updatedAt: createdAt
+        };
+
         return {
             success: true,
-            adventure: {
-                id: this.idGenerate.generate(),
-                name,
-                chat: [],
-                systemPrompt,
-                characters,
-                worldMaster,
-                location,
-                world,
-                items,
-                createdAt: new Date(),
-                updatedAt: new Date()
-            }
+            adventure
         };
     }
 }

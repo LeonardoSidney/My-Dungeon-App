@@ -1,4 +1,4 @@
-import { Status } from "../entities/Status";
+import { Status } from '../entities';
 
 export interface ICreateStatusUseCase {
     execute(params: CreateStatusUseCaseParams): Promise<CreateStatusUseCaseResponse>;

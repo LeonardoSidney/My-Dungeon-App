@@ -1,7 +1,7 @@
-import { ILogger } from "../../../domain/logger";
-import { IAssistantRepository } from "../../../domain/repository";
-import { ICreateAssistantService } from "../../../domain/services";
-import { CreateAssistantUseCaseParams, CreateAssistantUseCaseResponse, ICreateAssistantUseCase } from "../../../domain/use-cases";
+import { ILogger } from '@domain/logger';
+import { IAssistantRepository } from '@domain/repository';
+import { ICreateAssistantService } from '@domain/services';
+import { CreateAssistantUseCaseParams, CreateAssistantUseCaseResponse, ICreateAssistantUseCase } from '@domain/use-cases';
 
 export class CreateAssistantUseCase implements ICreateAssistantUseCase {
     constructor(
@@ -10,9 +10,9 @@ export class CreateAssistantUseCase implements ICreateAssistantUseCase {
         private readonly service: ICreateAssistantService
     ) { }
 
-    public async execute(params: CreateAssistantUseCaseParams): Promise<CreateAssistantUseCaseResponse> {
-        this.logger.info("Execute CreateAssistantUseCase::execute");
-        this.logger.debug("Execute CreateAssistantUseCase::execute - params: ", params);
+    async execute(params: CreateAssistantUseCaseParams): Promise<CreateAssistantUseCaseResponse> {
+        this.logger.info('Executing CreateAssistantUseCase::execute');
+        this.logger.debug('Execute CreateAssistantUseCase::execute - params: ', params);
 
         const { name, observation, model, sampler } = params;
         const response = await this.service.createAssistant({
@@ -21,7 +21,7 @@ export class CreateAssistantUseCase implements ICreateAssistantUseCase {
             model,
             sampler
         });
-        this.logger.debug("Execute CreateAssistantUseCase::execute - service response: ", response);
+        this.logger.debug('Execute CreateAssistantUseCase::execute - service response: ', response);
 
         if (!response.success) {
             return {
@@ -31,11 +31,11 @@ export class CreateAssistantUseCase implements ICreateAssistantUseCase {
         }
 
         if (!response.assistant) {
-            throw new Error("Unexpected error: assistant is null");
+            throw new Error('Unexpected error: assistant is null');
         }
 
         const assistants = await this.assistantRepository.getAssistants();
-        this.logger.debug("Execute CreateAssistantUseCase::execute - assistants: ", assistants);
+        this.logger.debug('Execute CreateAssistantUseCase::execute - assistants: ', assistants);
         const alreadyExists = assistants.some((assistant) => assistant.name === name);
 
         if (alreadyExists) {

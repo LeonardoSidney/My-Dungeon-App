@@ -1,20 +1,20 @@
-import { Character } from "./Character";
-import { Chat } from "./Chat";
-import { Item } from "./Item";
-import { Location } from "./Location";
-import { SystemPrompt } from "./SystemPrompt";
-import { World } from "./World";
-import { WorldMaster } from "./WorldMaster";
+import { Character } from './Character';
+import { Chat } from './Chat';
+import { Item } from './Item';
+import { Location } from './Location';
+import { SystemPrompt } from './SystemPrompt';
+import { World } from './World';
+import { WorldMaster } from './WorldMaster';
 
 export type Adventure = {
     id: string;
     name: string;
     chat: Chat[];
-    systemPrompt: SystemPrompt[];
+    systemPrompts: SystemPrompt[];
     characters: Character[];
     worldMaster?: WorldMaster;
-    world?: World;
-    location?: Location;
+    worlds?: World[];
+    locations?: Location[];
     items?: Item[];
     createdAt: Date;
     updatedAt: Date;

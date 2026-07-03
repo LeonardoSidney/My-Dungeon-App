@@ -1,5 +1,5 @@
-import { ILogger } from "../../../domain/logger";
-import { CreateProficiencyServiceParams, CreateProficiencyServiceReturn, ICreateProficiencyService, IIdGenerator } from "../../../domain/services";
+import { ILogger } from '@domain/logger';
+import { CreateProficiencyServiceParams, CreateProficiencyServiceReturn, ICreateProficiencyService, IIdGenerator } from '@domain/services';
 
 export class CreateProficiencyService implements ICreateProficiencyService {
     constructor(
@@ -7,7 +7,7 @@ export class CreateProficiencyService implements ICreateProficiencyService {
         private readonly idGenerator: IIdGenerator
     ) { }
     createProficiency(params: CreateProficiencyServiceParams): CreateProficiencyServiceReturn {
-        this.logger.info("Executing CreateProficiencyService::createProficiency");
+        this.logger.info('Executing CreateProficiencyService::createProficiency');
 
         const createdAt = new Date();
         return {

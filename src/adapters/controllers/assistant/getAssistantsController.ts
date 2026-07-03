@@ -1,7 +1,7 @@
-import { IGetAssistantsController } from "../../../domain/controllers";
-import { Assistant } from "../../../domain/entities";
-import { ILogger } from "../../../domain/logger";
-import { IGetAssistantsUseCase } from "../../../domain/use-cases";
+import { IGetAssistantsController } from '@domain/controllers';
+import { Assistant } from '@domain/entities';
+import { ILogger } from '@domain/logger';
+import { IGetAssistantsUseCase } from '@domain/use-cases';
 
 export class GetAssistantsController implements IGetAssistantsController {
     constructor(
@@ -10,7 +10,7 @@ export class GetAssistantsController implements IGetAssistantsController {
     ) { }
 
     async handle(): Promise<Assistant[]> {
-        this.logger.info("Executing GetAssistantsController::handle");
+        this.logger.info('Executing GetAssistantsController::handle');
         return this.useCase.execute();
     }
 }

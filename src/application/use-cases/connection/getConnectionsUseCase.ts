@@ -1,7 +1,7 @@
-import { Connection } from "../../../domain/entities";
-import { ILogger } from "../../../domain/logger";
-import { IConnectionRepository } from "../../../domain/repository";
-import { IGetConnectionsUseCase } from "../../../domain/use-cases";
+import { Connection } from '@domain/entities';
+import { ILogger } from '@domain/logger';
+import { IConnectionRepository } from '@domain/repository';
+import { IGetConnectionsUseCase } from '@domain/use-cases';
 
 export class GetConnectionsUseCase implements IGetConnectionsUseCase {
     constructor(
@@ -9,7 +9,7 @@ export class GetConnectionsUseCase implements IGetConnectionsUseCase {
         private readonly connectionRepository: IConnectionRepository
     ) { }
 
-    public execute(): Promise<Connection[]> {
+    async execute(): Promise<Connection[]> {
         this.logger.info('Executing GetConnectionsUseCase::execute');
         return this.connectionRepository.getConnections();
     }

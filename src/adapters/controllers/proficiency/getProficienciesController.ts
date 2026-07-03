@@ -1,7 +1,7 @@
-import { IGetProficienciesController } from "../../../domain/controllers";
-import { Proficiency } from "../../../domain/entities/Proficiency";
-import { ILogger } from "../../../domain/logger";
-import { IGetProficienciesUseCase } from "../../../domain/use-cases/iGetProficienciesUseCase";
+import { IGetProficienciesController } from '@domain/controllers';
+import { Proficiency } from '@domain/entities';
+import { ILogger } from '@domain/logger';
+import { IGetProficienciesUseCase } from '@domain/use-cases';
 
 export class GetProficienciesController implements IGetProficienciesController {
     constructor(
@@ -10,7 +10,7 @@ export class GetProficienciesController implements IGetProficienciesController {
     ) { }
 
     async handle(): Promise<Proficiency[]> {
-        this.logger.info("Executing GetProficienciesController::handle");
+        this.logger.info('Executing GetProficienciesController::handle');
         return await this.useCase.execute();
     }
 }

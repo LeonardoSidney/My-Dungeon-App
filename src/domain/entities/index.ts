@@ -1,5 +1,6 @@
 export * from './Adventure';
 export * from './Assistant';
+export * from './Attribute';
 export * from './Character';
 export * from './Chat';
 export * from './Connection';

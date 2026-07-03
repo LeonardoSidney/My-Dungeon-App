@@ -1,4 +1,4 @@
-import { Sampler } from "../entities";
+import { Sampler } from '../entities';
 
 export const DEFAULT_SAMPLER: Sampler = {
     id: 'd159dd93-77da-427b-9407-3d695a13e554',

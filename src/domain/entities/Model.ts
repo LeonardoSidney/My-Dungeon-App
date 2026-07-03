@@ -1,4 +1,4 @@
-import { Connection } from "./Connection";
+import { Connection } from './Connection';
 
 export type Model = {
     id: string;

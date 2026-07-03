@@ -1,7 +1,7 @@
-import { ILogger } from "../../../domain/logger";
-import { IStatusRepository } from "../../../domain/repository/IStatusRepository";
-import { ICreateStatusService } from "../../../domain/services";
-import { CreateStatusUseCaseParams, CreateStatusUseCaseResponse, ICreateStatusUseCase } from "../../../domain/use-cases";
+import { ILogger } from '@domain/logger';
+import { IStatusRepository } from '@domain/repository/iStatusRepository';
+import { ICreateStatusService } from '@domain/services';
+import { CreateStatusUseCaseParams, CreateStatusUseCaseResponse, ICreateStatusUseCase } from '@domain/use-cases';
 
 export class CreateStatusUseCase implements ICreateStatusUseCase {
     constructor(
@@ -10,12 +10,12 @@ export class CreateStatusUseCase implements ICreateStatusUseCase {
         private readonly statusRepository: IStatusRepository
     ) { }
     async execute(params: CreateStatusUseCaseParams): Promise<CreateStatusUseCaseResponse> {
-        this.logger.info("Executing CreateStatusUseCase::execute");
-        this.logger.debug("Executing CreateStatusUseCase::execute - params", params);
+        this.logger.info('Executing CreateStatusUseCase::execute');
+        this.logger.debug('Executing CreateStatusUseCase::execute - params', params);
 
         this.validate(params);
 
-        this.logger.debug("Calling CreateStatusService", params);
+        this.logger.debug('Calling CreateStatusService', params);
         const response = this.service.createStatus(params);
         this.logger.debug('CreateStatusService executed successfully', response);
 
@@ -27,7 +27,7 @@ export class CreateStatusUseCase implements ICreateStatusUseCase {
         }
 
         if (!response.status) {
-            throw new Error("Unexpected error while creating status");
+            throw new Error('Unexpected error while creating status');
         }
 
         const statuses = await this.statusRepository.getStatuses();
@@ -38,7 +38,7 @@ export class CreateStatusUseCase implements ICreateStatusUseCase {
             this.logger.warning(`Status with name ${response.status.name} already exists`);
             return {
                 success: false,
-                error: "Status already exists"
+                error: 'Status already exists'
             };
         }
 
@@ -52,15 +52,15 @@ export class CreateStatusUseCase implements ICreateStatusUseCase {
 
     private validate(params: CreateStatusUseCaseParams) {
         if (!params.name?.trim()) {
-            throw new Error("name is required to create a status");
+            throw new Error('name is required to create a status');
         }
 
         if (!params.activationWord?.trim()) {
-            throw new Error("activationWord is required to create a status");
+            throw new Error('activationWord is required to create a status');
         }
 
         if (!params.prompt?.trim()) {
-            throw new Error("prompt is required to create a status");
+            throw new Error('prompt is required to create a status');
         }
     }
 }

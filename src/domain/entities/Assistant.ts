@@ -1,5 +1,5 @@
-import { Model } from "./Model";
-import { Sampler } from "./Sampler";
+import { Model } from './Model';
+import { Sampler } from './Sampler';
 
 export type Assistant = {
     id: string;

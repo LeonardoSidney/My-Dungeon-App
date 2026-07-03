@@ -1,13 +1,13 @@
-import { ILogger } from "../../../domain/logger";
-import { CreateConnectionConfigServiceParams, CreateConnectionConfigServiceReturn, ICreateConnectionConfigService, IIdGenerator } from "../../../domain/services";
+import { ILogger } from '@domain/logger';
+import { CreateConnectionConfigServiceParams, CreateConnectionConfigServiceReturn, ICreateConnectionConfigService, IIdGenerator } from '@domain/services';
 
 export class CreateConnectionConfigService implements ICreateConnectionConfigService {
     constructor(
         private readonly logger: ILogger,
         private readonly idGenerate: IIdGenerator
     ) { }
-    public createConnectionConfig(params: CreateConnectionConfigServiceParams): CreateConnectionConfigServiceReturn {
-        this.logger.info("Executing CreateConnectionConfigService::createConnectionConfig");
+    createConnectionConfig(params: CreateConnectionConfigServiceParams): CreateConnectionConfigServiceReturn {
+        this.logger.info('Executing CreateConnectionConfigService::createConnectionConfig');
         const { name, ip, port, auth } = params;
         const connection = {
             id: this.idGenerate.generate(),

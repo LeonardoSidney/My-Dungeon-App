@@ -1,4 +1,4 @@
-export type Atribbute = {
+export type Attribute = {
     name: string;
     value: number;
 };

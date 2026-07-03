@@ -1,6 +1,6 @@
-import { IGetModelsFromProviderController, GetModelsControllerRequest, GetModelsControllerResponse } from "../../../domain/controllers";
-import { ILogger } from "../../../domain/logger";
-import { IGetModelsFromProviderUseCase } from "../../../domain/use-cases";
+import { IGetModelsFromProviderController, GetModelsControllerRequest, GetModelsControllerResponse } from '@domain/controllers';
+import { ILogger } from '@domain/logger';
+import { IGetModelsFromProviderUseCase } from '@domain/use-cases';
 
 export class GetModelsFromProviderController implements IGetModelsFromProviderController {
     constructor(
@@ -8,7 +8,7 @@ export class GetModelsFromProviderController implements IGetModelsFromProviderCo
         private readonly useCase: IGetModelsFromProviderUseCase
     ) { }
 
-    public async handle(request: GetModelsControllerRequest): Promise<GetModelsControllerResponse> {
+    async handle(request: GetModelsControllerRequest): Promise<GetModelsControllerResponse> {
         this.logger.info('Executing GetModelsFromProviderController::handle');
         const { connection } = request;
         const response = await this.useCase.execute({ connection });

@@ -1,5 +1,5 @@
-import { ILogger } from "../../../domain/logger";
-import { CreateAbilityServiceParams, CreateAbilityServiceReturn, ICreateAbilityService, IIdGenerator } from "../../../domain/services";
+import { ILogger } from '@domain/logger';
+import { CreateAbilityServiceParams, CreateAbilityServiceReturn, ICreateAbilityService, IIdGenerator } from '@domain/services';
 
 export class CreateAbilityService implements ICreateAbilityService {
     constructor(
@@ -7,7 +7,7 @@ export class CreateAbilityService implements ICreateAbilityService {
         private readonly idGenerator: IIdGenerator
     ) { }
     createAbility(params: CreateAbilityServiceParams): CreateAbilityServiceReturn {
-        this.logger.info("Executing CreateAbilityService::createAbility");
+        this.logger.info('Executing CreateAbilityService::createAbility');
 
         const createdAt = new Date();
         return {

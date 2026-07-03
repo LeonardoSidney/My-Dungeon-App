@@ -1,4 +1,4 @@
-import { Ability } from "../entities/Ability";
+import { Ability } from '../entities';
 
 export interface IAbilityRepository {
     saveAbility(params: SaveAbilityParams): Promise<boolean>;

@@ -1,5 +1,5 @@
-import { Ability } from "../../domain/entities/Ability";
-import { isRecord, parseDate } from "./shared";
+import { Ability } from '@domain/entities';
+import { isRecord, parseDate } from './shared';
 
 export class AbilityDTO {
     constructor(
@@ -33,11 +33,11 @@ export class AbilityDTO {
         const updatedAt = parseDate(data.updatedAt);
 
         if (
-            typeof data.id !== "string" ||
-            typeof data.name !== "string" ||
-            typeof data.activationWorld !== "string" ||
-            typeof data.prompt !== "string" ||
-            (data.observation !== undefined && typeof data.observation !== "string") ||
+            typeof data.id !== 'string' ||
+            typeof data.name !== 'string' ||
+            typeof data.activationWorld !== 'string' ||
+            typeof data.prompt !== 'string' ||
+            (data.observation !== undefined && typeof data.observation !== 'string') ||
             !createdAt ||
             !updatedAt
         ) {
