@@ -1,7 +1,7 @@
 import { CreateAbilityController } from '../../../../src/adapters/controllers/ability/createAbilityController';
-import { CreateAbilityControllerParams, CreateAbilityControllerResponse } from '../../../../src/domain/controllers';
-import { ICreateAbilityUseCase } from '../../../../src/domain/use-cases';
-import { ILogger } from '../../../../src/domain/logger';
+import { CreateAbilityControllerParams, CreateAbilityControllerResponse } from '@domain/controllers';
+import { ICreateAbilityUseCase } from '@domain/use-cases';
+import { ILogger } from '@domain/logger';
 import { createAbilityHelper } from '../../../../__helpers__/createAbilityHelper';
 
 // Mock das dependências

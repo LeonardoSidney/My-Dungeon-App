@@ -2,9 +2,9 @@ import { CreateConnectionConfigController } from '../../../../src/adapters/contr
 import {
     CreateConnectionConfigControllerRequest,
     CreateConnectionConfigControllerResponse
-} from '../../../../src/domain/controllers';
-import { ICreateConnectionConfigUseCase } from '../../../../src/domain/use-cases';
-import { ILogger } from '../../../../src/domain/logger';
+} from '@domain/controllers';
+import { ICreateConnectionConfigUseCase } from '@domain/use-cases';
+import { ILogger } from '@domain/logger';
 import { createConnectionHelper } from '../../../../__helpers__/createConnectionHelper';
 
 // Mock das dependências

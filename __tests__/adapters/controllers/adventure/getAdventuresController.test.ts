@@ -1,6 +1,6 @@
 import { GetAdventuresController } from '../../../../src/adapters/controllers/adventure/getAdventuresController';
-import { IGetAdventuresUseCase } from '../../../../src/domain/use-cases';
-import { ILogger } from '../../../../src/domain/logger';
+import { IGetAdventuresUseCase } from '@domain/use-cases';
+import { ILogger } from '@domain/logger';
 import { Adventure } from '@domain/entities';
 
 // Mock das dependências
