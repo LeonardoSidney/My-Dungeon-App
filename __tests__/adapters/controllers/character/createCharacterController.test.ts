@@ -1,7 +1,7 @@
 import { CreateCharacterController } from '../../../../src/adapters/controllers/character/createCharacterController';
-import { CreateCharacterControllerPrams, CreateCharacterControllerResponse } from '../../../../src/domain/controllers';
-import { ICreateCharacterUseCase } from '../../../../src/domain/use-cases';
-import { ILogger } from '../../../../src/domain/logger';
+import { CreateCharacterControllerPrams, CreateCharacterControllerResponse } from '@domain/controllers';
+import { ICreateCharacterUseCase } from '@domain/use-cases';
+import { ILogger } from '@domain/logger';
 import { createCharacterHelper } from '../../../../__helpers__/createCharacterHelper';
 import { createAssistantHelper } from '../../../../__helpers__/createAssistantHelper';
 import { createAbilityHelper } from '../../../../__helpers__/createAbilityHelper';

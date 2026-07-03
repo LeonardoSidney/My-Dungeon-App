@@ -1,7 +1,7 @@
 import { GetAbilitiesController } from '../../../../src/adapters/controllers/ability/getAbilitiesController';
-import { IGetAbilitiesUseCase } from '../../../../src/domain/use-cases';
-import { ILogger } from '../../../../src/domain/logger';
-import { Ability } from '../../../../src/domain/entities';
+import { IGetAbilitiesUseCase } from '@domain/use-cases';
+import { ILogger } from '@domain/logger';
+import { Ability } from '@domain/entities';
 import { createAbilityHelper } from '../../../../__helpers__/createAbilityHelper';
 
 // Mock das dependências

@@ -1,7 +1,7 @@
 import { GetConnectionsController } from '../../../../src/adapters/controllers/connection/getConnectionsController';
-import { IGetConnectionsUseCase } from '../../../../src/domain/use-cases';
-import { ILogger } from '../../../../src/domain/logger';
-import { Connection } from '../../../../src/domain/entities';
+import { IGetConnectionsUseCase } from '@domain/use-cases';
+import { ILogger } from '@domain/logger';
+import { Connection } from '@domain/entities';
 import { createConnectionHelper } from '../../../../__helpers__/createConnectionHelper';
 
 // Mock das dependências
