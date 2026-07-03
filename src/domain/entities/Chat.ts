@@ -1,5 +1,5 @@
-import { Role } from "./Role";
-import { Think } from "./Think";
+import { Role } from './Role';
+import { Think } from './Think';
 
 export type Chat = {
     id: string;

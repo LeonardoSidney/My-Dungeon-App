@@ -1,7 +1,7 @@
-import { ILogger } from "../../../domain/logger";
-import { IConnectionRepository } from "../../../domain/repository";
-import { ICreateConnectionConfigService } from "../../../domain/services";
-import { CreateConnectionConfigParams, CreateConnectionConfigReturn, ICreateConnectionConfigUseCase } from "../../../domain/use-cases";
+import { ILogger } from '@domain/logger';
+import { IConnectionRepository } from '@domain/repository';
+import { ICreateConnectionConfigService } from '@domain/services';
+import { CreateConnectionConfigParams, CreateConnectionConfigReturn, ICreateConnectionConfigUseCase } from '@domain/use-cases';
 
 export class CreateConnectionConfigUseCase implements ICreateConnectionConfigUseCase {
     constructor(
@@ -9,7 +9,7 @@ export class CreateConnectionConfigUseCase implements ICreateConnectionConfigUse
         private readonly service: ICreateConnectionConfigService,
         private readonly connectionRepository: IConnectionRepository
     ) { }
-    public async execute(params: CreateConnectionConfigParams): Promise<CreateConnectionConfigReturn> {
+    async execute(params: CreateConnectionConfigParams): Promise<CreateConnectionConfigReturn> {
         this.logger.info('Executing CreateConnectionConfigUseCase::execute');
         this.validate(params);
         const { name, ip, port, auth } = params;

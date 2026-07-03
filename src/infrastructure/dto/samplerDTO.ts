@@ -1,5 +1,5 @@
-import { MirostatEnum, Sampler } from "../../domain/entities/Sampler";
-import { isRecord, isStringArray, parseDate } from "./shared";
+import { MirostatEnum, Sampler } from '@domain/entities';
+import { isRecord, parseDate } from './shared';
 
 export class SamplerDTO {
     constructor(
@@ -12,7 +12,7 @@ export class SamplerDTO {
         private readonly dryAllowedLenght: number | undefined,
         private readonly dryBase: number | undefined,
         private readonly dryMultiplier: number | undefined,
-        private readonly drySequenceBreakers: string[] | undefined,
+        private readonly drySequenceBreakers: string | undefined,
         private readonly dynaTempExp: number | undefined,
         private readonly dynaTempRange: number | undefined,
         private readonly ignoreEOS: boolean | undefined,
@@ -80,45 +80,36 @@ export class SamplerDTO {
         const createdAt = parseDate(data.createdAt);
         const updatedAt = parseDate(data.updatedAt);
 
-        const numericFields = [
-            "adaptativeDecay",
-            "adaptativeTarget",
-            "dryAllowedLenght",
-            "dryBase",
-            "dryMultiplier",
-            "dynaTempExp",
-            "dynaTempRange",
-            "minP",
-            "mirostatEnt",
-            "mirostatLr",
-            "frequencyPenalty",
-            "presencePenalty",
-            "repeatLastN",
-            "repeatPenalty",
-            "temperature",
-            "topK",
-            "topNSigma",
-            "topP",
-            "typicalP",
-            "xtcProbability",
-            "xtcThreshould"
-        ] as const;
-
-        for (const field of numericFields) {
-            if (data[field] !== undefined && typeof data[field] !== "number") {
-                return null;
-            }
-        }
-
         if (
-            typeof data.id !== "string" ||
-            typeof data.name !== "string" ||
-            (data.observation !== undefined && typeof data.observation !== "string") ||
-            typeof data.systemDefault !== "boolean" ||
-            (data.drySequenceBreakers !== undefined && !isStringArray(data.drySequenceBreakers)) ||
-            (data.ignoreEOS !== undefined && typeof data.ignoreEOS !== "boolean") ||
-            (data.mirostat !== undefined && typeof data.mirostat !== "number") ||
-            (data.seed !== undefined && typeof data.seed !== "string") ||
+            typeof data.id !== 'string' ||
+            typeof data.name !== 'string' ||
+            (data.observation !== undefined && typeof data.observation !== 'string') ||
+            typeof data.systemDefault !== 'boolean' ||
+            (data.drySequenceBreakers !== undefined && typeof data.drySequenceBreakers !== 'string') ||
+            (data.adaptativeDecay !== undefined && typeof data.adaptativeDecay !== 'number') ||
+            (data.adaptativeTarget !== undefined && typeof data.adaptativeTarget !== 'number') ||
+            (data.dryAllowedLenght !== undefined && typeof data.dryAllowedLenght !== 'number') ||
+            (data.dryBase !== undefined && typeof data.dryBase !== 'number') ||
+            (data.dryMultiplier !== undefined && typeof data.dryMultiplier !== 'number') ||
+            (data.dynaTempExp !== undefined && typeof data.dynaTempExp !== 'number') ||
+            (data.dynaTempRange !== undefined && typeof data.dynaTempRange !== 'number') ||
+            (data.ignoreEOS !== undefined && typeof data.ignoreEOS !== 'boolean') ||
+            (data.minP !== undefined && typeof data.minP !== 'number') ||
+            (data.mirostat !== undefined && typeof data.mirostat !== 'number') ||
+            (data.mirostatEnt !== undefined && typeof data.mirostatEnt !== 'number') ||
+            (data.mirostatLr !== undefined && typeof data.mirostatLr !== 'number') ||
+            (data.frequencyPenalty !== undefined && typeof data.frequencyPenalty !== 'number') ||
+            (data.presencePenalty !== undefined && typeof data.presencePenalty !== 'number') ||
+            (data.repeatLastN !== undefined && typeof data.repeatLastN !== 'number') ||
+            (data.repeatPenalty !== undefined && typeof data.repeatPenalty !== 'number') ||
+            (data.seed !== undefined && typeof data.seed !== 'string') ||
+            (data.temperature !== undefined && typeof data.temperature !== 'number') ||
+            (data.topK !== undefined && typeof data.topK !== 'number') ||
+            (data.topNSigma !== undefined && typeof data.topNSigma !== 'number') ||
+            (data.topP !== undefined && typeof data.topP !== 'number') ||
+            (data.typicalP !== undefined && typeof data.typicalP !== 'number') ||
+            (data.xtcProbability !== undefined && typeof data.xtcProbability !== 'number') ||
+            (data.xtcThreshould !== undefined && typeof data.xtcThreshould !== 'number') ||
             !createdAt ||
             !updatedAt
         ) {
@@ -128,33 +119,33 @@ export class SamplerDTO {
         return new SamplerDTO(
             data.id,
             data.name,
-            data.observation as string | undefined,
+            data.observation,
             data.systemDefault,
-            data.adaptativeDecay as number | undefined,
-            data.adaptativeTarget as number | undefined,
-            data.dryAllowedLenght as number | undefined,
-            data.dryBase as number | undefined,
-            data.dryMultiplier as number | undefined,
-            data.drySequenceBreakers as string[] | undefined,
-            data.dynaTempExp as number | undefined,
-            data.dynaTempRange as number | undefined,
-            data.ignoreEOS as boolean | undefined,
-            data.minP as number | undefined,
-            data.mirostat as MirostatEnum | undefined,
-            data.mirostatEnt as number | undefined,
-            data.mirostatLr as number | undefined,
-            data.frequencyPenalty as number | undefined,
-            data.presencePenalty as number | undefined,
-            data.repeatLastN as number | undefined,
-            data.repeatPenalty as number | undefined,
-            data.seed as string | undefined,
-            data.temperature as number | undefined,
-            data.topK as number | undefined,
-            data.topNSigma as number | undefined,
-            data.topP as number | undefined,
-            data.typicalP as number | undefined,
-            data.xtcProbability as number | undefined,
-            data.xtcThreshould as number | undefined,
+            data.adaptativeDecay,
+            data.adaptativeTarget,
+            data.dryAllowedLenght,
+            data.dryBase,
+            data.dryMultiplier,
+            data.drySequenceBreakers,
+            data.dynaTempExp,
+            data.dynaTempRange,
+            data.ignoreEOS,
+            data.minP,
+            data.mirostat,
+            data.mirostatEnt,
+            data.mirostatLr,
+            data.frequencyPenalty,
+            data.presencePenalty,
+            data.repeatLastN,
+            data.repeatPenalty,
+            data.seed,
+            data.temperature,
+            data.topK,
+            data.topNSigma,
+            data.topP,
+            data.typicalP,
+            data.xtcProbability,
+            data.xtcThreshould,
             createdAt,
             updatedAt
         );

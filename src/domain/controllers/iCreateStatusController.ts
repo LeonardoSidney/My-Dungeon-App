@@ -1,4 +1,4 @@
-import { Status } from "../entities/Status";
+import { Status } from '../entities';
 
 export interface ICreateStatusController {
     handle(params: CreateStatusControllerParams): Promise<CreateStatusControllerResponse>;

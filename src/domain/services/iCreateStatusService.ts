@@ -1,5 +1,4 @@
-import { Status } from "../entities/Status";
-
+import { Status } from '../entities';
 export interface ICreateStatusService {
     createStatus(params: CreateStatusServiceParams): CreateStatusServiceReturn;
 }

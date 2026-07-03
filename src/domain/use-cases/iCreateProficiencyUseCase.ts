@@ -1,4 +1,4 @@
-import { Proficiency } from "../entities/Proficiency";
+import { Proficiency } from '../entities';
 
 export interface ICreateProficiencyUseCase {
     execute(params: CreateProficiencyUseCaseParams): Promise<CreateProficiencyUseCaseResponse>;

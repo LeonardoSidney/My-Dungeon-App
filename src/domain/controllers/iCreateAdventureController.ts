@@ -1,19 +1,21 @@
-import { Adventure, Character, Item, Location, SystemPrompt, World, WorldMaster } from "../entities";
+import { Adventure, Character, Item, Location, SystemPrompt, World, WorldMaster } from '../entities';
 
 export interface ICreateAdventureController {
-    handle(request: CreateAdventureRequest): CreateAdventureResponse;
+    handle(request: CreateAdventureRequest): Promise<CreateAdventureResponse>;
 }
 
 export type CreateAdventureRequest = {
     name: string;
-    systemPrompt: SystemPrompt[];
+    systemPrompts: SystemPrompt[];
     characters: Character[];
     worldMaster?: WorldMaster;
-    location?: Location;
-    world?: World;
+    locations?: Location[];
+    worlds?: World[];
     items?: Item[];
 };
 
 export type CreateAdventureResponse = {
-    adventure: Adventure;
+    success: boolean;
+    adventure?: Adventure;
+    error?: string;
 };

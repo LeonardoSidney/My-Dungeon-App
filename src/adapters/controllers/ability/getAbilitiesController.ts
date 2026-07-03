@@ -1,7 +1,7 @@
-import { IGetAbilitiesController } from "../../../domain/controllers";
-import { Ability } from "../../../domain/entities/Ability";
-import { ILogger } from "../../../domain/logger";
-import { IGetAbilitiesUseCase } from "../../../domain/use-cases/iGetAbilitiesUseCase";
+import { IGetAbilitiesController } from '@domain/controllers';
+import { Ability } from '@domain/entities';
+import { ILogger } from '@domain/logger';
+import { IGetAbilitiesUseCase } from '@domain/use-cases';
 
 export class GetAbilitiesController implements IGetAbilitiesController {
     constructor(
@@ -10,7 +10,7 @@ export class GetAbilitiesController implements IGetAbilitiesController {
     ) { }
 
     async handle(): Promise<Ability[]> {
-        this.logger.info("Executing GetAbilitiesController::handle");
+        this.logger.info('Executing GetAbilitiesController::handle');
         return await this.useCase.execute();
     }
 }

@@ -29,6 +29,9 @@ module.exports = {
 
             '@react-native-async-storage/async-storage/lib/commonjs/index.js':
                 '@react-native-async-storage/async-storage',
+
+            '@domain': path.resolve(__dirname, 'src/domain'),
+            '@src': path.resolve(__dirname, 'src'),
         },
     },
     module: {

@@ -1,7 +1,7 @@
-import { IGetStatusesController } from "../../../domain/controllers";
-import { Status } from "../../../domain/entities/Status";
-import { ILogger } from "../../../domain/logger";
-import { IGetStatusesUseCase } from "../../../domain/use-cases/iGetStatusesUseCase";
+import { IGetStatusesController } from '@domain/controllers';
+import { Status } from '@domain/entities';
+import { ILogger } from '@domain/logger';
+import { IGetStatusesUseCase } from '@domain/use-cases';
 
 export class GetStatusesController implements IGetStatusesController {
     constructor(
@@ -10,7 +10,7 @@ export class GetStatusesController implements IGetStatusesController {
     ) { }
 
     async handle(): Promise<Status[]> {
-        this.logger.info("Executing GetStatusesController::handle");
+        this.logger.info('Executing GetStatusesController::handle');
         return await this.useCase.execute();
     }
 }

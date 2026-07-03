@@ -1,5 +1,5 @@
-import { ILogger } from "../../../domain/logger";
-import { CreateAssistantServiceParams, CreateAssistantServiceResponse, ICreateAssistantService, IIdGenerator } from "../../../domain/services";
+import { ILogger } from '@domain/logger';
+import { CreateAssistantServiceParams, CreateAssistantServiceResponse, ICreateAssistantService, IIdGenerator } from '@domain/services';
 
 export class CreateAssistantService implements ICreateAssistantService {
     constructor(

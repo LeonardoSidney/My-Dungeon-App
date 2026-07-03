@@ -1,4 +1,4 @@
-import { Connection } from "../entities";
+import { Connection } from '../entities';
 export interface ICreateConnectionConfigService {
     createConnectionConfig(request: CreateConnectionConfigServiceParams): CreateConnectionConfigServiceReturn;
 }

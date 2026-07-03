@@ -1,15 +1,15 @@
-import { Sampler } from "../../../domain/entities";
-import { ILogger } from "../../../domain/logger";
-import { CreateSamplerServiceParams, CreateSamplerServiceResponse, ICreateSamplerService, IIdGenerator } from "../../../domain/services";
+import { Sampler } from '@domain/entities';
+import { ILogger } from '@domain/logger';
+import { CreateSamplerServiceParams, CreateSamplerServiceResponse, ICreateSamplerService, IIdGenerator } from '@domain/services';
 
 export class CreateSamplerService implements ICreateSamplerService {
     constructor(
         private readonly logger: ILogger,
         private readonly idGenerator: IIdGenerator
-    ) {}
+    ) { }
 
-    public createSampler(params: CreateSamplerServiceParams): CreateSamplerServiceResponse {
-        this.logger.info("Execute CreateSamplerService::createSampler");
+    createSampler(params: CreateSamplerServiceParams): CreateSamplerServiceResponse {
+        this.logger.info('Execute CreateSamplerService::createSampler');
 
         const createdAt = new Date();
         const sampler: Sampler = {
@@ -44,13 +44,13 @@ export class CreateSamplerService implements ICreateSamplerService {
             xtcThreshould: params.xtcThreshould,
             createdAt: createdAt,
             updatedAt: createdAt
-        }
+        };
 
-        this.logger.debug("Sampler created with success", sampler);
+        this.logger.debug('Sampler created with success', sampler);
 
         return {
             success: true,
             sampler
-        }
+        };
     }
 }

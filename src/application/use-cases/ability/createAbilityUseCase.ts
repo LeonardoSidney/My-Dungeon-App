@@ -1,7 +1,7 @@
-import { ILogger } from "../../../domain/logger";
-import { IAbilityRepository } from "../../../domain/repository/IAbilityRepository";
-import { ICreateAbilityService } from "../../../domain/services";
-import { CreateAbilityUseCaseParams, CreateAbilityUseCaseResponse, ICreateAbilityUseCase } from "../../../domain/use-cases";
+import { ILogger } from '@domain/logger';
+import { IAbilityRepository } from '@domain/repository/iAbilityRepository';
+import { ICreateAbilityService } from '@domain/services';
+import { CreateAbilityUseCaseParams, CreateAbilityUseCaseResponse, ICreateAbilityUseCase } from '@domain/use-cases';
 
 export class CreateAbilityUseCase implements ICreateAbilityUseCase {
     constructor(
@@ -10,12 +10,12 @@ export class CreateAbilityUseCase implements ICreateAbilityUseCase {
         private readonly abilityRepository: IAbilityRepository
     ) { }
     async execute(params: CreateAbilityUseCaseParams): Promise<CreateAbilityUseCaseResponse> {
-        this.logger.info("Executing CreateAbilityUseCase::execute");
-        this.logger.debug("Executing CreateAbilityUseCase::execute - params", params);
+        this.logger.info('Executing CreateAbilityUseCase::execute');
+        this.logger.debug('Executing CreateAbilityUseCase::execute - params', params);
 
         this.validate(params);
 
-        this.logger.debug("Calling CreateAbilityService", params);
+        this.logger.debug('Calling CreateAbilityService', params);
         const response = this.service.createAbility(params);
         this.logger.debug('CreateAbilityService executed successfully', response);
 
@@ -27,7 +27,7 @@ export class CreateAbilityUseCase implements ICreateAbilityUseCase {
         }
 
         if (!response.ability) {
-            throw new Error("Unexpected error while creating ability");
+            throw new Error('Unexpected error while creating ability');
         }
 
         const abilities = await this.abilityRepository.getAbilities();
@@ -38,7 +38,7 @@ export class CreateAbilityUseCase implements ICreateAbilityUseCase {
             this.logger.warning(`Ability with name ${response.ability.name} already exists`);
             return {
                 success: false,
-                error: "Ability already exists"
+                error: 'Ability already exists'
             };
         }
 
@@ -52,15 +52,15 @@ export class CreateAbilityUseCase implements ICreateAbilityUseCase {
 
     private validate(params: CreateAbilityUseCaseParams) {
         if (!params.name?.trim()) {
-            throw new Error("name is required to create an ability");
+            throw new Error('name is required to create an ability');
         }
 
         if (!params.activationWorld?.trim()) {
-            throw new Error("activationWorld is required to create an ability");
+            throw new Error('activationWorld is required to create an ability');
         }
 
         if (!params.prompt?.trim()) {
-            throw new Error("prompt is required to create an ability");
+            throw new Error('prompt is required to create an ability');
         }
     }
 }

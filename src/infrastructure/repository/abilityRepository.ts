@@ -1,9 +1,9 @@
-import { ABILITY_STORAGE_NAMESPACE, STORAGE_NAMESPACE } from "../../domain/constants/general";
-import { Ability } from "../../domain/entities/Ability";
-import { ILogger } from "../../domain/logger";
-import { IAbilityRepository, SaveAbilityParams } from "../../domain/repository";
-import { IStorage } from "../../domain/storage";
-import { AbilityDTO } from "../dto";
+import { ABILITY_STORAGE_NAMESPACE, STORAGE_NAMESPACE } from '@domain/constants/general';
+import { Ability } from '@domain/entities';
+import { ILogger } from '@domain/logger';
+import { IAbilityRepository, SaveAbilityParams } from '@domain/repository';
+import { IStorage } from '@domain/storage';
+import { AbilityDTO } from '../dto';
 
 export class AbilityRepository implements IAbilityRepository {
     constructor(
@@ -11,26 +11,28 @@ export class AbilityRepository implements IAbilityRepository {
         private readonly storage: IStorage
     ) { }
 
-    public async saveAbility(params: SaveAbilityParams): Promise<boolean> {
-        this.logger.info("Executing AbilityRepository::saveAbility");
-        this.logger.debug("Executing AbilityRepository::saveAbility - params: ", params);
+    async saveAbility(params: SaveAbilityParams): Promise<boolean> {
+        this.logger.info('Executing AbilityRepository::saveAbility');
+        this.logger.debug('Executing AbilityRepository::saveAbility - params: ', params);
 
         try {
             const { ability } = params;
-            await this.storage.save(`${STORAGE_NAMESPACE}/${ABILITY_STORAGE_NAMESPACE}`, ability);
+            const existingData = await this.storage.load<Ability[]>(`${STORAGE_NAMESPACE}/${ABILITY_STORAGE_NAMESPACE}`);
+            const abilities: Ability[] = existingData ? [...existingData, ability] : [ability];
+            await this.storage.save(`${STORAGE_NAMESPACE}/${ABILITY_STORAGE_NAMESPACE}`, abilities);
         } catch (error) {
-            this.logger.error("Error on AbilityRepository::saveAbility", error);
+            this.logger.error('Error on AbilityRepository::saveAbility', error);
             throw error;
         }
         return true;
     }
 
-    public async getAbilities(): Promise<Ability[]> {
-        this.logger.info("Executing AbilityRepository::getAbilities");
+    async getAbilities(): Promise<Ability[]> {
+        this.logger.info('Executing AbilityRepository::getAbilities');
         try {
             const abilities: Ability[] = [];
             const rawData = await this.storage.load<unknown[]>(`${STORAGE_NAMESPACE}/${ABILITY_STORAGE_NAMESPACE}`);
-            this.logger.debug("Executing AbilityRepository::getAbilities - rawData: ", rawData);
+            this.logger.debug('Executing AbilityRepository::getAbilities - rawData: ', rawData);
 
             if (rawData) {
                 const abilitiesDTO: AbilityDTO[] = [];
@@ -44,14 +46,14 @@ export class AbilityRepository implements IAbilityRepository {
                 abilities.push(...abilitiesDTO.map(dto => dto.toEntity()));
 
                 if (rawData.length !== abilities.length) {
-                    this.logger.warning("Some abilities were not converted to entity");
+                    this.logger.warning('Some abilities were not converted to entity');
                 }
             }
 
-            this.logger.debug("Executing AbilityRepository::getAbilities - abilities: ", abilities);
+            this.logger.debug('Executing AbilityRepository::getAbilities - abilities: ', abilities);
             return abilities || [];
         } catch (error) {
-            this.logger.error("Error on AbilityRepository::getAbilities", error);
+            this.logger.error('Error on AbilityRepository::getAbilities', error);
             throw error;
         }
     }

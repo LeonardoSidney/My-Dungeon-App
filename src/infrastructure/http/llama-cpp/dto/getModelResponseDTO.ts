@@ -1,4 +1,4 @@
-import { Connection, Model } from "../../../../domain/entities";
+import { Connection, Model } from '@domain/entities';
 
 export type GetModelResponseDTOData = {
     aliases: string[];

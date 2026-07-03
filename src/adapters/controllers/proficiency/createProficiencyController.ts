@@ -1,6 +1,6 @@
-import { CreateProficiencyControllerParams, CreateProficiencyControllerResponse, ICreateProficiencyController } from "../../../domain/controllers";
-import { ILogger } from "../../../domain/logger";
-import { ICreateProficiencyUseCase } from "../../../domain/use-cases";
+import { CreateProficiencyControllerParams, CreateProficiencyControllerResponse, ICreateProficiencyController } from '@domain/controllers';
+import { ILogger } from '@domain/logger';
+import { ICreateProficiencyUseCase } from '@domain/use-cases';
 
 export class CreateProficiencyController implements ICreateProficiencyController {
     constructor(
@@ -8,7 +8,7 @@ export class CreateProficiencyController implements ICreateProficiencyController
         private readonly useCase: ICreateProficiencyUseCase
     ) { }
     async handle(params: CreateProficiencyControllerParams): Promise<CreateProficiencyControllerResponse> {
-        this.logger.info("Executing CreateProficiencyController::handle");
+        this.logger.info('Executing CreateProficiencyController::handle');
         const { name, prompt, activationWord, observation } = params;
         const response = await this.useCase.execute({
             name,

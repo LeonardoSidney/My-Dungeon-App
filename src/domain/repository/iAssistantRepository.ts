@@ -1,4 +1,4 @@
-import { Assistant } from "../entities";
+import { Assistant } from '../entities';
 
 export interface IAssistantRepository {
     saveAssistant(params: SaveAssistantParams): Promise<boolean>;

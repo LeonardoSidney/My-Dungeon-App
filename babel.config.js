@@ -5,5 +5,15 @@ module.exports = {
 
     plugins: [
         'react-native-web',
+        [
+            'module-resolver',
+            {
+                root: ['./src'],
+                alias: {
+                    '@domain': './src/domain',
+                    '@src': './src',
+                },
+            },
+        ],
     ],
 };

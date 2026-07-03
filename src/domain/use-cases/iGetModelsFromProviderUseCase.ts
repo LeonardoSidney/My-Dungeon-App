@@ -1,4 +1,4 @@
-import { Connection, Model } from "../entities";
+import { Connection, Model } from '../entities';
 
 export interface IGetModelsFromProviderUseCase {
     execute(params: GetModelsFromProviderParamsUseCase): Promise<GetModelsFromProviderParamsReturn>;

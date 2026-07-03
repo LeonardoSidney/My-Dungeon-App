@@ -1,7 +1,8 @@
-import { Status } from "../../../domain/entities/Status";
-import { ILogger } from "../../../domain/logger";
-import { IStatusRepository } from "../../../domain/repository";
-import { IGetStatusesUseCase } from "../../../domain/use-cases/iGetStatusesUseCase";
+
+import { Status } from '@domain/entities';
+import { ILogger } from '@domain/logger';
+import { IStatusRepository } from '@domain/repository';
+import { IGetStatusesUseCase } from '@domain/use-cases';
 
 export class GetStatusesUseCase implements IGetStatusesUseCase {
     constructor(
@@ -10,7 +11,7 @@ export class GetStatusesUseCase implements IGetStatusesUseCase {
     ) { }
 
     async execute(): Promise<Status[]> {
-        this.logger.info("Executing GetStatusesUseCase::execute");
+        this.logger.info('Executing GetStatusesUseCase::execute');
         return this.statusRepository.getStatuses();
     }
 }

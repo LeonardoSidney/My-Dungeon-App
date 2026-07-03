@@ -8,7 +8,7 @@ export type Sampler = {
     dryAllowedLenght?: number;
     dryBase?: number;
     dryMultiplier?: number;
-    drySequenceBreakers?: string[];
+    drySequenceBreakers?: string;
     dynaTempExp?: number;
     dynaTempRange?: number;
     ignoreEOS?: boolean;

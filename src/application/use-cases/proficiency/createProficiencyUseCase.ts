@@ -1,7 +1,7 @@
-import { ILogger } from "../../../domain/logger";
-import { IProficiencyRepository } from "../../../domain/repository/IProficiencyRepository";
-import { ICreateProficiencyService } from "../../../domain/services";
-import { CreateProficiencyUseCaseParams, CreateProficiencyUseCaseResponse, ICreateProficiencyUseCase } from "../../../domain/use-cases";
+import { ILogger } from '@domain/logger';
+import { IProficiencyRepository } from '@domain/repository/iProficiencyRepository';
+import { ICreateProficiencyService } from '@domain/services';
+import { CreateProficiencyUseCaseParams, CreateProficiencyUseCaseResponse, ICreateProficiencyUseCase } from '@domain/use-cases';
 
 export class CreateProficiencyUseCase implements ICreateProficiencyUseCase {
     constructor(
@@ -10,12 +10,12 @@ export class CreateProficiencyUseCase implements ICreateProficiencyUseCase {
         private readonly proficiencyRepository: IProficiencyRepository
     ) { }
     async execute(params: CreateProficiencyUseCaseParams): Promise<CreateProficiencyUseCaseResponse> {
-        this.logger.info("Executing CreateProficiencyUseCase::execute");
-        this.logger.debug("Executing CreateProficiencyUseCase::execute - params", params);
+        this.logger.info('Executing CreateProficiencyUseCase::execute');
+        this.logger.debug('Executing CreateProficiencyUseCase::execute - params', params);
 
         this.validate(params);
 
-        this.logger.debug("Calling CreateProficiencyService", params);
+        this.logger.debug('Calling CreateProficiencyService', params);
         const response = this.service.createProficiency(params);
         this.logger.debug('CreateProficiencyService executed successfully', response);
 
@@ -27,7 +27,7 @@ export class CreateProficiencyUseCase implements ICreateProficiencyUseCase {
         }
 
         if (!response.proficiency) {
-            throw new Error("Unexpected error while creating proficiency");
+            throw new Error('Unexpected error while creating proficiency');
         }
 
         const proficiencies = await this.proficiencyRepository.getProficiencies();
@@ -38,7 +38,7 @@ export class CreateProficiencyUseCase implements ICreateProficiencyUseCase {
             this.logger.warning(`Proficiency with name ${response.proficiency.name} already exists`);
             return {
                 success: false,
-                error: "Proficiency already exists"
+                error: 'Proficiency already exists'
             };
         }
 
@@ -52,15 +52,15 @@ export class CreateProficiencyUseCase implements ICreateProficiencyUseCase {
 
     private validate(params: CreateProficiencyUseCaseParams) {
         if (!params.name?.trim()) {
-            throw new Error("name is required to create a proficiency");
+            throw new Error('name is required to create a proficiency');
         }
 
         if (!params.prompt?.trim()) {
-            throw new Error("prompt is required to create a proficiency");
+            throw new Error('prompt is required to create a proficiency');
         }
 
         if (!params.activationWord?.trim()) {
-            throw new Error("activationWord is required to create a proficiency");
+            throw new Error('activationWord is required to create a proficiency');
         }
     }
 }

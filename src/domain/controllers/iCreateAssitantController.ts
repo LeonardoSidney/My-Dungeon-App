@@ -1,4 +1,4 @@
-import { Assistant, Model, Sampler } from "../entities";
+import { Assistant, Model, Sampler } from '../entities';
 
 export interface ICreateAssistantController {
     handle(params: CreateAssistantControllerParams): Promise<CreateAssistantControllerResponse>;
