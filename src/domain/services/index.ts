@@ -1,6 +1,7 @@
 export * from './iAdventureAppendChatService';
 export * from './iAdventureAppendChatService';
 export * from './iCreateAbilityService';
+export * from './iCreateChatService';
 export * from './iCreateAdventureService';
 export * from './iCreateAssistantService';
 export * from './iCreateCharacterService';

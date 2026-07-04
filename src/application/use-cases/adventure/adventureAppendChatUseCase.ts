@@ -16,34 +16,27 @@ export class AdventureAppendChatUseCase implements IAdventureAppendChatUseCase {
 
         const { adventure, message } = params;
 
-        const chatCreated = this.service.createChat({ chat: message });
-
-        if (!chatCreated.success) {
-            this.logger.error('AdventureAppendChatUseCase::execute - failed to create chat');
+        const response = this.service.appendChat({ adventure, chat: message });
+        if (!response.success) {
+            this.logger.warning('AdventureAppendChatUseCase::execute - service failed', response.error);
             return {
                 success: false,
-                error: 'Failed to create chat'
+                error: response.error
             };
         }
 
-        if (!chatCreated.chat) {
-            throw new Error('success is true but does not have an chat object');
+        if (!response.adventure) {
+            throw new Error('Service returned success but no adventure object');
         }
 
-        this.logger.debug('AdventureAppendChatUseCase::execute - before updating adventure', adventure);
-        adventure.chat.push(chatCreated.chat);
-        adventure.updatedAt = new Date();
-        this.logger.debug('AdventureAppendChatUseCase::execute - after updating adventure', adventure);
-
-        const response = await this.adventureRepository.updateAdventure({ adventure });
-
-        if (!response) {
+        const update = await this.adventureRepository.updateAdventure({ adventure: response.adventure });
+        if (!update) {
             throw new Error('Failed to save adventure');
         }
 
         return {
             success: true,
-            adventure
+            adventure: response.adventure
         };
     }
 }

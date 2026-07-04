@@ -27,12 +27,14 @@ import {
     GetSystemPromptsController,
     GetAdventuresController,
     AdventureAppendChatController,
+    CreateChatAdventureController,
     EraseAdventuresController
 } from '../adapters/controllers';
 import {
     CreateAbilityService,
     CreateAdventureService,
     CreateAssistantService,
+    CreateChatService,
     CreateConnectionConfigService,
     CreateSamplerService,
     GetSamplersService,
@@ -75,6 +77,7 @@ import {
     GetSystemPromptsUseCase,
     GetAdventureUseCase,
     AdventureAppendChatUseCase,
+    CreateChatAdventureUseCase,
     EraseAdventuresUseCase
 } from '../application/use-cases';
 import {
@@ -106,6 +109,7 @@ import {
     IGetSystemPromptsController,
     IGetAdventuresController,
     IAdventureAppendChatController,
+    ICreateChatAdventureController,
     IEraseAdventuresController
 } from '@domain/controllers';
 import { LlamaCppGateway } from './http/llama-cpp';
@@ -313,6 +317,12 @@ export function appendAdventureChatController(): IAdventureAppendChatController 
     const adventureAppendChatService = new AdventureAppendChatService(logger);
     const adventureAppendChatUseCase = new AdventureAppendChatUseCase(logger, adventureRepository, adventureAppendChatService);
     return new AdventureAppendChatController(logger, adventureAppendChatUseCase);
+}
+
+export function createChatAdventureController(): ICreateChatAdventureController {
+    const createChatService = new CreateChatService(logger, idGenerate);
+    const createChatAdventureUseCase = new CreateChatAdventureUseCase(logger, createChatService);
+    return new CreateChatAdventureController(logger, createChatAdventureUseCase);
 }
 
 export function eraseAdventuresController(): IEraseAdventuresController {

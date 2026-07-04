@@ -1,15 +1,16 @@
-import { Chat } from '@domain/entities';
+import { Adventure, Chat } from '@domain/entities';
 
 export interface IAdventureAppendChatService {
-    createChat(params: AdventureAppendChatServiceParams): AdventureAppendChatServiceReturn;
+    appendChat(params: AdventureAppendChatServiceParams): AdventureAppendChatServiceReturn;
 }
 
 export type AdventureAppendChatServiceParams = {
+    adventure: Adventure;
     chat: Chat;
 };
 
 export type AdventureAppendChatServiceReturn = {
     success: boolean;
-    chat?: Chat;
+    adventure?: Adventure;
     error?: string;
 };
