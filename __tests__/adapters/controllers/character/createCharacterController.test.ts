@@ -1,4 +1,4 @@
-import { CreateCharacterController } from '../../../../src/adapters/controllers/character/createCharacterController';
+import { CreateCharacterController } from '@adapters/controllers';
 import { CreateCharacterControllerPrams, CreateCharacterControllerResponse } from '@domain/controllers';
 import { ICreateCharacterUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';

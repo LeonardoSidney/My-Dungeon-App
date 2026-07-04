@@ -1,4 +1,4 @@
-import { GetWorldsController } from '../../../../src/adapters/controllers/world/getWorldsController';
+import { GetWorldsController } from '@adapters/controllers';
 import { IGetWorldsUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { World } from '@domain/entities';

@@ -1,4 +1,4 @@
-import { CreateChatAdventureController } from '../../../../src/adapters/controllers/adventure/createChatAdventureController';
+import { CreateChatAdventureController } from '@adapters/controllers';
 import { ICreateChatAdventureUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { Chat, RoleEnum, Think } from '@domain/entities';

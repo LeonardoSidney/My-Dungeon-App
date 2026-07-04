@@ -1,4 +1,4 @@
-import { GetCharactersController } from '../../../../src/adapters/controllers/character/getCharactersController';
+import { GetCharactersController } from '@adapters/controllers';
 import { IGetCharactersUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { Character } from '@domain/entities';

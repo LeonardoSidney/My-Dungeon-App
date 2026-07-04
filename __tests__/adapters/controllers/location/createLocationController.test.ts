@@ -1,4 +1,4 @@
-import { CreateLocationController } from '../../../../src/adapters/controllers/location/createLocationController';
+import { CreateLocationController } from '@adapters/controllers';
 import { ICreateLocationUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { Location } from '@domain/entities';

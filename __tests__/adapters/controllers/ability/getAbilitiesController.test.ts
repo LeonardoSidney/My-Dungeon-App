@@ -1,4 +1,4 @@
-import { GetAbilitiesController } from '../../../../src/adapters/controllers/ability/getAbilitiesController';
+import { GetAbilitiesController } from '@adapters/controllers';
 import { IGetAbilitiesUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { Ability } from '@domain/entities';

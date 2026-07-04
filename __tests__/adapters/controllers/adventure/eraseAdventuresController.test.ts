@@ -1,4 +1,4 @@
-import { EraseAdventuresController } from '../../../../src/adapters/controllers/adventure/eraseAdventuresController';
+import { EraseAdventuresController } from '@adapters/controllers';
 import { IEraseAdventuresUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 

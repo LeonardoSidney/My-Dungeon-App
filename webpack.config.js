@@ -31,6 +31,9 @@ module.exports = {
                 '@react-native-async-storage/async-storage',
 
             '@domain': path.resolve(__dirname, 'src/domain'),
+            '@application': path.resolve(__dirname, 'src/application'),
+            '@adapters': path.resolve(__dirname, 'src/adapters'),
+            '@infra': path.resolve(__dirname, 'src/infrastructure'),
             '@src': path.resolve(__dirname, 'src'),
         },
     },

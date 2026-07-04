@@ -1,4 +1,4 @@
-import { GetItemsController } from '../../../../src/adapters/controllers/item/getItemsController';
+import { GetItemsController } from '@adapters/controllers';
 import { IGetItemsUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { Item } from '@domain/entities';

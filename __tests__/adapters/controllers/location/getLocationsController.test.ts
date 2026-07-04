@@ -1,4 +1,4 @@
-import { GetLocationsController } from '../../../../src/adapters/controllers/location/getLocationsController';
+import { GetLocationsController } from '@adapters/controllers';
 import { IGetLocationsUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { Location } from '@domain/entities';

@@ -1,4 +1,4 @@
-import { GetAdventuresController } from '../../../../src/adapters/controllers/adventure/getAdventuresController';
+import { GetAdventuresController } from '@adapters/controllers';
 import { IGetAdventuresUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { Adventure } from '@domain/entities';
