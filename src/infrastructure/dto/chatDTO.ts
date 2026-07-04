@@ -1,5 +1,5 @@
 import { Chat, Role, RoleEnum, Think } from '@domain/entities';
-import { isArrayRecord, isInEnum, isRecord } from './shared';
+import { isArrayRecord, isInEnum, isRecord, parseDate } from './shared';
 import { ThinkDTO } from './thinkDTO';
 
 export class ChatDTO {
@@ -8,7 +8,9 @@ export class ChatDTO {
         private readonly role: Role,
         private readonly index: number,
         private readonly content: string[],
-        private readonly think: Think[] | undefined
+        private readonly think: Think[] | undefined,
+        private readonly createdAt: Date,
+        private readonly updatedAt: Date
     ) { }
 
     toEntity(): Chat {
@@ -17,7 +19,9 @@ export class ChatDTO {
             role: this.role,
             index: this.index,
             content: this.content,
-            think: this.think
+            think: this.think,
+            createdAt: this.createdAt,
+            updatedAt: this.updatedAt
         };
     }
 
@@ -26,6 +30,9 @@ export class ChatDTO {
             return null;
         }
 
+        const createdAt = parseDate(data.createdAt);
+        const updatedAt = parseDate(data.updatedAt);
+
         const role = this.toRole(data.role);
         const content = this.toContent(data.content);
         const think = this.toThink(data.think);
@@ -33,7 +40,9 @@ export class ChatDTO {
         if (
             typeof data.id !== 'string' ||
             !role ||
-            typeof data.index !== 'number'
+            typeof data.index !== 'number' ||
+            !createdAt ||
+            !updatedAt
         ) {
             return null;
         }
@@ -43,7 +52,9 @@ export class ChatDTO {
             role,
             data.index,
             content,
-            think
+            think,
+            createdAt,
+            updatedAt
         );
     }
 

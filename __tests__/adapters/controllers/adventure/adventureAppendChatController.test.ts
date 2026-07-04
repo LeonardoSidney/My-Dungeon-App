@@ -42,7 +42,9 @@ describe('AdventureAppendChatController', () => {
             id: 'msg-1',
             role: RoleEnum.USER,
             index: 0,
-            content: ['Hello world']
+            content: ['Hello world'],
+            createdAt: new Date(),
+            updatedAt: new Date()
         };
 
         const mockResponse = {
@@ -73,7 +75,9 @@ describe('AdventureAppendChatController', () => {
             id: 'msg-1',
             role: RoleEnum.USER,
             index: 0,
-            content: ['Test message']
+            content: ['Test message'],
+            createdAt: new Date(),
+            updatedAt: new Date()
         };
 
         const mockResponse = {
@@ -107,7 +111,9 @@ describe('AdventureAppendChatController', () => {
             id: 'msg-1',
             role: RoleEnum.ASSISTANT,
             index: 0,
-            content: ['This is a response']
+            content: ['This is a response'],
+            createdAt: new Date(),
+            updatedAt: new Date()
         };
 
         const updatedAdventure: Adventure = {
@@ -148,7 +154,9 @@ describe('AdventureAppendChatController', () => {
             id: 'msg-1',
             role: RoleEnum.USER,
             index: 0,
-            content: ['Test message']
+            content: ['Test message'],
+            createdAt: new Date(),
+            updatedAt: new Date()
         };
 
         const mockResponse = {
@@ -174,13 +182,17 @@ describe('AdventureAppendChatController', () => {
                 id: 'msg-1',
                 role: RoleEnum.USER,
                 index: 0,
-                content: ['First message']
+                content: ['First message'],
+                createdAt: new Date(),
+                updatedAt: new Date()
             },
             {
                 id: 'msg-2',
                 role: RoleEnum.ASSISTANT,
                 index: 1,
-                content: ['First response']
+                content: ['First response'],
+                createdAt: new Date(),
+                updatedAt: new Date()
             }
         ];
 
@@ -198,7 +210,9 @@ describe('AdventureAppendChatController', () => {
             id: 'msg-3',
             role: RoleEnum.USER,
             index: 2,
-            content: ['Second message']
+            content: ['Second message'],
+            createdAt: new Date(),
+            updatedAt: new Date()
         };
 
         const updatedAdventure: Adventure = {
@@ -236,7 +250,9 @@ describe('AdventureAppendChatController', () => {
             id: 'msg-1',
             role: RoleEnum.USER,
             index: 0,
-            content: ['Test']
+            content: ['Test'],
+            createdAt: new Date(),
+            updatedAt: new Date()
         };
 
         mockUseCase.execute.mockResolvedValue({
@@ -265,7 +281,9 @@ describe('AdventureAppendChatController', () => {
             id: 'msg-1',
             role: RoleEnum.USER,
             index: 0,
-            content: ['Test']
+            content: ['Test'],
+            createdAt: new Date(),
+            updatedAt: new Date()
         };
 
         mockUseCase.execute.mockResolvedValue({

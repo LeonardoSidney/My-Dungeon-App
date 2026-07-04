@@ -1,4 +1,5 @@
 export * from './iAdventureAppendChatController';
+export * from './iCreateChatAdventureController';
 export * from './iCreateAbilityController';
 export * from './iCreateAdventureController';
 export * from './iCreateAssitantController';
