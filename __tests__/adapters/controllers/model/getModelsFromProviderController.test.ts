@@ -1,4 +1,4 @@
-import { GetModelsFromProviderController } from '../../../../src/adapters/controllers/model/getModelsFromProviderController';
+import { GetModelsFromProviderController } from '@adapters/controllers';
 import { IGetModelsFromProviderUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { Connection, Model } from '@domain/entities';

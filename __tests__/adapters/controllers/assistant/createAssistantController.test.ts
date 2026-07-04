@@ -1,4 +1,4 @@
-import { CreateAssistantController } from '../../../../src/adapters/controllers/assistant/createAssistantController';
+import { CreateAssistantController } from '@adapters/controllers';
 import { ICreateAssistantUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { createModelHelper } from '../../../../__helpers__/createModelHelper';

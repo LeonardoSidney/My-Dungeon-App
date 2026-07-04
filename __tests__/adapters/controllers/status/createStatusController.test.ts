@@ -1,4 +1,4 @@
-import { CreateStatusController } from '../../../../src/adapters/controllers/status/createStatusController';
+import { CreateStatusController } from '@adapters/controllers';
 import { ICreateStatusUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { Status } from '@domain/entities';

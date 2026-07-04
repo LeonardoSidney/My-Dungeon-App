@@ -1,4 +1,4 @@
-import { GetSamplersController } from '../../../../src/adapters/controllers/sampler/getSamplerController';
+import { GetSamplersController } from '@adapters/controllers';
 import { IGetSamplersUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { Sampler } from '@domain/entities';

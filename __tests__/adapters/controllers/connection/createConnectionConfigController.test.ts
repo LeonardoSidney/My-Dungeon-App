@@ -1,4 +1,4 @@
-import { CreateConnectionConfigController } from '../../../../src/adapters/controllers/connection/createConnectionConfigController';
+import { CreateConnectionConfigController } from '@adapters/controllers';
 import {
     CreateConnectionConfigControllerRequest,
     CreateConnectionConfigControllerResponse

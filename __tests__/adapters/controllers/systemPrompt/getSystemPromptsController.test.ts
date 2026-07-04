@@ -1,4 +1,4 @@
-import { GetSystemPromptsController } from '../../../../src/adapters/controllers/systemPrompt/getSystemPromptsController';
+import { GetSystemPromptsController } from '@adapters/controllers';
 import { IGetSystemPromptsUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { SystemPrompt } from '@domain/entities';

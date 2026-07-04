@@ -1,4 +1,4 @@
-import { GetConnectionsController } from '../../../../src/adapters/controllers/connection/getConnectionsController';
+import { GetConnectionsController } from '@adapters/controllers';
 import { IGetConnectionsUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { Connection } from '@domain/entities';

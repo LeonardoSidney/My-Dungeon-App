@@ -1,4 +1,4 @@
-import { CreateItemController } from '../../../../src/adapters/controllers/item/createItemController';
+import { CreateItemController } from '@adapters/controllers';
 import { CreateItemRequest, CreateItemResponse } from '@domain/controllers';
 import { ICreateItemUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';

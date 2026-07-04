@@ -1,4 +1,4 @@
-import { CreateProficiencyController } from '../../../../src/adapters/controllers/proficiency/createProficiencyController';
+import { CreateProficiencyController } from '@adapters/controllers';
 import { ICreateProficiencyUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { Proficiency } from '@domain/entities';

@@ -1,4 +1,4 @@
-import { CreateAbilityController } from '../../../../src/adapters/controllers/ability/createAbilityController';
+import { CreateAbilityController } from '@adapters/controllers';
 import { CreateAbilityControllerParams, CreateAbilityControllerResponse } from '@domain/controllers';
 import { ICreateAbilityUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';

@@ -1,4 +1,4 @@
-import { CreateWorldController } from '../../../../src/adapters/controllers/world/createWorldController';
+import { CreateWorldController } from '@adapters/controllers';
 import { ICreateWorldUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { World } from '@domain/entities';

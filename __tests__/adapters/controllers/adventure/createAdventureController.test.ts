@@ -1,4 +1,4 @@
-import { CreateAdventureController } from '../../../../src/adapters/controllers/adventure/createAdventureController';
+import { CreateAdventureController } from '@adapters/controllers';
 import { ICreateAdventureUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { createAdventureRequestHelper } from '../../../../__helpers__/createAdventureRequestHelper';
