@@ -1,5 +1,6 @@
 import { ILogger } from '@domain/logger';
-import { CreateWorldServiceParams, CreateWorldServiceResponse, ICreateWorldService, IIdGenerator } from '@domain/services';
+import { CreateWorldServiceParams, CreateWorldServiceResponse, ICreateWorldService } from '@domain/services';
+import { IIdGenerator } from '@domain/providers';
 
 export class CreateWorldService implements ICreateWorldService {
     constructor(

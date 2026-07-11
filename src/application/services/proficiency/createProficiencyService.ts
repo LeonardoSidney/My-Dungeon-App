@@ -1,5 +1,6 @@
 import { ILogger } from '@domain/logger';
-import { CreateProficiencyServiceParams, CreateProficiencyServiceReturn, ICreateProficiencyService, IIdGenerator } from '@domain/services';
+import { CreateProficiencyServiceParams, CreateProficiencyServiceReturn, ICreateProficiencyService } from '@domain/services';
+import { IIdGenerator } from '@domain/providers';
 
 export class CreateProficiencyService implements ICreateProficiencyService {
     constructor(

@@ -1,6 +1,6 @@
 import { Chat } from '@domain/entities';
 import { ILogger } from '@domain/logger';
-import { IIdGenerator } from '@domain/services';
+import { IIdGenerator } from '@domain/providers';
 import { CreateChatServiceParams, CreateChatServiceReturn, ICreateChatService } from '@domain/services';
 
 export class CreateChatService implements ICreateChatService {

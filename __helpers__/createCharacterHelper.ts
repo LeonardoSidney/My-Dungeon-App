@@ -9,6 +9,7 @@ export function createCharacterHelper(overrides?: Partial<Character>): Character
         prompt: 'Character prompt',
         observation: 'Test observation',
         assistant: createAssistantHelper(),
+        worldMaster: false,
         createdAt: new Date(),
         updatedAt: new Date(),
         ...overrides

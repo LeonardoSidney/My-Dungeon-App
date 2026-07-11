@@ -1,9 +1,9 @@
 import { CreateItemService } from '@application/services/item';
 import {
     CreateItemServiceParams,
-    CreateItemServiceResponse,
-    IIdGenerator
+    CreateItemServiceResponse
 } from '@domain/services';
+import { IIdGenerator } from '@domain/providers';
 import { ILogger } from '@domain/logger';
 import { createItemHelper } from '../../../../__helpers__/createItemHelper';
 import { createItemServiceResponseHelper } from '../../../../__helpers__/createItemServiceResponseHelper';

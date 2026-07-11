@@ -1,7 +1,8 @@
 import { MINIMUM_NUMBER_SYSTEM_PROMPT, MINIMUM_PLAYABLE_CHARACTERS, MINIMUM_PLAYABLE_CHARACTERS_WITHOUT_WM } from '@domain/constants/adventure';
 import { Adventure } from '@domain/entities';
 import { ILogger } from '@domain/logger';
-import { CreateAdventureServiceParams, CreateAdventureServiceReturn, ICreateAdventureService, IIdGenerator } from '@domain/services';
+import { CreateAdventureServiceParams, CreateAdventureServiceReturn, ICreateAdventureService } from '@domain/services';
+import { IIdGenerator } from '@domain/providers';
 
 export class CreateAdventureService implements ICreateAdventureService {
     constructor(
@@ -62,6 +63,14 @@ export class CreateAdventureService implements ICreateAdventureService {
                 error: `Need at least ${MINIMUM_PLAYABLE_CHARACTERS_WITHOUT_WM} characters to create an adventure without a world master`
             };
 
+        }
+
+        const hasWorldMasterCharacter = characters.some(c => c.worldMaster === true);
+        if (!hasWorldMasterCharacter) {
+            return {
+                success: false,
+                error: 'At least one character must be controlled by the AI when creating an adventure without a world master'
+            };
         }
 
         const createdAt = new Date();

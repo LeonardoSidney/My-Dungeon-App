@@ -14,6 +14,7 @@ export type CreateCharacterServiceParams = {
     statuses?: Status[];
     attributes?: Attribute[];
     assistant: Assistant;
+    worldMaster?: boolean;
 };
 
 export type CreateCharacterServiceResponse = {

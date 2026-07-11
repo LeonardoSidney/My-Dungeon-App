@@ -1,5 +1,6 @@
 import { ILogger } from '@domain/logger';
-import { CreateConnectionConfigServiceParams, CreateConnectionConfigServiceReturn, ICreateConnectionConfigService, IIdGenerator } from '@domain/services';
+import { CreateConnectionConfigServiceParams, CreateConnectionConfigServiceReturn, ICreateConnectionConfigService } from '@domain/services';
+import { IIdGenerator } from '@domain/providers';
 
 export class CreateConnectionConfigService implements ICreateConnectionConfigService {
     constructor(

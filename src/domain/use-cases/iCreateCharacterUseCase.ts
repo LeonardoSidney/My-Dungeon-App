@@ -14,6 +14,7 @@ export type CreateCharacterUseCasePrams = {
     statuses?: Status[];
     attributes?: Attribute[];
     assistant: Assistant;
+    worldMaster?: boolean;
 };
 
 export type CreateCharacterUseCaseResponse = {

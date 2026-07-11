@@ -1,5 +1,6 @@
 import { ILogger } from '@domain/logger';
-import { CreateItemServiceParams, CreateItemServiceResponse, ICreateItemService, IIdGenerator } from '@domain/services';
+import { CreateItemServiceParams, CreateItemServiceResponse, ICreateItemService } from '@domain/services';
+import { IIdGenerator } from '@domain/providers';
 
 export class CreateItemService implements ICreateItemService {
     constructor(

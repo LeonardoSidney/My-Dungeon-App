@@ -141,7 +141,7 @@ describe('CreateSamplerController', () => {
             dryAllowedLenght: 64,
             dryBase: 1.0,
             dryMultiplier: 0.5,
-            drySequenceBreakers: `"'`,
+            drySequenceBreakers: '"\'',
             dynaTempExp: 1.0,
             dynaTempRange: 2.0,
             ignoreEOS: true,

@@ -1,5 +1,7 @@
 import { ILogger } from '@domain/logger';
-import { CreateAbilityServiceParams, CreateAbilityServiceReturn, ICreateAbilityService, IIdGenerator } from '@domain/services';
+import { IIdGenerator } from '@domain/providers';
+import { CreateAbilityServiceParams, CreateAbilityServiceReturn, ICreateAbilityService } from '@domain/services';
+
 
 export class CreateAbilityService implements ICreateAbilityService {
     constructor(

@@ -1,5 +1,6 @@
 import { ILogger } from '@domain/logger';
-import { CreateSystemPromptServiceParams, CreateSystemPromptServiceResponse, ICreateSystemPromptService, IIdGenerator } from '@domain/services';
+import { CreateSystemPromptServiceParams, CreateSystemPromptServiceResponse, ICreateSystemPromptService } from '@domain/services';
+import { IIdGenerator } from '@domain/providers';
 
 export class CreateSystemPromptService implements ICreateSystemPromptService {
     constructor(
