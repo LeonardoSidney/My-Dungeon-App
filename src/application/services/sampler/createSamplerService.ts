@@ -1,6 +1,7 @@
 import { Sampler } from '@domain/entities';
 import { ILogger } from '@domain/logger';
-import { CreateSamplerServiceParams, CreateSamplerServiceResponse, ICreateSamplerService, IIdGenerator } from '@domain/services';
+import { CreateSamplerServiceParams, CreateSamplerServiceResponse, ICreateSamplerService } from '@domain/services';
+import { IIdGenerator } from '@domain/providers';
 
 export class CreateSamplerService implements ICreateSamplerService {
     constructor(

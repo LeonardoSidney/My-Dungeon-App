@@ -1,11 +1,11 @@
 import { CreateAbilityService } from '@application/services/ability';
 import {
     CreateAbilityServiceParams,
-    CreateAbilityServiceReturn,
-    IIdGenerator
+    CreateAbilityServiceReturn
 } from '@domain/services';
 import { ILogger } from '@domain/logger';
 import { Ability } from '@domain/entities';
+import { IIdGenerator } from '@domain/providers';
 import { createAbilityHelper } from '../../../../__helpers__/createAbilityHelper';
 
 // Mocks dos dependentes

@@ -1,7 +1,14 @@
-import { Connection } from '@domain/entities';
+import { Chat, Connection } from '@domain/entities';
 import { IModelProviderGateway } from '@domain/gateways';
 import { ILogger } from '@domain/logger';
 import { GetModelResponseDTO } from './dto/getModelResponseDTO';
+import { ApplyTemplateResponseDTO } from './dto/applyTemplateResponseDTO';
+
+export namespace LlamaCppGateway {
+    export type templateResponse = {
+        prompt: string;
+    };
+}
 
 export class LlamaCppGateway implements IModelProviderGateway {
     constructor(
@@ -29,5 +36,46 @@ export class LlamaCppGateway implements IModelProviderGateway {
         }
 
         return null;
+    }
+
+    async applyTemplate(connection: Connection, modelId: string, systemPrompt: string, chat: Chat[]): Promise<ApplyTemplateResponseDTO | null> {
+        this.logger.info('Executing LlamaCppGateway::applyTemplate');
+        const port = connection.port ? `:${8080}` : '';
+        const ip = connection.ip.startsWith('http') ? connection.ip : `http://${connection.ip}`;
+        const url = `${ip}${port}/apply-template`;
+        const chats = this.formatChatMessages(chat);
+        const body = {
+            model: modelId,
+            messages: [
+                { role: 'system', content: systemPrompt },
+                ...chats
+            ]
+        };
+        try {
+            this.logger.debug('Executing LlamaCppGateway::applyTemplate - url: ', url);
+            this.logger.debug('Executing LlamaCppGateway::applyTemplate - body: ', JSON.stringify(body));
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            this.logger.debug('Executing LlamaCppGateway::applyTemplate - response: ', response);
+            if (response.ok) {
+                const data = await response.json();
+                this.logger.debug('Executing LlamaCppGateway::applyTemplate - data: ', data);
+                return new ApplyTemplateResponseDTO(data.prompt);
+            }
+        } catch (error) {
+            throw new Error(`Error calling applyTemplate on ${url}: ${error}`);
+        }
+
+        return null;
+    }
+
+    private formatChatMessages(chat: Chat[]): { role: string; content: string; }[] {
+        return chat.map(c => ({
+            role: c.role,
+            content: c.content[c.index]
+        }));
     }
 }

@@ -1,5 +1,6 @@
 import { ILogger } from '@domain/logger';
-import { CreateCharacterServiceParams, CreateCharacterServiceResponse, ICreateCharacterService, IIdGenerator } from '@domain/services';
+import { CreateCharacterServiceParams, CreateCharacterServiceResponse, ICreateCharacterService } from '@domain/services';
+import { IIdGenerator } from '@domain/providers';
 
 export class CreateCharacterService implements ICreateCharacterService {
     constructor(
@@ -23,6 +24,7 @@ export class CreateCharacterService implements ICreateCharacterService {
                 statuses: params.statuses,
                 attributes: params.attributes,
                 assistant: params.assistant,
+                worldMaster: params.worldMaster,
                 createdAt: createdAt,
                 updatedAt: createdAt
             }

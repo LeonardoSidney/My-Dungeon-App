@@ -1,4 +1,4 @@
-import { IIdGenerator } from '@domain/services';
+import { IIdGenerator } from '@domain/providers';
 
 /* eslint-disable no-bitwise */
 export class UUIDGenerator implements IIdGenerator {

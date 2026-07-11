@@ -15,6 +15,7 @@ export type Character = {
     statuses?: Status[];
     attributes?: Attribute[];
     assistant: Assistant;
+    worldMaster?: boolean;
     createdAt: Date;
     updatedAt: Date;
 };

@@ -17,6 +17,7 @@ export class CharacterDTO {
         private readonly status: Status[] | undefined,
         private readonly attributes: Attribute[] | undefined,
         private readonly assistant: Assistant,
+        private readonly worldMaster: boolean | undefined,
         private readonly createdAt: Date,
         private readonly updatedAt: Date
     ) { }
@@ -33,6 +34,7 @@ export class CharacterDTO {
             statuses: this.status,
             attributes: this.attributes,
             assistant: this.assistant,
+            worldMaster: this.worldMaster,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt
         };
@@ -58,6 +60,7 @@ export class CharacterDTO {
             typeof data.activationWord !== 'string' ||
             typeof data.prompt !== 'string' ||
             (data.observation !== undefined && typeof data.observation !== 'string') ||
+            (data.worldMaster !== undefined && typeof data.worldMaster !== 'boolean') ||
             assistant === undefined ||
             createdAt === null ||
             updatedAt === null
@@ -76,6 +79,7 @@ export class CharacterDTO {
             status,
             attributes,
             assistant,
+            data.worldMaster,
             createdAt,
             updatedAt
         );

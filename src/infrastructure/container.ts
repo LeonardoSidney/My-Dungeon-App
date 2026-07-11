@@ -26,6 +26,7 @@ import {
     CreateSystemPromptController,
     GetSystemPromptsController,
     GetAdventuresController,
+    GetAdventureTextController,
     AdventureAppendChatController,
     CreateChatAdventureController,
     EraseAdventuresController
@@ -76,6 +77,7 @@ import {
     CreateSystemPromptUseCase,
     GetSystemPromptsUseCase,
     GetAdventureUseCase,
+    GetAdventureTextUseCase,
     AdventureAppendChatUseCase,
     CreateChatAdventureUseCase,
     EraseAdventuresUseCase
@@ -108,6 +110,7 @@ import {
     ICreateSystemPromptController,
     IGetSystemPromptsController,
     IGetAdventuresController,
+    IGetAdventureTextController,
     IAdventureAppendChatController,
     ICreateChatAdventureController,
     IEraseAdventuresController
@@ -115,6 +118,7 @@ import {
 import { LlamaCppGateway } from './http/llama-cpp';
 import { Logger } from './logger';
 import { UUIDGenerator } from './providers';
+import { TextGeneration } from './providers/textGeneration';
 import {
     AbilityRepository,
     AssistantRepository,
@@ -329,4 +333,11 @@ export function eraseAdventuresController(): IEraseAdventuresController {
     const adventureRepository = new AdventureRepository(logger, storage);
     const eraseAdventuresUseCase = new EraseAdventuresUseCase(logger, adventureRepository);
     return new EraseAdventuresController(logger, eraseAdventuresUseCase);
+}
+
+export function getAdventureTextController(): IGetAdventureTextController {
+    const textGeneration = new TextGeneration(logger);
+    const llamaCppGateway = new LlamaCppGateway(logger);
+    const getAdventureTextUseCase = new GetAdventureTextUseCase(logger, textGeneration, llamaCppGateway);
+    return new GetAdventureTextController(logger, getAdventureTextUseCase);
 }

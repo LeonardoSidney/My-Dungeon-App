@@ -1,9 +1,9 @@
 import { CreateConnectionConfigService } from '@application/services/connection';
 import {
     CreateConnectionConfigServiceParams,
-    CreateConnectionConfigServiceReturn,
-    IIdGenerator
+    CreateConnectionConfigServiceReturn
 } from '@domain/services';
+import { IIdGenerator } from '@domain/providers';
 import { ILogger } from '@domain/logger';
 
 // Mocks dos dependentes

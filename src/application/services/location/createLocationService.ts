@@ -1,5 +1,6 @@
 import { ILogger } from '@domain/logger';
-import { CreateLocationServiceParams, CreateLocationServiceResponse, ICreateLocationService, IIdGenerator } from '@domain/services';
+import { CreateLocationServiceParams, CreateLocationServiceResponse, ICreateLocationService } from '@domain/services';
+import { IIdGenerator } from '@domain/providers';
 
 export class CreateLocationService implements ICreateLocationService {
     constructor(

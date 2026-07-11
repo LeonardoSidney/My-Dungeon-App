@@ -1,5 +1,6 @@
 import { ILogger } from '@domain/logger';
-import { CreateStatusServiceParams, CreateStatusServiceReturn, ICreateStatusService, IIdGenerator } from '@domain/services';
+import { CreateStatusServiceParams, CreateStatusServiceReturn, ICreateStatusService } from '@domain/services';
+import { IIdGenerator } from '@domain/providers';
 
 export class CreateStatusService implements ICreateStatusService {
     constructor(

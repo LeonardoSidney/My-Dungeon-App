@@ -1,7 +1,7 @@
 import { CreateChatAdventureController } from '@adapters/controllers';
 import { ICreateChatAdventureUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
-import { Chat, RoleEnum, Think } from '@domain/entities';
+import { Chat, RoleEnum } from '@domain/entities';
 
 // Mock das dependências
 const mockLogger = {
