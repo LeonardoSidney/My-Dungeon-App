@@ -1,6 +1,7 @@
 import { Chat, Connection } from '@domain/entities';
 import { IModelProviderGateway } from '@domain/gateways';
 import { ILogger } from '@domain/logger';
+import { IStreamProvider } from '@domain/providers';
 import { GetModelResponseDTO } from './dto/getModelResponseDTO';
 import { ApplyTemplateResponseDTO } from './dto/applyTemplateResponseDTO';
 
@@ -12,8 +13,55 @@ export namespace LlamaCppGateway {
 
 export class LlamaCppGateway implements IModelProviderGateway {
     constructor(
-        private readonly logger: ILogger
+        private readonly logger: ILogger,
+        private readonly streamProvider: IStreamProvider
     ) { }
+
+    async *streamCompletion(
+        connection: Connection,
+        params: {
+            modelId: string;
+            prompt: string;
+            temperature?: number;
+            topP?: number;
+            maxTokens?: number;
+        }
+    ): AsyncGenerator<string> {
+        this.logger.info('Executing LlamaCppGateway::streamCompletion');
+        const port = connection.port ? `:${connection.port}` : '';
+        const ip = connection.ip.startsWith('http') ? connection.ip : `http://${connection.ip}`;
+        const url = `${ip}${port}/v1/completions`;
+
+        const body = {
+            model: params.modelId,
+            prompt: params.prompt,
+            stream: true,
+            temperature: params.temperature ?? 1,
+            top_p: params.topP ?? 1,
+            max_tokens: params.maxTokens ?? 500
+        };
+
+        const streamParams = {
+            url,
+            method: 'POST' as const,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body
+        };
+
+        for await (const chunkString of this.streamProvider.stream(streamParams)) {
+            try {
+                const parsed = JSON.parse(chunkString);
+                const text = parsed.choices?.[0]?.text;
+                if (text) {
+                    yield text;
+                }
+            } catch (error) {
+                this.logger.error('Error parsing streaming completion chunk:', error);
+            }
+        }
+    }
 
     async getModels(connection: Connection): Promise<GetModelResponseDTO | null> {
         this.logger.info('Executing LlamaCppGateway::getModels');
