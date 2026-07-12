@@ -29,3 +29,4 @@ export * from './iGetStatusesController';
 export * from './iGetSystemPromptsController';
 export * from './iGetWorldMastersController';
 export * from './iGetWorldsController';
+export * from './iStreamCompletionController';

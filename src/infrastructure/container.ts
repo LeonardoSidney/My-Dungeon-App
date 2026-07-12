@@ -8,6 +8,7 @@ import {
     GetAssistantsController,
     GetConnectionsController,
     GetModelsFromProviderController,
+    StreamCompletionController,
     GetSamplersController,
     CreateStatusController,
     GetStatusesController,
@@ -59,6 +60,7 @@ import {
     GetAssistantsUseCase,
     GetConnectionsUseCase,
     GetModelsFromProviderUseCase,
+    StreamCompletionUseCase,
     GetSamplersUseCase,
     CreateStatusUseCase,
     GetStatusesUseCase,
@@ -92,6 +94,7 @@ import {
     IGetAssistantsController,
     IGetConnectionsController,
     IGetModelsFromProviderController,
+    IStreamCompletionController,
     IGetSamplersController,
     ICreateStatusController,
     IGetStatusesController,
@@ -135,10 +138,22 @@ import {
     AdventureRepository
 } from './repository';
 import { MobileStorage } from './storage';
+import { ReactNativeStreamProvider, WebStreamProvider } from '@infra/providers/http/stream';
+import { Platform } from 'react-native';
+import { IStreamProvider } from '@domain/providers';
 
 const logger = new Logger();
 const idGenerate = new UUIDGenerator();
 const storage = new MobileStorage(logger);
+
+
+export function getStreamProvider(): IStreamProvider {
+    if (Platform.OS === 'web') {
+        return new WebStreamProvider(logger);
+    }
+
+    return new ReactNativeStreamProvider(logger);
+}
 
 export function createConnectionConfigController(): ICreateConnectionConfigController {
     const createConnectionConfigService = new CreateConnectionConfigService(logger, idGenerate);
@@ -154,9 +169,15 @@ export function getConnectionsController(): IGetConnectionsController {
 }
 
 export function getModelsFromProviderController(): IGetModelsFromProviderController {
-    const llamaCppGateway = new LlamaCppGateway(logger);
+    const llamaCppGateway = new LlamaCppGateway(logger, getStreamProvider());
     const getModelsUseCase = new GetModelsFromProviderUseCase(logger, llamaCppGateway);
     return new GetModelsFromProviderController(logger, getModelsUseCase);
+}
+
+export function getStreamCompletionController(): IStreamCompletionController {
+    const llamaCppGateway = new LlamaCppGateway(logger, getStreamProvider());
+    const useCase = new StreamCompletionUseCase(logger, llamaCppGateway);
+    return new StreamCompletionController(logger, useCase);
 }
 
 export function createSamplerController(): ICreateSamplerController {
@@ -337,7 +358,7 @@ export function eraseAdventuresController(): IEraseAdventuresController {
 
 export function getAdventureTextController(): IGetAdventureTextController {
     const textGeneration = new TextGeneration(logger);
-    const llamaCppGateway = new LlamaCppGateway(logger);
+    const llamaCppGateway = new LlamaCppGateway(logger, getStreamProvider());
     const getAdventureTextUseCase = new GetAdventureTextUseCase(logger, textGeneration, llamaCppGateway);
     return new GetAdventureTextController(logger, getAdventureTextUseCase);
 }

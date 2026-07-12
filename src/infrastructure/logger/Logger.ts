@@ -21,7 +21,7 @@ export class Logger implements ILogger {
 
     debug(message: string, ...args: unknown[]): void {
         if (this.logLevel <= LogLevelEnum.DEBUG) {
-            console.debug(`[DEBUG] ${message}`, ...this.serializeArgs(args));
+            console.info(`[DEBUG] ${message}`, ...this.serializeArgs(args));
         }
     }
 

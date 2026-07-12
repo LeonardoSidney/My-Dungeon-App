@@ -29,3 +29,4 @@ export * from './iGetStatusesUseCase';
 export * from './iGetSystemPromptsUseCase';
 export * from './iGetWorldMastersUseCase';
 export * from './iGetWorldsUseCase';
+export * from './iStreamCompletionUseCase';
