@@ -32,6 +32,7 @@ import {
   createChatAdventureController,
   eraseAdventuresController
 } from '@infra/container';
+import { SidebarPanel, type SidebarMenuItem, type SidebarRoute } from '@application/ui';
 import {
   Ability,
   Adventure,
@@ -392,8 +393,18 @@ async function doSomething(): Promise<string | undefined> {
   return undefined;
 }
 
+const sidebarMenuItems: SidebarMenuItem[] = [
+  { id: 'home', label: 'Home' },
+  { id: 'adventures', label: 'Adventures' },
+  { id: 'characters', label: 'Characters' },
+  { id: 'worldMasters', label: 'World Masters' },
+  { id: 'worlds', label: 'Worlds' },
+  { id: 'config', label: 'Config' },
+];
+
 function App() {
   const [prompt, setPrompt] = useState<string>('Seélokomeu');
+  const [activeRoute, setActiveRoute] = useState<SidebarRoute>('home');
 
   useEffect(() => {
     doSomething().catch(console.error).then((textPrompt) => {
@@ -404,38 +415,44 @@ function App() {
   }, []);
 
   return (
-    <View style={styles.app}>
-      <View style={styles.header}>
-        <Image
-          accessibilityLabel="React logo"
-          source={{ uri: logoUri }}
-          resizeMode="contain"
-          style={styles.logo}
-        />
-        <Text style={styles.title}>React Native for Web</Text>
+    <SidebarPanel
+      menuItems={sidebarMenuItems}
+      activeRoute={activeRoute}
+      onRouteChange={setActiveRoute}
+    >
+      <View style={styles.app}>
+        <View style={styles.header}>
+          <Image
+            accessibilityLabel="React logo"
+            source={{ uri: logoUri }}
+            resizeMode="contain"
+            style={styles.logo}
+          />
+          <Text style={styles.title}>React Native for Web</Text>
+        </View>
+        <Text style={styles.text}>
+          This is an example of an app built with{' '}
+          <Link href="https://github.com/facebook/create-react-app">
+            Create React App
+          </Link>{' '}
+          and{' '}
+          <Link href="https://github.com/necolas/react-native-web">
+            React Native for Web
+          </Link>
+        </Text>
+        <Text style={styles.text}>
+          To get started, edit{' '}
+          <Link href="https://codesandbox.io/s/q4qymyp2l6/" style={styles.code}>
+            src/App.js
+          </Link>
+          .
+        </Text>
+        <Pressable onPress={() => { }} style={buttonStyles.button}>
+          <Text style={buttonStyles.text}>Example button</Text>
+        </Pressable>
+        <TextAreaStream prompt={prompt} setPrompt={setPrompt} />
       </View>
-      <Text style={styles.text}>
-        This is an example of an app built with{' '}
-        <Link href="https://github.com/facebook/create-react-app">
-          Create React App
-        </Link>{' '}
-        and{' '}
-        <Link href="https://github.com/necolas/react-native-web">
-          React Native for Web
-        </Link>
-      </Text>
-      <Text style={styles.text}>
-        To get started, edit{' '}
-        <Link href="https://codesandbox.io/s/q4qymyp2l6/" style={styles.code}>
-          src/App.js
-        </Link>
-        .
-      </Text>
-      <Pressable onPress={() => { }} style={buttonStyles.button}>
-        <Text style={buttonStyles.text}>Example button</Text>
-      </Pressable>
-      <TextAreaStream prompt={prompt} setPrompt={setPrompt} />
-    </View>
+    </SidebarPanel>
   );
 }
 
