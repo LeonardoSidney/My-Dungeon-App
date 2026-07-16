@@ -1,9 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Animated } from 'react-native';
 import { SIDEBAR_WIDTH } from '@application/ui/sidebarPanel/constants';
 
 export function useToggle(initialValue: boolean, panelTranslateX: Animated.Value) {
     const [isVisible, setIsVisible] = useState(initialValue);
+
+    useEffect(() => {
+        setIsVisible(initialValue);
+    }, [initialValue]);
 
     const toggleVisibility = () => {
         const newValue = !isVisible;
