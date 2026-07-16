@@ -43,7 +43,12 @@ export function SidebarPanel({
 
   useSidebarVisibility(isWideScreen, panelTranslateX);
   const { isVisible, toggleVisibility } = useToggle(isWideScreen, panelTranslateX);
-  const { handleMenuPress } = useMenuNavigation(onRouteChange);
+  const handleClosePanel = () => {
+    if (!isWideScreen && isVisible) {
+      toggleVisibility();
+    }
+  };
+  const { handleMenuPress } = useMenuNavigation(onRouteChange, handleClosePanel);
 
   return (
     <View style={[styles.container, containerStyle]}>
