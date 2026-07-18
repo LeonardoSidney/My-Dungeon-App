@@ -74,5 +74,6 @@ export const styles = StyleSheet.create({
     },
     contentArea: {
         flex: 1,
+        paddingTop: 70,
     },
 });
