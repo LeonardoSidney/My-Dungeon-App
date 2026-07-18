@@ -6,6 +6,7 @@ export * from './iCreateAdventureService';
 export * from './iCreateAssistantService';
 export * from './iCreateCharacterService';
 export * from './iCreateConnectionConfigService';
+export * from './iEditConnectionConfigService';
 export * from './iCreateSamplerService';
 export * from './iGetSamplersService';
 export * from './iCreateStatusService';

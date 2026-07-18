@@ -30,7 +30,9 @@ import {
     GetAdventureTextController,
     AdventureAppendChatController,
     CreateChatAdventureController,
-    EraseAdventuresController
+    EraseAdventuresController,
+    EraseConnectionController,
+    EditConnectionController
 } from '../adapters/controllers';
 import {
     CreateAbilityService,
@@ -48,7 +50,8 @@ import {
     CreateLocationService,
     CreateItemService,
     CreateSystemPromptService,
-    AdventureAppendChatService
+    AdventureAppendChatService,
+    EditConnectionConfigService
 } from '../application/services';
 import {
     CreateAbilityUseCase,
@@ -82,7 +85,9 @@ import {
     GetAdventureTextUseCase,
     AdventureAppendChatUseCase,
     CreateChatAdventureUseCase,
-    EraseAdventuresUseCase
+    EraseAdventuresUseCase,
+    EraseConnectionUseCase,
+    EditConnectionUseCase
 } from '../application/use-cases';
 import {
     ICreateAbilityController,
@@ -116,7 +121,9 @@ import {
     IGetAdventureTextController,
     IAdventureAppendChatController,
     ICreateChatAdventureController,
-    IEraseAdventuresController
+    IEraseAdventuresController,
+    IEraseConnectionController,
+    IEditConnectionController
 } from '@domain/controllers';
 import { LlamaCppGateway } from './http/llama-cpp';
 import { Logger } from './logger';
@@ -361,4 +368,17 @@ export function getAdventureTextController(): IGetAdventureTextController {
     const llamaCppGateway = new LlamaCppGateway(logger, getStreamProvider());
     const getAdventureTextUseCase = new GetAdventureTextUseCase(logger, textGeneration, llamaCppGateway);
     return new GetAdventureTextController(logger, getAdventureTextUseCase);
+}
+
+export function eraseConnectionController(): IEraseConnectionController {
+    const connectionRepository = new ConnectionRepository(logger, storage);
+    const eraseConnectionUseCase = new EraseConnectionUseCase(logger, connectionRepository);
+    return new EraseConnectionController(logger, eraseConnectionUseCase);
+}
+
+export function editConnectionController(): IEditConnectionController {
+    const editConnectionConfigService = new EditConnectionConfigService(logger);
+    const connectionRepository = new ConnectionRepository(logger, storage);
+    const editConnectionUseCase = new EditConnectionUseCase(logger, editConnectionConfigService, connectionRepository);
+    return new EditConnectionController(logger, editConnectionUseCase);
 }

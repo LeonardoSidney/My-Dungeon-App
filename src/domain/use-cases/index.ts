@@ -14,6 +14,8 @@ export * from './iCreateSystemPromptUseCase';
 export * from './iCreateWorldMasterUseCase';
 export * from './iCreateWorldUseCase';
 export * from './iEraseAdventuresUseCase';
+export * from './iEraseConnectionUseCase';
+export * from './iEditConnectionUseCase';
 export * from './iGetAbilitiesUseCase';
 export * from './iGetAdventuresUseCase';
 export * from './iGetAdventureTextUseCase';
