@@ -1,1 +1,0 @@
-export { ConfigScreen } from './configScreen';
