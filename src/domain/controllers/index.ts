@@ -14,6 +14,8 @@ export * from './iCreateSystemPromptController';
 export * from './iCreateWorldController';
 export * from './iCreateWorldMasterController';
 export * from './iEraseAdventuresController';
+export * from './iEraseConnectionController';
+export * from './iEditConnectionController';
 export * from './iGetAbilitiesController';
 export * from './iGetAdventuresController';
 export * from './iGetAdventureTextController';

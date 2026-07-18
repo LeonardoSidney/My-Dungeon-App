@@ -1,11 +1,15 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { styles } from './styles';
+import { ConnectionPanel } from './connectionPanel';
 
-export function SettingsScreen() {
+export function SettingsScreen () {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Settings</Text>
-    </View>
+    <ScrollView contentContainerStyle={styles.scrollContent}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Settings</Text>
+        <ConnectionPanel />
+      </View>
+    </ScrollView>
   );
 }
