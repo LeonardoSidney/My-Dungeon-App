@@ -36,7 +36,9 @@ import {
     CreateChatAdventureController,
     EraseAdventuresController,
     EraseConnectionController,
-    EditConnectionController
+    EditConnectionController,
+    EditAssistantController,
+    EraseAssistantController
 } from '../adapters/controllers';
 import {
     CreateAbilityService,
@@ -57,7 +59,8 @@ import {
     CreateItemService,
     CreateSystemPromptService,
     AdventureAppendChatService,
-    EditConnectionConfigService
+    EditConnectionConfigService,
+    EditAssistantService
 } from '../application/services';
 import {
     CreateAbilityUseCase,
@@ -97,7 +100,9 @@ import {
     CreateChatAdventureUseCase,
     EraseAdventuresUseCase,
     EraseConnectionUseCase,
-    EditConnectionUseCase
+    EditConnectionUseCase,
+    EditAssistantUseCase,
+    EraseAssistantUseCase
 } from '../application/use-cases';
 import {
     ICreateAbilityController,
@@ -137,7 +142,9 @@ import {
     ICreateChatAdventureController,
     IEraseAdventuresController,
     IEraseConnectionController,
-    IEditConnectionController
+    IEditConnectionController,
+    IEditAssistantController,
+    IEraseAssistantController
 } from '@domain/controllers';
 import { LlamaCppGateway } from './http/llama-cpp';
 import { Logger } from './logger';
@@ -226,6 +233,19 @@ export function getAssistantsController (): IGetAssistantsController {
     const assistantRepository = new AssistantRepository(logger, storage);
     const getAssistantsUseCase = new GetAssistantsUseCase(logger, assistantRepository);
     return new GetAssistantsController(logger, getAssistantsUseCase);
+}
+
+export function editAssistantController (): IEditAssistantController {
+    const assistantRepository = new AssistantRepository(logger, storage);
+    const editAssistantService = new EditAssistantService(logger);
+    const editAssistantUseCase = new EditAssistantUseCase(logger, editAssistantService, assistantRepository);
+    return new EditAssistantController(logger, editAssistantUseCase);
+}
+
+export function eraseAssistantController (): IEraseAssistantController {
+    const assistantRepository = new AssistantRepository(logger, storage);
+    const eraseAssistantUseCase = new EraseAssistantUseCase(logger, assistantRepository);
+    return new EraseAssistantController(logger, eraseAssistantUseCase);
 }
 
 export function createAbilityController (): ICreateAbilityController {

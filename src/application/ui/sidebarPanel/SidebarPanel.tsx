@@ -13,7 +13,7 @@ import { useSidebarVisibility } from '@application/ui/sidebarPanel/useSidebarVis
 import { useToggle } from '@application/ui/sidebarPanel/useToggle';
 import { useMenuNavigation } from '@application/ui/sidebarPanel/useMenuNavigation';
 
-export type SidebarRoute = 'home' | 'adventures' | 'characters' | 'worldMasters' | 'worlds' | 'settings';
+export type SidebarRoute = 'home' | 'adventures' | 'characters' | 'assistants' | 'worldMasters' | 'worlds' | 'settings';
 
 export interface SidebarMenuItem {
   id: SidebarRoute;
@@ -29,7 +29,7 @@ export interface SidebarPanelProps {
   panelStyle?: ViewStyle;
 }
 
-export function SidebarPanel({
+export function SidebarPanel ({
   children,
   menuItems,
   onRouteChange,

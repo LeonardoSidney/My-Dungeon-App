@@ -36,3 +36,5 @@ export * from './iGetSystemPromptsController';
 export * from './iGetWorldMastersController';
 export * from './iGetWorldsController';
 export * from './iStreamCompletionController';
+export * from './iEditAssistantController';
+export * from './iEraseAssistantController';
