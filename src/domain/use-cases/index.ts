@@ -31,6 +31,8 @@ export * from './iGetStatusesUseCase';
 export * from './iGetSystemPromptsUseCase';
 export * from './iEraseWorldUseCase';
 export * from './iEditWorldUseCase';
+export * from './iEraseWorldMasterUseCase';
+export * from './iEditWorldMasterUseCase';
 export * from './iGetWorldMastersUseCase';
 export * from './iGetWorldsUseCase';
 export * from './iStreamCompletionUseCase';
