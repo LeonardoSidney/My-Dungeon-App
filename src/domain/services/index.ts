@@ -10,6 +10,7 @@ export * from './iEditConnectionConfigService';
 export * from './iEditWorldService';
 export * from './iEditWorldMasterService';
 export * from './iCreateSamplerService';
+export * from './iEditSamplerService';
 export * from './iGetSamplersService';
 export * from './iCreateStatusService';
 export * from './iCreateProficiencyService';
