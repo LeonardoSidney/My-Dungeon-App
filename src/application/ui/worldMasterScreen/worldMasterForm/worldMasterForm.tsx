@@ -2,7 +2,6 @@ import React from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
@@ -62,85 +61,83 @@ export function WorldMasterForm ({
           </TouchableOpacity>
         </View>
 
-        <ScrollView style={styles.scrollView}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Name</Text>
-            <TextInput
-              style={[styles.input, !formState.name.trim() && styles.inputError]}
-              value={formState.name}
-              onChangeText={(value) => updateField('name', value)}
-              placeholder="e.g., Dungeon Master"
-              placeholderTextColor="#666"
-            />
-            {!formState.name.trim() && (
-              <Text style={styles.errorText}>Name is required</Text>
-            )}
-          </View>
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Name</Text>
+          <TextInput
+            style={[styles.input, !formState.name.trim() && styles.inputError]}
+            value={formState.name}
+            onChangeText={(value) => updateField('name', value)}
+            placeholder="e.g., Dungeon Master"
+            placeholderTextColor="#666"
+          />
+          {!formState.name.trim() && (
+            <Text style={styles.errorText}>Name is required</Text>
+          )}
+        </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Activation Word</Text>
-            <TextInput
-              style={[styles.input, !formState.activationWord.trim() && styles.inputError]}
-              value={formState.activationWord}
-              onChangeText={(value) => updateField('activationWord', value)}
-              placeholder="e.g., Dungeon"
-              placeholderTextColor="#666"
-            />
-            {!formState.activationWord.trim() && (
-              <Text style={styles.errorText}>Activation word is required</Text>
-            )}
-          </View>
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Activation Word</Text>
+          <TextInput
+            style={[styles.input, !formState.activationWord.trim() && styles.inputError]}
+            value={formState.activationWord}
+            onChangeText={(value) => updateField('activationWord', value)}
+            placeholder="e.g., Dungeon"
+            placeholderTextColor="#666"
+          />
+          {!formState.activationWord.trim() && (
+            <Text style={styles.errorText}>Activation word is required</Text>
+          )}
+        </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Assistant</Text>
-            <View style={styles.assistantDropdown}>
-              {assistants.map((assistant) => (
-                <TouchableOpacity
-                  key={assistant.id}
-                  style={[
-                    styles.assistantOption,
-                    selectedAssistant?.id === assistant.id && styles.assistantOptionSelected
-                  ]}
-                  onPress={() => onAssistantChange(assistant)}
-                >
-                  <Text style={styles.assistantOptionText}>{assistant.name}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            {!selectedAssistant && (
-              <Text style={styles.errorText}>Assistant is required</Text>
-            )}
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Assistant</Text>
+          <View style={styles.assistantDropdown}>
+            {assistants.map((assistant) => (
+              <TouchableOpacity
+                key={assistant.id}
+                style={[
+                  styles.assistantOption,
+                  selectedAssistant?.id === assistant.id && styles.assistantOptionSelected
+                ]}
+                onPress={() => onAssistantChange(assistant)}
+              >
+                <Text style={styles.assistantOptionText}>{assistant.name}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
+          {!selectedAssistant && (
+            <Text style={styles.errorText}>Assistant is required</Text>
+          )}
+        </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Prompt</Text>
-            <TextInput
-              style={[styles.input, !formState.prompt.trim() && styles.inputError, styles.promptInput]}
-              value={formState.prompt}
-              onChangeText={(value) => updateField('prompt', value)}
-              placeholder="Enter the world master prompt..."
-              placeholderTextColor="#666"
-              multiline
-              numberOfLines={4}
-            />
-            {!formState.prompt.trim() && (
-              <Text style={styles.errorText}>Prompt is required</Text>
-            )}
-          </View>
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Prompt</Text>
+          <TextInput
+            style={[styles.input, !formState.prompt.trim() && styles.inputError, styles.promptInput]}
+            value={formState.prompt}
+            onChangeText={(value) => updateField('prompt', value)}
+            placeholder="Enter the world master prompt..."
+            placeholderTextColor="#666"
+            multiline
+            numberOfLines={4}
+          />
+          {!formState.prompt.trim() && (
+            <Text style={styles.errorText}>Prompt is required</Text>
+          )}
+        </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Observation (optional)</Text>
-            <TextInput
-              style={[styles.input, styles.observationInput]}
-              value={formState.observation}
-              onChangeText={(value) => updateField('observation', value)}
-              placeholder="Additional observations..."
-              placeholderTextColor="#666"
-              multiline
-              numberOfLines={3}
-            />
-          </View>
-        </ScrollView>
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Observation (optional)</Text>
+          <TextInput
+            style={[styles.input, styles.observationInput]}
+            value={formState.observation}
+            onChangeText={(value) => updateField('observation', value)}
+            placeholder="Additional observations..."
+            placeholderTextColor="#666"
+            multiline
+            numberOfLines={3}
+          />
+        </View>
 
         <View style={styles.formActions}>
           <TouchableOpacity

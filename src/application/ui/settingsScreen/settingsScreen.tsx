@@ -6,14 +6,14 @@ import { DangerZone } from './dangerZone';
 
 export function SettingsScreen () {
   return (
-    <ScrollView contentContainerStyle={styles.scrollContent}>
-      <View style={styles.container}>
+    <View style={styles.container}>
+      <ScrollView>
         <View style={styles.header}>
           <Text style={styles.title}>Settings</Text>
         </View>
         <ConnectionPanel />
         <DangerZone />
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }

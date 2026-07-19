@@ -2,7 +2,6 @@ import React from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
@@ -52,12 +51,10 @@ export function AssistantForm ({
     return null;
   }
 
-  const containerStyle = { flex: 1 };
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={containerStyle}
+      style={styles.container}
     >
       <View style={styles.form}>
         <View style={styles.formHeader}>
@@ -69,84 +66,82 @@ export function AssistantForm ({
           </TouchableOpacity>
         </View>
 
-        <ScrollView style={styles.scrollView}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Name</Text>
-            <TextInput
-              style={[styles.input, !formState.name.trim() && styles.inputError]}
-              value={formState.name}
-              onChangeText={(value) => updateField('name', value)}
-              placeholder="e.g., Dungeon Master Assistant"
-              placeholderTextColor="#666"
-            />
-            {!formState.name.trim() && (
-              <Text style={styles.errorText}>Name is required</Text>
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Name</Text>
+          <TextInput
+            style={[styles.input, !formState.name.trim() && styles.inputError]}
+            value={formState.name}
+            onChangeText={(value) => updateField('name', value)}
+            placeholder="e.g., Dungeon Master Assistant"
+            placeholderTextColor="#666"
+          />
+          {!formState.name.trim() && (
+            <Text style={styles.errorText}>Name is required</Text>
+          )}
+        </View>
+
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Model</Text>
+          <View style={styles.dropdown}>
+            {models.map((model, index) => (
+              <TouchableOpacity
+                key={`${model.id}-${model.connection.id}-${index}`}
+                style={[
+                  styles.dropdownOption,
+                  selectedModel?.id === model.id &&
+                  selectedModel?.connection.id === model.connection.id &&
+                  styles.dropdownOptionSelected
+                ]}
+                onPress={() => onModelChange(model)}
+              >
+                <Text style={styles.dropdownOptionText}>{model.name} ({model.connection.name})</Text>
+              </TouchableOpacity>
+            ))}
+            {models.length === 0 && (
+              <Text style={styles.emptyDropdownText}>No models available</Text>
             )}
           </View>
+          {!selectedModel && (
+            <Text style={styles.errorText}>Model is required</Text>
+          )}
+        </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Model</Text>
-            <View style={styles.dropdown}>
-              {models.map((model, index) => (
-                <TouchableOpacity
-                  key={`${model.id}-${model.connection.id}-${index}`}
-                  style={[
-                    styles.dropdownOption,
-                    selectedModel?.id === model.id &&
-                    selectedModel?.connection.id === model.connection.id &&
-                    styles.dropdownOptionSelected
-                  ]}
-                  onPress={() => onModelChange(model)}
-                >
-                  <Text style={styles.dropdownOptionText}>{model.name} ({model.connection.name})</Text>
-                </TouchableOpacity>
-              ))}
-              {models.length === 0 && (
-                <Text style={styles.emptyDropdownText}>No models available</Text>
-              )}
-            </View>
-            {!selectedModel && (
-              <Text style={styles.errorText}>Model is required</Text>
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Sampler</Text>
+          <View style={styles.dropdown}>
+            {samplers.map((sampler) => (
+              <TouchableOpacity
+                key={sampler.id}
+                style={[
+                  styles.dropdownOption,
+                  selectedSampler?.id === sampler.id && styles.dropdownOptionSelected
+                ]}
+                onPress={() => onSamplerChange(sampler)}
+              >
+                <Text style={styles.dropdownOptionText}>{sampler.name}</Text>
+              </TouchableOpacity>
+            ))}
+            {samplers.length === 0 && (
+              <Text style={styles.emptyDropdownText}>No samplers available</Text>
             )}
           </View>
+          {!selectedSampler && (
+            <Text style={styles.errorText}>Sampler is required</Text>
+          )}
+        </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Sampler</Text>
-            <View style={styles.dropdown}>
-              {samplers.map((sampler) => (
-                <TouchableOpacity
-                  key={sampler.id}
-                  style={[
-                    styles.dropdownOption,
-                    selectedSampler?.id === sampler.id && styles.dropdownOptionSelected
-                  ]}
-                  onPress={() => onSamplerChange(sampler)}
-                >
-                  <Text style={styles.dropdownOptionText}>{sampler.name}</Text>
-                </TouchableOpacity>
-              ))}
-              {samplers.length === 0 && (
-                <Text style={styles.emptyDropdownText}>No samplers available</Text>
-              )}
-            </View>
-            {!selectedSampler && (
-              <Text style={styles.errorText}>Sampler is required</Text>
-            )}
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Observation (optional)</Text>
-            <TextInput
-              style={[styles.input, styles.observationInput]}
-              value={formState.observation}
-              onChangeText={(value) => updateField('observation', value)}
-              placeholder="Additional observations..."
-              placeholderTextColor="#666"
-              multiline
-              numberOfLines={3}
-            />
-          </View>
-        </ScrollView>
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Observation (optional)</Text>
+          <TextInput
+            style={[styles.input, styles.observationInput]}
+            value={formState.observation}
+            onChangeText={(value) => updateField('observation', value)}
+            placeholder="Additional observations..."
+            placeholderTextColor="#666"
+            multiline
+            numberOfLines={3}
+          />
+        </View>
 
         <View style={styles.formActions}>
           <TouchableOpacity
