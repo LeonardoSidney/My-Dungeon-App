@@ -1,0 +1,31 @@
+import { Sampler } from '@domain/entities';
+
+export const samplerAttributes = [
+    { key: 'temperature', label: 'Temp' },
+    { key: 'topP', label: 'Top P' },
+    { key: 'topK', label: 'Top K' },
+    { key: 'minP', label: 'Min P' },
+    { key: 'repeatLastN', label: 'Repeat Last N' },
+    { key: 'repeatPenalty', label: 'Repeat Penalty' },
+    { key: 'frequencyPenalty', label: 'Freq Penalty' },
+    { key: 'presencePenalty', label: 'Presence Penalty' },
+    { key: 'mirostat', label: 'Mirostat' },
+    { key: 'mirostatEnt', label: 'Mirostat Eta' },
+    { key: 'mirostatLr', label: 'Mirostat Lr' },
+    { key: 'seed', label: 'Seed' },
+    { key: 'dryAllowedLenght', label: 'Dry Allowed Length' },
+    { key: 'dryBase', label: 'Dry Base' },
+    { key: 'dryMultiplier', label: 'Dry Multiplier' },
+    { key: 'drySequenceBreakers', label: 'Dry Seq Breakers' },
+    { key: 'dynaTempExp', label: 'Dyna Temp Exp' },
+    { key: 'dynaTempRange', label: 'Dyna Temp Range' },
+    { key: 'topNSigma', label: 'Top N Sigma' },
+    { key: 'typicalP', label: 'Typical P' },
+    { key: 'xtcProbability', label: 'XTC Probability' },
+    { key: 'xtcThreshould', label: 'XTC Threshold' },
+    { key: 'adaptativeDecay', label: 'Adaptative Decay' },
+    { key: 'adaptativeTarget', label: 'Adaptative Target' },
+    { key: 'ignoreEOS', label: 'Ignore EOS' },
+] as const;
+
+export type SamplerAttributeKey = typeof samplerAttributes[number]['key'];

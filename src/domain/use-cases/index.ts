@@ -9,6 +9,8 @@ export * from './iCreateItemUseCase';
 export * from './iCreateLocationUseCase';
 export * from './iCreateProficiencyUseCase';
 export * from './iCreateSamplerUseCase';
+export * from './iEditSamplerUseCase';
+export * from './iEraseSamplerUseCase';
 export * from './iCreateStatusUseCase';
 export * from './iCreateSystemPromptUseCase';
 export * from './iCreateWorldMasterUseCase';

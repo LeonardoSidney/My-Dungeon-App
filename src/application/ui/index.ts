@@ -5,3 +5,4 @@ export { SettingsScreen } from './settingsScreen';
 export { WorldScreen } from './worldScreen';
 export { WorldMasterScreen } from './worldMasterScreen';
 export { AssistantScreen } from './assistantScreen';
+export { SamplerScreen } from './samplerScreen';

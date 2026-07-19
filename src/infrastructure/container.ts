@@ -4,6 +4,8 @@ import {
     CreateAssistantController,
     CreateConnectionConfigController,
     CreateSamplerController,
+    EditSamplerController,
+    EraseSamplerController,
     GetAbilitiesController,
     GetAssistantsController,
     GetConnectionsController,
@@ -47,6 +49,7 @@ import {
     CreateChatService,
     CreateConnectionConfigService,
     CreateSamplerService,
+    EditSamplerService,
     GetSamplersService,
     CreateStatusService,
     CreateProficiencyService,
@@ -68,6 +71,8 @@ import {
     CreateAssistantUseCase,
     CreateConnectionConfigUseCase,
     CreateSamplerUseCase,
+    EditSamplerUseCase,
+    EraseSamplerUseCase,
     GetAbilitiesUseCase,
     GetAssistantsUseCase,
     GetConnectionsUseCase,
@@ -110,6 +115,8 @@ import {
     ICreateAssistantController,
     ICreateConnectionConfigController,
     ICreateSamplerController,
+    IEditSamplerController,
+    IEraseSamplerController,
     IGetAbilitiesController,
     IGetAssistantsController,
     IGetConnectionsController,
@@ -220,6 +227,19 @@ export function getSamplersController (): IGetSamplersController {
     const getSamplersService = new GetSamplersService(logger);
     const getSamplersUseCase = new GetSamplersUseCase(logger, getSamplersService, samplerRepository);
     return new GetSamplersController(logger, getSamplersUseCase);
+}
+
+export function editSamplerController (): IEditSamplerController {
+    const samplerRepository = new SamplerRepository(logger, storage);
+    const editSamplerService = new EditSamplerService(logger);
+    const editSamplerUseCase = new EditSamplerUseCase(logger, editSamplerService, samplerRepository);
+    return new EditSamplerController(logger, editSamplerUseCase);
+}
+
+export function eraseSamplerController (): IEraseSamplerController {
+    const samplerRepository = new SamplerRepository(logger, storage);
+    const eraseSamplerUseCase = new EraseSamplerUseCase(logger, samplerRepository);
+    return new EraseSamplerController(logger, eraseSamplerUseCase);
 }
 
 export function createAssistantController (): ICreateAssistantController {
