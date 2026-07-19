@@ -8,7 +8,9 @@ export function SettingsScreen () {
   return (
     <ScrollView contentContainerStyle={styles.scrollContent}>
       <View style={styles.container}>
-        <Text style={styles.title}>Settings</Text>
+        <View style={styles.header}>
+          <Text style={styles.title}>Settings</Text>
+        </View>
         <ConnectionPanel />
         <DangerZone />
       </View>

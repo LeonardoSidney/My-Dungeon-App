@@ -20,7 +20,9 @@ export function WorldScreen () {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Worlds</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Worlds</Text>
+      </View>
 
       <WorldPanel
         worlds={worlds}
