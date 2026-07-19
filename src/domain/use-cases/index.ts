@@ -36,3 +36,5 @@ export * from './iEditWorldMasterUseCase';
 export * from './iGetWorldMastersUseCase';
 export * from './iGetWorldsUseCase';
 export * from './iStreamCompletionUseCase';
+export * from './iEditAssistantUseCase';
+export * from './iEraseAssistantUseCase';

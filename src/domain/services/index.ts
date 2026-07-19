@@ -19,3 +19,4 @@ export * from './iCreateLocationService';
 export * from './iCreateItemService';
 export * from './iCreateSystemPromptService';
 export * from './iPromptBuilderService';
+export * from './iEditAssistantService';

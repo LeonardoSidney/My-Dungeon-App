@@ -4,3 +4,4 @@ export type { SidebarPanelProps, SidebarMenuItem, SidebarRoute } from './sidebar
 export { SettingsScreen } from './settingsScreen';
 export { WorldScreen } from './worldScreen';
 export { WorldMasterScreen } from './worldMasterScreen';
+export { AssistantScreen } from './assistantScreen';
