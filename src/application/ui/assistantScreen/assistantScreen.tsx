@@ -25,37 +25,39 @@ export function AssistantScreen () {
   } = useAssistantScreenLogic();
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Assistants</Text>
-      </View>
+    <View style={styles.container}>
+      <ScrollView>
+        <View style={styles.header}>
+          <Text style={styles.title}>Assistants</Text>
+        </View>
 
-      {loading && !assistants.length ? (
-        <Text style={styles.loadingText}>Loading...</Text>
-      ) : !assistants.length ? (
-        <Text style={styles.emptyText}>No assistants found. Add one!</Text>
-      ) : (
-        <AssistantPanel
-          assistants={assistants}
-          loading={loading}
-          onAdd={handleAdd}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
+        {loading && !assistants.length ? (
+          <Text style={styles.loadingText}>Loading...</Text>
+        ) : !assistants.length ? (
+          <Text style={styles.emptyText}>No assistants found. Add one!</Text>
+        ) : (
+          <AssistantPanel
+            assistants={assistants}
+            loading={loading}
+            onAdd={handleAdd}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        )}
+
+        <AssistantForm
+          visible={showForm}
+          onClose={handleFormClose}
+          onSave={handleFormSave}
+          initialData={editingAssistant}
+          models={models}
+          samplers={samplers}
+          selectedModel={selectedModel}
+          selectedSampler={selectedSampler}
+          onModelChange={setSelectedModel}
+          onSamplerChange={setSelectedSampler}
         />
-      )}
-
-      <AssistantForm
-        visible={showForm}
-        onClose={handleFormClose}
-        onSave={handleFormSave}
-        initialData={editingAssistant}
-        models={models}
-        samplers={samplers}
-        selectedModel={selectedModel}
-        selectedSampler={selectedSampler}
-        onModelChange={setSelectedModel}
-        onSamplerChange={setSelectedSampler}
-      />
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
