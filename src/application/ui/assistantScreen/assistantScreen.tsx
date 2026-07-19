@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, Text } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { styles } from './styles';
 import { useAssistantScreenLogic } from './useAssistantScreenLogic';
 import { AssistantPanel } from './assistantPanel/assistantPanel';
@@ -26,7 +26,9 @@ export function AssistantScreen () {
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>Assistants</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Assistants</Text>
+      </View>
 
       {loading && !assistants.length ? (
         <Text style={styles.loadingText}>Loading...</Text>
