@@ -29,6 +29,8 @@ export * from './iGetProficienciesUseCase';
 export * from './iGetSamplersUseCase';
 export * from './iGetStatusesUseCase';
 export * from './iGetSystemPromptsUseCase';
+export * from './iEraseWorldUseCase';
+export * from './iEditWorldUseCase';
 export * from './iGetWorldMastersUseCase';
 export * from './iGetWorldsUseCase';
 export * from './iStreamCompletionUseCase';
