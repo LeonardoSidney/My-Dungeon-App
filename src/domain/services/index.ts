@@ -8,6 +8,7 @@ export * from './iCreateCharacterService';
 export * from './iCreateConnectionConfigService';
 export * from './iEditConnectionConfigService';
 export * from './iEditWorldService';
+export * from './iEditWorldMasterService';
 export * from './iCreateSamplerService';
 export * from './iGetSamplersService';
 export * from './iCreateStatusService';

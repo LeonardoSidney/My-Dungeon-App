@@ -17,6 +17,8 @@ import {
     CreateCharacterController,
     GetCharactersController,
     CreateWorldMasterController,
+    EditWorldMasterController,
+    EraseWorldMasterController,
     GetWorldMastersController,
     CreateWorldController,
     EraseWorldController,
@@ -48,6 +50,7 @@ import {
     CreateProficiencyService,
     CreateCharacterService,
     CreateWorldMasterService,
+    EditWorldMasterService,
     CreateWorldService,
     EditWorldService,
     CreateLocationService,
@@ -75,6 +78,8 @@ import {
     CreateCharacterUseCase,
     GetCharactersUseCase,
     CreateWorldMasterUseCase,
+    EditWorldMasterUseCase,
+    EraseWorldMasterUseCase,
     GetWorldMastersUseCase,
     CreateWorldUseCase,
     EraseWorldUseCase,
@@ -113,6 +118,8 @@ import {
     ICreateCharacterController,
     IGetCharactersController,
     ICreateWorldMasterController,
+    IEditWorldMasterController,
+    IEraseWorldMasterController,
     IGetWorldMastersController,
     ICreateWorldController,
     IEraseWorldController,
@@ -284,6 +291,19 @@ export function getWorldMasterController (): IGetWorldMastersController {
     const worldMasterRepository = new WorldMasterRepository(logger, storage);
     const getWorldMasterUseCase = new GetWorldMastersUseCase(logger, worldMasterRepository);
     return new GetWorldMastersController(logger, getWorldMasterUseCase);
+}
+
+export function editWorldMasterController (): IEditWorldMasterController {
+    const worldMasterRepository = new WorldMasterRepository(logger, storage);
+    const editWorldMasterService = new EditWorldMasterService(logger);
+    const editWorldMasterUseCase = new EditWorldMasterUseCase(logger, editWorldMasterService, worldMasterRepository);
+    return new EditWorldMasterController(logger, editWorldMasterUseCase);
+}
+
+export function eraseWorldMasterController (): IEraseWorldMasterController {
+    const worldMasterRepository = new WorldMasterRepository(logger, storage);
+    const eraseWorldMasterUseCase = new EraseWorldMasterUseCase(logger, worldMasterRepository);
+    return new EraseWorldMasterController(logger, eraseWorldMasterUseCase);
 }
 
 export function createSystemPromptController (): ICreateSystemPromptController {

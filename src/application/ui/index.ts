@@ -3,3 +3,4 @@ export { SidebarPanel } from './sidebarPanel';
 export type { SidebarPanelProps, SidebarMenuItem, SidebarRoute } from './sidebarPanel';
 export { SettingsScreen } from './settingsScreen';
 export { WorldScreen } from './worldScreen';
+export { WorldMasterScreen } from './worldMasterScreen';
