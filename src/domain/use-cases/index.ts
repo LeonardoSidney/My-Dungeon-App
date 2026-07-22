@@ -3,6 +3,8 @@ export * from './iCreateAbilityUseCase';
 export * from './iCreateAdventureUseCase';
 export * from './iCreateAssistantUseCase';
 export * from './iCreateCharacterUseCase';
+export * from './iEditCharacterUseCase';
+export * from './iEraseCharacterUseCase';
 export * from './iCreateChatAdventureUseCase';
 export * from './iCreateConnectionConfigUseCase';
 export * from './iCreateItemUseCase';

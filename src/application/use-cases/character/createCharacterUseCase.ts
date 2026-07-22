@@ -4,13 +4,13 @@ import { ICreateCharacterService } from '@domain/services';
 import { CreateCharacterUseCasePrams, CreateCharacterUseCaseResponse, ICreateCharacterUseCase } from '@domain/use-cases';
 
 export class CreateCharacterUseCase implements ICreateCharacterUseCase {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly characterRepository: ICharacterRepository,
         private readonly service: ICreateCharacterService
     ) { }
 
-    async execute(params: CreateCharacterUseCasePrams): Promise<CreateCharacterUseCaseResponse> {
+    async execute (params: CreateCharacterUseCasePrams): Promise<CreateCharacterUseCaseResponse> {
         this.logger.info('Executing CreateCharacterUseCase::execute');
         this.logger.debug('CreateCharacterUseCase::execute - params:', params);
 
@@ -51,7 +51,7 @@ export class CreateCharacterUseCase implements ICreateCharacterUseCase {
         };
     }
 
-    validate(params: CreateCharacterUseCasePrams): void {
+    validate (params: CreateCharacterUseCasePrams): void {
         if (!params.name?.trim()) {
             throw new Error('Name is required to create a character');
         }

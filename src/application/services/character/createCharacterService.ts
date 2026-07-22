@@ -3,11 +3,11 @@ import { CreateCharacterServiceParams, CreateCharacterServiceResponse, ICreateCh
 import { IIdGenerator } from '@domain/providers';
 
 export class CreateCharacterService implements ICreateCharacterService {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly idGenerator: IIdGenerator
     ) { }
-    createCharacter(params: CreateCharacterServiceParams): CreateCharacterServiceResponse {
+    createCharacter (params: CreateCharacterServiceParams): CreateCharacterServiceResponse {
         this.logger.info('CreateCharacterService::createCharacter');
 
         const createdAt = new Date();

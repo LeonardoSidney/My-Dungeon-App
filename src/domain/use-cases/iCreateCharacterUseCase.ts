@@ -1,7 +1,7 @@
 import { Ability, Assistant, Attribute, Character, Proficiency, Status } from '../entities';
 
 export interface ICreateCharacterUseCase {
-    execute(params: CreateCharacterUseCasePrams): Promise<CreateCharacterUseCaseResponse>;
+    execute (params: CreateCharacterUseCasePrams): Promise<CreateCharacterUseCaseResponse>;
 }
 
 export type CreateCharacterUseCasePrams = {

@@ -1,5 +1,3 @@
-import { Sampler } from '@domain/entities';
-
 export const samplerAttributes = [
     { key: 'temperature', label: 'Temp' },
     { key: 'topP', label: 'Top P' },

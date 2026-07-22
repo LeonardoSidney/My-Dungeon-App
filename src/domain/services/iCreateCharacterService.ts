@@ -1,7 +1,7 @@
 import { Ability, Assistant, Attribute, Character, Proficiency, Status } from '../entities';
 
 export interface ICreateCharacterService {
-    createCharacter(params: CreateCharacterServiceParams): CreateCharacterServiceResponse;
+    createCharacter (params: CreateCharacterServiceParams): CreateCharacterServiceResponse;
 }
 
 export type CreateCharacterServiceParams = {

@@ -33,7 +33,6 @@ export function SamplerForm ({
     loading,
     updateField,
     setMirostat,
-    resetForm,
     handleSave,
   } = useSamplerForm(resolvedInitialData, resetKey);
 
