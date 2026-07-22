@@ -18,6 +18,8 @@ import {
     GetProficienciesController,
     CreateCharacterController,
     GetCharactersController,
+    EditCharacterController,
+    EraseCharacterController,
     CreateWorldMasterController,
     EditWorldMasterController,
     EraseWorldMasterController,
@@ -41,7 +43,7 @@ import {
     EditConnectionController,
     EditAssistantController,
     EraseAssistantController
-} from '../adapters/controllers';
+} from '@adapters/controllers';
 import {
     CreateAbilityService,
     CreateAdventureService,
@@ -54,6 +56,7 @@ import {
     CreateStatusService,
     CreateProficiencyService,
     CreateCharacterService,
+    EditCharacterService,
     CreateWorldMasterService,
     EditWorldMasterService,
     CreateWorldService,
@@ -64,7 +67,7 @@ import {
     AdventureAppendChatService,
     EditConnectionConfigService,
     EditAssistantService
-} from '../application/services';
+} from '@application/services';
 import {
     CreateAbilityUseCase,
     CreateAdventureUseCase,
@@ -85,6 +88,8 @@ import {
     GetProficienciesUseCase,
     CreateCharacterUseCase,
     GetCharactersUseCase,
+    EditCharacterUseCase,
+    EraseCharacterUseCase,
     CreateWorldMasterUseCase,
     EditWorldMasterUseCase,
     EraseWorldMasterUseCase,
@@ -129,6 +134,8 @@ import {
     IGetProficienciesController,
     ICreateCharacterController,
     IGetCharactersController,
+    IEditCharacterController,
+    IEraseCharacterController,
     ICreateWorldMasterController,
     IEditWorldMasterController,
     IEraseWorldMasterController,
@@ -318,6 +325,19 @@ export function getCharactersController (): IGetCharactersController {
     const characterRepository = new CharacterRepository(logger, storage);
     const getCharactersUseCase = new GetCharactersUseCase(logger, characterRepository);
     return new GetCharactersController(logger, getCharactersUseCase);
+}
+
+export function editCharacterController (): IEditCharacterController {
+    const characterRepository = new CharacterRepository(logger, storage);
+    const editCharacterService = new EditCharacterService(logger);
+    const editCharacterUseCase = new EditCharacterUseCase(logger, editCharacterService, characterRepository);
+    return new EditCharacterController(logger, editCharacterUseCase);
+}
+
+export function eraseCharacterController (): IEraseCharacterController {
+    const characterRepository = new CharacterRepository(logger, storage);
+    const eraseCharacterUseCase = new EraseCharacterUseCase(logger, characterRepository);
+    return new EraseCharacterController(logger, eraseCharacterUseCase);
 }
 
 export function createWorldMasterController (): ICreateWorldMasterController {

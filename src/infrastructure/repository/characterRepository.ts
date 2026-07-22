@@ -1,17 +1,31 @@
 import { CHARACTER_STORAGE_NAMESPACE, STORAGE_NAMESPACE } from '@domain/constants/general';
 import { Character } from '@domain/entities';
 import { ILogger } from '@domain/logger';
-import { ICharacterRepository, SaveCharacterParams } from '@domain/repository';
+import { ICharacterRepository, SaveCharacterParams, EditCharacterParams, EditCharacterReturn, EraseCharacterReturn } from '@domain/repository';
 import { IStorage } from '@domain/storage';
 import { CharacterDTO } from '../dto';
 
 export class CharacterRepository implements ICharacterRepository {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly storage: IStorage
     ) { }
 
-    async saveCharacter(params: SaveCharacterParams): Promise<boolean> {
+    private async findCharacterIndex (characters: Character[], characterId: string): Promise<number> {
+        return characters.findIndex((c) => c.id === characterId);
+    }
+
+    private removeAt (characters: Character[], index: number): Character[] {
+        characters.splice(index, 1);
+        return characters;
+    }
+
+    private replaceAt (characters: Character[], index: number, newItem: Character): Character[] {
+        characters[index] = newItem;
+        return characters;
+    }
+
+    async saveCharacter (params: SaveCharacterParams): Promise<boolean> {
         this.logger.info('Executing CharacterRepository::saveCharacter');
         this.logger.debug('Executing CharacterRepository::saveCharacter - params: ', params);
 
@@ -27,7 +41,7 @@ export class CharacterRepository implements ICharacterRepository {
         return true;
     }
 
-    async getCharacters(): Promise<Character[]> {
+    async getCharacters (): Promise<Character[]> {
         this.logger.info('Executing CharacterRepository::getCharacters');
         try {
             const characters: Character[] = [];
@@ -56,6 +70,53 @@ export class CharacterRepository implements ICharacterRepository {
         } catch (error) {
             this.logger.error('Error on CharacterRepository getCharacters', error);
             throw error;
+        }
+    }
+
+    async eraseCharacter (characterId: string): Promise<EraseCharacterReturn> {
+        this.logger.info('Executing CharacterRepository::eraseCharacter');
+        this.logger.debug('Executing CharacterRepository::eraseCharacter - characterId: ', characterId);
+
+        try {
+            const existingData = await this.storage.load<Character[]>(`${STORAGE_NAMESPACE}/${CHARACTER_STORAGE_NAMESPACE}`);
+            const characters = existingData || [];
+            const index = await this.findCharacterIndex(characters, characterId);
+
+            if (index === -1) {
+                this.logger.warning(`Character with id ${characterId} not found`);
+                return { success: false, error: `Character with id ${characterId} does not exist` };
+            }
+
+            const filteredCharacters = this.removeAt(characters, index);
+            await this.storage.save(`${STORAGE_NAMESPACE}/${CHARACTER_STORAGE_NAMESPACE}`, filteredCharacters);
+            return { success: true };
+        } catch (error) {
+            this.logger.error('Error on CharacterRepository::eraseCharacter', error);
+            return { success: false, error: 'Failed to erase character' };
+        }
+    }
+
+    async editCharacter (params: EditCharacterParams): Promise<EditCharacterReturn> {
+        this.logger.info('Executing CharacterRepository::editCharacter');
+        this.logger.debug('Executing CharacterRepository::editCharacter - params: ', params);
+
+        try {
+            const { character } = params;
+            const existingData = await this.storage.load<Character[]>(`${STORAGE_NAMESPACE}/${CHARACTER_STORAGE_NAMESPACE}`);
+            const characters = existingData || [];
+            const index = await this.findCharacterIndex(characters, character.id);
+
+            if (index === -1) {
+                this.logger.warning(`Character with id ${character.id} not found`);
+                return { success: false, error: `Character with id ${character.id} does not exist` };
+            }
+
+            const updatedCharacters = this.replaceAt(characters, index, character);
+            await this.storage.save(`${STORAGE_NAMESPACE}/${CHARACTER_STORAGE_NAMESPACE}`, updatedCharacters);
+            return { success: true };
+        } catch (error) {
+            this.logger.error('Error on CharacterRepository::editCharacter', error);
+            return { success: false, error: 'Failed to edit character' };
         }
     }
 }

@@ -6,7 +6,7 @@ import { isArrayRecord, isRecord, parseDate } from './shared';
 import { StatusDTO } from './statusDTO';
 
 export class CharacterDTO {
-    constructor(
+    constructor (
         private readonly id: string,
         private readonly name: string,
         private readonly activationWord: string,
@@ -14,7 +14,7 @@ export class CharacterDTO {
         private readonly observation: string | undefined,
         private readonly abilities: Ability[] | undefined,
         private readonly proficiencies: Proficiency[] | undefined,
-        private readonly status: Status[] | undefined,
+        private readonly statuses: Status[] | undefined,
         private readonly attributes: Attribute[] | undefined,
         private readonly assistant: Assistant,
         private readonly worldMaster: boolean | undefined,
@@ -22,7 +22,7 @@ export class CharacterDTO {
         private readonly updatedAt: Date
     ) { }
 
-    toEntity(): Character {
+    toEntity (): Character {
         return {
             id: this.id,
             name: this.name,
@@ -31,7 +31,7 @@ export class CharacterDTO {
             observation: this.observation,
             abilities: this.abilities,
             proficiencies: this.proficiencies,
-            statuses: this.status,
+            statuses: this.statuses,
             attributes: this.attributes,
             assistant: this.assistant,
             worldMaster: this.worldMaster,
@@ -40,7 +40,7 @@ export class CharacterDTO {
         };
     }
 
-    static fromStorage(data: unknown): CharacterDTO | null {
+    static fromStorage (data: unknown): CharacterDTO | null {
         if (!isRecord(data)) {
             return null;
         }
@@ -50,7 +50,7 @@ export class CharacterDTO {
 
         const abilities = this.toAbilities(data.abilities);
         const proficiencies = this.toProficiencies(data.proficiencies);
-        const status = this.toStatus(data.status);
+        const statuses = this.toStatus(data.statuses);
         const attributes = this.toAttributes(data.attributes);
         const assistant = this.toAssistant(data.assistant);
 
@@ -76,7 +76,7 @@ export class CharacterDTO {
             data.observation,
             abilities,
             proficiencies,
-            status,
+            statuses,
             attributes,
             assistant,
             data.worldMaster,
@@ -85,7 +85,7 @@ export class CharacterDTO {
         );
     }
 
-    private static toAssistant(assistant: unknown | undefined): Assistant | undefined {
+    private static toAssistant (assistant: unknown | undefined): Assistant | undefined {
         if (!isRecord(assistant)) {
             return undefined;
         }
@@ -94,7 +94,7 @@ export class CharacterDTO {
         return assistantDTO?.toEntity();
     }
 
-    private static toAbilities(abilities: unknown | undefined): Ability[] | undefined {
+    private static toAbilities (abilities: unknown | undefined): Ability[] | undefined {
         if (!isArrayRecord(abilities)) {
             return undefined;
         }
@@ -110,7 +110,7 @@ export class CharacterDTO {
         return validAbilities;
     }
 
-    private static toProficiencies(proficiencies: unknown | undefined): Proficiency[] | undefined {
+    private static toProficiencies (proficiencies: unknown | undefined): Proficiency[] | undefined {
         if (!isArrayRecord(proficiencies)) {
             return undefined;
         }
@@ -126,7 +126,7 @@ export class CharacterDTO {
         return validProficiencies;
     }
 
-    private static toStatus(statuses: unknown | undefined): Status[] | undefined {
+    private static toStatus (statuses: unknown | undefined): Status[] | undefined {
         if (!isArrayRecord(statuses)) {
             return undefined;
         }
@@ -142,7 +142,7 @@ export class CharacterDTO {
         return validStatus;
     }
 
-    private static toAttributes(attributes: unknown | undefined): Attribute[] | undefined {
+    private static toAttributes (attributes: unknown | undefined): Attribute[] | undefined {
         if (!isArrayRecord(attributes)) {
             return undefined;
         }

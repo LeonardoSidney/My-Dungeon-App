@@ -4,6 +4,8 @@ export * from './iCreateAdventureController';
 export * from './iCreateChatAdventureController';
 export * from './iCreateAssitantController';
 export * from './iCreateCharacterController';
+export * from './iEditCharacterController';
+export * from './iEraseCharacterController';
 export * from './iCreateConnectionConfigController';
 export * from './iCreateItemController';
 export * from './iCreateLocationController';

@@ -6,3 +6,4 @@ export { WorldScreen } from './worldScreen';
 export { WorldMasterScreen } from './worldMasterScreen';
 export { AssistantScreen } from './assistantScreen';
 export { SamplerScreen } from './samplerScreen';
+export { CharacterScreen } from './characterScreen';
