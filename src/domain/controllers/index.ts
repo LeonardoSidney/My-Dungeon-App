@@ -10,6 +10,8 @@ export * from './iCreateConnectionConfigController';
 export * from './iCreateItemController';
 export * from './iCreateLocationController';
 export * from './iCreateProficiencyController';
+export * from './iEditProficiencyController';
+export * from './iEraseProficiencyController';
 export * from './iCreateSamplerController';
 export * from './iEditSamplerController';
 export * from './iEraseSamplerController';

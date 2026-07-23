@@ -15,6 +15,7 @@ export * from './iEditSamplerService';
 export * from './iGetSamplersService';
 export * from './iCreateStatusService';
 export * from './iCreateProficiencyService';
+export * from './iEditProficiencyService';
 export * from './iCreateWorldMasterService';
 export * from './iCreateWorldService';
 export * from './iCreateLocationService';

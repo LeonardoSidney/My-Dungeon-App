@@ -10,6 +10,8 @@ export * from './iCreateConnectionConfigUseCase';
 export * from './iCreateItemUseCase';
 export * from './iCreateLocationUseCase';
 export * from './iCreateProficiencyUseCase';
+export * from './iEditProficiencyUseCase';
+export * from './iEraseProficiencyUseCase';
 export * from './iCreateSamplerUseCase';
 export * from './iEditSamplerUseCase';
 export * from './iEraseSamplerUseCase';
