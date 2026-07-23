@@ -16,6 +16,8 @@ import {
     GetStatusesController,
     CreateProficiencyController,
     GetProficienciesController,
+    EditProficiencyController,
+    EraseProficiencyController,
     CreateCharacterController,
     GetCharactersController,
     EditCharacterController,
@@ -55,6 +57,7 @@ import {
     GetSamplersService,
     CreateStatusService,
     CreateProficiencyService,
+    EditProficiencyService,
     CreateCharacterService,
     EditCharacterService,
     CreateWorldMasterService,
@@ -86,6 +89,8 @@ import {
     GetStatusesUseCase,
     CreateProficiencyUseCase,
     GetProficienciesUseCase,
+    EditProficiencyUseCase,
+    EraseProficiencyUseCase,
     CreateCharacterUseCase,
     GetCharactersUseCase,
     EditCharacterUseCase,
@@ -132,6 +137,8 @@ import {
     IGetStatusesController,
     ICreateProficiencyController,
     IGetProficienciesController,
+    IEditProficiencyController,
+    IEraseProficiencyController,
     ICreateCharacterController,
     IGetCharactersController,
     IEditCharacterController,
@@ -312,6 +319,19 @@ export function getProficienciesController (): IGetProficienciesController {
     const proficiencyRepository = new ProficiencyRepository(logger, storage);
     const getProficienciesUseCase = new GetProficienciesUseCase(logger, proficiencyRepository);
     return new GetProficienciesController(logger, getProficienciesUseCase);
+}
+
+export function editProficiencyController (): IEditProficiencyController {
+    const proficiencyRepository = new ProficiencyRepository(logger, storage);
+    const editProficiencyService = new EditProficiencyService(logger);
+    const editProficiencyUseCase = new EditProficiencyUseCase(logger, editProficiencyService, proficiencyRepository);
+    return new EditProficiencyController(logger, editProficiencyUseCase);
+}
+
+export function eraseProficiencyController (): IEraseProficiencyController {
+    const proficiencyRepository = new ProficiencyRepository(logger, storage);
+    const eraseProficiencyUseCase = new EraseProficiencyUseCase(logger, proficiencyRepository);
+    return new EraseProficiencyController(logger, eraseProficiencyUseCase);
 }
 
 export function createCharacterController (): ICreateCharacterController {
