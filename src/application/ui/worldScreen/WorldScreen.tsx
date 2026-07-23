@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
 import { styles } from './styles';
 import { WorldPanel } from './worldPanel';
 import { WorldForm } from './worldForm';
@@ -20,26 +20,31 @@ export function WorldScreen () {
 
   return (
     <View style={styles.container}>
-      <ScrollView>
-        <View style={styles.header}>
-          <Text style={styles.title}>Worlds</Text>
-        </View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardAvoidingView}
+      >
+        <ScrollView keyboardShouldPersistTaps="handled">
+          <View style={styles.header}>
+            <Text style={styles.title}>Worlds</Text>
+          </View>
 
-        <WorldPanel
-          worlds={worlds}
-          loading={loading}
-          onAdd={handleAdd}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
+          <WorldPanel
+            worlds={worlds}
+            loading={loading}
+            onAdd={handleAdd}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
 
-        <WorldForm
-          visible={showForm}
-          onClose={handleFormClose}
-          onSave={handleFormSave}
-          initialData={editingWorld}
-        />
-      </ScrollView>
+          <WorldForm
+            visible={showForm}
+            onClose={handleFormClose}
+            onSave={handleFormSave}
+            initialData={editingWorld}
+          />
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 }

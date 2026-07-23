@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View, type TextProps } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   createAbilityController,
   createCharacterController,
@@ -425,62 +426,67 @@ function App () {
   }, []);
 
   return (
-    <SidebarPanel
-      menuItems={sidebarMenuItems}
-      activeRoute={activeRoute}
-      onRouteChange={setActiveRoute}
-    >
-      {activeRoute === 'settings' ? (
-        <SettingsScreen />
-      ) : activeRoute === 'worlds' ? (
-        <WorldScreen />
-      ) : activeRoute === 'worldMasters' ? (
-        <WorldMasterScreen />
-      ) : activeRoute === 'samplers' ? (
-        <SamplerScreen />
-      ) : activeRoute === 'assistants' ? (
-        <AssistantScreen />
-      ) : activeRoute === 'characters' ? (
-        <CharacterScreen />
-      ) : (
-        <View style={styles.app}>
-          <View style={styles.header}>
-            <Image
-              accessibilityLabel="React logo"
-              source={{ uri: logoUri }}
-              resizeMode="contain"
-              style={styles.logo}
-            />
-            <Text style={styles.title}>React Native for Web</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <SidebarPanel
+        menuItems={sidebarMenuItems}
+        activeRoute={activeRoute}
+        onRouteChange={setActiveRoute}
+      >
+        {activeRoute === 'settings' ? (
+          <SettingsScreen />
+        ) : activeRoute === 'worlds' ? (
+          <WorldScreen />
+        ) : activeRoute === 'worldMasters' ? (
+          <WorldMasterScreen />
+        ) : activeRoute === 'samplers' ? (
+          <SamplerScreen />
+        ) : activeRoute === 'assistants' ? (
+          <AssistantScreen />
+        ) : activeRoute === 'characters' ? (
+          <CharacterScreen />
+        ) : (
+          <View style={styles.app}>
+            <View style={styles.header}>
+              <Image
+                accessibilityLabel="React logo"
+                source={{ uri: logoUri }}
+                resizeMode="contain"
+                style={styles.logo}
+              />
+              <Text style={styles.title}>React Native for Web</Text>
+            </View>
+            <Text style={styles.text}>
+              This is an example of an app built with{' '}
+              <Link href="https://github.com/facebook/create-react-app">
+                Create React App
+              </Link>{' '}
+              and{' '}
+              <Link href="https://github.com/necolas/react-native-web">
+                React Native for Web
+              </Link>
+            </Text>
+            <Text style={styles.text}>
+              To get started, edit{' '}
+              <Link href="https://codesandbox.io/s/q4qymyp2l6/" style={styles.code}>
+                src/App.js
+              </Link>
+              .
+            </Text>
+            <Pressable onPress={() => { }} style={buttonStyles.button}>
+              <Text style={buttonStyles.text}>Example button</Text>
+            </Pressable>
+            <TextAreaStream prompt={prompt} setPrompt={setPrompt} />
           </View>
-          <Text style={styles.text}>
-            This is an example of an app built with{' '}
-            <Link href="https://github.com/facebook/create-react-app">
-              Create React App
-            </Link>{' '}
-            and{' '}
-            <Link href="https://github.com/necolas/react-native-web">
-              React Native for Web
-            </Link>
-          </Text>
-          <Text style={styles.text}>
-            To get started, edit{' '}
-            <Link href="https://codesandbox.io/s/q4qymyp2l6/" style={styles.code}>
-              src/App.js
-            </Link>
-            .
-          </Text>
-          <Pressable onPress={() => { }} style={buttonStyles.button}>
-            <Text style={buttonStyles.text}>Example button</Text>
-          </Pressable>
-          <TextAreaStream prompt={prompt} setPrompt={setPrompt} />
-        </View>
-      )}
-    </SidebarPanel>
+        )}
+      </SidebarPanel>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1
+  },
   app: {
     gap: 10
   },

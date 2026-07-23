@@ -5,6 +5,9 @@ export const styles = StyleSheet.create({
         flex: 1,
         padding: 16,
     },
+    keyboardAvoidingView: {
+        flex: 1,
+    },
     panelContainer: {
         flex: 1,
     },
