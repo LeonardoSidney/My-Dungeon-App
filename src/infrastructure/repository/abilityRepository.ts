@@ -1,17 +1,17 @@
 import { ABILITY_STORAGE_NAMESPACE, STORAGE_NAMESPACE } from '@domain/constants/general';
 import { Ability } from '@domain/entities';
 import { ILogger } from '@domain/logger';
-import { IAbilityRepository, SaveAbilityParams } from '@domain/repository';
+import { IAbilityRepository, SaveAbilityParams, EditAbilityParams, EditAbilityReturn, EraseAbilityReturn } from '@domain/repository';
 import { IStorage } from '@domain/storage';
 import { AbilityDTO } from '../dto';
 
 export class AbilityRepository implements IAbilityRepository {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly storage: IStorage
     ) { }
 
-    async saveAbility(params: SaveAbilityParams): Promise<boolean> {
+    async saveAbility (params: SaveAbilityParams): Promise<boolean> {
         this.logger.info('Executing AbilityRepository::saveAbility');
         this.logger.debug('Executing AbilityRepository::saveAbility - params: ', params);
 
@@ -27,7 +27,7 @@ export class AbilityRepository implements IAbilityRepository {
         return true;
     }
 
-    async getAbilities(): Promise<Ability[]> {
+    async getAbilities (): Promise<Ability[]> {
         this.logger.info('Executing AbilityRepository::getAbilities');
         try {
             const abilities: Ability[] = [];
@@ -55,6 +55,53 @@ export class AbilityRepository implements IAbilityRepository {
         } catch (error) {
             this.logger.error('Error on AbilityRepository::getAbilities', error);
             throw error;
+        }
+    }
+
+    async editAbility (params: EditAbilityParams): Promise<EditAbilityReturn> {
+        this.logger.info('Executing AbilityRepository::editAbility');
+        this.logger.debug('Executing AbilityRepository::editAbility - params: ', params);
+
+        try {
+            const { ability } = params;
+            const existingData = await this.storage.load<Ability[]>(`${STORAGE_NAMESPACE}/${ABILITY_STORAGE_NAMESPACE}`);
+            const abilities = existingData || [];
+            const index = abilities.findIndex((a) => a.id === ability.id);
+
+            if (index === -1) {
+                this.logger.warning(`Ability with id ${ability.id} not found`);
+                return { success: false, error: `Ability with id ${ability.id} does not exist` };
+            }
+
+            abilities[index] = ability;
+            await this.storage.save(`${STORAGE_NAMESPACE}/${ABILITY_STORAGE_NAMESPACE}`, abilities);
+            return { success: true };
+        } catch (error) {
+            this.logger.error('Error on AbilityRepository::editAbility', error);
+            return { success: false, error: 'Failed to edit ability' };
+        }
+    }
+
+    async eraseAbility (abilityId: string): Promise<EraseAbilityReturn> {
+        this.logger.info('Executing AbilityRepository::eraseAbility');
+        this.logger.debug('Executing AbilityRepository::eraseAbility - abilityId: ', abilityId);
+
+        try {
+            const existingData = await this.storage.load<Ability[]>(`${STORAGE_NAMESPACE}/${ABILITY_STORAGE_NAMESPACE}`);
+            const abilities = existingData || [];
+            const index = abilities.findIndex((a) => a.id === abilityId);
+
+            if (index === -1) {
+                this.logger.warning(`Ability with id ${abilityId} not found`);
+                return { success: false, error: `Ability with id ${abilityId} does not exist` };
+            }
+
+            abilities.splice(index, 1);
+            await this.storage.save(`${STORAGE_NAMESPACE}/${ABILITY_STORAGE_NAMESPACE}`, abilities);
+            return { success: true };
+        } catch (error) {
+            this.logger.error('Error on AbilityRepository::eraseAbility', error);
+            return { success: false, error: 'Failed to erase ability' };
         }
     }
 }
