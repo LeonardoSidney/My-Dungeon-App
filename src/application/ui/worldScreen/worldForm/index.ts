@@ -1,1 +1,1 @@
-export { WorldForm } from './worldForm';
+export { WorldForm } from './WorldForm';

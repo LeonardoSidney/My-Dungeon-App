@@ -8,7 +8,7 @@ interface TextAreaStreamProps {
   setPrompt: Dispatch<React.SetStateAction<string>>;
 }
 
-async function bolinhaDePelo(prompt: string, setPrompt: Dispatch<React.SetStateAction<string>>) {
+async function bolinhaDePelo (prompt: string, setPrompt: Dispatch<React.SetStateAction<string>>) {
   const connectionsController = getConnectionsController();
   const connections = await connectionsController.handle();
   if (connections.length === 0) {
@@ -46,19 +46,24 @@ async function bolinhaDePelo(prompt: string, setPrompt: Dispatch<React.SetStateA
   setPrompt(currentText);
 }
 
-export function TextAreaStream({ prompt, setPrompt }: TextAreaStreamProps) {
+export function TextAreaStream ({ prompt, setPrompt }: TextAreaStreamProps) {
+
+  const handleStream = async () => {
+    await bolinhaDePelo(prompt, setPrompt);
+  };
 
   return (
-    <View style={styles.app}>
-      <Pressable onPress={() => bolinhaDePelo(prompt, setPrompt)} style={buttonStyles.stream}>
+    <View style={styles.container}>
+      <TextInput
+        style={styles.textInput}
+        value={prompt}
+        onChangeText={setPrompt}
+        multiline
+        placeholder="Enter your prompt..."
+      />
+      <Pressable onPress={handleStream} style={buttonStyles.stream}>
         <Text style={buttonStyles.text}>Start Stream</Text>
       </Pressable>
-      <TextInput
-        multiline
-        value={prompt}
-        onChangeText={(value) => setPrompt(value)}
-        style={styles.textInput}
-      />
     </View>
   );
 }

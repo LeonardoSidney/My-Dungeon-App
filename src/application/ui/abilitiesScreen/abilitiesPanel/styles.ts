@@ -1,6 +1,13 @@
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
+    emptyText: {
+        color: '#888',
+        fontSize: 14,
+        fontStyle: 'italic',
+        textAlign: 'center',
+        marginTop: 20,
+    },
     abilityItem: {
         flexDirection: 'row',
         justifyContent: 'space-between',

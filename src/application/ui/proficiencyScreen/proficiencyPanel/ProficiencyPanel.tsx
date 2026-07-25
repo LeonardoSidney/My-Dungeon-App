@@ -6,7 +6,10 @@ export function ProficiencyPanel (params: ProficiencyPanelProps) {
   const { proficiencies, onEdit, onDelete } = params;
 
   return (
-    <View>
+    <>
+      {proficiencies.length === 0 && (
+        <Text style={styles.emptyText}>No proficiencies found.</Text>
+      )}
       {proficiencies.map((proficiency, index) => (
         <View key={index} style={styles.proficiencyItem}>
           <View style={styles.proficiencyInfo}>
@@ -29,6 +32,6 @@ export function ProficiencyPanel (params: ProficiencyPanelProps) {
           </View>
         </View>
       ))}
-    </View>
+    </>
   );
 }

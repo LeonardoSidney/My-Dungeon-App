@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, View, ScrollView, TouchableOpacity } from 'react-native';
+import { Text, ScrollView, TouchableOpacity, View } from 'react-native';
 import { Status } from '@domain/entities';
 import { styles } from './styles';
 import { StatusPanel } from './statusPanel';
@@ -23,7 +23,7 @@ export function StatusesScreen () {
 
   return (
     <View style={styles.container}>
-      <ScrollView>
+      <ScrollView keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Text style={styles.title}>Statuses</Text>
         </View>

@@ -5,53 +5,26 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import { Sampler } from '@domain/entities';
+import { MirostatEnum } from '@domain/entities';
 import { styles } from './styles';
-import { useSamplerForm } from './useSamplerForm';
+import { SamplerFormProps } from './constants';
 
-type SamplerFormProps = {
-  visible: boolean;
-  onClose: () => void;
-  onSave: (sampler: Omit<Sampler, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  initialData?: Sampler | null;
-  resetKey: number;
-};
+export function SamplerForm (params: SamplerFormProps) {
+  const { showForm, samplerStateFormData, onChange, onCancel, onSave } = params;
 
-export function SamplerForm ({
-  visible,
-  onClose,
-  onSave,
-  initialData,
-  resetKey
-}: SamplerFormProps) {
-  const resolvedInitialData: Sampler | null = initialData || null;
-
-  const {
-    formState,
-    loading,
-    updateField,
-    setMirostat,
-    handleSave,
-  } = useSamplerForm(resolvedInitialData, resetKey);
-
-  const isEditing = resolvedInitialData !== null;
-
-  const handleSaveWrapper = () => {
-    handleSave(onSave, onClose);
-  };
-
-  if (!visible) {
-    return null;
+  if (!showForm) {
+    return <></>;
   }
+
+  const title = samplerStateFormData.id ? 'Edit Sampler' : 'Add Sampler';
+  const saveText = samplerStateFormData.id ? 'Save' : 'Create';
 
   return (
     <View style={styles.container}>
       <View style={styles.form}>
         <View style={styles.formHeader}>
-          <Text style={styles.formTitle}>
-            {isEditing ? 'Edit Sampler' : 'New Sampler'}
-          </Text>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+          <Text style={styles.formTitle}>{title}</Text>
+          <TouchableOpacity onPress={onCancel} style={styles.closeButton}>
             <Text style={styles.closeButtonText}>✕</Text>
           </TouchableOpacity>
         </View>
@@ -59,25 +32,22 @@ export function SamplerForm ({
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Name</Text>
           <TextInput
-            style={[styles.input, !formState.name.trim() && styles.inputError]}
-            value={formState.name}
-            onChangeText={(value) => updateField('name', value)}
+            style={styles.input}
             placeholder="e.g., Default Sampler"
             placeholderTextColor="#666"
+            value={samplerStateFormData.name}
+            onChangeText={(value) => onChange('name', value)}
           />
-          {!formState.name.trim() && (
-            <Text style={styles.errorText}>Name is required</Text>
-          )}
         </View>
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Observation (optional)</Text>
           <TextInput
             style={styles.input}
-            value={formState.observation}
-            onChangeText={(value) => updateField('observation', value)}
             placeholder="Additional observations..."
             placeholderTextColor="#666"
+            value={samplerStateFormData.observation}
+            onChangeText={(value) => onChange('observation', value)}
             multiline
             numberOfLines={3}
           />
@@ -92,10 +62,10 @@ export function SamplerForm ({
             <Text style={styles.label}>Temperature</Text>
             <TextInput
               style={styles.input}
-              value={formState.temperature}
-              onChangeText={(value) => updateField('temperature', value)}
               placeholder="1.0"
               placeholderTextColor="#666"
+              value={samplerStateFormData.temperature}
+              onChangeText={(value) => onChange('temperature', value)}
               keyboardType="decimal-pad"
             />
           </View>
@@ -104,10 +74,10 @@ export function SamplerForm ({
             <Text style={styles.label}>Top P</Text>
             <TextInput
               style={styles.input}
-              value={formState.topP}
-              onChangeText={(value) => updateField('topP', value)}
               placeholder="0.95"
               placeholderTextColor="#666"
+              value={samplerStateFormData.topP}
+              onChangeText={(value) => onChange('topP', value)}
               keyboardType="decimal-pad"
             />
           </View>
@@ -118,10 +88,10 @@ export function SamplerForm ({
             <Text style={styles.label}>Top K</Text>
             <TextInput
               style={styles.input}
-              value={formState.topK}
-              onChangeText={(value) => updateField('topK', value)}
               placeholder="40"
               placeholderTextColor="#666"
+              value={samplerStateFormData.topK}
+              onChangeText={(value) => onChange('topK', value)}
               keyboardType="number-pad"
             />
           </View>
@@ -130,10 +100,10 @@ export function SamplerForm ({
             <Text style={styles.label}>Min P</Text>
             <TextInput
               style={styles.input}
-              value={formState.minP}
-              onChangeText={(value) => updateField('minP', value)}
               placeholder="0.1"
               placeholderTextColor="#666"
+              value={samplerStateFormData.minP}
+              onChangeText={(value) => onChange('minP', value)}
               keyboardType="decimal-pad"
             />
           </View>
@@ -144,10 +114,10 @@ export function SamplerForm ({
             <Text style={styles.label}>Repeat Last N</Text>
             <TextInput
               style={styles.input}
-              value={formState.repeatLastN}
-              onChangeText={(value) => updateField('repeatLastN', value)}
               placeholder="-1"
               placeholderTextColor="#666"
+              value={samplerStateFormData.repeatLastN}
+              onChangeText={(value) => onChange('repeatLastN', value)}
               keyboardType="number-pad"
             />
           </View>
@@ -156,10 +126,10 @@ export function SamplerForm ({
             <Text style={styles.label}>Repeat Penalty</Text>
             <TextInput
               style={styles.input}
-              value={formState.repeatPenalty}
-              onChangeText={(value) => updateField('repeatPenalty', value)}
               placeholder="1.1"
               placeholderTextColor="#666"
+              value={samplerStateFormData.repeatPenalty}
+              onChangeText={(value) => onChange('repeatPenalty', value)}
               keyboardType="decimal-pad"
             />
           </View>
@@ -170,10 +140,10 @@ export function SamplerForm ({
             <Text style={styles.label}>Frequency Penalty</Text>
             <TextInput
               style={styles.input}
-              value={formState.frequencyPenalty}
-              onChangeText={(value) => updateField('frequencyPenalty', value)}
               placeholder="0.0"
               placeholderTextColor="#666"
+              value={samplerStateFormData.frequencyPenalty}
+              onChangeText={(value) => onChange('frequencyPenalty', value)}
               keyboardType="decimal-pad"
             />
           </View>
@@ -182,10 +152,10 @@ export function SamplerForm ({
             <Text style={styles.label}>Presence Penalty</Text>
             <TextInput
               style={styles.input}
-              value={formState.presencePenalty}
-              onChangeText={(value) => updateField('presencePenalty', value)}
               placeholder="0.0"
               placeholderTextColor="#666"
+              value={samplerStateFormData.presencePenalty}
+              onChangeText={(value) => onChange('presencePenalty', value)}
               keyboardType="decimal-pad"
             />
           </View>
@@ -197,44 +167,44 @@ export function SamplerForm ({
             <TouchableOpacity
               style={[
                 styles.dropdownOption,
-                formState.mirostat === 0 && styles.dropdownOptionSelected
+                samplerStateFormData.mirostat === 0 && styles.dropdownOptionSelected
               ]}
-              onPress={() => setMirostat(0)}
+              onPress={() => onChange('mirostat', 0 as MirostatEnum)}
             >
               <Text style={styles.dropdownOptionText}>Disabled</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
                 styles.dropdownOption,
-                formState.mirostat === 1 && styles.dropdownOptionSelected
+                samplerStateFormData.mirostat === 1 && styles.dropdownOptionSelected
               ]}
-              onPress={() => setMirostat(1)}
+              onPress={() => onChange('mirostat', 1 as MirostatEnum)}
             >
               <Text style={styles.dropdownOptionText}>Mirostat 1.0</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
                 styles.dropdownOption,
-                formState.mirostat === 2 && styles.dropdownOptionSelected
+                samplerStateFormData.mirostat === 2 && styles.dropdownOptionSelected
               ]}
-              onPress={() => setMirostat(2)}
+              onPress={() => onChange('mirostat', 2 as MirostatEnum)}
             >
               <Text style={styles.dropdownOptionText}>Mirostat 2.0</Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        {formState.mirostat !== undefined && formState.mirostat !== 0 && (
+        {samplerStateFormData.mirostat !== undefined && samplerStateFormData.mirostat !== 0 && (
           <>
             <View style={styles.row}>
               <View style={[styles.inputGroup, styles.halfWidth]}>
                 <Text style={styles.label}>Mirostat Eta</Text>
                 <TextInput
                   style={styles.input}
-                  value={formState.mirostatEnt}
-                  onChangeText={(value) => updateField('mirostatEnt', value)}
                   placeholder="0.1"
                   placeholderTextColor="#666"
+                  value={samplerStateFormData.mirostatEnt}
+                  onChangeText={(value) => onChange('mirostatEnt', value)}
                   keyboardType="decimal-pad"
                 />
               </View>
@@ -243,10 +213,10 @@ export function SamplerForm ({
                 <Text style={styles.label}>Mirostat Tau</Text>
                 <TextInput
                   style={styles.input}
-                  value={formState.mirostatLr}
-                  onChangeText={(value) => updateField('mirostatLr', value)}
                   placeholder="5.0"
                   placeholderTextColor="#666"
+                  value={samplerStateFormData.mirostatLr}
+                  onChangeText={(value) => onChange('mirostatLr', value)}
                   keyboardType="decimal-pad"
                 />
               </View>
@@ -258,10 +228,10 @@ export function SamplerForm ({
           <Text style={styles.label}>Seed (optional)</Text>
           <TextInput
             style={styles.input}
-            value={formState.seed}
-            onChangeText={(value) => updateField('seed', value)}
             placeholder="Random if empty"
             placeholderTextColor="#666"
+            value={samplerStateFormData.seed}
+            onChangeText={(value) => onChange('seed', value)}
           />
         </View>
 
@@ -274,10 +244,10 @@ export function SamplerForm ({
             <Text style={styles.label}>Dry Allowed Length</Text>
             <TextInput
               style={styles.input}
-              value={formState.dryAllowedLenght}
-              onChangeText={(value) => updateField('dryAllowedLenght', value)}
               placeholder="3"
               placeholderTextColor="#666"
+              value={samplerStateFormData.dryAllowedLenght}
+              onChangeText={(value) => onChange('dryAllowedLenght', value)}
               keyboardType="number-pad"
             />
           </View>
@@ -286,10 +256,10 @@ export function SamplerForm ({
             <Text style={styles.label}>Dry Base</Text>
             <TextInput
               style={styles.input}
-              value={formState.dryBase}
-              onChangeText={(value) => updateField('dryBase', value)}
               placeholder="1.7"
               placeholderTextColor="#666"
+              value={samplerStateFormData.dryBase}
+              onChangeText={(value) => onChange('dryBase', value)}
               keyboardType="decimal-pad"
             />
           </View>
@@ -300,10 +270,10 @@ export function SamplerForm ({
             <Text style={styles.label}>Dry Multiplier</Text>
             <TextInput
               style={styles.input}
-              value={formState.dryMultiplier}
-              onChangeText={(value) => updateField('dryMultiplier', value)}
               placeholder="0.4"
               placeholderTextColor="#666"
+              value={samplerStateFormData.dryMultiplier}
+              onChangeText={(value) => onChange('dryMultiplier', value)}
               keyboardType="decimal-pad"
             />
           </View>
@@ -312,10 +282,10 @@ export function SamplerForm ({
             <Text style={styles.label}>Dyna Temp Exp</Text>
             <TextInput
               style={styles.input}
-              value={formState.dynaTempExp}
-              onChangeText={(value) => updateField('dynaTempExp', value)}
               placeholder="1.0"
               placeholderTextColor="#666"
+              value={samplerStateFormData.dynaTempExp}
+              onChangeText={(value) => onChange('dynaTempExp', value)}
               keyboardType="decimal-pad"
             />
           </View>
@@ -326,10 +296,10 @@ export function SamplerForm ({
             <Text style={styles.label}>Dyna Temp Range</Text>
             <TextInput
               style={styles.input}
-              value={formState.dynaTempRange}
-              onChangeText={(value) => updateField('dynaTempRange', value)}
               placeholder="0"
               placeholderTextColor="#666"
+              value={samplerStateFormData.dynaTempRange}
+              onChangeText={(value) => onChange('dynaTempRange', value)}
               keyboardType="number-pad"
             />
           </View>
@@ -338,10 +308,10 @@ export function SamplerForm ({
             <Text style={styles.label}>XTC Probability</Text>
             <TextInput
               style={styles.input}
-              value={formState.xtcProbability}
-              onChangeText={(value) => updateField('xtcProbability', value)}
               placeholder="0.1"
               placeholderTextColor="#666"
+              value={samplerStateFormData.xtcProbability}
+              onChangeText={(value) => onChange('xtcProbability', value)}
               keyboardType="decimal-pad"
             />
           </View>
@@ -351,10 +321,10 @@ export function SamplerForm ({
           <Text style={styles.label}>XTC Threshold</Text>
           <TextInput
             style={styles.input}
-            value={formState.xtcThreshould}
-            onChangeText={(value) => updateField('xtcThreshould', value)}
             placeholder="0.5"
             placeholderTextColor="#666"
+            value={samplerStateFormData.xtcThreshould}
+            onChangeText={(value) => onChange('xtcThreshould', value)}
             keyboardType="decimal-pad"
           />
         </View>
@@ -364,10 +334,10 @@ export function SamplerForm ({
             <Text style={styles.label}>Top N Sigma</Text>
             <TextInput
               style={styles.input}
-              value={formState.topNSigma}
-              onChangeText={(value) => updateField('topNSigma', value)}
               placeholder="2.5"
               placeholderTextColor="#666"
+              value={samplerStateFormData.topNSigma}
+              onChangeText={(value) => onChange('topNSigma', value)}
               keyboardType="decimal-pad"
             />
           </View>
@@ -376,10 +346,10 @@ export function SamplerForm ({
             <Text style={styles.label}>Typical P</Text>
             <TextInput
               style={styles.input}
-              value={formState.typicalP}
-              onChangeText={(value) => updateField('typicalP', value)}
               placeholder="1.0"
               placeholderTextColor="#666"
+              value={samplerStateFormData.typicalP}
+              onChangeText={(value) => onChange('typicalP', value)}
               keyboardType="decimal-pad"
             />
           </View>
@@ -390,10 +360,10 @@ export function SamplerForm ({
             <Text style={styles.label}>Adaptative Decay</Text>
             <TextInput
               style={styles.input}
-              value={formState.adaptativeDecay}
-              onChangeText={(value) => updateField('adaptativeDecay', value)}
               placeholder="1.1"
               placeholderTextColor="#666"
+              value={samplerStateFormData.adaptativeDecay}
+              onChangeText={(value) => onChange('adaptativeDecay', value)}
               keyboardType="decimal-pad"
             />
           </View>
@@ -402,10 +372,10 @@ export function SamplerForm ({
             <Text style={styles.label}>Adaptative Target</Text>
             <TextInput
               style={styles.input}
-              value={formState.adaptativeTarget}
-              onChangeText={(value) => updateField('adaptativeTarget', value)}
               placeholder="5.0"
               placeholderTextColor="#666"
+              value={samplerStateFormData.adaptativeTarget}
+              onChangeText={(value) => onChange('adaptativeTarget', value)}
               keyboardType="decimal-pad"
             />
           </View>
@@ -415,10 +385,10 @@ export function SamplerForm ({
           <Text style={styles.label}>Dry Sequence Breakers (optional)</Text>
           <TextInput
             style={styles.input}
-            value={formState.drySequenceBreakers}
-            onChangeText={(value) => updateField('drySequenceBreakers', value)}
-            placeholder="\\n, \\n\\n, <|endoftext|>"
+            placeholder="\\n, \\n\\n,  "
             placeholderTextColor="#666"
+            value={samplerStateFormData.drySequenceBreakers}
+            onChangeText={(value) => onChange('drySequenceBreakers', value)}
           />
         </View>
 
@@ -428,18 +398,18 @@ export function SamplerForm ({
             <TouchableOpacity
               style={[
                 styles.dropdownOption,
-                formState.ignoreEOS === 'true' && styles.dropdownOptionSelected
+                samplerStateFormData.ignoreEOS === 'true' && styles.dropdownOptionSelected
               ]}
-              onPress={() => updateField('ignoreEOS', 'true')}
+              onPress={() => onChange('ignoreEOS', 'true')}
             >
               <Text style={styles.dropdownOptionText}>True</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
                 styles.dropdownOption,
-                formState.ignoreEOS === 'false' && styles.dropdownOptionSelected
+                samplerStateFormData.ignoreEOS === 'false' && styles.dropdownOptionSelected
               ]}
-              onPress={() => updateField('ignoreEOS', 'false')}
+              onPress={() => onChange('ignoreEOS', 'false')}
             >
               <Text style={styles.dropdownOptionText}>False</Text>
             </TouchableOpacity>
@@ -447,21 +417,11 @@ export function SamplerForm ({
         </View>
 
         <View style={styles.formActions}>
-          <TouchableOpacity
-            onPress={onClose}
-            style={styles.cancelButton}
-            disabled={loading}
-          >
+          <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
             <Text style={styles.cancelButtonText}>Cancel</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={handleSaveWrapper}
-            style={[styles.saveButton, loading && styles.saveButtonDisabled]}
-            disabled={loading}
-          >
-            <Text style={styles.saveButtonText}>
-              {isEditing ? 'Update' : 'Create'}
-            </Text>
+          <TouchableOpacity style={styles.saveButton} onPress={onSave}>
+            <Text style={styles.saveButtonText}>{saveText}</Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -6,7 +6,10 @@ export function StatusPanel (params: StatusPanelProps) {
   const { statuses, onEdit, onDelete } = params;
 
   return (
-    <View>
+    <>
+      {statuses.length === 0 && (
+        <Text style={styles.emptyText}>No statuses found.</Text>
+      )}
       {statuses.map((status, index) => (
         <View key={index} style={styles.statusItem}>
           <View style={styles.statusInfo}>
@@ -29,6 +32,6 @@ export function StatusPanel (params: StatusPanelProps) {
           </View>
         </View>
       ))}
-    </View>
+    </>
   );
 }
