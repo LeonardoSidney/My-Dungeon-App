@@ -15,6 +15,8 @@ import {
     StreamCompletionController,
     GetSamplersController,
     CreateStatusController,
+    EditStatusController,
+    EraseStatusController,
     GetStatusesController,
     CreateProficiencyController,
     GetProficienciesController,
@@ -59,6 +61,7 @@ import {
     EditSamplerService,
     GetSamplersService,
     CreateStatusService,
+    EditStatusService,
     CreateProficiencyService,
     EditProficiencyService,
     CreateCharacterService,
@@ -91,6 +94,8 @@ import {
     StreamCompletionUseCase,
     GetSamplersUseCase,
     CreateStatusUseCase,
+    EditStatusUseCase,
+    EraseStatusUseCase,
     GetStatusesUseCase,
     CreateProficiencyUseCase,
     GetProficienciesUseCase,
@@ -141,6 +146,8 @@ import {
     IStreamCompletionController,
     IGetSamplersController,
     ICreateStatusController,
+    IEditStatusController,
+    IEraseStatusController,
     IGetStatusesController,
     ICreateProficiencyController,
     IGetProficienciesController,
@@ -326,6 +333,19 @@ export function getStatusesController (): IGetStatusesController {
     const statusRepository = new StatusRepository(logger, storage);
     const getStatusesUseCase = new GetStatusesUseCase(logger, statusRepository);
     return new GetStatusesController(logger, getStatusesUseCase);
+}
+
+export function editStatusController (): IEditStatusController {
+    const statusRepository = new StatusRepository(logger, storage);
+    const editStatusService = new EditStatusService(logger);
+    const editStatusUseCase = new EditStatusUseCase(logger, editStatusService, statusRepository);
+    return new EditStatusController(logger, editStatusUseCase);
+}
+
+export function eraseStatusController (): IEraseStatusController {
+    const statusRepository = new StatusRepository(logger, storage);
+    const eraseStatusUseCase = new EraseStatusUseCase(logger, statusRepository);
+    return new EraseStatusController(logger, eraseStatusUseCase);
 }
 
 export function createProficiencyController (): ICreateProficiencyController {
