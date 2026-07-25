@@ -18,6 +18,8 @@ export * from './iCreateSamplerUseCase';
 export * from './iEditSamplerUseCase';
 export * from './iEraseSamplerUseCase';
 export * from './iCreateStatusUseCase';
+export * from './iEditStatusUseCase';
+export * from './iEraseStatusUseCase';
 export * from './iCreateSystemPromptUseCase';
 export * from './iCreateWorldMasterUseCase';
 export * from './iCreateWorldUseCase';

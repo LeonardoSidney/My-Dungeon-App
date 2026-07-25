@@ -13,7 +13,7 @@ import { useSidebarVisibility } from '@application/ui/sidebarPanel/useSidebarVis
 import { useToggle } from '@application/ui/sidebarPanel/useToggle';
 import { useMenuNavigation } from '@application/ui/sidebarPanel/useMenuNavigation';
 
-export type SidebarRoute = 'home' | 'adventures' | 'characters' | 'abilities' | 'proficiencies' | 'assistants' | 'samplers' | 'worldMasters' | 'worlds' | 'settings';
+export type SidebarRoute = 'home' | 'adventures' | 'characters' | 'abilities' | 'statuses' | 'proficiencies' | 'assistants' | 'samplers' | 'worldMasters' | 'worlds' | 'settings';
 
 export interface SidebarMenuItem {
   id: SidebarRoute;

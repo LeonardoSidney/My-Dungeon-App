@@ -18,6 +18,8 @@ export * from './iCreateSamplerController';
 export * from './iEditSamplerController';
 export * from './iEraseSamplerController';
 export * from './iCreateStatusController';
+export * from './iEditStatusController';
+export * from './iEraseStatusController';
 export * from './iCreateSystemPromptController';
 export * from './iCreateWorldController';
 export * from './iCreateWorldMasterController';
