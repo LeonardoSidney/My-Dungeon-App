@@ -1,5 +1,7 @@
 import {
     CreateAbilityController,
+    EditAbilityController,
+    EraseAbilityController,
     CreateAdventureController,
     CreateAssistantController,
     CreateConnectionConfigController,
@@ -48,6 +50,7 @@ import {
 } from '@adapters/controllers';
 import {
     CreateAbilityService,
+    EditAbilityService,
     CreateAdventureService,
     CreateAssistantService,
     CreateChatService,
@@ -73,6 +76,8 @@ import {
 } from '@application/services';
 import {
     CreateAbilityUseCase,
+    EditAbilityUseCase,
+    EraseAbilityUseCase,
     CreateAdventureUseCase,
     CreateAssistantUseCase,
     CreateConnectionConfigUseCase,
@@ -121,6 +126,8 @@ import {
 } from '../application/use-cases';
 import {
     ICreateAbilityController,
+    IEditAbilityController,
+    IEraseAbilityController,
     ICreateAdventureController,
     ICreateAssistantController,
     ICreateConnectionConfigController,
@@ -293,6 +300,19 @@ export function getAbilitiesController (): IGetAbilitiesController {
     const abilityRepository = new AbilityRepository(logger, storage);
     const getAbilitiesUseCase = new GetAbilitiesUseCase(logger, abilityRepository);
     return new GetAbilitiesController(logger, getAbilitiesUseCase);
+}
+
+export function editAbilityController (): IEditAbilityController {
+    const abilityRepository = new AbilityRepository(logger, storage);
+    const editAbilityService = new EditAbilityService(logger);
+    const editAbilityUseCase = new EditAbilityUseCase(logger, editAbilityService, abilityRepository);
+    return new EditAbilityController(logger, editAbilityUseCase);
+}
+
+export function eraseAbilityController (): IEraseAbilityController {
+    const abilityRepository = new AbilityRepository(logger, storage);
+    const eraseAbilityUseCase = new EraseAbilityUseCase(logger, abilityRepository);
+    return new EraseAbilityController(logger, eraseAbilityUseCase);
 }
 
 export function createStatusController (): ICreateStatusController {

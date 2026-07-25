@@ -1,5 +1,7 @@
 export * from './iAdventureAppendChatController';
 export * from './iCreateAbilityController';
+export * from './iEditAbilityController';
+export * from './iEraseAbilityController';
 export * from './iCreateAdventureController';
 export * from './iCreateChatAdventureController';
 export * from './iCreateAssitantController';

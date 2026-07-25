@@ -1,5 +1,7 @@
 export * from './iAdventureAppendChatUseCase';
 export * from './iCreateAbilityUseCase';
+export * from './iEditAbilityUseCase';
+export * from './iEraseAbilityUseCase';
 export * from './iCreateAdventureUseCase';
 export * from './iCreateAssistantUseCase';
 export * from './iCreateCharacterUseCase';
