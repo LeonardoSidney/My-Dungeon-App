@@ -1,1 +1,1 @@
-export { WorldPanel } from './worldPanel';
+export { WorldPanel } from './WorldPanel';

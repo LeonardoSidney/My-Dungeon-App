@@ -6,7 +6,10 @@ export function AbilityPanel (params: AbilityPanelProps) {
   const { abilities, onEdit, onDelete } = params;
 
   return (
-    <View>
+    <>
+      {abilities.length === 0 && (
+        <Text style={styles.emptyText}>No abilities found.</Text>
+      )}
       {abilities.map((ability, index) => (
         <View key={index} style={styles.abilityItem}>
           <View style={styles.abilityInfo}>
@@ -29,6 +32,6 @@ export function AbilityPanel (params: AbilityPanelProps) {
           </View>
         </View>
       ))}
-    </View>
+    </>
   );
 }

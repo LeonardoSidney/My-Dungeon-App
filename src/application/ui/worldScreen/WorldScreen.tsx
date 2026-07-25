@@ -1,50 +1,55 @@
-import React from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { Text, View, ScrollView, TouchableOpacity } from 'react-native';
+import { World } from '@domain/entities';
 import { styles } from './styles';
 import { WorldPanel } from './worldPanel';
 import { WorldForm } from './worldForm';
 import { useWorldScreenLogic } from './useWorldScreenLogic';
+import { WorldFormData } from './constants';
+import { setInitialWorldState } from './constants';
+import { handleWorldFormChange } from './handleWorldFormChange';
+import { onAddNewWorld } from './onAddNewWorld';
+import { onCancelForm } from './onCancelForm';
+import { onEditForm } from './onEditForm';
+import { onEraseWorld } from './onEraseWorld';
+import { onSaveWorld } from './onSaveWorld';
 
 export function WorldScreen () {
-  const {
-    worlds,
-    loading,
-    showForm,
-    editingWorld,
-    handleAdd,
-    handleEdit,
-    handleDelete,
-    handleFormClose,
-    handleFormSave,
-  } = useWorldScreenLogic();
+  const [worlds, setWorlds] = useState<World[]>([]);
+  const [worldStateFormData, setWorldFormData] = useState<WorldFormData>(setInitialWorldState());
+  const [showForm, setShowForm] = useState(false);
+
+  useWorldScreenLogic(setWorlds);
 
   return (
     <View style={styles.container}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardAvoidingView}
-      >
-        <ScrollView keyboardShouldPersistTaps="handled">
-          <View style={styles.header}>
-            <Text style={styles.title}>Worlds</Text>
-          </View>
+      <ScrollView>
+        <View style={styles.header}>
+          <Text style={styles.title}>Worlds</Text>
+        </View>
 
-          <WorldPanel
-            worlds={worlds}
-            loading={loading}
-            onAdd={handleAdd}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
+        <WorldPanel
+          worlds={worlds}
+          onEdit={(world: World) => onEditForm(world, setShowForm, setWorldFormData)}
+          onDelete={(world: World) => onEraseWorld(world, setWorlds)}
+        />
 
-          <WorldForm
-            visible={showForm}
-            onClose={handleFormClose}
-            onSave={handleFormSave}
-            initialData={editingWorld}
-          />
-        </ScrollView>
-      </KeyboardAvoidingView>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => onAddNewWorld(setShowForm, setWorldFormData)}
+        >
+          <Text style={styles.addButtonText}>Add World</Text>
+        </TouchableOpacity>
+
+        <WorldForm
+          showForm={showForm}
+          worldStateFormData={worldStateFormData}
+          onChange={handleWorldFormChange(setWorldFormData)}
+          onCancel={() => onCancelForm(setShowForm, setWorldFormData)}
+          onSave={() => onSaveWorld(worldStateFormData, setWorldFormData, setShowForm, setWorlds)}
+        />
+
+      </ScrollView>
     </View>
   );
 }

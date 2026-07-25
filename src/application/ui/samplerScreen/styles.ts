@@ -5,9 +5,6 @@ export const styles = StyleSheet.create({
         flex: 1,
         padding: 16,
     },
-    keyboardAvoidingView: {
-        flex: 1,
-    },
     header: {
         flexDirection: 'column',
         marginBottom: 16,
@@ -16,21 +13,6 @@ export const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         color: '#fff',
-    },
-    addButton: {
-        paddingVertical: 10,
-        paddingHorizontal: 16,
-        backgroundColor: '#3498db',
-        borderRadius: 8,
-        alignItems: 'center',
-        justifyContent: 'center',
-        alignSelf: 'flex-start',
-        marginTop: 12,
-    },
-    addButtonText: {
-        fontSize: 16,
-        color: '#fff',
-        fontWeight: '600',
     },
     loadingText: {
         color: '#aaa',
@@ -80,5 +62,18 @@ export const styles = StyleSheet.create({
     },
     actionButtonText: {
         fontSize: 16,
+    },
+    addButton: {
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        backgroundColor: '#2a2a2a',
+        borderRadius: 6,
+        marginTop: 8,
+        alignItems: 'center',
+    },
+    addButtonText: {
+        fontSize: 14,
+        color: '#fff',
+        fontWeight: '500',
     },
 });

@@ -18,7 +18,7 @@ export const styles = StyleSheet.create({
         marginBottom: 16,
     },
     formTitle: {
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: 'bold',
         color: '#fff',
     },
@@ -28,9 +28,6 @@ export const styles = StyleSheet.create({
     closeButtonText: {
         fontSize: 18,
         color: '#aaa',
-    },
-    scrollView: {
-        maxHeight: 400,
     },
     inputGroup: {
         marginBottom: 12,
@@ -48,7 +45,7 @@ export const styles = StyleSheet.create({
         borderRadius: 8,
         padding: 12,
         fontSize: 16,
-        color: '#fff',
+        color: '#ccc',
     },
     inputError: {
         borderColor: '#e74c3c',
@@ -59,10 +56,24 @@ export const styles = StyleSheet.create({
         marginTop: 4,
     },
     promptInput: {
+        backgroundColor: '#2a2a2a',
+        borderWidth: 1,
+        borderColor: '#444',
+        borderRadius: 8,
+        padding: 12,
+        fontSize: 16,
+        color: '#ccc',
         minHeight: 100,
         textAlignVertical: 'top',
     },
     observationInput: {
+        backgroundColor: '#2a2a2a',
+        borderWidth: 1,
+        borderColor: '#444',
+        borderRadius: 8,
+        padding: 12,
+        fontSize: 16,
+        color: '#ccc',
         minHeight: 80,
         textAlignVertical: 'top',
     },
@@ -90,10 +101,7 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 10,
         borderRadius: 8,
-        backgroundColor: '#3498db',
-    },
-    saveButtonDisabled: {
-        backgroundColor: '#2c5f8a',
+        backgroundColor: '#0a74ca',
     },
     saveButtonText: {
         fontSize: 16,
