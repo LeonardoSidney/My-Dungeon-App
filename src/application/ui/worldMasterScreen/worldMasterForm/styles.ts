@@ -29,9 +29,6 @@ export const styles = StyleSheet.create({
         fontSize: 18,
         color: '#aaa',
     },
-    scrollView: {
-        maxHeight: 300,
-    },
     inputGroup: {
         marginBottom: 12,
     },
@@ -50,33 +47,6 @@ export const styles = StyleSheet.create({
         fontSize: 16,
         color: '#fff',
     },
-    inputError: {
-        borderColor: '#e74c3c',
-    },
-    errorText: {
-        color: '#e74c3c',
-        fontSize: 12,
-        marginTop: 4,
-    },
-    assistantDropdown: {
-        backgroundColor: '#2a2a2a',
-        borderWidth: 1,
-        borderColor: '#444',
-        borderRadius: 8,
-        maxHeight: 150,
-    },
-    assistantOption: {
-        padding: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: '#333',
-    },
-    assistantOptionSelected: {
-        backgroundColor: '#3a3a3a',
-    },
-    assistantOptionText: {
-        fontSize: 16,
-        color: '#fff',
-    },
     promptInput: {
         minHeight: 100,
         textAlignVertical: 'top',
@@ -84,6 +54,25 @@ export const styles = StyleSheet.create({
     observationInput: {
         minHeight: 80,
         textAlignVertical: 'top',
+    },
+    dropdown: {
+        backgroundColor: '#2a2a2a',
+        borderWidth: 1,
+        borderColor: '#444',
+        borderRadius: 8,
+        maxHeight: 150,
+    },
+    dropdownOption: {
+        padding: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#333',
+    },
+    dropdownOptionSelected: {
+        backgroundColor: '#3a3a3a',
+    },
+    dropdownOptionText: {
+        fontSize: 16,
+        color: '#fff',
     },
     formActions: {
         flexDirection: 'row',
@@ -110,9 +99,6 @@ export const styles = StyleSheet.create({
         paddingVertical: 10,
         borderRadius: 8,
         backgroundColor: '#3498db',
-    },
-    saveButtonDisabled: {
-        backgroundColor: '#2c5f8a',
     },
     saveButtonText: {
         fontSize: 16,

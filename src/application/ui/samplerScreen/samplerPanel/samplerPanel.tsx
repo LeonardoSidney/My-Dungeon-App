@@ -1,6 +1,5 @@
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { Sampler } from '@domain/entities';
 import { styles } from './styles';
 import { getSamplerDetailsText } from './functions';
 import { SamplerPanelProps } from '../constants';
