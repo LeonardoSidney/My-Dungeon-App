@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export function useConnectionPanel () {
+export function useDangerZoneLoad () {
     const [expanded, setExpanded] = useState(false);
 
     return {

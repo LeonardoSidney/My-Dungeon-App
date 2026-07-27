@@ -1,38 +1,48 @@
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
+import { Connection } from '@domain/entities';
 import { ConnectionForm } from '../connectionForm';
+import { ConnectionFormData } from '../constants';
 import { styles } from './styles';
-import { useConnectionActions } from './useConnectionActions';
-import { useConnectionPanel } from './useConnectionPanel';
 
-export function ConnectionPanel () {
-  const {
-    expanded,
-    setExpanded,
-    connections,
-    loading,
-    loadConnections,
-  } = useConnectionPanel();
+type ConnectionPanelProps = {
+  connections: Connection[];
+  loading: boolean;
+  expanded: boolean;
+  onToggleExpand: () => void;
+  onAdd: () => void;
+  onEdit: (connection: Connection) => void;
+  onDelete: (connectionId: string) => void;
+  formVisible: boolean;
+  formData: ConnectionFormData;
+  onFormChange: (field: keyof ConnectionFormData, value: string) => void;
+  onFormCancel: () => void;
+  onFormSave: () => void;
+  formErrors: { name?: string; port?: string; };
+  formLoading: boolean;
+};
 
-  const handleFormSave = async () => {
-    await loadConnections();
-    handleFormClose();
-  };
-
-  const {
-    showForm,
-    editingConnection,
-    handleDelete,
-    handleEdit,
-    handleAdd,
-    handleFormClose,
-  } = useConnectionActions(loadConnections);
-
+export function ConnectionPanel ({
+  connections,
+  loading,
+  expanded,
+  onToggleExpand,
+  onAdd,
+  onEdit,
+  onDelete,
+  formVisible,
+  formData,
+  onFormChange,
+  onFormCancel,
+  onFormSave,
+  formErrors,
+  formLoading
+}: ConnectionPanelProps) {
   return (
     <View style={styles.container}>
       <TouchableOpacity
         style={styles.header}
-        onPress={() => setExpanded(!expanded)}
+        onPress={onToggleExpand}
       >
         <Text style={styles.headerTitle}>Connections</Text>
         <Text style={styles.expandIcon}>{expanded ? '▾' : '▸'}</Text>
@@ -56,13 +66,13 @@ export function ConnectionPanel () {
                 <View style={styles.connectionActions}>
                   <TouchableOpacity
                     style={styles.actionButton}
-                    onPress={() => handleEdit(connection)}
+                    onPress={() => onEdit(connection)}
                   >
                     <Text style={styles.actionButtonText}>✏️</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.actionButton}
-                    onPress={() => handleDelete(connection.id)}
+                    onPress={() => onDelete(connection.id)}
                   >
                     <Text style={styles.actionButtonText}>🗑️</Text>
                   </TouchableOpacity>
@@ -71,7 +81,7 @@ export function ConnectionPanel () {
             ))}
           <TouchableOpacity
             style={styles.addButton}
-            onPress={handleAdd}
+            onPress={onAdd}
           >
             <Text style={styles.addButtonText}>Add Connection</Text>
           </TouchableOpacity>
@@ -79,10 +89,13 @@ export function ConnectionPanel () {
       )}
 
       <ConnectionForm
-        visible={showForm}
-        onClose={handleFormClose}
-        onSave={handleFormSave}
-        initialData={editingConnection}
+        visible={formVisible}
+        formData={formData}
+        onChange={onFormChange}
+        onCancel={onFormCancel}
+        onSave={onFormSave}
+        errors={formErrors}
+        loading={formLoading}
       />
     </View>
   );

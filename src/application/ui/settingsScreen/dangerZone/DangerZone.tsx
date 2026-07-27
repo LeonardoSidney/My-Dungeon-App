@@ -1,21 +1,25 @@
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { styles } from './styles';
-import { useDangerZone } from './useDangerZone';
 
-export function DangerZone () {
-  const {
-    expanded,
-    setExpanded,
-    erasing,
-    handleErase,
-  } = useDangerZone();
+type DangerZoneProps = {
+  expanded: boolean;
+  erasing: boolean;
+  onToggleExpand: () => void;
+  onErase: () => void;
+};
 
+export function DangerZone ({
+  expanded,
+  erasing,
+  onToggleExpand,
+  onErase
+}: DangerZoneProps) {
   return (
     <View style={styles.container}>
       <TouchableOpacity
         style={styles.header}
-        onPress={() => setExpanded(!expanded)}
+        onPress={onToggleExpand}
       >
         <Text style={styles.headerTitle}>Danger Zone</Text>
         <Text style={styles.expandIcon}>{expanded ? '▾' : '▸'}</Text>
@@ -29,7 +33,7 @@ export function DangerZone () {
               styles.eraseButton,
               erasing && styles.eraseButtonDisabled,
             ]}
-            onPress={handleErase}
+            onPress={onErase}
             disabled={erasing}
           >
             <Text style={styles.eraseButtonText}>
