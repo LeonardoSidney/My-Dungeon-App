@@ -47,6 +47,14 @@ export const styles = StyleSheet.create({
         fontSize: 16,
         color: '#ccc',
     },
+    inputError: {
+        borderColor: '#e74c3c',
+    },
+    errorText: {
+        color: '#e74c3c',
+        fontSize: 12,
+        marginTop: 4,
+    },
     promptInput: {
         backgroundColor: '#2a2a2a',
         borderWidth: 1,

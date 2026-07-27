@@ -15,14 +15,64 @@ import { onEditForm } from './onEditForm';
 import { onEraseWorldMaster } from './onEraseWorldMaster';
 import { onSaveWorldMaster } from './onSaveWorldMaster';
 
+type FormErrors = {
+  name?: string;
+  activationWord?: string;
+  assistant?: string;
+  prompt?: string;
+};
+
 export function WorldMasterScreen () {
   const [worldMasters, setWorldMasters] = useState<WorldMaster[]>([]);
   const [assistants, setAssistants] = useState<Assistant[]>([]);
   const [worldMasterStateFormData, setWorldMasterFormData] = useState<WorldMasterFormData>(setInitialWorldMasterState());
   const [showForm, setShowForm] = useState(false);
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
 
   useAssistantWorldMasterLogic(setAssistants);
   useWorldMasterScreenLogic(setWorldMasters);
+
+  const handleFormSave = async () => {
+    const errors: FormErrors = {};
+    if (!worldMasterStateFormData.name.trim()) errors.name = 'Name is required';
+    if (!worldMasterStateFormData.activationWord.trim()) errors.activationWord = 'Activation Word is required';
+    if (!worldMasterStateFormData.assistant) errors.assistant = 'Assistant is required';
+    if (!worldMasterStateFormData.prompt.trim()) errors.prompt = 'Prompt is required';
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    setFormErrors({});
+
+    try {
+      await onSaveWorldMaster(worldMasterStateFormData, setWorldMasterFormData, setShowForm, setWorldMasters, assistants);
+    } catch (error) {
+      setFormErrors({ name: (error as Error).message });
+    }
+  };
+
+  const handleFormChange = (field: keyof WorldMasterFormData, value: any) => {
+    setFormErrors(prev => {
+      const next = { ...prev };
+      const errorField = field as keyof FormErrors;
+      if (next[errorField]) {
+        delete next[errorField];
+      }
+      return next;
+    });
+    handleWorldMasterFormChange(setWorldMasterFormData)(field, value);
+  };
+
+  const handleAddNewWorldMaster = () => {
+    setFormErrors({});
+    onAddNewWorldMaster(setShowForm, setWorldMasterFormData);
+  };
+
+  const handleEditWorldMaster = (worldMaster: WorldMaster) => {
+    setFormErrors({});
+    onEditForm(worldMaster, assistants, setShowForm, setWorldMasterFormData);
+  };
 
   return (
     <View style={styles.container}>
@@ -33,13 +83,13 @@ export function WorldMasterScreen () {
 
         <WorldMasterPanel
           worldMasters={worldMasters}
-          onEdit={(worldMaster: WorldMaster) => onEditForm(worldMaster, assistants, setShowForm, setWorldMasterFormData)}
+          onEdit={handleEditWorldMaster}
           onDelete={(worldMaster: WorldMaster) => onEraseWorldMaster(worldMaster, setWorldMasters)}
         />
 
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => onAddNewWorldMaster(setShowForm, setWorldMasterFormData)}
+          onPress={handleAddNewWorldMaster}
         >
           <Text style={styles.addButtonText}>Add World Master</Text>
         </TouchableOpacity>
@@ -47,10 +97,11 @@ export function WorldMasterScreen () {
         <WorldMasterForm
           showForm={showForm}
           worldMasterStateFormData={worldMasterStateFormData}
-          onChange={handleWorldMasterFormChange(setWorldMasterFormData)}
+          onChange={handleFormChange}
           onCancel={() => onCancelForm(setShowForm, setWorldMasterFormData)}
-          onSave={() => onSaveWorldMaster(worldMasterStateFormData, setWorldMasterFormData, setShowForm, setWorldMasters, assistants)}
+          onSave={handleFormSave}
           assistants={assistants}
+          formErrors={formErrors}
         />
 
       </ScrollView>

@@ -4,6 +4,10 @@ import { onCreate } from './onCreate';
 import { onEdit } from './onEdit';
 
 export async function onSubmit (formData: SamplerFormData) {
+    if (!formData.name.trim()) {
+        throw new Error('Name is required');
+    }
+
     if (formData.id) {
         const sampler: Sampler = {
             id: formData.id,

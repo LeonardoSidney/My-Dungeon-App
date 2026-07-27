@@ -10,7 +10,7 @@ import { styles } from './styles';
 import { SamplerFormProps } from './constants';
 
 export function SamplerForm (params: SamplerFormProps) {
-  const { showForm, samplerStateFormData, onChange, onCancel, onSave } = params;
+  const { showForm, samplerStateFormData, onChange, onCancel, onSave, formErrors } = params;
 
   if (!showForm) {
     return <></>;
@@ -32,12 +32,15 @@ export function SamplerForm (params: SamplerFormProps) {
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Name</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, formErrors.name && styles.inputError]}
             placeholder="e.g., Default Sampler"
             placeholderTextColor="#666"
             value={samplerStateFormData.name}
             onChangeText={(value) => onChange('name', value)}
           />
+          {formErrors.name && (
+            <Text style={styles.errorText}>{formErrors.name}</Text>
+          )}
         </View>
 
         <View style={styles.inputGroup}>

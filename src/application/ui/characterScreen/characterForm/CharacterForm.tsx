@@ -60,7 +60,8 @@ export function CharacterForm ({
   assistants,
   abilities,
   proficiencies,
-  statuses
+  statuses,
+  formErrors
 }: CharacterFormProps) {
   const { name, activationWord, prompt, observation, assistant, attributes } = characterStateFormData;
   const isEditing = !!characterStateFormData.id;
@@ -86,28 +87,34 @@ export function CharacterForm ({
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Name</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, formErrors.name && styles.inputError]}
             placeholder="e.g., NPC Merchant"
             placeholderTextColor="#666"
             value={name}
             onChangeText={(value) => onChange('name', value)}
           />
+          {formErrors.name && (
+            <Text style={styles.errorText}>{formErrors.name}</Text>
+          )}
         </View>
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Activation Word</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, formErrors.activationWord && styles.inputError]}
             placeholder="e.g., Merchant"
             placeholderTextColor="#666"
             value={activationWord}
             onChangeText={(value) => onChange('activationWord', value)}
           />
+          {formErrors.activationWord && (
+            <Text style={styles.errorText}>{formErrors.activationWord}</Text>
+          )}
         </View>
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Assistant</Text>
-          <View style={styles.dropdown}>
+          <View style={[styles.dropdown, formErrors.assistant && styles.inputError]}>
             {assistants.map((assistantItem) => (
               <TouchableOpacity
                 key={assistantItem.id}
@@ -124,18 +131,24 @@ export function CharacterForm ({
               <Text style={styles.emptyDropdownText}>No assistants available</Text>
             )}
           </View>
+          {formErrors.assistant && (
+            <Text style={styles.errorText}>{formErrors.assistant}</Text>
+          )}
         </View>
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Prompt</Text>
           <TextInput
-            style={styles.promptInput}
+            style={[styles.promptInput, formErrors.prompt && styles.inputError]}
             placeholder="Enter the character prompt..."
             placeholderTextColor="#666"
             value={prompt}
             onChangeText={(value) => onChange('prompt', value)}
             multiline
           />
+          {formErrors.prompt && (
+            <Text style={styles.errorText}>{formErrors.prompt}</Text>
+          )}
         </View>
 
         <View style={styles.inputGroup}>

@@ -2,6 +2,7 @@ import { ConnectionFormData } from './constants';
 
 type ValidationErrors = {
     name?: string;
+    ip?: string;
     port?: string;
 };
 
@@ -12,7 +13,13 @@ export function validateConnectionForm (formData: ConnectionFormData): Validatio
         errors.name = 'Name is required';
     }
 
-    if (formData.port && isNaN(Number(formData.port))) {
+    if (!formData.ip.trim()) {
+        errors.ip = 'IP Address is required';
+    }
+
+    if (!formData.port.trim()) {
+        errors.port = 'Port is required';
+    } else if (isNaN(Number(formData.port))) {
         errors.port = 'Port must be a number';
     }
 
