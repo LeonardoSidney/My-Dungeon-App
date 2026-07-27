@@ -1,5 +1,11 @@
 import { Ability } from '@domain/entities';
 
+export type FormErrors = {
+    name?: string;
+    activationWorld?: string;
+    prompt?: string;
+};
+
 export interface AbilityPanelProps {
     abilities: Ability[];
     onEdit: (ability: Ability) => void;

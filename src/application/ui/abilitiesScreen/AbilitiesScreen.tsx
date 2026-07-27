@@ -5,7 +5,7 @@ import { styles } from './styles';
 import { AbilityPanel } from './abilitiesPanel';
 import { AbilityForm } from './abilitiesForm';
 import { useAbilitiesScreenLogic } from './useAbilitiesScreenLogic';
-import { AbilityFormData } from './constants';
+import { AbilityFormData, FormErrors } from './constants';
 import { setInitialAbilityState } from './setInitialAbilityState';
 import { handleAbilityFormChange } from './handleAbilityFormChange';
 import { onAddNewAbility } from './onAddNewAbility';
@@ -13,12 +13,6 @@ import { onCancelForm } from './onCancelForm';
 import { onEditForm } from './onEditForm';
 import { onEraseAbility } from './onEraseAbility';
 import { onSaveAbility } from './onSaveAbility';
-
-type FormErrors = {
-  name?: string;
-  activationWorld?: string;
-  prompt?: string;
-};
 
 export function AbilitiesScreen () {
   const [abilities, setAbilities] = useState<Ability[]>([]);

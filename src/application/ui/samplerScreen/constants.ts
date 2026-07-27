@@ -1,5 +1,9 @@
 import { Sampler, MirostatEnum } from '@domain/entities';
 
+export type FormErrors = {
+    name?: string;
+};
+
 export interface SamplerPanelProps {
     samplers: Sampler[];
     onEdit: (sampler: Sampler) => void;

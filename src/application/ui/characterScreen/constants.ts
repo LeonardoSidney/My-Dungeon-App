@@ -1,5 +1,12 @@
 import { Assistant, Ability, Proficiency, Status, Attribute } from '@domain/entities';
 
+export type FormErrors = {
+    name?: string;
+    activationWord?: string;
+    assistant?: string;
+    prompt?: string;
+};
+
 export type CharacterFormData = {
     id?: string;
     name: string;

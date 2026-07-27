@@ -5,7 +5,7 @@ import { styles } from './styles';
 import { ProficiencyPanel } from './proficiencyPanel';
 import { ProficiencyForm } from './proficiencyForm';
 import { useProficiencyScreenLogic } from './useProficiencyScreenLogic';
-import { ProficiencyFormData } from './constants';
+import { ProficiencyFormData, FormErrors } from './constants';
 import { setInitialProficiencyState } from './setInitialProficiencyState';
 import { handleProficiencyFormChange } from './handleProficiencyFormChange';
 import { onAddNewProficiency } from './onAddNewProficiency';
@@ -13,12 +13,6 @@ import { onCancelForm } from './onCancelForm';
 import { onEditForm } from './proficiencyForm/onEditForm';
 import { onEraseProficiency } from './proficiencyPanel/onEraseProficiency';
 import { onSaveProficiency } from './proficiencyForm/onSaveProficiency';
-
-type FormErrors = {
-  name?: string;
-  activationWord?: string;
-  prompt?: string;
-};
 
 export function ProficiencyScreen () {
   const [proficiencies, setProficiencies] = useState<Proficiency[]>([]);

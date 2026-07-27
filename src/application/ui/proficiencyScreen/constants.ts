@@ -1,5 +1,11 @@
 import { Proficiency } from '@domain/entities';
 
+export type FormErrors = {
+    name?: string;
+    activationWord?: string;
+    prompt?: string;
+};
+
 export interface ProficiencyPanelProps {
     proficiencies: Proficiency[];
     onEdit: (proficiency: Proficiency) => void;

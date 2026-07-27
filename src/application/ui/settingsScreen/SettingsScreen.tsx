@@ -5,7 +5,7 @@ import { styles } from './styles';
 import { ConnectionPanel } from './connectionPanel';
 import { DangerZone } from './dangerZone/DangerZone';
 import { useConnectionsLoad } from './useConnectionsLoad';
-import { ConnectionFormData } from './constants';
+import { ConnectionFormData, FormErrors } from './constants';
 import { setInitialConnectionState } from './constants';
 import { handleConnectionFormChange } from './handleConnectionFormChange';
 import { onAddNewConnection } from './onAddNewConnection';
@@ -14,12 +14,6 @@ import { onEditForm } from './onEditForm';
 import { onDeleteConnection } from './onDeleteConnection';
 import { onSaveConnection } from './onSaveConnection';
 import { validateConnectionForm, hasValidationErrors } from './validateConnectionForm';
-
-type FormErrors = {
-  name?: string;
-  ip?: string;
-  port?: string;
-};
 
 export function SettingsScreen () {
   const [connections, setConnections] = useState<Connection[]>([]);

@@ -6,7 +6,7 @@ import { WorldMasterPanel } from './worldMasterPanel';
 import { WorldMasterForm } from './worldMasterForm';
 import { useWorldMasterScreenLogic } from './useWorldMasterScreenLogic';
 import { useAssistantWorldMasterLogic } from './useAssistantWorldMasterLogic';
-import { WorldMasterFormData } from './constants';
+import { WorldMasterFormData, FormErrors } from './constants';
 import { setInitialWorldMasterState } from './setInitialWorldMasterState';
 import { handleWorldMasterFormChange } from './handleWorldMasterFormChange';
 import { onAddNewWorldMaster } from './onAddNewWorldMaster';
@@ -14,13 +14,6 @@ import { onCancelForm } from './onCancelForm';
 import { onEditForm } from './onEditForm';
 import { onEraseWorldMaster } from './onEraseWorldMaster';
 import { onSaveWorldMaster } from './onSaveWorldMaster';
-
-type FormErrors = {
-  name?: string;
-  activationWord?: string;
-  assistant?: string;
-  prompt?: string;
-};
 
 export function WorldMasterScreen () {
   const [worldMasters, setWorldMasters] = useState<WorldMaster[]>([]);

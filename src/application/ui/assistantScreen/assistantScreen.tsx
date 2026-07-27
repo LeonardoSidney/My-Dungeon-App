@@ -7,19 +7,13 @@ import { AssistantForm } from './assistantForm';
 import { useAssistantScreenLogic } from './useAssistantScreenLogic';
 import { useModelsLoad } from './useModelsLoad';
 import { useSamplersLoad } from './useSamplersLoad';
-import { AssistantFormData, setInitialAssistantState } from './constants';
+import { AssistantFormData, FormErrors, setInitialAssistantState } from './constants';
 import { handleAssistantFormChange } from './handleAssistantFormChange';
 import { onAddNewAssistant } from './onAddNewAssistant';
 import { onCancelForm } from './onCancelForm';
 import { onEditForm } from './onEditForm';
 import { onEraseAssistant } from './onEraseAssistant';
 import { onSaveAssistant } from './onSaveAssistant';
-
-type FormErrors = {
-  name?: string;
-  model?: string;
-  sampler?: string;
-};
 
 export function AssistantScreen () {
   const [assistants, setAssistants] = useState<Assistant[]>([]);

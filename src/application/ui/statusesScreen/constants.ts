@@ -1,5 +1,11 @@
 import { Status } from '@domain/entities';
 
+export type FormErrors = {
+    name?: string;
+    activationWord?: string;
+    prompt?: string;
+};
+
 export interface StatusPanelProps {
     statuses: Status[];
     onEdit: (status: Status) => void;
