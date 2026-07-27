@@ -5,46 +5,29 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import { Connection } from '@domain/entities';
 import { styles } from './styles';
-import { useConnectionForm } from './useConnectionForm';
-import { useFormValidation } from './useFormValidation';
-import { useConnectionSave } from './useConnectionSave';
+import { ConnectionFormData } from '../constants';
 
 type ConnectionFormProps = {
   visible: boolean;
-  onClose: () => void;
+  formData: ConnectionFormData;
+  onChange: (field: keyof ConnectionFormData, value: string) => void;
+  onCancel: () => void;
   onSave: () => void;
-  initialData?: Connection | null;
+  errors: { name?: string; port?: string; };
+  loading: boolean;
 };
 
 export function ConnectionForm ({
   visible,
-  onClose,
+  formData,
+  onChange,
+  onCancel,
   onSave,
-  initialData
+  errors,
+  loading
 }: ConnectionFormProps) {
-  const resolvedInitialData: Connection | null = initialData || null;
-
-  const { formState, loading, updateField, setLoading, getPortNumber } = useConnectionForm(resolvedInitialData);
-  const { errors, validate } = useFormValidation();
-  const { saveConnection } = useConnectionSave();
-
-  const handleSave = () => {
-    const isValid = validate(formState);
-    if (!isValid) return;
-
-    saveConnection(
-      formState,
-      getPortNumber,
-      resolvedInitialData,
-      onClose,
-      onSave,
-      setLoading,
-    );
-  };
-
-  const isEditing = resolvedInitialData !== null;
+  const isEditing = !!formData.id;
 
   if (!visible) {
     return null;
@@ -57,7 +40,7 @@ export function ConnectionForm ({
           <Text style={styles.formTitle}>
             {isEditing ? 'Edit Connection' : 'New Connection'}
           </Text>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+          <TouchableOpacity onPress={onCancel} style={styles.closeButton}>
             <Text style={styles.closeButtonText}>✕</Text>
           </TouchableOpacity>
         </View>
@@ -66,8 +49,8 @@ export function ConnectionForm ({
           <Text style={styles.label}>Name</Text>
           <TextInput
             style={[styles.input, errors.name && styles.inputError]}
-            value={formState.name}
-            onChangeText={(value) => updateField('name', value)}
+            value={formData.name}
+            onChangeText={(value) => onChange('name', value)}
             placeholder="e.g., My Server"
             placeholderTextColor="#666"
           />
@@ -80,8 +63,8 @@ export function ConnectionForm ({
           <Text style={styles.label}>IP Address</Text>
           <TextInput
             style={styles.input}
-            value={formState.ip}
-            onChangeText={(value) => updateField('ip', value)}
+            value={formData.ip}
+            onChangeText={(value) => onChange('ip', value)}
             placeholder="e.g., 192.168.1.100"
             placeholderTextColor="#666"
             keyboardType="url"
@@ -92,8 +75,8 @@ export function ConnectionForm ({
           <Text style={styles.label}>Port</Text>
           <TextInput
             style={[styles.input, errors.port && styles.inputError]}
-            value={formState.port}
-            onChangeText={(value) => updateField('port', value)}
+            value={formData.port}
+            onChangeText={(value) => onChange('port', value)}
             placeholder="e.g., 8080"
             placeholderTextColor="#666"
             keyboardType="numeric"
@@ -107,8 +90,8 @@ export function ConnectionForm ({
           <Text style={styles.label}>Auth Token (optional)</Text>
           <TextInput
             style={styles.input}
-            value={formState.auth}
-            onChangeText={(value) => updateField('auth', value)}
+            value={formData.auth}
+            onChangeText={(value) => onChange('auth', value)}
             placeholder="Enter auth token"
             placeholderTextColor="#666"
           />
@@ -118,14 +101,14 @@ export function ConnectionForm ({
       <View style={styles.formActions}>
         <TouchableOpacity
           style={styles.cancelButton}
-          onPress={onClose}
+          onPress={onCancel}
           disabled={loading}
         >
           <Text style={styles.cancelButtonText}>Cancel</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.saveButton, loading && styles.saveButtonDisabled]}
-          onPress={handleSave}
+          onPress={onSave}
           disabled={loading}
         >
           <Text style={styles.saveButtonText}>
