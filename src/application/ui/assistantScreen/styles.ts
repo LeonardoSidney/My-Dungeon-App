@@ -14,19 +14,6 @@ export const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#fff',
     },
-    loadingText: {
-        color: '#aaa',
-        fontSize: 14,
-        textAlign: 'center',
-        marginTop: 20,
-    },
-    emptyText: {
-        color: '#888',
-        fontSize: 14,
-        fontStyle: 'italic',
-        textAlign: 'center',
-        marginTop: 20,
-    },
     assistantItem: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -65,17 +52,15 @@ export const styles = StyleSheet.create({
     },
     addButton: {
         paddingVertical: 10,
-        paddingHorizontal: 16,
-        backgroundColor: '#3498db',
-        borderRadius: 8,
+        paddingHorizontal: 12,
+        backgroundColor: '#2a2a2a',
+        borderRadius: 6,
+        marginTop: 8,
         alignItems: 'center',
-        justifyContent: 'center',
-        alignSelf: 'flex-start',
-        marginTop: 12,
     },
     addButtonText: {
-        fontSize: 16,
+        fontSize: 14,
         color: '#fff',
-        fontWeight: '600',
+        fontWeight: '500',
     },
 });

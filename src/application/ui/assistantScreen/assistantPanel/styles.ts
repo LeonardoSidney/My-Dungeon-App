@@ -1,12 +1,6 @@
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
-    loadingText: {
-        color: '#aaa',
-        fontSize: 14,
-        textAlign: 'center',
-        marginTop: 20,
-    },
     emptyText: {
         color: '#888',
         fontSize: 14,
@@ -49,18 +43,5 @@ export const styles = StyleSheet.create({
     },
     actionButtonText: {
         fontSize: 16,
-    },
-    addButton: {
-        paddingVertical: 10,
-        paddingHorizontal: 12,
-        backgroundColor: '#2a2a2a',
-        borderRadius: 6,
-        marginTop: 8,
-        alignItems: 'center',
-    },
-    addButtonText: {
-        fontSize: 14,
-        color: '#fff',
-        fontWeight: '500',
     },
 });
