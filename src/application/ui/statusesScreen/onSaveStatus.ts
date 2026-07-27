@@ -6,13 +6,13 @@ import { loadStatuses } from './loadStatuses';
 import { Status } from '@domain/entities';
 
 export async function onSaveStatus (
-  formData: StatusFormData,
-  setStatusFormData: Dispatch<SetStateAction<StatusFormData>>,
-  setShowForm: Dispatch<SetStateAction<boolean>>,
-  setStatuses: Dispatch<SetStateAction<Status[]>>
+    formData: StatusFormData,
+    setStatusFormData: Dispatch<SetStateAction<StatusFormData>>,
+    setShowForm: Dispatch<SetStateAction<boolean>>,
+    setStatuses: Dispatch<SetStateAction<Status[]>>
 ) {
-  await onSubmit(formData);
-  setStatusFormData(setInitialStatusState());
-  setShowForm(false);
-  await loadStatuses(setStatuses);
+    await onSubmit(formData);
+    setStatusFormData(setInitialStatusState());
+    setShowForm(false);
+    await loadStatuses(setStatuses);
 }

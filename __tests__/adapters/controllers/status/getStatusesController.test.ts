@@ -5,112 +5,112 @@ import { Status } from '@domain/entities';
 
 // Mock das dependências
 const mockLogger = {
-  info: jest.fn(),
-  error: jest.fn(),
-  warn: jest.fn(),
-  debug: jest.fn()
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn()
 };
 
 const mockUseCase = {
-  execute: jest.fn()
+    execute: jest.fn()
 };
 
 describe('GetStatusesController', () => {
-  let controller: GetStatusesController;
+    let controller: GetStatusesController;
 
-  beforeEach(() => {
-    controller = new GetStatusesController(mockLogger as unknown as ILogger, mockUseCase as unknown as IGetStatusesUseCase);
-    jest.clearAllMocks();
-  });
+    beforeEach(() => {
+        controller = new GetStatusesController(mockLogger as unknown as ILogger, mockUseCase as unknown as IGetStatusesUseCase);
+        jest.clearAllMocks();
+    });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
+    it('should be defined', () => {
+        expect(controller).toBeDefined();
+    });
 
-  it('should call logger.info when handling a request', async () => {
-    const mockStatuses: Status[] = [
-      {
-        id: '1',
-        name: 'Status 1',
-        prompt: 'Prompt 1',
-        activationWord: 'activate1',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: '2',
-        name: 'Status 2',
-        prompt: 'Prompt 2',
-        activationWord: 'activate2',
-        observation: 'Test observation',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-    ];
+    it('should call logger.info when handling a request', async () => {
+        const mockStatuses: Status[] = [
+            {
+                id: '1',
+                name: 'Status 1',
+                prompt: 'Prompt 1',
+                activationWord: 'activate1',
+                createdAt: new Date(),
+                updatedAt: new Date()
+            },
+            {
+                id: '2',
+                name: 'Status 2',
+                prompt: 'Prompt 2',
+                activationWord: 'activate2',
+                observation: 'Test observation',
+                createdAt: new Date(),
+                updatedAt: new Date()
+            }
+        ];
 
-    mockUseCase.execute.mockResolvedValue(mockStatuses);
+        mockUseCase.execute.mockResolvedValue(mockStatuses);
 
-    await controller.handle();
+        await controller.handle();
 
-    expect(mockLogger.info).toHaveBeenCalledWith('Executing GetStatusesController::handle');
-  });
+        expect(mockLogger.info).toHaveBeenCalledWith('Executing GetStatusesController::handle');
+    });
 
-  it('should call useCase.execute when handling a request', async () => {
-    const mockStatuses: Status[] = [
-      {
-        id: '1',
-        name: 'Status 1',
-        prompt: 'Prompt 1',
-        activationWord: 'activate1',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-    ];
+    it('should call useCase.execute when handling a request', async () => {
+        const mockStatuses: Status[] = [
+            {
+                id: '1',
+                name: 'Status 1',
+                prompt: 'Prompt 1',
+                activationWord: 'activate1',
+                createdAt: new Date(),
+                updatedAt: new Date()
+            }
+        ];
 
-    mockUseCase.execute.mockResolvedValue(mockStatuses);
+        mockUseCase.execute.mockResolvedValue(mockStatuses);
 
-    await controller.handle();
+        await controller.handle();
 
-    expect(mockUseCase.execute).toHaveBeenCalled();
-  });
+        expect(mockUseCase.execute).toHaveBeenCalled();
+    });
 
-  it('should return statuses array when use case succeeds', async () => {
-    const mockStatuses: Status[] = [
-      {
-        id: '1',
-        name: 'Status 1',
-        prompt: 'Prompt 1',
-        activationWord: 'activate1',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: '2',
-        name: 'Status 2',
-        prompt: 'Prompt 2',
-        activationWord: 'activate2',
-        observation: 'Test observation',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-    ];
+    it('should return statuses array when use case succeeds', async () => {
+        const mockStatuses: Status[] = [
+            {
+                id: '1',
+                name: 'Status 1',
+                prompt: 'Prompt 1',
+                activationWord: 'activate1',
+                createdAt: new Date(),
+                updatedAt: new Date()
+            },
+            {
+                id: '2',
+                name: 'Status 2',
+                prompt: 'Prompt 2',
+                activationWord: 'activate2',
+                observation: 'Test observation',
+                createdAt: new Date(),
+                updatedAt: new Date()
+            }
+        ];
 
-    mockUseCase.execute.mockResolvedValue(mockStatuses);
+        mockUseCase.execute.mockResolvedValue(mockStatuses);
 
-    const response = await controller.handle();
+        const response = await controller.handle();
 
-    expect(response).toEqual(mockStatuses);
-    expect(Array.isArray(response)).toBe(true);
-    expect(response.length).toBe(2);
-  });
+        expect(response).toEqual(mockStatuses);
+        expect(Array.isArray(response)).toBe(true);
+        expect(response.length).toBe(2);
+    });
 
-  it('should return empty array when no statuses exist', async () => {
-    mockUseCase.execute.mockResolvedValue([]);
+    it('should return empty array when no statuses exist', async () => {
+        mockUseCase.execute.mockResolvedValue([]);
 
-    const response = await controller.handle();
+        const response = await controller.handle();
 
-    expect(response).toEqual([]);
-    expect(Array.isArray(response)).toBe(true);
-    expect(response.length).toBe(0);
-  });
+        expect(response).toEqual([]);
+        expect(Array.isArray(response)).toBe(true);
+        expect(response.length).toBe(0);
+    });
 });
