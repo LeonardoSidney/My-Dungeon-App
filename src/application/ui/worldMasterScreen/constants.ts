@@ -9,6 +9,13 @@ export type WorldMasterFormData = {
     assistant: Assistant | null;
 };
 
+export type FormErrors = {
+    name?: string;
+    activationWord?: string;
+    assistant?: string;
+    prompt?: string;
+};
+
 export type WorldMasterFormProps = {
     showForm: boolean;
     worldMasterStateFormData: WorldMasterFormData;
@@ -16,6 +23,7 @@ export type WorldMasterFormProps = {
     onCancel: () => void;
     onSave: () => void;
     assistants: Assistant[];
+    formErrors: FormErrors;
 };
 
 export function setInitialWorldMasterState (): WorldMasterFormData {

@@ -14,12 +14,60 @@ import { onEditForm } from './onEditForm';
 import { onEraseAbility } from './onEraseAbility';
 import { onSaveAbility } from './onSaveAbility';
 
+type FormErrors = {
+  name?: string;
+  activationWorld?: string;
+  prompt?: string;
+};
+
 export function AbilitiesScreen () {
   const [abilities, setAbilities] = useState<Ability[]>([]);
   const [abilityStateFormData, setAbilityFormData] = useState<AbilityFormData>(setInitialAbilityState());
   const [showForm, setShowForm] = useState(false);
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
 
   useAbilitiesScreenLogic(setAbilities);
+
+  const handleFormSave = async () => {
+    const errors: FormErrors = {};
+    if (!abilityStateFormData.name.trim()) errors.name = 'Name is required';
+    if (!abilityStateFormData.activationWorld.trim()) errors.activationWorld = 'Activation World is required';
+    if (!abilityStateFormData.prompt.trim()) errors.prompt = 'Prompt is required';
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    setFormErrors({});
+
+    try {
+      await onSaveAbility(abilityStateFormData, setAbilityFormData, setShowForm, setAbilities);
+    } catch (error) {
+      setFormErrors({ name: (error as Error).message });
+    }
+  };
+
+  const handleFormChange = (field: keyof AbilityFormData, value: string | Date) => {
+    setFormErrors(prev => {
+      const next = { ...prev };
+      const errorField = field as keyof FormErrors;
+      if (next[errorField]) {
+        delete next[errorField];
+      }
+      return next;
+    });
+    handleAbilityFormChange(setAbilityFormData)(field, value);
+  };
+
+  const handleAddNewAbility = () => {
+    setFormErrors({});
+    onAddNewAbility(setShowForm, setAbilityFormData);
+  };
+
+  const handleEditAbility = (ability: Ability) => {
+    setFormErrors({});
+    onEditForm(ability, setShowForm, setAbilityFormData);
+  };
 
   return (
     <View style={styles.container}>
@@ -30,13 +78,13 @@ export function AbilitiesScreen () {
 
         <AbilityPanel
           abilities={abilities}
-          onEdit={(ability) => onEditForm(ability, setShowForm, setAbilityFormData)}
+          onEdit={handleEditAbility}
           onDelete={(ability) => onEraseAbility(ability, setAbilities)}
         />
 
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => onAddNewAbility(setShowForm, setAbilityFormData)}
+          onPress={handleAddNewAbility}
         >
           <Text style={styles.addButtonText}>Add Ability</Text>
         </TouchableOpacity>
@@ -44,9 +92,10 @@ export function AbilitiesScreen () {
         <AbilityForm
           showForm={showForm}
           abilityStateFormData={abilityStateFormData}
-          onChange={handleAbilityFormChange(setAbilityFormData)}
+          onChange={handleFormChange}
           onCancel={() => onCancelForm(setShowForm, setAbilityFormData)}
-          onSave={() => onSaveAbility(abilityStateFormData, setAbilityFormData, setShowForm, setAbilities)}
+          onSave={handleFormSave}
+          formErrors={formErrors}
         />
 
       </ScrollView>

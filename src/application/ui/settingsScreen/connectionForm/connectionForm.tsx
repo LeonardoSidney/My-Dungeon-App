@@ -14,7 +14,7 @@ type ConnectionFormProps = {
   onChange: (field: keyof ConnectionFormData, value: string) => void;
   onCancel: () => void;
   onSave: () => void;
-  errors: { name?: string; port?: string; };
+  errors: { name?: string; ip?: string; port?: string; };
   loading: boolean;
 };
 
@@ -62,13 +62,16 @@ export function ConnectionForm ({
         <View style={styles.inputGroup}>
           <Text style={styles.label}>IP Address</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, errors.ip && styles.inputError]}
             value={formData.ip}
             onChangeText={(value) => onChange('ip', value)}
             placeholder="e.g., 192.168.1.100"
             placeholderTextColor="#666"
             keyboardType="url"
           />
+          {errors.ip && (
+            <Text style={styles.errorText}>{errors.ip}</Text>
+          )}
         </View>
 
         <View style={styles.inputGroup}>

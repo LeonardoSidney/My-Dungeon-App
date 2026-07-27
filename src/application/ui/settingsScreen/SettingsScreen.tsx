@@ -15,10 +15,17 @@ import { onDeleteConnection } from './onDeleteConnection';
 import { onSaveConnection } from './onSaveConnection';
 import { validateConnectionForm, hasValidationErrors } from './validateConnectionForm';
 
+type FormErrors = {
+  name?: string;
+  ip?: string;
+  port?: string;
+};
+
 export function SettingsScreen () {
   const [connections, setConnections] = useState<Connection[]>([]);
   const [connectionStateFormData, setConnectionFormData] = useState<ConnectionFormData>(setInitialConnectionState());
   const [showForm, setShowForm] = useState(false);
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
 
   const [expandedConnection, setExpandedConnection] = useState(false);
   const [expandedDanger, setExpandedDanger] = useState(false);
@@ -41,14 +48,44 @@ export function SettingsScreen () {
 
   const handleFormSave = async () => {
     const errors = validateConnectionForm(connectionStateFormData);
-    if (hasValidationErrors(errors)) return;
+    if (hasValidationErrors(errors)) {
+      setFormErrors(errors);
+      return;
+    }
+    setFormErrors({});
 
-    await onSaveConnection(
-      connectionStateFormData,
-      setConnectionFormData,
-      setShowForm,
-      setConnections
-    );
+    try {
+      await onSaveConnection(
+        connectionStateFormData,
+        setConnectionFormData,
+        setShowForm,
+        setConnections
+      );
+    } catch (error) {
+      setFormErrors({ name: (error as Error).message });
+    }
+  };
+
+  const handleFormChange = (field: keyof ConnectionFormData, value: string) => {
+    setFormErrors(prev => {
+      const next = { ...prev };
+      const errorField = field as keyof FormErrors;
+      if (next[errorField]) {
+        delete next[errorField];
+      }
+      return next;
+    });
+    handleConnectionFormChange(setConnectionFormData)(field, value);
+  };
+
+  const handleAddNewConnection = () => {
+    setFormErrors({});
+    onAddNewConnection(setShowForm, setConnectionFormData);
+  };
+
+  const handleEditConnection = (connection: Connection) => {
+    setFormErrors({});
+    onEditForm(connection, setShowForm, setConnectionFormData);
   };
 
   return (
@@ -63,15 +100,15 @@ export function SettingsScreen () {
           loading={false}
           expanded={expandedConnection}
           onToggleExpand={() => setExpandedConnection(!expandedConnection)}
-          onAdd={() => onAddNewConnection(setShowForm, setConnectionFormData)}
-          onEdit={(connection: Connection) => onEditForm(connection, setShowForm, setConnectionFormData)}
+          onAdd={handleAddNewConnection}
+          onEdit={handleEditConnection}
           onDelete={(connectionId: string) => onDeleteConnection(connectionId, setConnections)}
           formVisible={showForm}
           formData={connectionStateFormData}
-          onFormChange={handleConnectionFormChange(setConnectionFormData)}
+          onFormChange={handleFormChange}
           onFormCancel={() => onCancelForm(setShowForm, setConnectionFormData)}
           onFormSave={handleFormSave}
-          formErrors={{}}
+          formErrors={formErrors}
           formLoading={false}
         />
 

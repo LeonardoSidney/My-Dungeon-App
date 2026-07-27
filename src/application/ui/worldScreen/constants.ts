@@ -16,12 +16,19 @@ export type WorldPanelProps = {
     onDelete: (world: World) => void;
 };
 
+export type FormErrors = {
+    name?: string;
+    activationWord?: string;
+    prompt?: string;
+};
+
 export type WorldFormProps = {
     showForm: boolean;
     worldStateFormData: WorldFormData;
     onChange: (field: keyof WorldFormData, value: string) => void;
     onCancel: () => void;
     onSave: () => void;
+    formErrors: FormErrors;
 };
 
 export function setInitialWorldState (): WorldFormData {

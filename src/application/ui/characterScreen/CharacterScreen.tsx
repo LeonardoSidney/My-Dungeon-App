@@ -18,6 +18,13 @@ import { onEditForm } from './onEditForm';
 import { onEraseCharacter } from './onEraseCharacter';
 import { onSaveCharacter } from './onSaveCharacter';
 
+type FormErrors = {
+  name?: string;
+  activationWord?: string;
+  assistant?: string;
+  prompt?: string;
+};
+
 export function CharacterScreen () {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [characterStateFormData, setCharacterFormData] = useState<CharacterFormData>(setInitialCharacterState());
@@ -26,12 +33,55 @@ export function CharacterScreen () {
   const [proficiencies, setProficiencies] = useState<Proficiency[]>([]);
   const [statuses, setStatuses] = useState<Status[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
 
   useCharactersLoad(setCharacters);
   useAssistantsLoad(setAssistants);
   useAbilitiesLoad(setAbilities);
   useProficienciesLoad(setProficiencies);
   useStatusesLoad(setStatuses);
+
+  const handleFormSave = async () => {
+    const errors: FormErrors = {};
+    if (!characterStateFormData.name.trim()) errors.name = 'Name is required';
+    if (!characterStateFormData.activationWord.trim()) errors.activationWord = 'Activation Word is required';
+    if (!characterStateFormData.assistant) errors.assistant = 'Assistant is required';
+    if (!characterStateFormData.prompt.trim()) errors.prompt = 'Prompt is required';
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    setFormErrors({});
+
+    try {
+      await onSaveCharacter(characterStateFormData, setCharacterFormData, setShowForm, setCharacters);
+    } catch (error) {
+      setFormErrors({ name: (error as Error).message });
+    }
+  };
+
+  const handleFormChange = (field: keyof CharacterFormData, value: any) => {
+    setFormErrors(prev => {
+      const next = { ...prev };
+      const errorField = field as keyof FormErrors;
+      if (next[errorField]) {
+        delete next[errorField];
+      }
+      return next;
+    });
+    handleCharacterFormChange(setCharacterFormData)(field, value);
+  };
+
+  const handleAddNewCharacter = () => {
+    setFormErrors({});
+    onAddNewCharacter(setShowForm, setCharacterFormData);
+  };
+
+  const handleEditCharacter = (character: Character) => {
+    setFormErrors({});
+    onEditForm(character, assistants, abilities, proficiencies, statuses, setShowForm, setCharacterFormData);
+  };
 
   return (
     <View style={styles.container}>
@@ -42,13 +92,13 @@ export function CharacterScreen () {
 
         <CharacterPanel
           characters={characters}
-          onEdit={(character: Character) => onEditForm(character, assistants, abilities, proficiencies, statuses, setShowForm, setCharacterFormData)}
+          onEdit={(character: Character) => handleEditCharacter(character)}
           onDelete={(character: Character) => onEraseCharacter(character, setCharacters)}
         />
 
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => onAddNewCharacter(setShowForm, setCharacterFormData)}
+          onPress={handleAddNewCharacter}
         >
           <Text style={styles.addButtonText}>Add Character</Text>
         </TouchableOpacity>
@@ -56,13 +106,14 @@ export function CharacterScreen () {
         <CharacterForm
           showForm={showForm}
           characterStateFormData={characterStateFormData}
-          onChange={handleCharacterFormChange(setCharacterFormData)}
+          onChange={handleFormChange}
           onCancel={() => onCancelForm(setShowForm, setCharacterFormData)}
-          onSave={() => onSaveCharacter(characterStateFormData, setCharacterFormData, setShowForm, setCharacters)}
+          onSave={handleFormSave}
           assistants={assistants}
           abilities={abilities}
           proficiencies={proficiencies}
           statuses={statuses}
+          formErrors={formErrors}
         />
 
       </ScrollView>

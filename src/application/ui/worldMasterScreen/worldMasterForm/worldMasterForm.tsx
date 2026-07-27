@@ -15,7 +15,8 @@ export function WorldMasterForm ({
   onChange,
   onCancel,
   onSave,
-  assistants
+  assistants,
+  formErrors
 }: WorldMasterFormProps) {
   const { name, activationWord, prompt, observation, assistant } = worldMasterStateFormData;
   const isEditing = !!worldMasterStateFormData.id;
@@ -39,28 +40,34 @@ export function WorldMasterForm ({
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Name</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, formErrors.name && styles.inputError]}
             placeholder="e.g., Dungeon Master"
             placeholderTextColor="#666"
             value={name}
             onChangeText={(value) => onChange('name', value)}
           />
+          {formErrors.name && (
+            <Text style={styles.errorText}>{formErrors.name}</Text>
+          )}
         </View>
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Activation Word</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, formErrors.activationWord && styles.inputError]}
             placeholder="e.g., Dungeon"
             placeholderTextColor="#666"
             value={activationWord}
             onChangeText={(value) => onChange('activationWord', value)}
           />
+          {formErrors.activationWord && (
+            <Text style={styles.errorText}>{formErrors.activationWord}</Text>
+          )}
         </View>
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Assistant</Text>
-          <View style={styles.dropdown}>
+          <View style={[styles.dropdown, formErrors.assistant && styles.inputError]}>
             {assistants.map((assistantItem) => (
               <TouchableOpacity
                 key={assistantItem.id}
@@ -74,12 +81,15 @@ export function WorldMasterForm ({
               </TouchableOpacity>
             ))}
           </View>
+          {formErrors.assistant && (
+            <Text style={styles.errorText}>{formErrors.assistant}</Text>
+          )}
         </View>
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Prompt</Text>
           <TextInput
-            style={[styles.input, styles.promptInput]}
+            style={[styles.input, styles.promptInput, formErrors.prompt && styles.inputError]}
             placeholder="Enter the world master prompt..."
             placeholderTextColor="#666"
             value={prompt}
@@ -87,6 +97,9 @@ export function WorldMasterForm ({
             multiline
             numberOfLines={4}
           />
+          {formErrors.prompt && (
+            <Text style={styles.errorText}>{formErrors.prompt}</Text>
+          )}
         </View>
 
         <View style={styles.inputGroup}>

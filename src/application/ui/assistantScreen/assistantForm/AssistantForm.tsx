@@ -16,7 +16,8 @@ export function AssistantForm ({
   onCancel,
   onSave,
   models,
-  samplers
+  samplers,
+  formErrors
 }: AssistantFormProps) {
   const { name, observation, model, sampler } = assistantStateFormData;
   const isEditing = !!assistantStateFormData.id;
@@ -40,17 +41,20 @@ export function AssistantForm ({
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Name</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, formErrors.name && styles.inputError]}
             placeholder="e.g., Dungeon Master Assistant"
             placeholderTextColor="#666"
             value={name}
             onChangeText={(value) => onChange('name', value)}
           />
+          {formErrors.name && (
+            <Text style={styles.errorText}>{formErrors.name}</Text>
+          )}
         </View>
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Model</Text>
-          <View style={styles.dropdown}>
+          <View style={[styles.dropdown, formErrors.model && styles.inputError]}>
             {models.map((modelItem) => (
               <TouchableOpacity
                 key={`${modelItem.id}-${modelItem.connection.id}`}
@@ -71,11 +75,14 @@ export function AssistantForm ({
               <Text style={styles.emptyDropdownText}>No models available</Text>
             )}
           </View>
+          {formErrors.model && (
+            <Text style={styles.errorText}>{formErrors.model}</Text>
+          )}
         </View>
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Sampler</Text>
-          <View style={styles.dropdown}>
+          <View style={[styles.dropdown, formErrors.sampler && styles.inputError]}>
             {samplers.map((samplerItem) => (
               <TouchableOpacity
                 key={samplerItem.id}
@@ -92,6 +99,9 @@ export function AssistantForm ({
               <Text style={styles.emptyDropdownText}>No samplers available</Text>
             )}
           </View>
+          {formErrors.sampler && (
+            <Text style={styles.errorText}>{formErrors.sampler}</Text>
+          )}
         </View>
 
         <View style={styles.inputGroup}>

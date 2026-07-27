@@ -3,7 +3,7 @@ import { styles } from './styles';
 import { AbilityFormProps } from './constants';
 
 export function AbilityForm (params: AbilityFormProps) {
-  const { showForm, abilityStateFormData, onChange, onCancel, onSave } = params;
+  const { showForm, abilityStateFormData, onChange, onCancel, onSave, formErrors } = params;
 
   if (!showForm) {
     return <></>;
@@ -25,35 +25,44 @@ export function AbilityForm (params: AbilityFormProps) {
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Name</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, formErrors.name && styles.inputError]}
             placeholder="e.g., Fireball"
             placeholderTextColor="#666"
             value={abilityStateFormData.name}
             onChangeText={(value) => onChange('name', value)}
           />
+          {formErrors.name && (
+            <Text style={styles.errorText}>{formErrors.name}</Text>
+          )}
         </View>
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Activation World</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, formErrors.activationWorld && styles.inputError]}
             placeholder="e.g., Combat"
             placeholderTextColor="#666"
             value={abilityStateFormData.activationWorld}
             onChangeText={(value) => onChange('activationWorld', value)}
           />
+          {formErrors.activationWorld && (
+            <Text style={styles.errorText}>{formErrors.activationWorld}</Text>
+          )}
         </View>
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Prompt</Text>
           <TextInput
-            style={styles.promptInput}
+            style={[styles.promptInput, formErrors.prompt && styles.inputError]}
             placeholder="Enter the ability prompt..."
             placeholderTextColor="#666"
             value={abilityStateFormData.prompt}
             onChangeText={(value) => onChange('prompt', value)}
             multiline
           />
+          {formErrors.prompt && (
+            <Text style={styles.errorText}>{formErrors.prompt}</Text>
+          )}
         </View>
 
         <View style={styles.inputGroup}>
