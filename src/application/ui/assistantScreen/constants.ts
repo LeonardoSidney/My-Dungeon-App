@@ -1,5 +1,11 @@
 import { Model, Sampler } from '@domain/entities';
 
+export type FormErrors = {
+    name?: string;
+    model?: string;
+    sampler?: string;
+};
+
 export type AssistantFormData = {
     id?: string;
     name: string;

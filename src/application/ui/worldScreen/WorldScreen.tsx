@@ -13,12 +13,7 @@ import { onCancelForm } from './onCancelForm';
 import { onEditForm } from './onEditForm';
 import { onEraseWorld } from './onEraseWorld';
 import { onSaveWorld } from './onSaveWorld';
-
-type FormErrors = {
-  name?: string;
-  activationWord?: string;
-  prompt?: string;
-};
+import { FormErrors } from './constants';
 
 export function WorldScreen () {
   const [worlds, setWorlds] = useState<World[]>([]);

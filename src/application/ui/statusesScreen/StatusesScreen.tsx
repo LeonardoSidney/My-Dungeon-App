@@ -5,7 +5,7 @@ import { styles } from './styles';
 import { StatusPanel } from './statusPanel';
 import { StatusForm } from './statusForm';
 import { useStatusesScreenLogic } from './useStatusesScreenLogic';
-import { StatusFormData } from './constants';
+import { StatusFormData, FormErrors } from './constants';
 import { setInitialStatusState } from './setInitialStatusState';
 import { handleStatusFormChange } from './handleStatusFormChange';
 import { onAddNewStatus } from './onAddNewStatus';
@@ -13,12 +13,6 @@ import { onCancelForm } from './onCancelForm';
 import { onEditForm } from './onEditForm';
 import { onEraseStatus } from './onEraseStatus';
 import { onSaveStatus } from './onSaveStatus';
-
-type FormErrors = {
-  name?: string;
-  activationWord?: string;
-  prompt?: string;
-};
 
 export function StatusesScreen () {
   const [statuses, setStatuses] = useState<Status[]>([]);

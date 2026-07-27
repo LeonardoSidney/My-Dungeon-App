@@ -9,7 +9,7 @@ import { useAssistantsLoad } from './useAssistantsLoad';
 import { useAbilitiesLoad } from './useAbilitiesLoad';
 import { useProficienciesLoad } from './useProficienciesLoad';
 import { useStatusesLoad } from './useStatusesLoad';
-import { CharacterFormData } from './constants';
+import { CharacterFormData, FormErrors } from './constants';
 import { setInitialCharacterState } from './setInitialCharacterState';
 import { handleCharacterFormChange } from './handleCharacterFormChange';
 import { onAddNewCharacter } from './onAddNewCharacter';
@@ -17,13 +17,6 @@ import { onCancelForm } from './onCancelForm';
 import { onEditForm } from './onEditForm';
 import { onEraseCharacter } from './onEraseCharacter';
 import { onSaveCharacter } from './onSaveCharacter';
-
-type FormErrors = {
-  name?: string;
-  activationWord?: string;
-  assistant?: string;
-  prompt?: string;
-};
 
 export function CharacterScreen () {
   const [characters, setCharacters] = useState<Character[]>([]);

@@ -5,7 +5,7 @@ import { styles } from './styles';
 import { SamplerPanel } from './samplerPanel';
 import { SamplerForm } from './samplerForm';
 import { useSamplerScreenLogic } from './useSamplerScreenLogic';
-import { SamplerFormData } from './constants';
+import { SamplerFormData, FormErrors } from './constants';
 import { setInitialSamplerState } from './setInitialSamplerState';
 import { handleSamplerFormChange } from './handleSamplerFormChange';
 import { onAddNewSampler } from './onAddNewSampler';
@@ -13,10 +13,6 @@ import { onCancelForm } from './onCancelForm';
 import { onEditForm } from './onEditForm';
 import { onEraseSampler } from './onEraseSampler';
 import { onSaveSampler } from './onSaveSampler';
-
-type FormErrors = {
-  name?: string;
-};
 
 export function SamplerScreen () {
   const [samplers, setSamplers] = useState<Sampler[]>([]);
