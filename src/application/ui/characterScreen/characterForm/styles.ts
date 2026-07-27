@@ -18,7 +18,7 @@ export const styles = StyleSheet.create({
         marginBottom: 16,
     },
     formTitle: {
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: 'bold',
         color: '#fff',
     },
@@ -28,9 +28,6 @@ export const styles = StyleSheet.create({
     closeButtonText: {
         fontSize: 18,
         color: '#aaa',
-    },
-    scrollView: {
-        maxHeight: 300,
     },
     inputGroup: {
         marginBottom: 12,
@@ -48,42 +45,54 @@ export const styles = StyleSheet.create({
         borderRadius: 8,
         padding: 12,
         fontSize: 16,
-        color: '#fff',
+        color: '#ccc',
     },
-    inputError: {
-        borderColor: '#e74c3c',
+    promptInput: {
+        backgroundColor: '#2a2a2a',
+        borderWidth: 1,
+        borderColor: '#444',
+        borderRadius: 8,
+        padding: 12,
+        fontSize: 16,
+        color: '#ccc',
+        minHeight: 100,
+        textAlignVertical: 'top',
     },
-    errorText: {
-        color: '#e74c3c',
-        fontSize: 12,
-        marginTop: 4,
+    observationInput: {
+        backgroundColor: '#2a2a2a',
+        borderWidth: 1,
+        borderColor: '#444',
+        borderRadius: 8,
+        padding: 12,
+        fontSize: 16,
+        color: '#ccc',
+        minHeight: 80,
+        textAlignVertical: 'top',
     },
-    assistantDropdown: {
+    dropdown: {
         backgroundColor: '#2a2a2a',
         borderWidth: 1,
         borderColor: '#444',
         borderRadius: 8,
         maxHeight: 150,
     },
-    assistantOption: {
+    dropdownOption: {
         padding: 12,
         borderBottomWidth: 1,
         borderBottomColor: '#333',
     },
-    assistantOptionSelected: {
+    dropdownOptionSelected: {
         backgroundColor: '#3a3a3a',
     },
-    assistantOptionText: {
+    dropdownOptionText: {
         fontSize: 16,
         color: '#fff',
     },
-    promptInput: {
-        minHeight: 100,
-        textAlignVertical: 'top',
-    },
-    observationInput: {
-        minHeight: 80,
-        textAlignVertical: 'top',
+    emptyDropdownText: {
+        fontSize: 14,
+        color: '#888',
+        padding: 12,
+        textAlign: 'center',
     },
     formActions: {
         flexDirection: 'row',
@@ -111,9 +120,6 @@ export const styles = StyleSheet.create({
         borderRadius: 8,
         backgroundColor: '#3498db',
     },
-    saveButtonDisabled: {
-        backgroundColor: '#2c5f8a',
-    },
     saveButtonText: {
         fontSize: 16,
         color: '#fff',
@@ -139,30 +145,6 @@ export const styles = StyleSheet.create({
     selectOptionText: {
         fontSize: 16,
         color: '#fff',
-    },
-    selectedTags: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 8,
-        marginTop: 8,
-    },
-    tag: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#3498db',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 16,
-    },
-    tagText: {
-        fontSize: 14,
-        color: '#fff',
-        marginRight: 6,
-    },
-    tagClose: {
-        fontSize: 16,
-        color: '#fff',
-        fontWeight: 'bold',
     },
     attributesHeader: {
         flexDirection: 'row',
@@ -219,5 +201,31 @@ export const styles = StyleSheet.create({
         color: '#fff',
         fontWeight: 'bold',
         lineHeight: 24,
+    },
+    selectedTags: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 6,
+        marginTop: 8,
+    },
+    tag: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#3498db',
+        borderRadius: 16,
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        gap: 6,
+    },
+    tagText: {
+        fontSize: 13,
+        color: '#fff',
+        fontWeight: '500',
+    },
+    tagClose: {
+        fontSize: 16,
+        color: '#fff',
+        fontWeight: 'bold',
+        lineHeight: 16,
     },
 });

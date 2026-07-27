@@ -5,44 +5,70 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import { CharacterFormProps } from './constants';
-import { SelectList } from './selectList';
 import { styles } from './styles';
-import { useCharacterForm } from './useCharacterForm';
-import { useCharacterSave } from './useCharacterSave';
+import { CharacterFormProps } from './constants';
+import { Ability, Status, Proficiency, Attribute } from '@domain/entities';
+import { SelectList } from './selectList';
+
+function handleAbilityToggle (currentAbilities: Ability[], ability: Ability): Ability[] {
+  const abilitiesSelected = [...currentAbilities, ability];
+  const isAbilitySelected = currentAbilities.some((a) => a.id === ability.id);
+  const filteredAbilities = currentAbilities.filter((a) => a.id !== ability.id);
+  return isAbilitySelected ? filteredAbilities : abilitiesSelected;
+}
+
+function handleProficiencyToggle (currentProficiencies: Proficiency[], proficiency: Proficiency): Proficiency[] {
+  const proficienciesSelected = [...currentProficiencies, proficiency];
+  const isProficiencySelected = currentProficiencies.some((p) => p.id === proficiency.id);
+  const filteredProficiencies = currentProficiencies.filter((p) => p.id !== proficiency.id);
+  return isProficiencySelected ? filteredProficiencies : proficienciesSelected;
+}
+
+function handleStatusToggle (currentStatuses: Status[], status: Status): Status[] {
+  const statusesSelected = [...currentStatuses, status];
+  const isStatusSelected = currentStatuses.some((s) => s.id === status.id);
+  const filteredStatuses = currentStatuses.filter((s) => s.id !== status.id);
+  return isStatusSelected ? filteredStatuses : statusesSelected;
+}
+
+function handleAddAttribute (attributes: Attribute[]): Attribute[] {
+  return [...attributes, { name: '', value: 0 }];
+}
+
+function handleAttributeNameChange (attributes: Attribute[], index: number, value: string): Attribute[] {
+  const updated = [...attributes];
+  updated[index] = { ...updated[index], name: value };
+  return updated;
+}
+
+function handleAttributeValueChange (attributes: Attribute[], index: number, value: string): Attribute[] {
+  const updated = [...attributes];
+  updated[index] = { ...updated[index], value: Number(value) || 0 };
+  return updated;
+}
+
+function handleRemoveAttribute (attributes: Attribute[], index: number): Attribute[] {
+  return attributes.filter((_, i) => i !== index);
+}
 
 export function CharacterForm ({
-  visible,
-  onClose,
+  showForm,
+  characterStateFormData,
+  onChange,
+  onCancel,
   onSave,
-  initialData,
   assistants,
-  selectedAssistant,
-  onAssistantChange,
   abilities,
   proficiencies,
   statuses
 }: CharacterFormProps) {
-  const { formState,
-    updateField,
-    setLoading,
-    selectedAbilities,
-    selectedProficiencies,
-    selectedStatuses,
-    toggleAbility,
-    toggleProficiency,
-    toggleStatus,
-    attributes,
-    addAttribute,
-    removeAttribute,
-    updateAttribute
-  } = useCharacterForm(initialData);
-  const { handleSave } = useCharacterSave({ onSave, onClose, setLoading });
+  const { name, activationWord, prompt, observation, assistant, attributes } = characterStateFormData;
+  const isEditing = !!characterStateFormData.id;
 
-  const isEditing = initialData !== null;
 
-  if (!visible) {
-    return null;
+
+  if (!showForm) {
+    return <></>;
   }
 
   return (
@@ -52,7 +78,7 @@ export function CharacterForm ({
           <Text style={styles.formTitle}>
             {isEditing ? 'Edit Character' : 'New Character'}
           </Text>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+          <TouchableOpacity onPress={onCancel} style={styles.closeButton}>
             <Text style={styles.closeButtonText}>✕</Text>
           </TouchableOpacity>
         </View>
@@ -60,78 +86,67 @@ export function CharacterForm ({
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Name</Text>
           <TextInput
-            style={[styles.input, !formState.name.trim() && styles.inputError]}
-            value={formState.name}
-            onChangeText={(value) => updateField('name', value)}
+            style={styles.input}
             placeholder="e.g., NPC Merchant"
             placeholderTextColor="#666"
+            value={name}
+            onChangeText={(value) => onChange('name', value)}
           />
-          {!formState.name.trim() && (
-            <Text style={styles.errorText}>Name is required</Text>
-          )}
         </View>
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Activation Word</Text>
           <TextInput
-            style={[styles.input, !formState.activationWord.trim() && styles.inputError]}
-            value={formState.activationWord}
-            onChangeText={(value) => updateField('activationWord', value)}
+            style={styles.input}
             placeholder="e.g., Merchant"
             placeholderTextColor="#666"
+            value={activationWord}
+            onChangeText={(value) => onChange('activationWord', value)}
           />
-          {!formState.activationWord.trim() && (
-            <Text style={styles.errorText}>Activation word is required</Text>
-          )}
         </View>
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Assistant</Text>
-          <View style={styles.assistantDropdown}>
-            {assistants.map((assistant) => (
+          <View style={styles.dropdown}>
+            {assistants.map((assistantItem) => (
               <TouchableOpacity
-                key={assistant.id}
+                key={assistantItem.id}
                 style={[
-                  styles.assistantOption,
-                  selectedAssistant?.id === assistant.id && styles.assistantOptionSelected
+                  styles.dropdownOption,
+                  assistant?.id === assistantItem.id && styles.dropdownOptionSelected
                 ]}
-                onPress={() => onAssistantChange(assistant)}
+                onPress={() => onChange('assistant', assistantItem)}
               >
-                <Text style={styles.assistantOptionText}>{assistant.name}</Text>
+                <Text style={styles.dropdownOptionText}>{assistantItem.name}</Text>
               </TouchableOpacity>
             ))}
+            {assistants.length === 0 && (
+              <Text style={styles.emptyDropdownText}>No assistants available</Text>
+            )}
           </View>
-          {!selectedAssistant && (
-            <Text style={styles.errorText}>Assistant is required</Text>
-          )}
         </View>
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Prompt</Text>
           <TextInput
-            style={[styles.input, !formState.prompt.trim() && styles.inputError, styles.promptInput]}
-            value={formState.prompt}
-            onChangeText={(value) => updateField('prompt', value)}
+            style={styles.promptInput}
             placeholder="Enter the character prompt..."
             placeholderTextColor="#666"
+            value={prompt}
+            onChangeText={(value) => onChange('prompt', value)}
             multiline
-            numberOfLines={4}
           />
-          {!formState.prompt.trim() && (
-            <Text style={styles.errorText}>Prompt is required</Text>
-          )}
         </View>
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Observation (optional)</Text>
           <TextInput
-            style={[styles.input, styles.observationInput]}
-            value={formState.observation}
-            onChangeText={(value) => updateField('observation', value)}
+            style={styles.observationInput}
             placeholder="Additional observations..."
             placeholderTextColor="#666"
+            value={observation}
+            onChangeText={(value) => onChange('observation', value)}
             multiline
-            numberOfLines={3}
           />
         </View>
 
@@ -140,16 +155,16 @@ export function CharacterForm ({
             <Text style={styles.label}>Abilities</Text>
             <SelectList
               items={abilities}
-              selectedItems={selectedAbilities}
-              onToggle={toggleAbility}
+              selectedItems={characterStateFormData.abilities}
+              onToggle={(ability) => onChange('abilities', handleAbilityToggle(characterStateFormData.abilities, ability))}
             />
-            {selectedAbilities.length > 0 && (
+            {characterStateFormData.abilities.length > 0 && (
               <View style={styles.selectedTags}>
-                {selectedAbilities.map((ability) => (
+                {characterStateFormData.abilities.map((ability) => (
                   <TouchableOpacity
                     key={ability.id}
                     style={styles.tag}
-                    onPress={() => toggleAbility(ability)}
+                    onPress={() => onChange('abilities', handleAbilityToggle(characterStateFormData.abilities, ability))}
                   >
                     <Text style={styles.tagText}>{ability.name}</Text>
                     <Text style={styles.tagClose}>×</Text>
@@ -165,16 +180,16 @@ export function CharacterForm ({
             <Text style={styles.label}>Proficiencies</Text>
             <SelectList
               items={proficiencies}
-              selectedItems={selectedProficiencies}
-              onToggle={toggleProficiency}
+              selectedItems={characterStateFormData.proficiencies}
+              onToggle={(proficiency) => onChange('proficiencies', handleProficiencyToggle(characterStateFormData.proficiencies, proficiency))}
             />
-            {selectedProficiencies.length > 0 && (
+            {characterStateFormData.proficiencies.length > 0 && (
               <View style={styles.selectedTags}>
-                {selectedProficiencies.map((proficiency) => (
+                {characterStateFormData.proficiencies.map((proficiency) => (
                   <TouchableOpacity
                     key={proficiency.id}
                     style={styles.tag}
-                    onPress={() => toggleProficiency(proficiency)}
+                    onPress={() => onChange('proficiencies', handleProficiencyToggle(characterStateFormData.proficiencies, proficiency))}
                   >
                     <Text style={styles.tagText}>{proficiency.name}</Text>
                     <Text style={styles.tagClose}>×</Text>
@@ -190,16 +205,16 @@ export function CharacterForm ({
             <Text style={styles.label}>Statuses</Text>
             <SelectList
               items={statuses}
-              selectedItems={selectedStatuses}
-              onToggle={toggleStatus}
+              selectedItems={characterStateFormData.statuses}
+              onToggle={(status) => onChange('statuses', handleStatusToggle(characterStateFormData.statuses, status))}
             />
-            {selectedStatuses.length > 0 && (
+            {characterStateFormData.statuses.length > 0 && (
               <View style={styles.selectedTags}>
-                {selectedStatuses.map((status) => (
+                {characterStateFormData.statuses.map((status) => (
                   <TouchableOpacity
                     key={status.id}
                     style={styles.tag}
-                    onPress={() => toggleStatus(status)}
+                    onPress={() => onChange('statuses', handleStatusToggle(characterStateFormData.statuses, status))}
                   >
                     <Text style={styles.tagText}>{status.name}</Text>
                     <Text style={styles.tagClose}>×</Text>
@@ -213,7 +228,7 @@ export function CharacterForm ({
         <View style={styles.inputGroup}>
           <View style={styles.attributesHeader}>
             <Text style={styles.label}>Attributes</Text>
-            <TouchableOpacity onPress={addAttribute} style={styles.addAttributeButton}>
+            <TouchableOpacity onPress={() => onChange('attributes', handleAddAttribute(attributes))} style={styles.addAttributeButton}>
               <Text style={styles.addAttributeButtonText}>+ Add</Text>
             </TouchableOpacity>
           </View>
@@ -222,20 +237,20 @@ export function CharacterForm ({
               <TextInput
                 style={[styles.attributeInput, styles.attributeNameInput]}
                 value={attr.name}
-                onChangeText={(value) => updateAttribute(index, 'name', value)}
+                onChangeText={(value) => onChange('attributes', handleAttributeNameChange(attributes, index, value))}
                 placeholder="Name (e.g., Strength)"
                 placeholderTextColor="#666"
               />
               <TextInput
                 style={[styles.attributeInput, styles.attributeValueInput]}
                 value={attr.value.toString()}
-                onChangeText={(value) => updateAttribute(index, 'value', value)}
+                onChangeText={(value) => onChange('attributes', handleAttributeValueChange(attributes, index, value))}
                 placeholder="Value"
                 placeholderTextColor="#666"
                 keyboardType="numeric"
               />
               <TouchableOpacity
-                onPress={() => removeAttribute(index)}
+                onPress={() => onChange('attributes', handleRemoveAttribute(attributes, index))}
                 style={styles.removeAttributeButton}
               >
                 <Text style={styles.removeAttributeButtonText}>×</Text>
@@ -245,34 +260,11 @@ export function CharacterForm ({
         </View>
 
         <View style={styles.formActions}>
-          <TouchableOpacity
-            onPress={onClose}
-            style={styles.cancelButton}
-            disabled={false}
-          >
+          <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
             <Text style={styles.cancelButtonText}>Cancel</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => handleSave(formState.name, formState.activationWord, formState.prompt, formState.observation, selectedAssistant, selectedAbilities, selectedProficiencies, selectedStatuses, attributes)}
-            style={[
-              styles.saveButton,
-              !formState.name.trim() ||
-                !formState.activationWord.trim() ||
-                !formState.prompt.trim() ||
-                !selectedAssistant
-                ? styles.saveButtonDisabled
-                : undefined,
-            ]}
-            disabled={
-              !formState.name.trim() ||
-              !formState.activationWord.trim() ||
-              !formState.prompt.trim() ||
-              !selectedAssistant
-            }
-          >
-            <Text style={styles.saveButtonText}>
-              {isEditing ? 'Update' : 'Create'}
-            </Text>
+          <TouchableOpacity style={styles.saveButton} onPress={onSave}>
+            <Text style={styles.saveButtonText}>{isEditing ? 'Save' : 'Create'}</Text>
           </TouchableOpacity>
         </View>
       </View>
