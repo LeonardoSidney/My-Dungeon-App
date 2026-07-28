@@ -10,4 +10,5 @@ export { CharacterScreen } from './characterScreen';
 export { ProficiencyScreen } from './proficiencyScreen';
 export { AbilitiesScreen } from './abilitiesScreen';
 export { StatusesScreen } from './statusesScreen';
+export { AdventuresScreen } from './adventuresScreen';
 export { sidebarMenuItems } from './constants';
