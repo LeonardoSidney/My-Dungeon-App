@@ -1,17 +1,31 @@
 import { ADVENTURE_STORAGE_NAMESPACE, STORAGE_NAMESPACE } from '@domain/constants/general';
 import { Adventure } from '@domain/entities';
 import { ILogger } from '@domain/logger';
-import { IAdventureRepository, SaveAdventureParams, UpdateAdventureParams } from '@domain/repository';
+import { IAdventureRepository, SaveAdventureParams, UpdateAdventureParams, UpdateAdventureReturn, EraseAdventureReturn } from '@domain/repository';
 import { IStorage } from '@domain/storage';
 import { AdventureDTO } from '../dto/adventureDTO';
 
 export class AdventureRepository implements IAdventureRepository {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly storage: IStorage
     ) { }
 
-    async saveAdventure(params: SaveAdventureParams): Promise<boolean> {
+    private async findAdventureIndex (adventures: Adventure[], adventureId: string): Promise<number> {
+        return adventures.findIndex((a) => a.id === adventureId);
+    }
+
+    private removeAt (adventures: Adventure[], index: number): Adventure[] {
+        adventures.splice(index, 1);
+        return adventures;
+    }
+
+    private replaceAt (adventures: Adventure[], index: number, newItem: Adventure): Adventure[] {
+        adventures[index] = newItem;
+        return adventures;
+    }
+
+    async saveAdventure (params: SaveAdventureParams): Promise<boolean> {
         this.logger.info('Executing AdventureRepository::saveAdventure');
         this.logger.debug('Executing AdventureRepository::saveAdventure - params: ', params);
 
@@ -27,49 +41,31 @@ export class AdventureRepository implements IAdventureRepository {
         return true;
     }
 
-    async updateAdventure(params: UpdateAdventureParams): Promise<boolean> {
+    async updateAdventure (params: UpdateAdventureParams): Promise<UpdateAdventureReturn> {
         this.logger.info('Executing AdventureRepository::updateAdventure');
         this.logger.debug('Executing AdventureRepository::updateAdventure - params: ', params);
 
         try {
             const { adventure } = params;
-            const rawData = await this.storage.load<unknown[]>(`${STORAGE_NAMESPACE}/${ADVENTURE_STORAGE_NAMESPACE}`);
+            const existingData = await this.storage.load<Adventure[]>(`${STORAGE_NAMESPACE}/${ADVENTURE_STORAGE_NAMESPACE}`);
+            const adventures = existingData || [];
+            const index = await this.findAdventureIndex(adventures, adventure.id);
 
-            if (!rawData) {
-                this.logger.error('Error on AdventureRepository::updateAdventure - No adventures found in storage');
-                throw new Error('No adventures found');
+            if (index === -1) {
+                this.logger.warning(`Adventure with id ${adventure.id} not found`);
+                return { success: false, error: `Adventure with id ${adventure.id} does not exist` };
             }
 
-            const adventureDTO: AdventureDTO[] = [];
-            let found = false;
-            for (const adventureUnknown of rawData) {
-                const dto = AdventureDTO.fromStorage(adventureUnknown);
-                if (!dto) continue;
-
-                if (dto.getId() === adventure.id) {
-                    adventureDTO.push(AdventureDTO.fromEntity(adventure));
-                    found = true;
-                    continue;
-                }
-
-                adventureDTO.push(dto);
-            }
-
-            if (!found) {
-                this.logger.error('Error on AdventureRepository::updateAdventure - Adventure not found with id: ', adventure.id);
-                throw new Error(`Adventure not found with id: ${adventure.id}`);
-            }
-
-            const adventures: Adventure[] = adventureDTO.map(dto => dto.toEntity());
-            await this.storage.save(`${STORAGE_NAMESPACE}/${ADVENTURE_STORAGE_NAMESPACE}`, adventures);
+            const updatedAdventures = this.replaceAt(adventures, index, adventure);
+            await this.storage.save(`${STORAGE_NAMESPACE}/${ADVENTURE_STORAGE_NAMESPACE}`, updatedAdventures);
+            return { success: true };
         } catch (error) {
             this.logger.error('Error on AdventureRepository::updateAdventure', error);
-            throw error;
+            return { success: false, error: 'Failed to update adventure' };
         }
-        return true;
     }
 
-    async getAdventures(): Promise<Adventure[]> {
+    async getAdventures (): Promise<Adventure[]> {
         this.logger.info('Executing AdventureRepository::getAdventures');
         try {
             const adventures: Adventure[] = [];
@@ -101,13 +97,36 @@ export class AdventureRepository implements IAdventureRepository {
         }
     }
 
-    async eraseAdventures(): Promise<void> {
+    async eraseAdventures (): Promise<void> {
         this.logger.info('Executing AdventureRepository::eraseAdventures');
         try {
             await this.storage.save(`${STORAGE_NAMESPACE}/${ADVENTURE_STORAGE_NAMESPACE}`, []);
         } catch (error) {
             this.logger.error('Error on AdventureRepository::eraseAdventures', error);
             throw error;
+        }
+    }
+
+    async eraseAdventure (adventureId: string): Promise<EraseAdventureReturn> {
+        this.logger.info('Executing AdventureRepository::eraseAdventure');
+        this.logger.debug('Executing AdventureRepository::eraseAdventure - adventureId: ', adventureId);
+
+        try {
+            const existingData = await this.storage.load<Adventure[]>(`${STORAGE_NAMESPACE}/${ADVENTURE_STORAGE_NAMESPACE}`);
+            const adventures = existingData || [];
+            const index = await this.findAdventureIndex(adventures, adventureId);
+
+            if (index === -1) {
+                this.logger.warning(`Adventure with id ${adventureId} not found`);
+                return { success: false, error: `Adventure with id ${adventureId} does not exist` };
+            }
+
+            const filteredAdventures = this.removeAt(adventures, index);
+            await this.storage.save(`${STORAGE_NAMESPACE}/${ADVENTURE_STORAGE_NAMESPACE}`, filteredAdventures);
+            return { success: true };
+        } catch (error) {
+            this.logger.error('Error on AdventureRepository::eraseAdventure', error);
+            return { success: false, error: 'Failed to erase adventure' };
         }
     }
 }

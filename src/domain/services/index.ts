@@ -4,6 +4,7 @@ export * from './iCreateAbilityService';
 export * from './iEditAbilityService';
 export * from './iCreateChatService';
 export * from './iCreateAdventureService';
+export * from './iEditAdventureService';
 export * from './iCreateAssistantService';
 export * from './iCreateCharacterService';
 export * from './iEditCharacterService';

@@ -3,6 +3,7 @@ import {
     EditAbilityController,
     EraseAbilityController,
     CreateAdventureController,
+    EditAdventureController,
     CreateAssistantController,
     CreateConnectionConfigController,
     CreateSamplerController,
@@ -45,6 +46,7 @@ import {
     AdventureAppendChatController,
     CreateChatAdventureController,
     EraseAdventuresController,
+    EraseAdventureController,
     EraseConnectionController,
     EditConnectionController,
     EditAssistantController,
@@ -54,6 +56,7 @@ import {
     CreateAbilityService,
     EditAbilityService,
     CreateAdventureService,
+    EditAdventureService,
     CreateAssistantService,
     CreateChatService,
     CreateConnectionConfigService,
@@ -82,6 +85,7 @@ import {
     EditAbilityUseCase,
     EraseAbilityUseCase,
     CreateAdventureUseCase,
+    EditAdventureUseCase,
     CreateAssistantUseCase,
     CreateConnectionConfigUseCase,
     CreateSamplerUseCase,
@@ -124,6 +128,7 @@ import {
     AdventureAppendChatUseCase,
     CreateChatAdventureUseCase,
     EraseAdventuresUseCase,
+    EraseAdventureUseCase,
     EraseConnectionUseCase,
     EditConnectionUseCase,
     EditAssistantUseCase,
@@ -133,6 +138,7 @@ import {
     ICreateAbilityController,
     IEditAbilityController,
     IEraseAbilityController,
+    IEditAdventureController,
     ICreateAdventureController,
     ICreateAssistantController,
     ICreateConnectionConfigController,
@@ -176,6 +182,7 @@ import {
     IAdventureAppendChatController,
     ICreateChatAdventureController,
     IEraseAdventuresController,
+    IEraseAdventureController,
     IEraseConnectionController,
     IEditConnectionController,
     IEditAssistantController,
@@ -498,6 +505,13 @@ export function createAdventureController (): ICreateAdventureController {
     return new CreateAdventureController(logger, createAdventureUseCase);
 }
 
+export function editAdventureController (): IEditAdventureController {
+    const adventureRepository = new AdventureRepository(logger, storage);
+    const editAdventureService = new EditAdventureService(logger);
+    const editAdventureUseCase = new EditAdventureUseCase(logger, editAdventureService, adventureRepository);
+    return new EditAdventureController(logger, editAdventureUseCase);
+}
+
 export function getAdventuresController (): IGetAdventuresController {
     const adventureRepository = new AdventureRepository(logger, storage);
     const getAdventuresUseCase = new GetAdventureUseCase(logger, adventureRepository);
@@ -521,6 +535,12 @@ export function eraseAdventuresController (): IEraseAdventuresController {
     const adventureRepository = new AdventureRepository(logger, storage);
     const eraseAdventuresUseCase = new EraseAdventuresUseCase(logger, adventureRepository);
     return new EraseAdventuresController(logger, eraseAdventuresUseCase);
+}
+
+export function eraseAdventureController (): IEraseAdventureController {
+    const adventureRepository = new AdventureRepository(logger, storage);
+    const eraseAdventureUseCase = new EraseAdventureUseCase(logger, adventureRepository);
+    return new EraseAdventureController(logger, eraseAdventureUseCase);
 }
 
 export function getAdventureTextController (): IGetAdventureTextController {

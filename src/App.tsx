@@ -13,6 +13,7 @@ import {
   ProficiencyScreen,
   AbilitiesScreen,
   StatusesScreen,
+  AdventuresScreen,
   sidebarMenuItems
 } from '@application/ui';
 import { runMigration } from './migration';
@@ -58,6 +59,8 @@ function App () {
               <ProficiencyScreen />
             ) : activeRoute === 'abilities' ? (
               <AbilitiesScreen />
+            ) : activeRoute === 'adventures' ? (
+              <AdventuresScreen />
             ) : activeRoute === 'statuses' ? (
               <StatusesScreen />
             ) : (

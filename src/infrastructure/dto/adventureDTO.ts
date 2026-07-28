@@ -9,7 +9,7 @@ import { WorldDTO } from './worldDTO';
 import { WorldMasterDTO } from './worldMasterDTO';
 
 export class AdventureDTO {
-    constructor(
+    constructor (
         private readonly id: string,
         private readonly name: string,
         private readonly chat: Chat[],
@@ -23,11 +23,11 @@ export class AdventureDTO {
         private readonly updatedAt: Date
     ) { }
 
-    getId(): string {
+    getId (): string {
         return this.id;
     }
 
-    toEntity(): Adventure {
+    toEntity (): Adventure {
         return {
             id: this.id,
             name: this.name,
@@ -43,7 +43,7 @@ export class AdventureDTO {
         };
     }
 
-    static fromEntity(adventure: Adventure): AdventureDTO {
+    static fromEntity (adventure: Adventure): AdventureDTO {
         return new AdventureDTO(
             adventure.id,
             adventure.name,
@@ -59,7 +59,7 @@ export class AdventureDTO {
         );
     }
 
-    static fromStorage(data: unknown): AdventureDTO | null {
+    static fromStorage (data: unknown): AdventureDTO | null {
         if (!isRecord(data)) {
             return null;
         }
@@ -80,7 +80,6 @@ export class AdventureDTO {
             !chat ||
             !systemPrompts ||
             !characters ||
-            !worldMaster ||
             !createdAt ||
             !updatedAt
         ) {
@@ -102,7 +101,7 @@ export class AdventureDTO {
         );
     }
 
-    private static toChat(chats: unknown | undefined): Chat[] | undefined {
+    private static toChat (chats: unknown | undefined): Chat[] | undefined {
         if (!isArrayRecord(chats)) {
             return undefined;
         }
@@ -119,7 +118,7 @@ export class AdventureDTO {
         return validChats;
     }
 
-    private static toSystemPrompts(systemPrompts: unknown | undefined): SystemPrompt[] | undefined {
+    private static toSystemPrompts (systemPrompts: unknown | undefined): SystemPrompt[] | undefined {
         if (!isArrayRecord(systemPrompts)) {
             return undefined;
         }
@@ -136,7 +135,7 @@ export class AdventureDTO {
         return validSystemPrompts;
     }
 
-    private static toCharacters(characters: unknown | undefined): Character[] | undefined {
+    private static toCharacters (characters: unknown | undefined): Character[] | undefined {
         if (!isArrayRecord(characters)) {
             return undefined;
         }
@@ -153,7 +152,7 @@ export class AdventureDTO {
         return validCharacters;
     }
 
-    private static toWorldMaster(worldMaster: unknown | undefined): WorldMaster | undefined {
+    private static toWorldMaster (worldMaster: unknown | undefined): WorldMaster | undefined {
         if (!isRecord(worldMaster)) {
             return undefined;
         }
@@ -162,7 +161,7 @@ export class AdventureDTO {
         return worldMasterDTO?.toEntity();
     }
 
-    private static toWorlds(worlds: unknown | undefined): World[] | undefined {
+    private static toWorlds (worlds: unknown | undefined): World[] | undefined {
         if (!isArrayRecord(worlds)) {
             return undefined;
         }
@@ -179,7 +178,7 @@ export class AdventureDTO {
         return validWorlds;
     }
 
-    private static toLocations(locations: unknown | undefined): Location[] | undefined {
+    private static toLocations (locations: unknown | undefined): Location[] | undefined {
         if (!isArrayRecord(locations)) {
             return undefined;
         }
@@ -196,7 +195,7 @@ export class AdventureDTO {
         return validLocations;
     }
 
-    private static toItems(items: unknown | undefined): Item[] | undefined {
+    private static toItems (items: unknown | undefined): Item[] | undefined {
         if (!isArrayRecord(items)) {
             return undefined;
         }
