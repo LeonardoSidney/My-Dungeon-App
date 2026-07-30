@@ -2,7 +2,7 @@ import { getItemsController } from '@infra/container';
 import { Dispatch } from 'react';
 import { Item } from '@domain/entities';
 
-export async function loadItems (
+export async function loadItems(
     setItems: Dispatch<React.SetStateAction<Item[]>>
 ) {
     try {

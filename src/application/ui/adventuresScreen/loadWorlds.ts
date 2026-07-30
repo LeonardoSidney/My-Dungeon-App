@@ -2,7 +2,7 @@ import { getWorldsController } from '@infra/container';
 import { Dispatch } from 'react';
 import { World } from '@domain/entities';
 
-export async function loadWorlds (
+export async function loadWorlds(
     setWorlds: Dispatch<React.SetStateAction<World[]>>
 ) {
     try {

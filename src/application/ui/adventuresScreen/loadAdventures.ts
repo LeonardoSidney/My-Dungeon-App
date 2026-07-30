@@ -2,7 +2,7 @@ import { getAdventuresController } from '@infra/container';
 import { Dispatch } from 'react';
 import { Adventure } from '@domain/entities';
 
-export async function loadAdventures (
+export async function loadAdventures(
     setAdventures: Dispatch<React.SetStateAction<Adventure[]>>
 ) {
     try {

@@ -2,12 +2,14 @@ import { Dispatch, SetStateAction } from 'react';
 import { Adventure } from '@domain/entities';
 import { AdventureFormData } from './constants';
 
-export function onEditForm (
+export function onEditForm(
     adventure: Adventure,
     setShowForm: Dispatch<SetStateAction<boolean>>,
     setAdventureFormData: Dispatch<SetStateAction<AdventureFormData>>
 ) {
-    const characterAsWorldMaster = adventure.characters.find((c) => c.worldMaster === true);
+    const characterAsWorldMaster = adventure.characters.find(
+        c => c.worldMaster === true
+    );
 
     setAdventureFormData({
         id: adventure.id,
