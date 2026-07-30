@@ -4,4 +4,5 @@ export interface AdventureChatSettingsProps {
     onBack: () => void;
     adventure: Adventure;
     onWorldMasterSelect: (adventure: Adventure) => void;
+    onCharacterSelect?: (adventure: Adventure) => void;
 }
