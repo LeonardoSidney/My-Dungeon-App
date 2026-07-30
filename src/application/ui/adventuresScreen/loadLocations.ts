@@ -2,7 +2,7 @@ import { getLocationsController } from '@infra/container';
 import { Dispatch } from 'react';
 import { Location } from '@domain/entities';
 
-export async function loadLocations (
+export async function loadLocations(
     setLocations: Dispatch<React.SetStateAction<Location[]>>
 ) {
     try {

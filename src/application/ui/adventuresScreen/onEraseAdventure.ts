@@ -3,7 +3,7 @@ import { Dispatch, SetStateAction } from 'react';
 import { eraseAdventureController } from '@infra/container';
 import { loadAdventures } from './loadAdventures';
 
-export async function onEraseAdventure (
+export async function onEraseAdventure(
     adventure: Adventure,
     setAdventures: Dispatch<SetStateAction<Adventure[]>>
 ) {

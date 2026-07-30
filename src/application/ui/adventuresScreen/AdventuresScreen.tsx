@@ -3,6 +3,7 @@ import { Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import { Adventure, Character, SystemPrompt, WorldMaster, World, Location, Item } from '@domain/entities';
 import { styles } from './styles';
 import { AdventuresPanel } from './adventuresPanel';
+import { AdventureChatScreen } from './adventuresPanel/AdventureChatScreen';
 import { AdventuresForm } from './adventuresForm';
 import { useAdventuresScreenLogic } from './useAdventuresScreenLogic';
 import { useCharactersLoad } from './useCharactersLoad';
@@ -20,7 +21,7 @@ import { handleAdventureFormChange } from './handleAdventureFormChange';
 import { setInitialAdventureState } from './setInitialAdventureState';
 import { AdventureFormData, FormErrors } from './constants';
 
-export function AdventuresScreen () {
+export function AdventuresScreen() {
   const [adventures, setAdventures] = useState<Adventure[]>([]);
   const [adventureStateFormData, setAdventureFormData] = useState<AdventureFormData>(setInitialAdventureState());
   const [showForm, setShowForm] = useState(false);
@@ -31,6 +32,8 @@ export function AdventuresScreen () {
   const [worlds, setWorlds] = useState<World[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
   const [items, setItems] = useState<Item[]>([]);
+  const [showChat, setShowChat] = useState(false);
+  const [selectedAdventure, setSelectedAdventure] = useState<Adventure | null>(null);
 
   useAdventuresScreenLogic(setAdventures);
   useCharactersLoad(setCharacters);
@@ -86,6 +89,16 @@ export function AdventuresScreen () {
     onEditForm(adventure, setShowForm, setAdventureFormData);
   };
 
+  const handleChat = (adventure: Adventure) => {
+    setSelectedAdventure(adventure);
+    setShowChat(true);
+  };
+
+  const handleBackFromChat = () => {
+    setShowChat(false);
+    setSelectedAdventure(null);
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -96,13 +109,11 @@ export function AdventuresScreen () {
         <AdventuresPanel
           adventures={adventures}
           onEdit={handleEditAdventure}
-          onDelete={(adventure) => onEraseAdventure(adventure, setAdventures)}
+          onDelete={adventure => onEraseAdventure(adventure, setAdventures)}
+          onChat={handleChat}
         />
 
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={handleAddNewAdventure}
-        >
+        <TouchableOpacity style={styles.addButton} onPress={handleAddNewAdventure}>
           <Text style={styles.addButtonText}>Add Adventure</Text>
         </TouchableOpacity>
 
@@ -120,8 +131,13 @@ export function AdventuresScreen () {
           locations={locations}
           items={items}
         />
-
       </ScrollView>
+
+      {showChat && selectedAdventure && (
+        <View style={styles.chatOverlay}>
+          <AdventureChatScreen adventure={selectedAdventure} onBack={handleBackFromChat} />
+        </View>
+      )}
     </View>
   );
 }
