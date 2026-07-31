@@ -3,6 +3,7 @@
   "singleQuote": true,
   "trailingComma": "es5",
   "arrowParens": "avoid",
+  "printWidth": 120,
   "overrides": [
     {
       "files": "*.ts",
@@ -13,8 +14,7 @@
     {
       "files": "*.tsx",
       "options": {
-        "tabWidth": 2,
-        "printWidth": 120
+        "tabWidth": 2
       }
     }
   ]

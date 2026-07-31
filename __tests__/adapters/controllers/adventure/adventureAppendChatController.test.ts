@@ -8,18 +8,21 @@ const mockLogger = {
     info: jest.fn(),
     error: jest.fn(),
     warn: jest.fn(),
-    debug: jest.fn()
+    debug: jest.fn(),
 };
 
 const mockUseCase = {
-    execute: jest.fn()
+    execute: jest.fn(),
 };
 
 describe('AdventureAppendChatController', () => {
     let controller: AdventureAppendChatController;
 
     beforeEach(() => {
-        controller = new AdventureAppendChatController(mockLogger as unknown as ILogger, mockUseCase as unknown as IAdventureAppendChatUseCase);
+        controller = new AdventureAppendChatController(
+            mockLogger as unknown as ILogger,
+            mockUseCase as unknown as IAdventureAppendChatUseCase
+        );
         jest.clearAllMocks();
     });
 
@@ -35,7 +38,7 @@ describe('AdventureAppendChatController', () => {
             systemPrompts: [],
             characters: [],
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
         };
 
         const mockMessage: Chat = {
@@ -43,21 +46,27 @@ describe('AdventureAppendChatController', () => {
             role: RoleEnum.USER,
             index: 0,
             content: ['Hello world'],
+            characterName: 'Unknown',
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
         };
 
         const mockResponse = {
             success: true,
             adventure: { ...mockAdventure, chat: [mockMessage] },
-            error: undefined
+            error: undefined,
         };
 
         mockUseCase.execute.mockResolvedValue(mockResponse);
 
-        await controller.handle({ adventure: mockAdventure, message: mockMessage });
+        await controller.handle({
+            adventure: mockAdventure,
+            message: mockMessage,
+        });
 
-        expect(mockLogger.info).toHaveBeenCalledWith('Executing AdventureAppendChatController::handle');
+        expect(mockLogger.info).toHaveBeenCalledWith(
+            'Executing AdventureAppendChatController::handle'
+        );
     });
 
     it('should execute use case with correct parameters', async () => {
@@ -68,7 +77,7 @@ describe('AdventureAppendChatController', () => {
             systemPrompts: [],
             characters: [],
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
         };
 
         const mockMessage: Chat = {
@@ -76,23 +85,27 @@ describe('AdventureAppendChatController', () => {
             role: RoleEnum.USER,
             index: 0,
             content: ['Test message'],
+            characterName: 'Unknown',
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
         };
 
         const mockResponse = {
             success: true,
             adventure: { ...mockAdventure, chat: [mockMessage] },
-            error: undefined
+            error: undefined,
         };
 
         mockUseCase.execute.mockResolvedValue(mockResponse);
 
-        await controller.handle({ adventure: mockAdventure, message: mockMessage });
+        await controller.handle({
+            adventure: mockAdventure,
+            message: mockMessage,
+        });
 
         expect(mockUseCase.execute).toHaveBeenCalledWith({
             adventure: mockAdventure,
-            message: mockMessage
+            message: mockMessage,
         });
     });
 
@@ -104,7 +117,7 @@ describe('AdventureAppendChatController', () => {
             systemPrompts: [],
             characters: [],
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
         };
 
         const mockMessage: Chat = {
@@ -112,30 +125,34 @@ describe('AdventureAppendChatController', () => {
             role: RoleEnum.ASSISTANT,
             index: 0,
             content: ['This is a response'],
+            characterName: 'Unknown',
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
         };
 
         const updatedAdventure: Adventure = {
             ...mockAdventure,
             chat: [mockMessage],
-            updatedAt: new Date()
+            updatedAt: new Date(),
         };
 
         const mockResponse = {
             success: true,
             adventure: updatedAdventure,
-            error: undefined
+            error: undefined,
         };
 
         mockUseCase.execute.mockResolvedValue(mockResponse);
 
-        const result = await controller.handle({ adventure: mockAdventure, message: mockMessage });
+        const result = await controller.handle({
+            adventure: mockAdventure,
+            message: mockMessage,
+        });
 
         expect(result).toEqual({
             success: true,
             adventure: updatedAdventure,
-            error: undefined
+            error: undefined,
         });
     });
 
@@ -147,7 +164,7 @@ describe('AdventureAppendChatController', () => {
             systemPrompts: [],
             characters: [],
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
         };
 
         const mockMessage: Chat = {
@@ -155,24 +172,28 @@ describe('AdventureAppendChatController', () => {
             role: RoleEnum.USER,
             index: 0,
             content: ['Test message'],
+            characterName: 'Unknown',
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
         };
 
         const mockResponse = {
             success: false,
             adventure: undefined,
-            error: 'Failed to append chat message'
+            error: 'Failed to append chat message',
         };
 
         mockUseCase.execute.mockResolvedValue(mockResponse);
 
-        const result = await controller.handle({ adventure: mockAdventure, message: mockMessage });
+        const result = await controller.handle({
+            adventure: mockAdventure,
+            message: mockMessage,
+        });
 
         expect(result).toEqual({
             success: false,
             adventure: undefined,
-            error: 'Failed to append chat message'
+            error: 'Failed to append chat message',
         });
     });
 
@@ -183,17 +204,19 @@ describe('AdventureAppendChatController', () => {
                 role: RoleEnum.USER,
                 index: 0,
                 content: ['First message'],
+                characterName: 'Unknown',
                 createdAt: new Date(),
-                updatedAt: new Date()
+                updatedAt: new Date(),
             },
             {
                 id: 'msg-2',
                 role: RoleEnum.ASSISTANT,
                 index: 1,
                 content: ['First response'],
+                characterName: 'Unknown',
                 createdAt: new Date(),
-                updatedAt: new Date()
-            }
+                updatedAt: new Date(),
+            },
         ];
 
         const mockAdventure: Adventure = {
@@ -203,7 +226,7 @@ describe('AdventureAppendChatController', () => {
             systemPrompts: [],
             characters: [],
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
         };
 
         const newMessage: Chat = {
@@ -211,25 +234,29 @@ describe('AdventureAppendChatController', () => {
             role: RoleEnum.USER,
             index: 2,
             content: ['Second message'],
+            characterName: 'Unknown',
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
         };
 
         const updatedAdventure: Adventure = {
             ...mockAdventure,
             chat: [...existingChat, newMessage],
-            updatedAt: new Date()
+            updatedAt: new Date(),
         };
 
         const mockResponse = {
             success: true,
             adventure: updatedAdventure,
-            error: undefined
+            error: undefined,
         };
 
         mockUseCase.execute.mockResolvedValue(mockResponse);
 
-        const result = await controller.handle({ adventure: mockAdventure, message: newMessage });
+        const result = await controller.handle({
+            adventure: mockAdventure,
+            message: newMessage,
+        });
 
         expect(result.success).toBe(true);
         expect(result.adventure?.chat.length).toBe(3);
@@ -243,7 +270,7 @@ describe('AdventureAppendChatController', () => {
             systemPrompts: [],
             characters: [],
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
         };
 
         const mockMessage: Chat = {
@@ -251,17 +278,21 @@ describe('AdventureAppendChatController', () => {
             role: RoleEnum.USER,
             index: 0,
             content: ['Test'],
+            characterName: 'Unknown',
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
         };
 
         mockUseCase.execute.mockResolvedValue({
             success: true,
             adventure: mockAdventure,
-            error: undefined
+            error: undefined,
         });
 
-        await controller.handle({ adventure: mockAdventure, message: mockMessage });
+        await controller.handle({
+            adventure: mockAdventure,
+            message: mockMessage,
+        });
 
         expect(mockLogger.info).toHaveBeenCalledTimes(1);
     });
@@ -274,7 +305,7 @@ describe('AdventureAppendChatController', () => {
             systemPrompts: [],
             characters: [],
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
         };
 
         const mockMessage: Chat = {
@@ -282,18 +313,24 @@ describe('AdventureAppendChatController', () => {
             role: RoleEnum.USER,
             index: 0,
             content: ['Test'],
+            characterName: 'Unknown',
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
         };
 
         mockUseCase.execute.mockResolvedValue({
             success: true,
             adventure: mockAdventure,
-            error: undefined
+            error: undefined,
         });
 
-        await controller.handle({ adventure: mockAdventure, message: mockMessage });
+        await controller.handle({
+            adventure: mockAdventure,
+            message: mockMessage,
+        });
 
-        expect(mockLogger.info).toHaveBeenCalledWith('Executing AdventureAppendChatController::handle');
+        expect(mockLogger.info).toHaveBeenCalledWith(
+            'Executing AdventureAppendChatController::handle'
+        );
     });
 });

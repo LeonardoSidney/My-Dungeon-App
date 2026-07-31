@@ -8,18 +8,21 @@ const mockLogger = {
     info: jest.fn(),
     error: jest.fn(),
     warn: jest.fn(),
-    debug: jest.fn()
+    debug: jest.fn(),
 };
 
 const mockUseCase = {
-    execute: jest.fn()
+    execute: jest.fn(),
 };
 
 describe('CreateChatAdventureController', () => {
     let controller: CreateChatAdventureController;
 
     beforeEach(() => {
-        controller = new CreateChatAdventureController(mockLogger as unknown as ILogger, mockUseCase as unknown as ICreateChatAdventureUseCase);
+        controller = new CreateChatAdventureController(
+            mockLogger as unknown as ILogger,
+            mockUseCase as unknown as ICreateChatAdventureUseCase
+        );
         jest.clearAllMocks();
     });
 
@@ -31,7 +34,8 @@ describe('CreateChatAdventureController', () => {
         const mockRequest = {
             content: 'Test content',
             role: RoleEnum.USER,
-            think: { id: 'think-1', content: 'Thinking...', enabled: true }
+            think: { id: 'think-1', content: 'Thinking...', enabled: true },
+            characterName: 'Unknown',
         };
 
         const mockChat: Chat = {
@@ -39,27 +43,31 @@ describe('CreateChatAdventureController', () => {
             role: RoleEnum.USER,
             index: 0,
             content: ['Test content'],
+            characterName: 'Unknown',
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
         };
 
         const mockResponse = {
             success: true,
             chat: mockChat,
-            error: undefined
+            error: undefined,
         };
 
         mockUseCase.execute.mockResolvedValue(mockResponse);
 
         await controller.handle(mockRequest);
 
-        expect(mockLogger.info).toHaveBeenCalledWith('Executing CreateChatAdventureController::handle');
+        expect(mockLogger.info).toHaveBeenCalledWith(
+            'Executing CreateChatAdventureController::handle'
+        );
     });
 
     it('should call logger.debug with request details', async () => {
         const mockRequest = {
             content: 'Debug test',
-            role: RoleEnum.ASSISTANT
+            role: RoleEnum.ASSISTANT,
+            characterName: 'Unknown',
         };
 
         const mockResponse = {
@@ -69,24 +77,29 @@ describe('CreateChatAdventureController', () => {
                 role: RoleEnum.ASSISTANT,
                 index: 0,
                 content: ['Debug test'],
+                characterName: 'Unknown',
                 createdAt: new Date(),
-                updatedAt: new Date()
+                updatedAt: new Date(),
             },
-            error: undefined
+            error: undefined,
         };
 
         mockUseCase.execute.mockResolvedValue(mockResponse);
 
         await controller.handle(mockRequest);
 
-        expect(mockLogger.debug).toHaveBeenCalledWith('CreateChatAdventureController::handle - request', mockRequest);
+        expect(mockLogger.debug).toHaveBeenCalledWith(
+            'CreateChatAdventureController::handle - request',
+            mockRequest
+        );
     });
 
     it('should execute use case with correct parameters', async () => {
         const mockRequest = {
             content: 'Test content',
             role: RoleEnum.USER,
-            think: { id: 'think-1', enabled: false }
+            think: { id: 'think-1', enabled: false },
+            characterName: 'Unknown',
         };
 
         const mockResponse = {
@@ -96,10 +109,11 @@ describe('CreateChatAdventureController', () => {
                 role: RoleEnum.USER,
                 index: 0,
                 content: ['Test content'],
+                characterName: 'Unknown',
                 createdAt: new Date(),
-                updatedAt: new Date()
+                updatedAt: new Date(),
             },
-            error: undefined
+            error: undefined,
         };
 
         mockUseCase.execute.mockResolvedValue(mockResponse);
@@ -109,14 +123,16 @@ describe('CreateChatAdventureController', () => {
         expect(mockUseCase.execute).toHaveBeenCalledWith({
             content: mockRequest.content,
             role: mockRequest.role,
-            think: mockRequest.think
+            think: mockRequest.think,
+            characterName: 'Unknown',
         });
     });
 
     it('should execute use case without think parameter when not provided', async () => {
         const mockRequest = {
             content: 'Test content',
-            role: RoleEnum.SYSTEM
+            role: RoleEnum.SYSTEM,
+            characterName: 'Unknown',
         };
 
         const mockResponse = {
@@ -126,10 +142,11 @@ describe('CreateChatAdventureController', () => {
                 role: RoleEnum.SYSTEM,
                 index: 0,
                 content: ['Test content'],
+                characterName: 'Unknown',
                 createdAt: new Date(),
-                updatedAt: new Date()
+                updatedAt: new Date(),
             },
-            error: undefined
+            error: undefined,
         };
 
         mockUseCase.execute.mockResolvedValue(mockResponse);
@@ -139,14 +156,16 @@ describe('CreateChatAdventureController', () => {
         expect(mockUseCase.execute).toHaveBeenCalledWith({
             content: mockRequest.content,
             role: mockRequest.role,
-            think: undefined
+            think: undefined,
+            characterName: 'Unknown',
         });
     });
 
     it('should return success response when use case succeeds', async () => {
         const mockRequest = {
             content: 'Hello world',
-            role: RoleEnum.USER
+            role: RoleEnum.USER,
+            characterName: 'Unknown',
         };
 
         const mockChat: Chat = {
@@ -154,14 +173,15 @@ describe('CreateChatAdventureController', () => {
             role: RoleEnum.USER,
             index: 0,
             content: ['Hello world'],
+            characterName: 'Unknown',
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
         };
 
         const mockResponse = {
             success: true,
             chat: mockChat,
-            error: undefined
+            error: undefined,
         };
 
         mockUseCase.execute.mockResolvedValue(mockResponse);
@@ -171,7 +191,7 @@ describe('CreateChatAdventureController', () => {
         expect(result).toEqual({
             success: true,
             chat: mockChat,
-            error: undefined
+            error: undefined,
         });
     });
 
@@ -179,13 +199,14 @@ describe('CreateChatAdventureController', () => {
         const mockRequest = {
             content: 'Test content',
             role: RoleEnum.ASSISTANT,
-            think: { id: 'think-1', content: 'Thinking...', enabled: true }
+            think: { id: 'think-1', content: 'Thinking...', enabled: true },
+            characterName: 'Unknown',
         };
 
         const mockResponse = {
             success: false,
             chat: undefined,
-            error: 'Failed to create chat adventure'
+            error: 'Failed to create chat adventure',
         };
 
         mockUseCase.execute.mockResolvedValue(mockResponse);
@@ -195,14 +216,15 @@ describe('CreateChatAdventureController', () => {
         expect(result).toEqual({
             success: false,
             chat: undefined,
-            error: 'Failed to create chat adventure'
+            error: 'Failed to create chat adventure',
         });
     });
 
     it('should handle request with assistant role', async () => {
         const mockRequest = {
             content: 'Assistant response',
-            role: RoleEnum.ASSISTANT
+            role: RoleEnum.ASSISTANT,
+            characterName: 'Unknown',
         };
 
         const mockChat: Chat = {
@@ -210,14 +232,15 @@ describe('CreateChatAdventureController', () => {
             role: RoleEnum.ASSISTANT,
             index: 1,
             content: ['Assistant response'],
+            characterName: 'Unknown',
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
         };
 
         const mockResponse = {
             success: true,
             chat: mockChat,
-            error: undefined
+            error: undefined,
         };
 
         mockUseCase.execute.mockResolvedValue(mockResponse);
@@ -227,14 +250,15 @@ describe('CreateChatAdventureController', () => {
         expect(result).toEqual({
             success: true,
             chat: mockChat,
-            error: undefined
+            error: undefined,
         });
     });
 
     it('should handle request with system role', async () => {
         const mockRequest = {
             content: 'System message',
-            role: RoleEnum.SYSTEM
+            role: RoleEnum.SYSTEM,
+            characterName: 'Unknown',
         };
 
         const mockChat: Chat = {
@@ -242,14 +266,15 @@ describe('CreateChatAdventureController', () => {
             role: RoleEnum.SYSTEM,
             index: 0,
             content: ['System message'],
+            characterName: 'Unknown',
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
         };
 
         const mockResponse = {
             success: true,
             chat: mockChat,
-            error: undefined
+            error: undefined,
         };
 
         mockUseCase.execute.mockResolvedValue(mockResponse);
@@ -259,7 +284,7 @@ describe('CreateChatAdventureController', () => {
         expect(result).toEqual({
             success: true,
             chat: mockChat,
-            error: undefined
+            error: undefined,
         });
     });
 
@@ -267,7 +292,8 @@ describe('CreateChatAdventureController', () => {
         const mockRequest = {
             content: 'Test',
             role: RoleEnum.USER,
-            think: { id: 'think-2', enabled: true }
+            think: { id: 'think-2', enabled: true },
+            characterName: 'Unknown',
         };
 
         const mockResponse = {
@@ -278,9 +304,9 @@ describe('CreateChatAdventureController', () => {
                 index: 0,
                 content: ['Test'],
                 createdAt: new Date(),
-                updatedAt: new Date()
+                updatedAt: new Date(),
             },
-            error: undefined
+            error: undefined,
         };
 
         mockUseCase.execute.mockResolvedValue(mockResponse);
@@ -291,7 +317,8 @@ describe('CreateChatAdventureController', () => {
         expect(mockUseCase.execute).toHaveBeenCalledWith({
             content: 'Test',
             role: RoleEnum.USER,
-            think: { id: 'think-2', enabled: true }
+            think: { id: 'think-2', enabled: true },
+            characterName: 'Unknown',
         });
     });
 
@@ -299,7 +326,8 @@ describe('CreateChatAdventureController', () => {
         const mockRequest = {
             content: 'Test without thinking',
             role: RoleEnum.USER,
-            think: { id: 'think-3', content: '', enabled: false }
+            think: { id: 'think-3', content: '', enabled: false },
+            characterName: 'Unknown',
         };
 
         const mockResponse = {
@@ -310,9 +338,9 @@ describe('CreateChatAdventureController', () => {
                 index: 0,
                 content: ['Test without thinking'],
                 createdAt: new Date(),
-                updatedAt: new Date()
+                updatedAt: new Date(),
             },
-            error: undefined
+            error: undefined,
         };
 
         mockUseCase.execute.mockResolvedValue(mockResponse);

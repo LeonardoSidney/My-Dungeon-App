@@ -28,7 +28,7 @@ import {
     getAdventureTextController,
     appendAdventureChatController,
     createChatAdventureController,
-    eraseAdventuresController
+    eraseAdventuresController,
 } from '@infra/container';
 import {
     Ability,
@@ -46,10 +46,10 @@ import {
     Status,
     SystemPrompt,
     World,
-    WorldMaster
+    WorldMaster,
 } from '@domain/entities';
 
-async function setConnection (): Promise<void> {
+async function setConnection(): Promise<void> {
     const createConnection = createConnectionConfigController();
     await createConnection.handle({
         name: 'llamacpp2',
@@ -58,33 +58,33 @@ async function setConnection (): Promise<void> {
     });
 }
 
-async function getConnections (): Promise<Connection[]> {
+async function getConnections(): Promise<Connection[]> {
     const connectionsController = getConnectionsController();
     return connectionsController.handle();
 }
 
-async function getModels (connection: Connection) {
+async function getModels(connection: Connection) {
     const modelsController = getModelsFromProviderController();
     return modelsController.handle({ connection });
 }
 
-async function getSamplers () {
+async function getSamplers() {
     const samplersController = getSamplersController();
     return samplersController.handle();
 }
 
-async function setAssistant (sampler: Sampler, model: Model) {
+async function setAssistant(sampler: Sampler, model: Model) {
     const createAssistant = createAssistantController();
 
     await createAssistant.handle({
         model,
         sampler,
         name: 'test',
-        observation: 'test'
+        observation: 'test',
     });
 }
 
-async function setCharacter (
+async function setCharacter(
     assistant: Assistant,
     abilities: Ability[],
     attributes: Attribute[],
@@ -102,162 +102,162 @@ async function setCharacter (
         abilities,
         attributes,
         proficiencies,
-        statuses
+        statuses,
     });
 }
 
-async function getAssistants () {
+async function getAssistants() {
     const assistantsController = getAssistantsController();
     return assistantsController.handle();
 }
 
-async function setAbility () {
+async function setAbility() {
     const createAbility = createAbilityController();
     await createAbility.handle({
         name: 'Bola de fogo',
         prompt: 'Uma simples habilidade de bola de fogo',
         observation: 'Tive essa ideia vendo um mago fazer magias mágicas',
-        activationWorld: 'bola de fogo;magia de fogo'
+        activationWorld: 'bola de fogo;magia de fogo',
     });
 }
 
-async function getAbilities () {
+async function getAbilities() {
     const abilitiesController = getAbilitiesController();
     return abilitiesController.handle();
 }
 
-async function setStatus () {
+async function setStatus() {
     const createStatus = createStatusController();
     await createStatus.handle({
         name: 'Curse',
         prompt: 'Seu personagem foi amaldiçoado pela eternidade',
         observation: 'A alma escura',
-        activationWord: 'curse;undead'
+        activationWord: 'curse;undead',
     });
 }
 
-async function getStatuses () {
+async function getStatuses() {
     const statusesController = getStatusesController();
     return statusesController.handle();
 }
 
-async function setProficiency () {
+async function setProficiency() {
     const createProficiency = createProficiencyController();
     await createProficiency.handle({
         name: 'Ferragem',
         prompt: 'É quando um ferreiro sabe ferrear',
         activationWord: 'ferreiro;ferramenta;martelo',
-        observation: 'Vi um ferreiro ferreando e tive uma ideia férrea'
+        observation: 'Vi um ferreiro ferreando e tive uma ideia férrea',
     });
 }
 
-async function getProficiencies () {
+async function getProficiencies() {
     const proficienciesController = getProficienciesController();
     return proficienciesController.handle();
 }
 
-async function getCharacters () {
+async function getCharacters() {
     const charactersController = getCharactersController();
     return charactersController.handle();
 }
 
-function getAttributes (): Attribute[] {
+function getAttributes(): Attribute[] {
     return [
         {
             name: 'Força',
-            value: 100
+            value: 100,
         },
         {
             name: 'Emocional',
-            value: 8
+            value: 8,
         },
         {
             name: 'Intelecto',
-            value: 0
+            value: 0,
         },
         {
             name: 'Atração por lixo',
-            value: 999
-        }
+            value: 999,
+        },
     ];
 }
 
-async function setWorldMaster (assistant: Assistant) {
+async function setWorldMaster(assistant: Assistant) {
     const createWorldMaster = createWorldMasterController();
     await createWorldMaster.handle({
         name: 'Dungeon Master',
         activationWord: 'dungeon master;dm',
         prompt: 'Você é o mestre do jogo de RPG Dungeon & Dragons',
         observation: 'O mestre do jogo',
-        assistant
+        assistant,
     });
 }
 
-async function getWorldMasters () {
+async function getWorldMasters() {
     const worldMasters = getWorldMasterController();
     return worldMasters.handle();
 }
 
-async function setSystemPrompt () {
+async function setSystemPrompt() {
     const createSystemPrompt = createSystemPromptController();
     await createSystemPrompt.handle({
         name: 'D&D Prompt',
         content: 'Você é um mestre de RPG que gera aventuras para jogadores iniciantes',
-        observation: 'Um mestre de RPG experiente'
+        observation: 'Um mestre de RPG experiente',
     });
 }
 
-async function getSystemPrompts () {
+async function getSystemPrompts() {
     const systemPromptsController = getSystemPromptsController();
     return systemPromptsController.handle();
 }
 
-async function setWorld () {
+async function setWorld() {
     const createWorld = createWorldController();
     await createWorld.handle({
         name: 'Mundo de Teste',
         activationWord: 'teste',
         prompt: 'Um mundo de testes',
-        observation: 'Um mundo de testes para verificar se tudo funciona'
+        observation: 'Um mundo de testes para verificar se tudo funciona',
     });
 }
 
-async function getWorlds () {
+async function getWorlds() {
     const worldsController = getWorldsController();
     return worldsController.handle();
 }
 
-async function setLocation () {
+async function setLocation() {
     const createLocation = createLocationController();
     await createLocation.handle({
         name: 'Cidade de Teste',
         activationWord: 'teste',
         prompt: 'Uma cidade de testes',
-        observation: 'Uma cidade de testes para verificar se tudo funciona'
+        observation: 'Uma cidade de testes para verificar se tudo funciona',
     });
 }
 
-async function getLocations () {
+async function getLocations() {
     const locationsController = getLocationsController();
     return locationsController.handle();
 }
 
-async function setItem () {
+async function setItem() {
     const createItem = createItemController();
     await createItem.handle({
         name: 'Espada de Ferro',
         activationWord: 'espada;ferramenta;arma',
         prompt: 'Uma espada de ferro comum',
-        observation: 'Uma espada de ferro comum para iniciantes'
+        observation: 'Uma espada de ferro comum para iniciantes',
     });
 }
 
-async function getItems () {
+async function getItems() {
     const itemsController = getItemsController();
     return itemsController.handle();
 }
 
-async function setAdventure (
+async function setAdventure(
     worlds: World[],
     locations: Location[],
     characters: Character[],
@@ -273,20 +273,21 @@ async function setAdventure (
         characters,
         items,
         worldMaster,
-        systemPrompts
+        systemPrompts,
     });
 }
 
-async function getAdventures () {
+async function getAdventures() {
     const adventuresController = getAdventuresController();
     return adventuresController.handle();
 }
 
-async function appendChatAdventure (adventure: Adventure) {
+async function appendChatAdventure(adventure: Adventure) {
     const createChatController = createChatAdventureController();
     const chatResult = await createChatController.handle({
         content: 'Hello!!',
-        role: RoleEnum.USER
+        role: RoleEnum.USER,
+        characterName: 'Stelle',
     });
 
     if (!chatResult.success || !chatResult.chat) {
@@ -294,23 +295,39 @@ async function appendChatAdventure (adventure: Adventure) {
     }
 
     const appendChatController = appendAdventureChatController();
+    await appendChatController.handle({
+        adventure,
+        message: chatResult.chat,
+    });
+
+    const assistantRoleChat = await createChatController.handle({
+        content: 'Im hard thinking!!',
+        think: { id: '123', content: 'Im thining a lot!', enabled: true },
+        role: RoleEnum.ASSISTANT,
+        characterName: 'Za warudo!',
+    });
+
+    if (!assistantRoleChat.success || !assistantRoleChat.chat) {
+        throw new Error('Failed to create chat for adventure');
+    }
+
     return appendChatController.handle({
         adventure,
-        message: chatResult.chat
+        message: assistantRoleChat.chat,
     });
 }
 
-async function eraseAdventures () {
+async function eraseAdventures() {
     const eraseAdventuresCtrl = eraseAdventuresController();
     await eraseAdventuresCtrl.handle();
 }
 
-async function getAdventureText (adventure: Adventure) {
+async function getAdventureText(adventure: Adventure) {
     const getAdventureTextCtrl = getAdventureTextController();
     return getAdventureTextCtrl.handle({ adventure });
 }
 
-export async function runMigration (): Promise<string | undefined> {
+export async function runMigration(): Promise<string | undefined> {
     await eraseAdventures();
     await setConnection();
     const connections = await getConnections();
