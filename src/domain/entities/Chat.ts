@@ -7,6 +7,7 @@ export type Chat = {
     index: number;
     content: string[];
     think?: Think[];
+    characterName: string;
     createdAt: Date;
     updatedAt: Date;
 };

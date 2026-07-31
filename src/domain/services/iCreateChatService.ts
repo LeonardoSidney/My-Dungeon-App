@@ -8,6 +8,7 @@ export type CreateChatServiceParams = {
     content: string;
     role: Role;
     think?: Think;
+    characterName: string;
 };
 
 export type CreateChatServiceReturn = {

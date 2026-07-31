@@ -3,7 +3,9 @@ import { styles } from './styles';
 import { AdventureChatScreenProps } from './constants';
 import { AdventureChatSettings } from './AdventureChatSettings/AdventureChatSettings';
 import { CharacterSelector } from './CharacterSelector';
-import { Character } from '@domain/entities';
+import { AdventureChat } from './AdventureChat';
+import { Adventure, Character, RoleEnum } from '@domain/entities';
+import { createChatAdventureController, appendAdventureChatController } from '@infra/container';
 import { useState, useMemo } from 'react';
 import { Platform } from 'react-native';
 
@@ -26,7 +28,7 @@ export function AdventureChatScreen(params: AdventureChatScreenProps) {
     setShowSettings(false);
   };
 
-  const handleWorldMasterSelect = (updatedAdventure: typeof adventure) => {
+  const handleWorldMasterSelect = (updatedAdventure: Adventure) => {
     setCurrentAdventure(updatedAdventure);
   };
 
@@ -34,7 +36,28 @@ export function AdventureChatScreen(params: AdventureChatScreenProps) {
     setSelectedCharacter(character);
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
+    if (!message.trim()) return;
+
+    const chatController = createChatAdventureController();
+    const chatResponse = await chatController.handle({
+      content: message,
+      role: RoleEnum.USER,
+      characterName: selectedCharacter.name,
+    });
+
+    if (chatResponse.success && chatResponse.chat) {
+      const appendController = appendAdventureChatController();
+      const appendResponse = await appendController.handle({
+        adventure: currentAdventure,
+        message: chatResponse.chat,
+      });
+
+      if (appendResponse.success && appendResponse.adventure) {
+        setCurrentAdventure(appendResponse.adventure);
+      }
+    }
+
     setMessage('');
   };
 
@@ -60,7 +83,9 @@ export function AdventureChatScreen(params: AdventureChatScreenProps) {
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.messagesContainer} />
+      <ScrollView style={styles.messagesContainer}>
+        <AdventureChat chats={currentAdventure.chat} />
+      </ScrollView>
 
       <View style={styles.inputContainer}>
         <CharacterSelector

@@ -1,13 +1,14 @@
 import { RoleEnum } from '@domain/entities';
 import { ILogger } from '@domain/logger';
-import { CreateChatAdventureUseCaseParams, CreateChatAdventureUseCaseReturn, ICreateChatAdventureUseCase } from '@domain/use-cases';
+import {
+    CreateChatAdventureUseCaseParams,
+    CreateChatAdventureUseCaseReturn,
+    ICreateChatAdventureUseCase,
+} from '@domain/use-cases';
 import { ICreateChatService } from '@domain/services';
 
 export class CreateChatAdventureUseCase implements ICreateChatAdventureUseCase {
-    constructor(
-        private readonly logger: ILogger,
-        private readonly createChatService: ICreateChatService
-    ) { }
+    constructor(private readonly logger: ILogger, private readonly createChatService: ICreateChatService) {}
 
     async execute(params: CreateChatAdventureUseCaseParams): Promise<CreateChatAdventureUseCaseReturn> {
         this.logger.info('Executing CreateChatAdventureUseCase::execute');
@@ -21,7 +22,8 @@ export class CreateChatAdventureUseCase implements ICreateChatAdventureUseCase {
         const response = this.createChatService.createChat({
             content: params.content,
             role: params.role,
-            think: params.think
+            think: params.think,
+            characterName: params.characterName,
         });
 
         this.logger.debug('CreateChatAdventureUseCase::execute - chat created', response.chat);
@@ -29,7 +31,7 @@ export class CreateChatAdventureUseCase implements ICreateChatAdventureUseCase {
         return {
             success: response.success,
             chat: response.chat,
-            error: response.error
+            error: response.error,
         };
     }
 
@@ -38,7 +40,7 @@ export class CreateChatAdventureUseCase implements ICreateChatAdventureUseCase {
             this.logger.warning('CreateChatAdventureUseCase::validate - content is required');
             return {
                 success: false,
-                error: 'Content is required to create a chat'
+                error: 'Content is required to create a chat',
             };
         }
 
@@ -46,7 +48,7 @@ export class CreateChatAdventureUseCase implements ICreateChatAdventureUseCase {
             this.logger.warning(`CreateChatAdventureUseCase::validate - invalid role: ${params.role}`);
             return {
                 success: false,
-                error: 'Invalid role provided'
+                error: 'Invalid role provided',
             };
         }
 
@@ -54,7 +56,7 @@ export class CreateChatAdventureUseCase implements ICreateChatAdventureUseCase {
             this.logger.warning('CreateChatAdventureUseCase::validate - think must be an object');
             return {
                 success: false,
-                error: 'Think must be an object'
+                error: 'Think must be an object',
             };
         }
 
