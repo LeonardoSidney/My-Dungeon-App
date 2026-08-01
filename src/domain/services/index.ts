@@ -24,5 +24,6 @@ export * from './iCreateWorldService';
 export * from './iCreateLocationService';
 export * from './iCreateItemService';
 export * from './iCreateSystemPromptService';
+export * from './iEditSystemPromptService';
 export * from './iPromptBuilderService';
 export * from './iEditAssistantService';

@@ -13,6 +13,7 @@ import {
   ProficiencyScreen,
   AbilitiesScreen,
   StatusesScreen,
+  SystemPromptsScreen,
   AdventuresScreen,
   sidebarMenuItems
 } from '@application/ui';
@@ -63,6 +64,8 @@ function App () {
               <AdventuresScreen />
             ) : activeRoute === 'statuses' ? (
               <StatusesScreen />
+            ) : activeRoute === 'systemPrompts' ? (
+              <SystemPromptsScreen />
             ) : (
               <View style={styles.app}>
                 <TextAreaStream

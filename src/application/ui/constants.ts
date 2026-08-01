@@ -6,6 +6,7 @@ export const sidebarMenuItems: SidebarMenuItem[] = [
     { id: 'characters', label: 'Characters' },
     { id: 'abilities', label: 'Abilities' },
     { id: 'statuses', label: 'Statuses' },
+    { id: 'systemPrompts', label: 'System Prompts' },
     { id: 'proficiencies', label: 'Proficiencies' },
     { id: 'assistants', label: 'Assistants' },
     { id: 'samplers', label: 'Samplers' },

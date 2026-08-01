@@ -22,6 +22,8 @@ export * from './iCreateStatusController';
 export * from './iEditStatusController';
 export * from './iEraseStatusController';
 export * from './iCreateSystemPromptController';
+export * from './iEditSystemPromptController';
+export * from './iEraseSystemPromptController';
 export * from './iCreateWorldController';
 export * from './iCreateWorldMasterController';
 export * from './iEraseAdventuresController';
