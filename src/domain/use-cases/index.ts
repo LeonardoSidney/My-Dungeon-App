@@ -22,6 +22,8 @@ export * from './iCreateStatusUseCase';
 export * from './iEditStatusUseCase';
 export * from './iEraseStatusUseCase';
 export * from './iCreateSystemPromptUseCase';
+export * from './iEditSystemPromptUseCase';
+export * from './iEraseSystemPromptUseCase';
 export * from './iCreateWorldMasterUseCase';
 export * from './iCreateWorldUseCase';
 export * from './iEraseAdventuresUseCase';

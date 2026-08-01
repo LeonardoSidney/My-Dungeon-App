@@ -10,6 +10,7 @@ export type StreamCompletionControllerRequest = {
     prompt: string;
     temperature?: number;
     topP?: number;
+    minP?: number;
     maxTokens?: number;
 };
 

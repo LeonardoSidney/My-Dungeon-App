@@ -41,6 +41,8 @@ import {
     GetItemsController,
     CreateSystemPromptController,
     GetSystemPromptsController,
+    EditSystemPromptController,
+    EraseSystemPromptController,
     GetAdventuresController,
     GetAdventureTextController,
     AdventureAppendChatController,
@@ -76,6 +78,7 @@ import {
     CreateLocationService,
     CreateItemService,
     CreateSystemPromptService,
+    EditSystemPromptService,
     AdventureAppendChatService,
     EditConnectionConfigService,
     EditAssistantService
@@ -123,6 +126,8 @@ import {
     GetItemsUseCase,
     CreateSystemPromptUseCase,
     GetSystemPromptsUseCase,
+    EditSystemPromptUseCase,
+    EraseSystemPromptUseCase,
     GetAdventureUseCase,
     GetAdventureTextUseCase,
     AdventureAppendChatUseCase,
@@ -177,6 +182,8 @@ import {
     IGetItemsController,
     ICreateSystemPromptController,
     IGetSystemPromptsController,
+    IEditSystemPromptController,
+    IEraseSystemPromptController,
     IGetAdventuresController,
     IGetAdventureTextController,
     IAdventureAppendChatController,
@@ -444,6 +451,19 @@ export function getSystemPromptsController (): IGetSystemPromptsController {
     const systemPromptRepository = new SystemPromptRepository(logger, storage);
     const getSystemPromptsUseCase = new GetSystemPromptsUseCase(logger, systemPromptRepository);
     return new GetSystemPromptsController(logger, getSystemPromptsUseCase);
+}
+
+export function editSystemPromptController (): IEditSystemPromptController {
+    const systemPromptRepository = new SystemPromptRepository(logger, storage);
+    const editSystemPromptService = new EditSystemPromptService(logger);
+    const editSystemPromptUseCase = new EditSystemPromptUseCase(logger, editSystemPromptService, systemPromptRepository);
+    return new EditSystemPromptController(logger, editSystemPromptUseCase);
+}
+
+export function eraseSystemPromptController (): IEraseSystemPromptController {
+    const systemPromptRepository = new SystemPromptRepository(logger, storage);
+    const eraseSystemPromptUseCase = new EraseSystemPromptUseCase(logger, systemPromptRepository);
+    return new EraseSystemPromptController(logger, eraseSystemPromptUseCase);
 }
 
 export function createWorldController (): ICreateWorldController {
