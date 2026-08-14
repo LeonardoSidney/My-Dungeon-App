@@ -117,6 +117,7 @@ export const styles = StyleSheet.create({
         borderColor: '#444',
         borderRadius: 8,
         maxHeight: 150,
+        overflow: 'hidden',
     },
     dropdownOption: {
         padding: 12,

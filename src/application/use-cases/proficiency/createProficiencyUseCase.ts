@@ -4,12 +4,12 @@ import { ICreateProficiencyService } from '@domain/services';
 import { CreateProficiencyUseCaseParams, CreateProficiencyUseCaseResponse, ICreateProficiencyUseCase } from '@domain/use-cases';
 
 export class CreateProficiencyUseCase implements ICreateProficiencyUseCase {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly service: ICreateProficiencyService,
         private readonly proficiencyRepository: IProficiencyRepository
     ) { }
-    async execute(params: CreateProficiencyUseCaseParams): Promise<CreateProficiencyUseCaseResponse> {
+    async execute (params: CreateProficiencyUseCaseParams): Promise<CreateProficiencyUseCaseResponse> {
         this.logger.info('Executing CreateProficiencyUseCase::execute');
         this.logger.debug('Executing CreateProficiencyUseCase::execute - params', params);
 
@@ -50,7 +50,7 @@ export class CreateProficiencyUseCase implements ICreateProficiencyUseCase {
         };
     }
 
-    private validate(params: CreateProficiencyUseCaseParams) {
+    private validate (params: CreateProficiencyUseCaseParams) {
         if (!params.name?.trim()) {
             throw new Error('name is required to create a proficiency');
         }

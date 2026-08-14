@@ -1,4 +1,4 @@
-export * from './iAdventureAppendChatUseCase';
+export * from './iAppendChatAdventureUseCase';
 export * from './iCreateAbilityUseCase';
 export * from './iEditAbilityUseCase';
 export * from './iEraseAbilityUseCase';
@@ -50,5 +50,10 @@ export * from './iEditWorldMasterUseCase';
 export * from './iGetWorldMastersUseCase';
 export * from './iGetWorldsUseCase';
 export * from './iStreamCompletionUseCase';
+export * from './iNativeStreamCompletionUseCase';
 export * from './iEditAssistantUseCase';
 export * from './iEraseAssistantUseCase';
+export * from './iStartStreamingChatUseCase';
+export * from './iUpdateStreamingChatUseCase';
+export * from './iFinishStreamingChatUseCase';
+export * from './iIsAdventureStreamingUseCase';

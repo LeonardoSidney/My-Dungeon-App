@@ -3,12 +3,12 @@ import { ILogger } from '@domain/logger';
 import { GetModelsFromProviderParamsReturn, GetModelsFromProviderParamsUseCase, IGetModelsFromProviderUseCase } from '@domain/use-cases';
 
 export class GetModelsFromProviderUseCase implements IGetModelsFromProviderUseCase {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly gateway: IModelProviderGateway
     ) { }
 
-    async execute(params: GetModelsFromProviderParamsUseCase): Promise<GetModelsFromProviderParamsReturn> {
+    async execute (params: GetModelsFromProviderParamsUseCase): Promise<GetModelsFromProviderParamsReturn> {
         this.logger.info('Executing GetModelsFromProviderUseCase::execute');
         const { connection } = params;
         const modelsDTO = await this.gateway.getModels(connection);

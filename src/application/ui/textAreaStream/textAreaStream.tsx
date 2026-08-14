@@ -15,14 +15,23 @@ async function bolinhaDePelo (prompt: string, setPrompt: Dispatch<React.SetState
     throw new Error('No connections found');
   }
 
-  const streamCompletionController = getStreamCompletionController();
-  const result = await streamCompletionController.handle({
-    connection: connections[0],
-    modelId: '/mnt/nvme_xpg/models/Qwen3.6-35B-A3B-UD-Q5_K_S.gguf',
-    prompt,
+  const connection = connections[0];
+  const sampler = {
+    id: 'default',
+    name: 'default',
+    systemDefault: true,
     temperature: 1,
     topP: 1,
-    maxTokens: 500
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  const streamCompletionController = getStreamCompletionController();
+  const result = await streamCompletionController.handle({
+    connection,
+    sampler,
+    modelId: '/mnt/nvme_xpg/models/Qwen3.6-35B-A3B-UD-Q5_K_S.gguf',
+    prompt,
   });
 
   if (!result.success || !result.stream) {
@@ -47,7 +56,6 @@ async function bolinhaDePelo (prompt: string, setPrompt: Dispatch<React.SetState
 }
 
 export function TextAreaStream ({ prompt, setPrompt }: TextAreaStreamProps) {
-
   const handleStream = async () => {
     await bolinhaDePelo(prompt, setPrompt);
   };
@@ -67,4 +75,3 @@ export function TextAreaStream ({ prompt, setPrompt }: TextAreaStreamProps) {
     </View>
   );
 }
-

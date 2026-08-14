@@ -4,12 +4,12 @@ import { IConnectionRepository } from '@domain/repository';
 import { IGetConnectionsUseCase } from '@domain/use-cases';
 
 export class GetConnectionsUseCase implements IGetConnectionsUseCase {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly connectionRepository: IConnectionRepository
     ) { }
 
-    async execute(): Promise<Connection[]> {
+    async execute (): Promise<Connection[]> {
         this.logger.info('Executing GetConnectionsUseCase::execute');
         return this.connectionRepository.getConnections();
     }

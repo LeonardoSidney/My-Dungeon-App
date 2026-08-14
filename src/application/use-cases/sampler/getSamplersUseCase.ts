@@ -5,12 +5,12 @@ import { IGetSamplersService } from '@domain/services';
 import { IGetSamplersUseCase } from '@domain/use-cases';
 
 export class GetSamplersUseCase implements IGetSamplersUseCase {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly service: IGetSamplersService,
         private readonly samplerRepository: ISamplerRepository
     ) { }
-    async execute(): Promise<Sampler[]> {
+    async execute (): Promise<Sampler[]> {
         this.logger.info('Executing GetSamplersUseCase::execute');
         const samplers: Sampler[] = [];
         const defaultSamplers = this.service.getSystemDefaultSamplers();

@@ -1,25 +1,50 @@
-import { Text, View, ScrollView } from 'react-native';
-import { AdventureChatProps } from './constants';
+import { useMemo } from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { styles } from './styles';
 import { AdventureThink } from './AdventureThink';
+import { TextMarkdown } from './TextMarkdown';
+import { getChatRenderData } from './getChatRenderData';
+import { getStreamingChatFromList } from './getStreamingChatFromList';
+import { AdventureChatProps } from './constants';
 
-export function AdventureChat({ chats }: AdventureChatProps) {
+export function AdventureChat ({ chats, streamingChat, onDeleteMessage, onRegenerateFromMessage }: AdventureChatProps) {
+  const streamingChatFromList = useMemo(() => getStreamingChatFromList({ streamingChat, chats }), [streamingChat, chats]);
+
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       {chats.map(chat => {
-        const think = chat.think?.[chat.index];
-        const hasThink = think?.enabled && !!think.content;
+        const renderData = getChatRenderData({ chat, streamingChatFromList });
+        const { think, streamingThink, hasThink, hasStreamingThink, isUserMessage, chatItemStyle, chatContentIsStreaming, content } = renderData;
+        const chatContent = chatContentIsStreaming ? (
+          <Text style={styles.text}>{content}</Text>
+        ) : (
+          <TextMarkdown content={content} />
+        );
 
         return (
           <View key={chat.id} style={styles.chatWrapper}>
-            {hasThink && <AdventureThink think={think} />}
-            <View style={hasThink ? styles.chatItemWithThink : styles.chatItem}>
+            {hasThink && (
+              <AdventureThink think={think} streamingThink={hasStreamingThink ? streamingThink : undefined} />
+            )}
+            <View style={chatItemStyle}>
               <Text style={styles.characterName}>{chat.characterName}</Text>
-              <Text style={styles.text}>{chat.content[chat.index]}</Text>
+              {chatContent}
             </View>
+            {isUserMessage && onDeleteMessage && (
+              <View style={styles.actionsContainer}>
+                {onRegenerateFromMessage && (
+                  <TouchableOpacity style={styles.regenerateButton} onPress={() => onRegenerateFromMessage(chat.id)}>
+                    <Text style={styles.regenerateButtonText}>↻</Text>
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity style={styles.deleteButton} onPress={() => onDeleteMessage(chat.id)}>
+                  <Text style={styles.deleteButtonText}>🗑</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         );
       })}
-    </ScrollView>
+    </View>
   );
 }

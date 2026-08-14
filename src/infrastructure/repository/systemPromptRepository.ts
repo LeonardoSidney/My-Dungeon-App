@@ -6,7 +6,7 @@ import { ISystemPromptRepository, SaveSystemPromptParams, EditSystemPromptParams
 import { SystemPromptDTO } from '../dto';
 
 export class SystemPromptRepository implements ISystemPromptRepository {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly storage: IStorage
     ) { }
@@ -25,7 +25,7 @@ export class SystemPromptRepository implements ISystemPromptRepository {
         return systemPrompts;
     }
 
-    async saveSystemPrompt(params: SaveSystemPromptParams): Promise<boolean> {
+    async saveSystemPrompt (params: SaveSystemPromptParams): Promise<boolean> {
         this.logger.info('Executing SystemPromptRepository::saveSystemPrompt');
         this.logger.debug('Executing SystemPromptRepository::saveSystemPrompt - params: ', params);
 
@@ -42,7 +42,7 @@ export class SystemPromptRepository implements ISystemPromptRepository {
         return true;
     }
 
-    async getSystemPrompts(): Promise<SystemPrompt[]> {
+    async getSystemPrompts (): Promise<SystemPrompt[]> {
         this.logger.info('Executing SystemPromptRepository::getSystemPrompts');
         try {
             const systemPrompts: SystemPrompt[] = [];

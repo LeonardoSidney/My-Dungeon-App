@@ -1,7 +1,7 @@
 import { WorldMaster } from '@domain/entities';
 import { createAssistantHelper } from './createAssistantHelper';
 
-export function createWorldMasterHelper(overrides?: Partial<WorldMaster>): WorldMaster {
+export function createWorldMasterHelper (overrides?: Partial<WorldMaster>): WorldMaster {
     return {
         id: '1',
         name: 'Test WorldMaster',

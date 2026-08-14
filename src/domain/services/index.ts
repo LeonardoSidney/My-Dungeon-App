@@ -1,5 +1,4 @@
-export * from './iAdventureAppendChatService';
-export * from './iAdventureAppendChatService';
+export * from './iAppendChatAdventureService';
 export * from './iCreateAbilityService';
 export * from './iEditAbilityService';
 export * from './iCreateChatService';
@@ -27,3 +26,7 @@ export * from './iCreateSystemPromptService';
 export * from './iEditSystemPromptService';
 export * from './iPromptBuilderService';
 export * from './iEditAssistantService';
+export * from './iStartStreamingChatService';
+export * from './iUpdateStreamingChatService';
+export * from './iFinishStreamingChatService';
+export * from './iIsAdventureStreamingService';

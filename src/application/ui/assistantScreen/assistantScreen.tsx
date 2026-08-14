@@ -46,7 +46,7 @@ export function AssistantScreen () {
     }
   };
 
-  const handleFormChange = (field: keyof AssistantFormData, value: any) => {
+  const handleFormChange = (field: keyof AssistantFormData, value: AssistantFormData[keyof AssistantFormData]) => {
     setFormErrors(prev => {
       const next = { ...prev };
       const errorField = field as keyof FormErrors;

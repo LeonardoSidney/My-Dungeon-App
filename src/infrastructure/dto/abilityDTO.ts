@@ -2,7 +2,7 @@ import { Ability } from '@domain/entities';
 import { isRecord, parseDate } from './shared';
 
 export class AbilityDTO {
-    constructor(
+    constructor (
         private readonly id: string,
         private readonly name: string,
         private readonly activationWorld: string,
@@ -12,7 +12,7 @@ export class AbilityDTO {
         private readonly updatedAt: Date
     ) { }
 
-    toEntity(): Ability {
+    toEntity (): Ability {
         return {
             id: this.id,
             name: this.name,
@@ -24,7 +24,7 @@ export class AbilityDTO {
         };
     }
 
-    static fromStorage(data: unknown): AbilityDTO | null {
+    static fromStorage (data: unknown): AbilityDTO | null {
         if (!isRecord(data)) {
             return null;
         }

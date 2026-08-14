@@ -9,7 +9,7 @@ export class ConnectionDTO {
     public readonly auth?: string;
     public readonly createdAt: Date;
     public readonly updatedAt: Date;
-    constructor(connection: Connection) {
+    constructor (connection: Connection) {
         this.id = connection.id;
         this.name = connection.name;
         this.ip = connection.ip;
@@ -19,7 +19,7 @@ export class ConnectionDTO {
         this.updatedAt = connection.updatedAt;
     }
 
-    public toEntity(): Connection {
+    public toEntity (): Connection {
         return {
             id: this.id,
             name: this.name,
@@ -31,7 +31,7 @@ export class ConnectionDTO {
         };
     }
 
-    static fromStorage(data: unknown): ConnectionDTO | null {
+    static fromStorage (data: unknown): ConnectionDTO | null {
         if (!isRecord(data)) {
             return null;
         }

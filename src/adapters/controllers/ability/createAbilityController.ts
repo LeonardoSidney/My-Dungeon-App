@@ -3,11 +3,11 @@ import { ILogger } from '@domain/logger';
 import { ICreateAbilityUseCase } from '@domain/use-cases';
 
 export class CreateAbilityController implements ICreateAbilityController {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly useCase: ICreateAbilityUseCase
     ) { }
-    async handle(params: CreateAbilityControllerParams): Promise<CreateAbilityControllerResponse> {
+    async handle (params: CreateAbilityControllerParams): Promise<CreateAbilityControllerResponse> {
         this.logger.info('Executing CreateAbilityController::handle');
         const { name, prompt, activationWorld, observation } = params;
         const response = await this.useCase.execute({

@@ -1,17 +1,32 @@
+import { useMemo } from 'react';
 import { Text, View } from 'react-native';
-import { Think } from '@domain/entities';
 import { styles } from './styles';
+import { TextMarkdown } from '../TextMarkdown';
+import { AdventureThinkProps } from './constants';
 
-interface AdventureThinkProps {
-  think: Think;
-}
+export function AdventureThink ({ think, streamingThink }: AdventureThinkProps) {
+  const currentThink = useMemo(() => {
+    const selectedThink = streamingThink ? streamingThink : think;
+    return selectedThink;
+  }, [think, streamingThink]);
 
-export function AdventureThink({ think }: AdventureThinkProps) {
-  if (!think.enabled || !think.content) return null;
+  if (!currentThink?.enabled || !currentThink.content) {
+    return null;
+  }
+
+  const isStreaming = !!streamingThink;
+
+  if (isStreaming) {
+    return (
+      <View style={styles.thinkContainer}>
+        <Text style={styles.thinkText}>{currentThink.content}</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.thinkContainer}>
-      <Text style={styles.thinkText}>{think.content}</Text>
+      <TextMarkdown content={currentThink.content} style={styles.thinkText} />
     </View>
   );
 }

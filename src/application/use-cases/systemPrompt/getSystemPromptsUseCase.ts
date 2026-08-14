@@ -4,12 +4,12 @@ import { ISystemPromptRepository } from '@domain/repository';
 import { IGetSystemPromptsUseCase } from '@domain/use-cases';
 
 export class GetSystemPromptsUseCase implements IGetSystemPromptsUseCase {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly systemPromptRepository: ISystemPromptRepository
     ) { }
 
-    async execute(): Promise<SystemPrompt[]> {
+    async execute (): Promise<SystemPrompt[]> {
         this.logger.info('Executing GetSystemPromptsUseCase::execute');
         return await this.systemPromptRepository.getSystemPrompts();
     }

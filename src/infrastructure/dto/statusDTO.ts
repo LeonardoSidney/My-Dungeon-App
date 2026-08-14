@@ -2,7 +2,7 @@ import { Status } from '@domain/entities';
 import { isRecord, parseDate } from './shared';
 
 export class StatusDTO {
-    constructor(
+    constructor (
         private readonly id: string,
         private readonly name: string,
         private readonly activationWord: string,
@@ -12,7 +12,7 @@ export class StatusDTO {
         private readonly updatedAt: Date
     ) { }
 
-    toEntity(): Status {
+    toEntity (): Status {
         return {
             id: this.id,
             name: this.name,
@@ -24,7 +24,7 @@ export class StatusDTO {
         };
     }
 
-    static fromStorage(data: unknown): StatusDTO | null {
+    static fromStorage (data: unknown): StatusDTO | null {
         if (!isRecord(data)) {
             return null;
         }

@@ -4,7 +4,7 @@ import { Character, SystemPrompt, WorldMaster, World, Location, Item } from '@do
 export interface AdventuresFormProps {
     showForm: boolean;
     adventureStateFormData: AdventureFormData;
-    onChange: (field: keyof AdventureFormData, value: any) => void;
+    onChange: (field: keyof AdventureFormData, value: AdventureFormData[keyof AdventureFormData]) => void;
     onCancel: () => void;
     onSave: () => void;
     formErrors: FormErrors;

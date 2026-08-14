@@ -1,6 +1,6 @@
 import { Proficiency } from '@domain/entities';
 
-export function createProficiencyHelper(overrides?: Partial<Proficiency>): Proficiency {
+export function createProficiencyHelper (overrides?: Partial<Proficiency>): Proficiency {
     return {
         id: '1',
         name: 'Test Proficiency',

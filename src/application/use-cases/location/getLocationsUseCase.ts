@@ -4,12 +4,12 @@ import { ILocationRepository } from '@domain/repository';
 import { IGetLocationsUseCase } from '@domain/use-cases';
 
 export class GetLocationsUseCase implements IGetLocationsUseCase {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly locationRepository: ILocationRepository
     ) { }
 
-    async execute(): Promise<Location[]> {
+    async execute (): Promise<Location[]> {
         this.logger.info('Executing GetLocationsUseCase::execute');
         return this.locationRepository.getLocations();
     }

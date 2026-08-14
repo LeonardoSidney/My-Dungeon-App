@@ -1,6 +1,6 @@
 import { Status } from '@domain/entities';
 
-export function createStatusHelper(overrides?: Partial<Status>): Status {
+export function createStatusHelper (overrides?: Partial<Status>): Status {
     return {
         id: '1',
         name: 'Test Status',

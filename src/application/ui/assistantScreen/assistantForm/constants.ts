@@ -10,7 +10,7 @@ export type FormErrors = {
 export type AssistantFormProps = {
     showForm: boolean;
     assistantStateFormData: AssistantFormData;
-    onChange: (field: keyof AssistantFormData, value: any) => void;
+    onChange: (field: keyof AssistantFormData, value: AssistantFormData[keyof AssistantFormData]) => void;
     onCancel: () => void;
     onSave: () => void;
     models: Model[];

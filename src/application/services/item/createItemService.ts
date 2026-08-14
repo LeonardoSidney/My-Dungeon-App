@@ -3,12 +3,12 @@ import { CreateItemServiceParams, CreateItemServiceResponse, ICreateItemService 
 import { IIdGenerator } from '@domain/providers';
 
 export class CreateItemService implements ICreateItemService {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly idGenerator: IIdGenerator
     ) { }
 
-    createItem(params: CreateItemServiceParams): CreateItemServiceResponse {
+    createItem (params: CreateItemServiceParams): CreateItemServiceResponse {
         this.logger.info('CreateItemService::createItem');
 
         const createdAt = new Date();

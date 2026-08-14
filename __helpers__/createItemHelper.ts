@@ -1,6 +1,6 @@
 import { Item } from '@domain/entities';
 
-export function createItemHelper(overrides?: Partial<Item>): Item {
+export function createItemHelper (overrides?: Partial<Item>): Item {
     return {
         id: '1',
         name: 'Test Item',

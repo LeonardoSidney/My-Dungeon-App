@@ -1,6 +1,6 @@
 import { Location } from '@domain/entities';
 
-export function createLocationHelper(overrides?: Partial<Location>): Location {
+export function createLocationHelper (overrides?: Partial<Location>): Location {
     return {
         id: '1',
         name: 'Test Location',

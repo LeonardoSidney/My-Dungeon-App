@@ -4,12 +4,12 @@ import { ICreateAbilityService } from '@domain/services';
 import { CreateAbilityUseCaseParams, CreateAbilityUseCaseResponse, ICreateAbilityUseCase } from '@domain/use-cases';
 
 export class CreateAbilityUseCase implements ICreateAbilityUseCase {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly service: ICreateAbilityService,
         private readonly abilityRepository: IAbilityRepository
     ) { }
-    async execute(params: CreateAbilityUseCaseParams): Promise<CreateAbilityUseCaseResponse> {
+    async execute (params: CreateAbilityUseCaseParams): Promise<CreateAbilityUseCaseResponse> {
         this.logger.info('Executing CreateAbilityUseCase::execute');
         this.logger.debug('Executing CreateAbilityUseCase::execute - params', params);
 
@@ -50,7 +50,7 @@ export class CreateAbilityUseCase implements ICreateAbilityUseCase {
         };
     }
 
-    private validate(params: CreateAbilityUseCaseParams) {
+    private validate (params: CreateAbilityUseCaseParams) {
         if (!params.name?.trim()) {
             throw new Error('name is required to create an ability');
         }

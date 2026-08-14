@@ -4,11 +4,8 @@ import { samplerAttributes } from './constants';
 export function getSamplerDetailsText (sampler: Sampler): string {
     const parts: string[] = [];
 
-    if (sampler.systemDefault) {
-        parts.push('System Default');
-    } else {
-        parts.push('Custom');
-    }
+    const defaultLabel = sampler.systemDefault ? 'System Default' : 'Custom';
+    parts.push(defaultLabel);
 
     samplerAttributes.forEach((attr) => {
         const value = sampler[attr.key as keyof Sampler];

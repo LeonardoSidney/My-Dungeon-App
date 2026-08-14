@@ -3,7 +3,7 @@ import { styles } from './styles';
 import { AdventureChatSettingsProps } from './constants';
 import { WorldMasterDropdown } from './WorldMasterDropdown';
 
-export function AdventureChatSettings(params: AdventureChatSettingsProps) {
+export function AdventureChatSettings (params: AdventureChatSettingsProps) {
   const { onBack, adventure, onWorldMasterSelect } = params;
 
   return (

@@ -2,7 +2,7 @@ import { SystemPrompt } from '@domain/entities';
 import { isRecord, parseDate } from './shared';
 
 export class SystemPromptDTO {
-    constructor(
+    constructor (
         private readonly id: string,
         private readonly name: string,
         private readonly content: string,
@@ -11,7 +11,7 @@ export class SystemPromptDTO {
         private readonly updatedAt: Date
     ) { }
 
-    toEntity(): SystemPrompt {
+    toEntity (): SystemPrompt {
         return {
             id: this.id,
             name: this.name,
@@ -22,7 +22,7 @@ export class SystemPromptDTO {
         };
     }
 
-    static fromStorage(data: unknown): SystemPromptDTO | null {
+    static fromStorage (data: unknown): SystemPromptDTO | null {
         if (!isRecord(data)) {
             return null;
         }

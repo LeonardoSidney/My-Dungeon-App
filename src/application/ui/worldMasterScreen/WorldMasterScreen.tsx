@@ -45,7 +45,7 @@ export function WorldMasterScreen () {
     }
   };
 
-  const handleFormChange = (field: keyof WorldMasterFormData, value: any) => {
+  const handleFormChange = (field: keyof WorldMasterFormData, value: WorldMasterFormData[keyof WorldMasterFormData]) => {
     setFormErrors(prev => {
       const next = { ...prev };
       const errorField = field as keyof FormErrors;

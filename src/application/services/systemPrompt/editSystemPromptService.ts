@@ -6,9 +6,9 @@ import {
 } from '@domain/services';
 
 export class EditSystemPromptService implements IEditSystemPromptService {
-    constructor(private readonly logger: ILogger) {}
+    constructor (private readonly logger: ILogger) {}
 
-    editSystemPrompt(params: EditSystemPromptServiceParams): EditSystemPromptServiceReturn {
+    editSystemPrompt (params: EditSystemPromptServiceParams): EditSystemPromptServiceReturn {
         this.logger.info('EditSystemPromptService::editSystemPrompt');
 
         const { systemPrompt } = params;

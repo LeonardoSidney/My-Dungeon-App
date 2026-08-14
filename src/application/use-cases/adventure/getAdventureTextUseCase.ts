@@ -5,13 +5,13 @@ import { Model, Character, WorldMaster } from '@domain/entities';
 import { GetAdventureTextUseCaseParams, GetAdventureTextUseCaseResponse, IGetAdventureTextUseCase } from '@domain/use-cases';
 
 export class GetAdventureTextUseCase implements IGetAdventureTextUseCase {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly provider: ITextGeneration,
         private readonly gateway: IModelProviderGateway
     ) { }
 
-    async execute(params: GetAdventureTextUseCaseParams): Promise<GetAdventureTextUseCaseResponse> {
+    async execute (params: GetAdventureTextUseCaseParams): Promise<GetAdventureTextUseCaseResponse> {
         this.logger.info('Executing GetAdventureTextUseCase::execute');
         this.logger.debug('Executing GetAdventureTextUseCase::execute - params', params);
 
@@ -41,7 +41,7 @@ export class GetAdventureTextUseCase implements IGetAdventureTextUseCase {
         };
     }
 
-    private getWorldMasterModel(worldMaster: WorldMaster | undefined, characters: Character[]): Model {
+    private getWorldMasterModel (worldMaster: WorldMaster | undefined, characters: Character[]): Model {
         if (worldMaster) {
             return worldMaster.assistant.model;
         }

@@ -1,6 +1,6 @@
 import { Sampler } from '@domain/entities';
 
-export function createSamplerHelper(overrides?: Partial<Sampler>): Sampler {
+export function createSamplerHelper (overrides?: Partial<Sampler>): Sampler {
     return {
         id: '1',
         name: 'Test Sampler',

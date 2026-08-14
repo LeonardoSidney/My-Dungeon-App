@@ -1,7 +1,7 @@
 import { Model } from '@domain/entities';
 import { createConnectionHelper } from './createConnectionHelper';
 
-export function createModelHelper(overrides?: Partial<Model>): Model {
+export function createModelHelper (overrides?: Partial<Model>): Model {
     return {
         id: '1',
         name: 'Test Model',

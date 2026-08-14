@@ -4,13 +4,13 @@ import { ICreateWorldMasterService } from '@domain/services';
 import { CreateWorldMasterUseCaseParams, CreateWorldMasterUseCaseResponse, ICreateWorldMasterUseCase } from '@domain/use-cases';
 
 export class CreateWorldMasterUseCase implements ICreateWorldMasterUseCase {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly worldMasterRepository: IWorldMasterRepository,
         private readonly service: ICreateWorldMasterService
     ) { }
 
-    async execute(params: CreateWorldMasterUseCaseParams): Promise<CreateWorldMasterUseCaseResponse> {
+    async execute (params: CreateWorldMasterUseCaseParams): Promise<CreateWorldMasterUseCaseResponse> {
         this.logger.info('Executing CreateWorldMasterUseCase::execute');
         this.logger.debug('CreateWorldMasterUseCase::execute - params:', params);
 
@@ -51,7 +51,7 @@ export class CreateWorldMasterUseCase implements ICreateWorldMasterUseCase {
         };
     }
 
-    validate(params: CreateWorldMasterUseCaseParams): void {
+    validate (params: CreateWorldMasterUseCaseParams): void {
         if (!params.name?.trim()) {
             throw new Error('Name is required to create a world master');
         }

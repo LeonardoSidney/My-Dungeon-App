@@ -11,7 +11,7 @@ export type FormErrors = {
 export type CharacterFormProps = {
     showForm: boolean;
     characterStateFormData: CharacterFormData;
-    onChange: (field: keyof CharacterFormData, value: any) => void;
+    onChange: (field: keyof CharacterFormData, value: CharacterFormData[keyof CharacterFormData]) => void;
     onCancel: () => void;
     onSave: () => Promise<void>;
     assistants: Assistant[];

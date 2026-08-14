@@ -3,11 +3,11 @@ import { ILogger } from '@domain/logger';
 import { ICreateCharacterUseCase } from '@domain/use-cases';
 
 export class CreateCharacterController implements ICreateCharacterController {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly useCase: ICreateCharacterUseCase
     ) { }
-    async handle(params: CreateCharacterControllerPrams): Promise<CreateCharacterControllerResponse> {
+    async handle (params: CreateCharacterControllerPrams): Promise<CreateCharacterControllerResponse> {
         this.logger.info('Executing CreateCharacterController::handle');
         const { name, activationWord, prompt, observation, abilities, proficiencies, statuses, attributes, assistant } = params;
         const response = await this.useCase.execute({

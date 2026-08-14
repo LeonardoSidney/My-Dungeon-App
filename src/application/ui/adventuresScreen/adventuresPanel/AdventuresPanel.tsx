@@ -2,7 +2,7 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import { styles } from './styles';
 import { AdventuresPanelProps } from './constants';
 
-export function AdventuresPanel(params: AdventuresPanelProps) {
+export function AdventuresPanel (params: AdventuresPanelProps) {
   const { adventures, onEdit, onDelete, onChat } = params;
 
   return (

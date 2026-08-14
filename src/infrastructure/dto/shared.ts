@@ -1,8 +1,8 @@
-export function isRecord(value: unknown): value is Record<string, unknown> {
+export function isRecord (value: unknown): value is Record<string, unknown> {
     return typeof value === 'object' && value !== null;
 }
 
-export function parseDate(value: unknown): Date | null {
+export function parseDate (value: unknown): Date | null {
     if (value instanceof Date) {
         return value;
     }
@@ -17,10 +17,10 @@ export function parseDate(value: unknown): Date | null {
     return null;
 }
 
-export function isArrayRecord(value: unknown): value is Record<string, unknown>[] {
+export function isArrayRecord (value: unknown): value is Record<string, unknown>[] {
     return Array.isArray(value) && value.every((item) => isRecord(item));
 }
 
-export function isInEnum<T extends Record<string, string | number>>(enumObj: T, value: string | number): value is T[keyof T] {
+export function isInEnum<T extends Record<string, string | number>> (enumObj: T, value: string | number): value is T[keyof T] {
     return Object.values(enumObj).includes(value);
 }

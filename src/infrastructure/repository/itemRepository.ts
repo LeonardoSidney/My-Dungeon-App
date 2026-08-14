@@ -6,12 +6,12 @@ import { IStorage } from '@domain/storage';
 import { ItemDTO } from '../dto';
 
 export class ItemRepository implements IItemRepository {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly storage: IStorage
     ) { }
 
-    async saveItem(params: SaveItemParams): Promise<boolean> {
+    async saveItem (params: SaveItemParams): Promise<boolean> {
         this.logger.info('Executing ItemRepository::saveItem');
         this.logger.debug('Executing ItemRepository::saveItem - params: ', params);
 
@@ -28,7 +28,7 @@ export class ItemRepository implements IItemRepository {
         return true;
     }
 
-    async getItems(): Promise<Item[]> {
+    async getItems (): Promise<Item[]> {
         this.logger.info('Executing ItemRepository::getItems');
         try {
             const items: Item[] = [];

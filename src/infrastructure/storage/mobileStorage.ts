@@ -3,11 +3,11 @@ import { ILogger } from '@domain/logger';
 import { IStorage } from '@domain/storage';
 
 export class MobileStorage implements IStorage {
-    constructor(
+    constructor (
         private readonly logger: ILogger
     ) { }
 
-    async save<T>(name: string, data: T): Promise<void> {
+    async save<T> (name: string, data: T): Promise<void> {
         this.logger.info('Executing MobileStorage::save');
         this.logger.debug('Executing MobileStorage::save - data', data);
         try {
@@ -18,7 +18,7 @@ export class MobileStorage implements IStorage {
         }
     }
 
-    async load<T>(name: string): Promise<T | null> {
+    async load<T> (name: string): Promise<T | null> {
         this.logger.info('Executing MobileStorage::load');
         this.logger.debug('Executing MobileStorage::load - name', name);
 

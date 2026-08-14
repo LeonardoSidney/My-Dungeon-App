@@ -4,11 +4,11 @@ import { CreateAbilityServiceParams, CreateAbilityServiceReturn, ICreateAbilityS
 
 
 export class CreateAbilityService implements ICreateAbilityService {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly idGenerator: IIdGenerator
     ) { }
-    createAbility(params: CreateAbilityServiceParams): CreateAbilityServiceReturn {
+    createAbility (params: CreateAbilityServiceParams): CreateAbilityServiceReturn {
         this.logger.info('Executing CreateAbilityService::createAbility');
 
         const createdAt = new Date();

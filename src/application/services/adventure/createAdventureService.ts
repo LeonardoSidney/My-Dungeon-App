@@ -5,11 +5,11 @@ import { CreateAdventureServiceParams, CreateAdventureServiceReturn, ICreateAdve
 import { IIdGenerator } from '@domain/providers';
 
 export class CreateAdventureService implements ICreateAdventureService {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly idGenerate: IIdGenerator
     ) { }
-    createAdventure(params: CreateAdventureServiceParams): CreateAdventureServiceReturn {
+    createAdventure (params: CreateAdventureServiceParams): CreateAdventureServiceReturn {
         this.logger.info('Executing CreateAdventureService', params);
         this.validate(params);
         if (params.worldMaster) {
@@ -21,7 +21,7 @@ export class CreateAdventureService implements ICreateAdventureService {
         return this.createAdventureWithoutWorldMaster(params);
     }
 
-    private validate(params: CreateAdventureServiceParams): void {
+    private validate (params: CreateAdventureServiceParams): void {
         if (params.characters.length < MINIMUM_PLAYABLE_CHARACTERS) {
             throw new Error(`You need at least ${MINIMUM_PLAYABLE_CHARACTERS} to create an adventure`);
         }
@@ -31,7 +31,7 @@ export class CreateAdventureService implements ICreateAdventureService {
         }
     }
 
-    private createAdventureWithWoldMaster(params: CreateAdventureServiceParams): CreateAdventureServiceReturn {
+    private createAdventureWithWoldMaster (params: CreateAdventureServiceParams): CreateAdventureServiceReturn {
         const { name, systemPrompts, characters, worldMaster, locations, worlds, items } = params;
 
         const createdAt = new Date();
@@ -55,7 +55,7 @@ export class CreateAdventureService implements ICreateAdventureService {
         };
     }
 
-    private createAdventureWithoutWorldMaster(params: CreateAdventureServiceParams): CreateAdventureServiceReturn {
+    private createAdventureWithoutWorldMaster (params: CreateAdventureServiceParams): CreateAdventureServiceReturn {
         const { name, systemPrompts, characters, worldMaster, locations, worlds, items } = params;
         if (characters.length < MINIMUM_PLAYABLE_CHARACTERS_WITHOUT_WM) {
             return {

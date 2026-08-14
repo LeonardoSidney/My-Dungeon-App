@@ -5,7 +5,7 @@ import { onSubmit } from './adventuresForm/onSubmit';
 import { setInitialAdventureState } from './setInitialAdventureState';
 import { loadAdventures } from './loadAdventures';
 
-export async function onSaveAdventure(
+export async function onSaveAdventure (
     adventureStateFormData: AdventureFormData,
     setAdventureFormData: Dispatch<SetStateAction<AdventureFormData>>,
     setShowForm: Dispatch<SetStateAction<boolean>>,

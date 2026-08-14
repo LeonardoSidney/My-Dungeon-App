@@ -4,12 +4,12 @@ import { IAbilityRepository } from '@domain/repository';
 import { IGetAbilitiesUseCase } from '@domain/use-cases';
 
 export class GetAbilitiesUseCase implements IGetAbilitiesUseCase {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly abilityRepository: IAbilityRepository
     ) { }
 
-    async execute(): Promise<Ability[]> {
+    async execute (): Promise<Ability[]> {
         this.logger.info('Executing GetAbilitiesUseCase::execute');
         return this.abilityRepository.getAbilities();
     }

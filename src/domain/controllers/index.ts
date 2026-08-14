@@ -1,4 +1,4 @@
-export * from './iAdventureAppendChatController';
+export * from './iAppendChatAdventureController';
 export * from './iCreateAbilityController';
 export * from './iEditAbilityController';
 export * from './iEraseAbilityController';
@@ -50,5 +50,10 @@ export * from './iGetSystemPromptsController';
 export * from './iGetWorldMastersController';
 export * from './iGetWorldsController';
 export * from './iStreamCompletionController';
+export * from './iNativeStreamCompletionController';
 export * from './iEditAssistantController';
 export * from './iEraseAssistantController';
+export * from './iStartStreamingChatController';
+export * from './iUpdateStreamingChatController';
+export * from './iFinishStreamingChatController';
+export * from './iIsAdventureStreamingController';

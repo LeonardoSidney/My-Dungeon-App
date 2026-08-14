@@ -8,9 +8,9 @@ import {
 import { ICreateChatService } from '@domain/services';
 
 export class CreateChatAdventureUseCase implements ICreateChatAdventureUseCase {
-    constructor(private readonly logger: ILogger, private readonly createChatService: ICreateChatService) {}
+    constructor (private readonly logger: ILogger, private readonly createChatService: ICreateChatService) {}
 
-    async execute(params: CreateChatAdventureUseCaseParams): Promise<CreateChatAdventureUseCaseReturn> {
+    async execute (params: CreateChatAdventureUseCaseParams): Promise<CreateChatAdventureUseCaseReturn> {
         this.logger.info('Executing CreateChatAdventureUseCase::execute');
         this.logger.debug('Executing CreateChatAdventureUseCase::execute - params', params);
 
@@ -35,7 +35,7 @@ export class CreateChatAdventureUseCase implements ICreateChatAdventureUseCase {
         };
     }
 
-    private validate(params: CreateChatAdventureUseCaseParams): CreateChatAdventureUseCaseReturn {
+    private validate (params: CreateChatAdventureUseCaseParams): CreateChatAdventureUseCaseReturn {
         if (!params.content?.trim()) {
             this.logger.warning('CreateChatAdventureUseCase::validate - content is required');
             return {
@@ -63,7 +63,7 @@ export class CreateChatAdventureUseCase implements ICreateChatAdventureUseCase {
         return { success: true };
     }
 
-    private isValidRole(role: string): boolean {
+    private isValidRole (role: string): boolean {
         return Object.values(RoleEnum).includes(role as RoleEnum);
     }
 }

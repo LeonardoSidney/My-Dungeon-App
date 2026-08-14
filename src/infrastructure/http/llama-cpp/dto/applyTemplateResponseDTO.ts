@@ -1,11 +1,13 @@
-import { LlamaCppGateway } from '@infra/http/llama-cpp/llamaCppGateway';
+export interface ApplyTemplateEntity {
+    prompt: string;
+}
 
 export class ApplyTemplateResponseDTO {
-    constructor(
+    constructor (
         public readonly prompt: string
     ) { }
 
-    toEntity(): LlamaCppGateway.templateResponse {
+    toEntity (): ApplyTemplateEntity {
         return { prompt: this.prompt };
     }
 }

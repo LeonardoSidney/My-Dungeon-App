@@ -1,65 +1,81 @@
-import { Text, View, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView } from 'react-native';
+import { KeyboardAvoidingView, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { styles } from './styles';
-import { AdventureChatScreenProps } from './constants';
+import { AdventureChat } from './AdventureChat';
 import { AdventureChatSettings } from './AdventureChatSettings/AdventureChatSettings';
 import { CharacterSelector } from './CharacterSelector';
-import { AdventureChat } from './AdventureChat';
-import { Adventure, Character, RoleEnum } from '@domain/entities';
-import { createChatAdventureController, appendAdventureChatController } from '@infra/container';
-import { useState, useMemo } from 'react';
-import { Platform } from 'react-native';
+import { useAdventureChatState } from './hooks/useAdventureChatState';
+import { useSettingsActions } from './hooks/useSettingsActions';
+import { useMessageActions } from './hooks/useMessageActions';
+import { useSelectionActions } from './hooks/useSelectionActions';
+import { useAdventureStreaming } from './useAdventureStreaming';
+import { useAdventureChatScreenLogic } from './useAdventureChatScreenLogic';
+import { AdventureChatScreenProps } from './constants';
 
-export function AdventureChatScreen(params: AdventureChatScreenProps) {
+export function AdventureChatScreen (params: AdventureChatScreenProps) {
   const { adventure, onBack } = params;
-  const [showSettings, setShowSettings] = useState(false);
-  const [currentAdventure, setCurrentAdventure] = useState(adventure);
-  const [message, setMessage] = useState('');
-  const [selectedCharacter, setSelectedCharacter] = useState<Character>(adventure.characters[0]);
 
-  const webInputStyle = useMemo(() => {
-    return Platform.OS === 'web' ? { WebkitAppearance: 'none', outline: 'none' } : {};
-  }, []) as any;
+  const {
+    currentAdventure,
+    message,
+    selectedCharacter,
+    showSettings,
+    setCurrentAdventure,
+    setMessage,
+    setSelectedCharacter,
+    setShowSettings
+  } = useAdventureChatState({ adventure });
 
-  const handleSettingsClick = () => {
-    setShowSettings(true);
-  };
+  const {
+    isStreaming,
+    handleResend,
+    handleSendMessage,
+    handleRegenerateFromMessage,
+    handleStopStreaming
+  } = useAdventureStreaming({
+    currentAdventure,
+    selectedCharacter,
+    message,
+    setCurrentAdventure,
+    setMessage
+  });
 
-  const handleBackFromSettings = () => {
-    setShowSettings(false);
-  };
+  const { scrollViewRef, showScrollToBottom, handleScroll, handleScrollToBottom } = useAdventureChatScreenLogic(
+    currentAdventure
+  );
 
-  const handleWorldMasterSelect = (updatedAdventure: Adventure) => {
-    setCurrentAdventure(updatedAdventure);
-  };
+  const {
+    handleSettingsClick,
+    handleBackFromSettings
+  } = useSettingsActions({
+    setShowSettings
+  });
 
-  const handleCharacterSelect = (character: Character) => {
-    setSelectedCharacter(character);
-  };
+  const {
+    onDeleteMessage,
+    handleKeyPress
+  } = useMessageActions({
+    currentAdventure,
+    setCurrentAdventure,
+    setMessage,
+    message,
+    handleSendMessage
+  });
 
-  const handleSendMessage = async () => {
-    if (!message.trim()) return;
+  const {
+    handleWorldMasterSelect,
+    handleCharacterSelect
+  } = useSelectionActions({
+    setCurrentAdventure,
+    setSelectedCharacter
+  });
 
-    const chatController = createChatAdventureController();
-    const chatResponse = await chatController.handle({
-      content: message,
-      role: RoleEnum.USER,
-      characterName: selectedCharacter.name,
-    });
+  const isStreamingActive = isStreaming;
+  const sendButtonOnPress = isStreamingActive ? handleStopStreaming : handleSendMessage;
+  const sendButtonLabel = isStreamingActive ? 'Stop' : 'Send';
+  const sendButtonStyle = [styles.sendButtonContainer, isStreamingActive && styles.stopButtonContainer];
 
-    if (chatResponse.success && chatResponse.chat) {
-      const appendController = appendAdventureChatController();
-      const appendResponse = await appendController.handle({
-        adventure: currentAdventure,
-        message: chatResponse.chat,
-      });
-
-      if (appendResponse.success && appendResponse.adventure) {
-        setCurrentAdventure(appendResponse.adventure);
-      }
-    }
-
-    setMessage('');
-  };
+  const shouldShowScrollButton = isStreamingActive && showScrollToBottom;
+  const shouldShowResendButton = !isStreamingActive;
 
   if (showSettings) {
     return (
@@ -77,15 +93,33 @@ export function AdventureChatScreen(params: AdventureChatScreenProps) {
         <TouchableOpacity onPress={onBack}>
           <Text style={styles.headerText}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{adventure.name}</Text>
+        <Text style={styles.headerTitle}>{currentAdventure.name}</Text>
         <TouchableOpacity onPress={handleSettingsClick}>
           <Text style={styles.headerText}>settings</Text>
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.messagesContainer}>
-        <AdventureChat chats={currentAdventure.chat} />
-      </ScrollView>
+      <View style={styles.messagesContainer}>
+        <ScrollView
+          style={styles.messagesContainer}
+          ref={scrollViewRef}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+          showsVerticalScrollIndicator={false}
+        >
+          <AdventureChat
+            chats={currentAdventure.chat}
+            streamingChat={null}
+            onDeleteMessage={onDeleteMessage}
+            onRegenerateFromMessage={handleRegenerateFromMessage}
+          />
+        </ScrollView>
+        {shouldShowScrollButton && (
+          <TouchableOpacity style={styles.scrollToBottomButton} onPress={handleScrollToBottom}>
+            <Text style={styles.scrollToBottomText}>↓</Text>
+          </TouchableOpacity>
+        )}
+      </View>
 
       <View style={styles.inputContainer}>
         <CharacterSelector
@@ -95,19 +129,28 @@ export function AdventureChatScreen(params: AdventureChatScreenProps) {
           style={styles.characterSelector}
         />
         <TextInput
-          style={[styles.input, webInputStyle]}
+          style={styles.input}
           value={message}
           onChangeText={setMessage}
           placeholder="Type a message..."
-          onSubmitEditing={handleSendMessage}
+          multiline
           selectionColor="transparent"
           cursorColor="transparent"
           placeholderTextColor="#888"
           autoCorrect={false}
           underlineColorAndroid="transparent"
+          onKeyPress={handleKeyPress}
         />
-        <TouchableOpacity style={styles.sendButtonContainer} onPress={handleSendMessage}>
-          <Text style={styles.sendButtonText}>Send</Text>
+        {shouldShowResendButton && (
+          <TouchableOpacity style={styles.resendButtonContainer} onPress={handleResend}>
+            <Text style={styles.resendButtonText}>↻</Text>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity
+          style={sendButtonStyle}
+          onPress={sendButtonOnPress}
+        >
+          <Text style={styles.sendButtonText}>{sendButtonLabel}</Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>

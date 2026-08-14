@@ -5,26 +5,26 @@ import { IConnectionRepository, SaveConnectionParams, EditConnectionParams, Eras
 import { IStorage } from '@domain/storage';
 
 export class ConnectionRepository implements IConnectionRepository {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly storage: IStorage
     ) { }
 
-    private async findConnectionIndex(connections: Connection[], connectionId: string): Promise<number> {
+    private async findConnectionIndex (connections: Connection[], connectionId: string): Promise<number> {
         return connections.findIndex((c) => c.id === connectionId);
     }
 
-    private removeAt(connections: Connection[], index: number): Connection[] {
+    private removeAt (connections: Connection[], index: number): Connection[] {
         connections.splice(index, 1);
         return connections;
     }
 
-    private replaceAt(connections: Connection[], index: number, newItem: Connection): Connection[] {
+    private replaceAt (connections: Connection[], index: number, newItem: Connection): Connection[] {
         connections[index] = newItem;
         return connections;
     }
 
-    async saveConnection(params: SaveConnectionParams): Promise<boolean> {
+    async saveConnection (params: SaveConnectionParams): Promise<boolean> {
         this.logger.info('Executing ConnectionRepository::saveConnection');
         this.logger.debug('Executing ConnectionRepository::saveConnection - params: ', params);
 
@@ -40,7 +40,7 @@ export class ConnectionRepository implements IConnectionRepository {
         return true;
     }
 
-    async getConnections(): Promise<Connection[]> {
+    async getConnections (): Promise<Connection[]> {
         this.logger.info('Executing ConnectionRepository::getConnections');
 
         try {
@@ -53,7 +53,7 @@ export class ConnectionRepository implements IConnectionRepository {
         }
     }
 
-    async eraseConnection(connectionId: string): Promise<EraseConnectionRepositoryReturn> {
+    async eraseConnection (connectionId: string): Promise<EraseConnectionRepositoryReturn> {
         this.logger.info('Executing ConnectionRepository::eraseConnection');
         this.logger.debug('Executing ConnectionRepository::eraseConnection - connectionId: ', connectionId);
 
@@ -76,7 +76,7 @@ export class ConnectionRepository implements IConnectionRepository {
         }
     }
 
-    async editConnection(params: EditConnectionParams): Promise<EditConnectionRepositoryReturn> {
+    async editConnection (params: EditConnectionParams): Promise<EditConnectionRepositoryReturn> {
         this.logger.info('Executing ConnectionRepository::editConnection');
         this.logger.debug('Executing ConnectionRepository::editConnection - params: ', params);
 

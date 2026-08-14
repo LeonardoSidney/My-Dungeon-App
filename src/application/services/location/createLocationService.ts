@@ -3,12 +3,12 @@ import { CreateLocationServiceParams, CreateLocationServiceResponse, ICreateLoca
 import { IIdGenerator } from '@domain/providers';
 
 export class CreateLocationService implements ICreateLocationService {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly idGenerator: IIdGenerator
     ) { }
 
-    createLocation(params: CreateLocationServiceParams): CreateLocationServiceResponse {
+    createLocation (params: CreateLocationServiceParams): CreateLocationServiceResponse {
         this.logger.info('CreateLocationService::createLocation');
 
         const createdAt = new Date();

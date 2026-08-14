@@ -3,12 +3,12 @@ import { ILogger } from '@domain/logger';
 import { ICreateItemUseCase } from '@domain/use-cases';
 
 export class CreateItemController implements ICreateItemController {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly useCase: ICreateItemUseCase
     ) { }
 
-    async handle(request: CreateItemRequest): Promise<CreateItemResponse> {
+    async handle (request: CreateItemRequest): Promise<CreateItemResponse> {
         this.logger.info('Executing CreateItemController::handle');
         const { name, activationWord, prompt, observation } = request;
         return this.useCase.execute({

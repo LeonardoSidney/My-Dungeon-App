@@ -3,12 +3,12 @@ import { CreateStatusServiceParams, CreateStatusServiceReturn, ICreateStatusServ
 import { IIdGenerator } from '@domain/providers';
 
 export class CreateStatusService implements ICreateStatusService {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly idGenerator: IIdGenerator
     ) { }
 
-    createStatus(params: CreateStatusServiceParams): CreateStatusServiceReturn {
+    createStatus (params: CreateStatusServiceParams): CreateStatusServiceReturn {
         this.logger.info('Executing CreateStatusService::createStatus');
 
         const createdAt = new Date();

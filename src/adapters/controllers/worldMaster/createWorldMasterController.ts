@@ -3,11 +3,11 @@ import { ILogger } from '@domain/logger';
 import { ICreateWorldMasterUseCase } from '@domain/use-cases';
 
 export class CreateWorldMasterController implements ICreateWorldMasterController {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly useCase: ICreateWorldMasterUseCase
     ) { }
-    async handle(params: CreateWorldMasterControllerParams): Promise<CreateWorldMasterControllerResponse> {
+    async handle (params: CreateWorldMasterControllerParams): Promise<CreateWorldMasterControllerResponse> {
         this.logger.info('Executing CreateWorldMasterController::handle');
         const { name, activationWord, prompt, observation, assistant } = params;
         const response = await this.useCase.execute({

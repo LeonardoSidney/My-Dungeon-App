@@ -3,12 +3,12 @@ import { IConnectionRepository } from '@domain/repository';
 import { IEraseConnectionUseCase, EraseConnectionUseCaseReturn } from '@domain/use-cases';
 
 export class EraseConnectionUseCase implements IEraseConnectionUseCase {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly connectionRepository: IConnectionRepository
     ) { }
 
-    async execute(connectionId: string): Promise<EraseConnectionUseCaseReturn> {
+    async execute (connectionId: string): Promise<EraseConnectionUseCaseReturn> {
         this.logger.info('Executing EraseConnectionUseCase::execute');
 
         if (!connectionId) {

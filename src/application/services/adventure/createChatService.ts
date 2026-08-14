@@ -8,12 +8,12 @@ import {
 } from '@domain/services';
 
 export class CreateChatService implements ICreateChatService {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly idGenerator: IIdGenerator
     ) {}
 
-    createChat(params: CreateChatServiceParams): CreateChatServiceReturn {
+    createChat (params: CreateChatServiceParams): CreateChatServiceReturn {
         this.logger.info('Executing CreateChatService::createChat');
         this.logger.debug('CreateChatService::createChat - params', params);
 

@@ -3,11 +3,11 @@ import { CreateAssistantServiceParams, CreateAssistantServiceResponse, ICreateAs
 import { IIdGenerator } from '@domain/providers';
 
 export class CreateAssistantService implements ICreateAssistantService {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly idGenerate: IIdGenerator
     ) { }
-    async createAssistant(params: CreateAssistantServiceParams): Promise<CreateAssistantServiceResponse> {
+    async createAssistant (params: CreateAssistantServiceParams): Promise<CreateAssistantServiceResponse> {
         this.logger.info('Execute CreateAssistantService::createAssistant');
         this.logger.debug('Execute CreateAssistantService::createAssistant - params: ', params);
         const { name, observation, model, sampler } = params;

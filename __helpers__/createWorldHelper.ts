@@ -1,6 +1,6 @@
 import { World } from '@domain/entities';
 
-export function createWorldHelper(overrides?: Partial<World>): World {
+export function createWorldHelper (overrides?: Partial<World>): World {
     return {
         id: '1',
         name: 'Test World',
