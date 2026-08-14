@@ -10,11 +10,11 @@ export const styles = StyleSheet.create({
         borderTopRightRadius: 12,
         borderWidth: 1,
         borderColor: '#444',
-        borderBottomWidth: 0,
+        borderBottomWidth: 0
     },
     thinkText: {
         fontSize: 13,
         fontStyle: 'italic',
-        color: '#888',
-    },
+        color: '#888'
+    }
 });

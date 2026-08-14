@@ -3,11 +3,11 @@ import { CreateProficiencyServiceParams, CreateProficiencyServiceReturn, ICreate
 import { IIdGenerator } from '@domain/providers';
 
 export class CreateProficiencyService implements ICreateProficiencyService {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly idGenerator: IIdGenerator
     ) { }
-    createProficiency(params: CreateProficiencyServiceParams): CreateProficiencyServiceReturn {
+    createProficiency (params: CreateProficiencyServiceParams): CreateProficiencyServiceReturn {
         this.logger.info('Executing CreateProficiencyService::createProficiency');
 
         const createdAt = new Date();

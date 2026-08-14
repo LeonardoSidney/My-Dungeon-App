@@ -2,7 +2,7 @@ import { getSystemPromptsController } from '@infra/container';
 import { Dispatch } from 'react';
 import { SystemPrompt } from '@domain/entities';
 
-export async function loadSystemPrompts(
+export async function loadSystemPrompts (
     setSystemPrompts: Dispatch<React.SetStateAction<SystemPrompt[]>>
 ) {
     try {

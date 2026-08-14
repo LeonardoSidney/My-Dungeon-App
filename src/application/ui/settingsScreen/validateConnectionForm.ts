@@ -19,7 +19,10 @@ export function validateConnectionForm (formData: ConnectionFormData): Validatio
 
     if (!formData.port.trim()) {
         errors.port = 'Port is required';
-    } else if (isNaN(Number(formData.port))) {
+        return errors;
+    }
+
+    if (isNaN(Number(formData.port))) {
         errors.port = 'Port must be a number';
     }
 

@@ -6,12 +6,12 @@ import { IStorage } from '@domain/storage';
 import { LocationDTO } from '../dto';
 
 export class LocationRepository implements ILocationRepository {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly storage: IStorage
     ) { }
 
-    async saveLocation(params: SaveLocationParams): Promise<boolean> {
+    async saveLocation (params: SaveLocationParams): Promise<boolean> {
         this.logger.info('Executing LocationRepository::saveLocation');
         this.logger.debug('Executing LocationRepository::saveLocation - params: ', params);
 
@@ -28,7 +28,7 @@ export class LocationRepository implements ILocationRepository {
         return true;
     }
 
-    async getLocations(): Promise<Location[]> {
+    async getLocations (): Promise<Location[]> {
         this.logger.info('Executing LocationRepository::getLocations');
         try {
             const locations: Location[] = [];

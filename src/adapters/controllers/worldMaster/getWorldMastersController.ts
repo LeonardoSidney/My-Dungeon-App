@@ -4,12 +4,12 @@ import { ILogger } from '@domain/logger';
 import { IGetWorldMastersUseCase } from '@domain/use-cases';
 
 export class GetWorldMastersController implements IGetWorldMastersController {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly useCase: IGetWorldMastersUseCase
     ) { }
 
-    async handle(): Promise<WorldMaster[]> {
+    async handle (): Promise<WorldMaster[]> {
         this.logger.info('Executing GetWorldMastersController::handle');
         return this.useCase.execute();
     }

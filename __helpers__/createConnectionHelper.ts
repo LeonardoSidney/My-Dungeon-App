@@ -1,6 +1,6 @@
 import { Connection } from '@domain/entities';
 
-export function createConnectionHelper(overrides?: Partial<Connection>): Connection {
+export function createConnectionHelper (overrides?: Partial<Connection>): Connection {
     return {
         id: '1',
         name: 'Test Connection',

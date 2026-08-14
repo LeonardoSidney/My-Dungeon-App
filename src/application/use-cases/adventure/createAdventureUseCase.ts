@@ -4,13 +4,13 @@ import { CreateAdventureServiceParams, ICreateAdventureService } from '@domain/s
 import { CreateAdventureCaseParams, CreateAdventureCaseReturn, ICreateAdventureUseCase } from '@domain/use-cases';
 
 export class CreateAdventureUseCase implements ICreateAdventureUseCase {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly service: ICreateAdventureService,
         private readonly adventureRepository: IAdventureRepository
     ) { }
 
-    async execute(params: CreateAdventureCaseParams): Promise<CreateAdventureCaseReturn> {
+    async execute (params: CreateAdventureCaseParams): Promise<CreateAdventureCaseReturn> {
         this.logger.info('Executing CreateAdventureUseCase::execute', params);
         this.validateParams(params);
         const { name, characters, systemPrompts, items, locations, worlds, worldMaster } = params;
@@ -57,7 +57,7 @@ export class CreateAdventureUseCase implements ICreateAdventureUseCase {
         };
     }
 
-    private validateParams(params: CreateAdventureCaseParams): void {
+    private validateParams (params: CreateAdventureCaseParams): void {
         if (!params.name?.trim()) {
             throw new Error('A name for an adventure is required');
         }

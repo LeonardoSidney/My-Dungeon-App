@@ -4,12 +4,12 @@ import { CreateSamplerServiceParams, CreateSamplerServiceResponse, ICreateSample
 import { IIdGenerator } from '@domain/providers';
 
 export class CreateSamplerService implements ICreateSamplerService {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly idGenerator: IIdGenerator
     ) { }
 
-    createSampler(params: CreateSamplerServiceParams): CreateSamplerServiceResponse {
+    createSampler (params: CreateSamplerServiceParams): CreateSamplerServiceResponse {
         this.logger.info('Execute CreateSamplerService::createSampler');
 
         const createdAt = new Date();

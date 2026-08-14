@@ -3,7 +3,7 @@ import { isArrayRecord, isInEnum, isRecord, parseDate } from './shared';
 import { ThinkDTO } from './thinkDTO';
 
 export class ChatDTO {
-    constructor(
+    constructor (
         private readonly id: string,
         private readonly role: Role,
         private readonly index: number,
@@ -14,7 +14,7 @@ export class ChatDTO {
         private readonly updatedAt: Date
     ) {}
 
-    toEntity(): Chat {
+    toEntity (): Chat {
         return {
             id: this.id,
             role: this.role,
@@ -27,7 +27,7 @@ export class ChatDTO {
         };
     }
 
-    static fromStorage(data: unknown): ChatDTO | null {
+    static fromStorage (data: unknown): ChatDTO | null {
         if (!isRecord(data)) {
             return null;
         }
@@ -53,7 +53,7 @@ export class ChatDTO {
         return new ChatDTO(data.id, role, data.index, content, think, data.characterName, createdAt, updatedAt);
     }
 
-    private static toRole(role: unknown): Role | undefined {
+    private static toRole (role: unknown): Role | undefined {
         if (typeof role !== 'string') {
             return undefined;
         }
@@ -65,7 +65,7 @@ export class ChatDTO {
         return role as Role;
     }
 
-    private static toContent(content: unknown): string[] {
+    private static toContent (content: unknown): string[] {
         if (!Array.isArray(content)) {
             return [];
         }
@@ -73,7 +73,7 @@ export class ChatDTO {
         return content.filter((item): item is string => typeof item === 'string');
     }
 
-    private static toThink(think: unknown): Think[] | undefined {
+    private static toThink (think: unknown): Think[] | undefined {
         if (!isArrayRecord(think)) {
             return undefined;
         }

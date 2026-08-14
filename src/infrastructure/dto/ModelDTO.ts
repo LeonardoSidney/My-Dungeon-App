@@ -3,7 +3,7 @@ import { ConnectionDTO } from './connectionDTO';
 import { isRecord } from './shared';
 
 export class ModelDTO {
-    constructor(
+    constructor (
         readonly id: string,
         readonly name: string,
         readonly connection: Connection,
@@ -11,7 +11,7 @@ export class ModelDTO {
         readonly ownedBy: string
     ) { }
 
-    static fromStorage(data: unknown): ModelDTO | null {
+    static fromStorage (data: unknown): ModelDTO | null {
         if (!isRecord(data)) {
             return null;
         }
@@ -37,7 +37,7 @@ export class ModelDTO {
         );
     }
 
-    toEntity(): Model {
+    toEntity (): Model {
         return {
             id: this.id,
             name: this.name,
@@ -47,7 +47,7 @@ export class ModelDTO {
         };
     }
 
-    private static toConnection(connecition: unknown | undefined): Connection | undefined {
+    private static toConnection (connecition: unknown | undefined): Connection | undefined {
         if (!isRecord(connecition)) {
             return undefined;
         }

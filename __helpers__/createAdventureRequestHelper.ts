@@ -6,7 +6,7 @@ import { createLocationHelper } from './createLocationHelper';
 import { createWorldHelper } from './createWorldHelper';
 import { createWorldMasterHelper } from './createWorldMasterHelper';
 
-export function createAdventureRequestHelper(overrides?: Partial<CreateAdventureRequest>): CreateAdventureRequest {
+export function createAdventureRequestHelper (overrides?: Partial<CreateAdventureRequest>): CreateAdventureRequest {
     return {
         name: 'Test Adventure',
         systemPrompts: [createSystemPromptHelper()],

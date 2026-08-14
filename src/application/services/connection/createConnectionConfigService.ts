@@ -3,11 +3,11 @@ import { CreateConnectionConfigServiceParams, CreateConnectionConfigServiceRetur
 import { IIdGenerator } from '@domain/providers';
 
 export class CreateConnectionConfigService implements ICreateConnectionConfigService {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly idGenerate: IIdGenerator
     ) { }
-    createConnectionConfig(params: CreateConnectionConfigServiceParams): CreateConnectionConfigServiceReturn {
+    createConnectionConfig (params: CreateConnectionConfigServiceParams): CreateConnectionConfigServiceReturn {
         this.logger.info('Executing CreateConnectionConfigService::createConnectionConfig');
         const { name, ip, port, auth } = params;
         const connection = {

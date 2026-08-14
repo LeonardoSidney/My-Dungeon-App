@@ -54,7 +54,7 @@ export function CharacterScreen () {
     }
   };
 
-  const handleFormChange = (field: keyof CharacterFormData, value: any) => {
+  const handleFormChange = (field: keyof CharacterFormData, value: CharacterFormData[keyof CharacterFormData]) => {
     setFormErrors(prev => {
       const next = { ...prev };
       const errorField = field as keyof FormErrors;

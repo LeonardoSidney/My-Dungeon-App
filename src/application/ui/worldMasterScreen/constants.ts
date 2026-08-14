@@ -19,7 +19,7 @@ export type FormErrors = {
 export type WorldMasterFormProps = {
     showForm: boolean;
     worldMasterStateFormData: WorldMasterFormData;
-    onChange: (field: keyof WorldMasterFormData, value: any) => void;
+    onChange: (field: keyof WorldMasterFormData, value: WorldMasterFormData[keyof WorldMasterFormData]) => void;
     onCancel: () => void;
     onSave: () => void;
     assistants: Assistant[];

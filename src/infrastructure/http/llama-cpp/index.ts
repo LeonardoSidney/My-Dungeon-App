@@ -1,1 +1,2 @@
-export * from './llamaCppGateway';
+export * from './llamaCppOAGateway/llamaCppOAGateway';
+export * from './llamaCppNativeGateway/llamaCppNativeGateway';

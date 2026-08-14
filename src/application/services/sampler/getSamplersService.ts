@@ -4,10 +4,10 @@ import { ILogger } from '@domain/logger';
 import { IGetSamplersService } from '@domain/services';
 
 export class GetSamplersService implements IGetSamplersService {
-    constructor(
+    constructor (
         private readonly logger: ILogger
     ) { }
-    getSystemDefaultSamplers(): Sampler[] {
+    getSystemDefaultSamplers (): Sampler[] {
         this.logger.info('Executing GetSamplersService::getSystemDefaultSamplers');
         return [DEFAULT_SAMPLER];
     }

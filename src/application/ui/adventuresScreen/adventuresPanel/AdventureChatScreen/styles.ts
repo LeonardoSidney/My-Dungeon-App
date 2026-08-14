@@ -28,7 +28,7 @@ export const styles = StyleSheet.create({
     },
     inputContainer: {
         flexDirection: 'row',
-        alignItems: 'center',
+        alignItems: 'stretch',
         padding: 16,
         borderTopWidth: 1,
         borderColor: '#333',
@@ -43,8 +43,26 @@ export const styles = StyleSheet.create({
         borderTopLeftRadius: 0,
         padding: 12,
         marginRight: 0,
-        height: 48,
+        minHeight: 48,
+        maxHeight: 120,
         borderWidth: 0,
+    },
+    resendButtonContainer: {
+        backgroundColor: '#555',
+        borderLeftWidth: 1,
+        borderRightWidth: 1,
+        borderColor: '#666',
+        paddingHorizontal: 8,
+        minHeight: 48,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    resendButtonText: {
+        fontSize: 20,
+        color: '#fff',
+    },
+    stopButtonContainer: {
+        backgroundColor: '#ef4444',
     },
     sendButtonContainer: {
         backgroundColor: '#4CAF50',
@@ -52,7 +70,7 @@ export const styles = StyleSheet.create({
         borderBottomLeftRadius: 0,
         borderTopLeftRadius: 0,
         paddingHorizontal: 12,
-        height: 48,
+        minHeight: 48,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -63,5 +81,19 @@ export const styles = StyleSheet.create({
     },
     characterSelector: {
         marginRight: 0,
+    },
+    scrollToBottomButton: {
+        alignSelf: 'center',
+        backgroundColor: 'rgba(70, 70, 70, 0.8)',
+        borderRadius: 20,
+        width: 40,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 8,
+    },
+    scrollToBottomText: {
+        fontSize: 20,
+        color: '#fff',
     },
 });

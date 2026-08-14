@@ -4,13 +4,13 @@ import { ICreateAssistantService } from '@domain/services';
 import { CreateAssistantUseCaseParams, CreateAssistantUseCaseResponse, ICreateAssistantUseCase } from '@domain/use-cases';
 
 export class CreateAssistantUseCase implements ICreateAssistantUseCase {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly assistantRepository: IAssistantRepository,
         private readonly service: ICreateAssistantService
     ) { }
 
-    async execute(params: CreateAssistantUseCaseParams): Promise<CreateAssistantUseCaseResponse> {
+    async execute (params: CreateAssistantUseCaseParams): Promise<CreateAssistantUseCaseResponse> {
         this.logger.info('Executing CreateAssistantUseCase::execute');
         this.logger.debug('Execute CreateAssistantUseCase::execute - params: ', params);
 

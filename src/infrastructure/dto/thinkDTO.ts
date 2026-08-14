@@ -2,13 +2,13 @@ import { Think } from '@domain/entities';
 import { isRecord } from './shared';
 
 export class ThinkDTO {
-    constructor(
+    constructor (
         private readonly id: string,
         private readonly content: string | undefined,
         private readonly enabled: boolean
     ) { }
 
-    toEntity(): Think {
+    toEntity (): Think {
         return {
             id: this.id,
             content: this.content,
@@ -16,7 +16,7 @@ export class ThinkDTO {
         };
     }
 
-    static fromStorage(data: unknown): ThinkDTO | null {
+    static fromStorage (data: unknown): ThinkDTO | null {
         if (!isRecord(data)) {
             return null;
         }

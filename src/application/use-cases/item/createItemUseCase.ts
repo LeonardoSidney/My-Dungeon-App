@@ -4,13 +4,13 @@ import { ICreateItemService } from '@domain/services';
 import { CreateItemUseCaseParams, CreateItemUseCaseResponse, ICreateItemUseCase } from '@domain/use-cases';
 
 export class CreateItemUseCase implements ICreateItemUseCase {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly itemRepository: IItemRepository,
         private readonly service: ICreateItemService
     ) { }
 
-    async execute(params: CreateItemUseCaseParams): Promise<CreateItemUseCaseResponse> {
+    async execute (params: CreateItemUseCaseParams): Promise<CreateItemUseCaseResponse> {
         this.logger.info('Executing CreateItemUseCase::execute');
         this.logger.debug('CreateItemUseCase::execute - params:', params);
 
@@ -50,7 +50,7 @@ export class CreateItemUseCase implements ICreateItemUseCase {
         };
     }
 
-    private validate(params: CreateItemUseCaseParams): void {
+    private validate (params: CreateItemUseCaseParams): void {
         if (!params.name?.trim()) {
             throw new Error('Name is required to create an item');
         }

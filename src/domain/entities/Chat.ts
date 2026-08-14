@@ -8,6 +8,7 @@ export type Chat = {
     content: string[];
     think?: Think[];
     characterName: string;
+    isStreaming?: boolean;
     createdAt: Date;
     updatedAt: Date;
 };

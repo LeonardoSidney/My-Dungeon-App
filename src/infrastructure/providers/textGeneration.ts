@@ -9,7 +9,7 @@ import {
     DEFAULT_TEXT_ADVENTURE_SYSTEM_PROMPT_TEMPLATE,
     DEFAULT_TEXT_ADVENTURE_TEMPLATE,
     DEFAULT_TEXT_ADVENTURE_WORLD_MASTER_TEMPLATE,
-    DEFAULT_TEXT_ADVENTURE_WORLDS_TEMPLATE
+    DEFAULT_TEXT_ADVENTURE_WORLDS_TEMPLATE,
 } from '@domain/constants/textGeneration';
 import {
     Ability,
@@ -21,16 +21,14 @@ import {
     Status,
     SystemPrompt,
     World,
-    WorldMaster
+    WorldMaster,
 } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { ITextGeneration } from '@domain/providers';
 
 export class TextGeneration implements ITextGeneration {
-    constructor(
-        private readonly logger: ILogger
-    ) { }
-    buildAdventureTextSystemPrompt(adventure: Adventure): string {
+    constructor (private readonly logger: ILogger) {}
+    buildAdventureTextSystemPrompt (adventure: Adventure): string {
         this.logger.info('TextGeneration::buildAdventureText');
         this.logger.debug(`Building adventure text for: ${adventure.name}`);
 
@@ -66,8 +64,7 @@ export class TextGeneration implements ITextGeneration {
         this.logger.debug('Characters template built', charactersTemplate);
 
         this.logger.debug('Adventure text built successfully');
-        return DEFAULT_TEXT_ADVENTURE_TEMPLATE
-            .replace('{systemPrompt}', systemPromptTemplate)
+        return DEFAULT_TEXT_ADVENTURE_TEMPLATE.replace('{systemPrompt}', systemPromptTemplate)
             .replace('{worldMaster}', worldMasterTemplate)
             .replace('{characterAsWorldMaster}', iaControlledCharacterTemplate)
             .replace('{worlds}', worldsTemplate)
@@ -79,7 +76,7 @@ export class TextGeneration implements ITextGeneration {
             .replace('{characters}', charactersTemplate);
     }
 
-    private buildCharacterResourceReferences(character: Character): string {
+    private buildCharacterResourceReferences (character: Character): string {
         this.logger.info('TextGeneration::buildCharacterResourceReferences');
         this.logger.debug(`Building resource references for character: ${character.name}`);
 
@@ -115,7 +112,7 @@ export class TextGeneration implements ITextGeneration {
         return references;
     }
 
-    private buildIaControlledCharacterTemplate(characters: Character[]): string {
+    private buildIaControlledCharacterTemplate (characters: Character[]): string {
         const iaControlledCharacter = characters?.find(c => c.worldMaster === true);
         if (!iaControlledCharacter) {
             return '';
@@ -125,10 +122,13 @@ export class TextGeneration implements ITextGeneration {
         const characterHeader = `## ${iaControlledCharacter.name.toUpperCase()}\n`;
         const characterReferences = this.buildCharacterResourceReferences(iaControlledCharacter);
         const characterBlock = `${characterHeader}${iaControlledCharacter.prompt}\n${characterReferences}`;
-        return DEFAULT_TEXT_ADVENTURE_IA_CONTROLLED_CHARACTER_TEMPLATE.replace('{characterAsWorldMaster}', characterBlock);
+        return DEFAULT_TEXT_ADVENTURE_IA_CONTROLLED_CHARACTER_TEMPLATE.replace(
+            '{characterAsWorldMaster}',
+            characterBlock
+        );
     }
 
-    private buildSystemPromptTemplate(systemPrompts: SystemPrompt[]): string {
+    private buildSystemPromptTemplate (systemPrompts: SystemPrompt[]): string {
         let systemPromptsText = '';
         for (const systemPrompt of systemPrompts) {
             systemPromptsText += `${systemPrompt.content}\n`;
@@ -138,7 +138,7 @@ export class TextGeneration implements ITextGeneration {
         return DEFAULT_TEXT_ADVENTURE_SYSTEM_PROMPT_TEMPLATE.replace('{systemPrompt}', systemPromptsText);
     }
 
-    private buildWorldMasterTemplate(worldMaster: WorldMaster | undefined): string {
+    private buildWorldMasterTemplate (worldMaster: WorldMaster | undefined): string {
         if (!worldMaster) {
             return '';
         }
@@ -147,8 +147,8 @@ export class TextGeneration implements ITextGeneration {
         return DEFAULT_TEXT_ADVENTURE_WORLD_MASTER_TEMPLATE.replace('{worldMaster}', `${worldMaster.prompt}`);
     }
 
-    private buildWorldsTemplate(worlds: World[] | undefined): string {
-        if (!worlds) {
+    private buildWorldsTemplate (worlds: World[] | undefined): string {
+        if (!worlds || worlds.length === 0) {
             return '';
         }
 
@@ -161,8 +161,8 @@ export class TextGeneration implements ITextGeneration {
         return DEFAULT_TEXT_ADVENTURE_WORLDS_TEMPLATE.replace('{worlds}', worldsText);
     }
 
-    private buildLocationsTemplate(locations: Location[] | undefined): string {
-        if (!locations) {
+    private buildLocationsTemplate (locations: Location[] | undefined): string {
+        if (!locations || locations.length === 0) {
             return '';
         }
 
@@ -174,8 +174,8 @@ export class TextGeneration implements ITextGeneration {
         return DEFAULT_TEXT_ADVENTURE_LOCATIONS_TEMPLATE.replace('{locations}', locationsText);
     }
 
-    private buildItemsTemplate(items: Item[] | undefined): string {
-        if (!items) {
+    private buildItemsTemplate (items: Item[] | undefined): string {
+        if (!items || items.length === 0) {
             return '';
         }
 
@@ -187,7 +187,7 @@ export class TextGeneration implements ITextGeneration {
         return DEFAULT_TEXT_ADVENTURE_ITEMS_TEMPLATE.replace('{items}', itemsText);
     }
 
-    private buildAbilitiesTemplate(characters: Character[]): string {
+    private buildAbilitiesTemplate (characters: Character[]): string {
         const uniqueAbilities = new Map<string, Ability>();
 
         for (const character of characters ?? []) {
@@ -213,7 +213,7 @@ export class TextGeneration implements ITextGeneration {
         return DEFAULT_TEXT_ADVENTURE_ABILITIES_TEMPLATE.replace('{abilities}', abilities);
     }
 
-    private buildProficienciesTemplate(characters: Character[]): string {
+    private buildProficienciesTemplate (characters: Character[]): string {
         const uniqueProficiencies = new Map<string, Proficiency>();
 
         for (const character of characters ?? []) {
@@ -239,7 +239,7 @@ export class TextGeneration implements ITextGeneration {
         return DEFAULT_TEXT_ADVENTURE_PROFICIENCIES_TEMPLATE.replace('{proficiencies}', proficiencies);
     }
 
-    private buildStatusesTemplate(characters: Character[]): string {
+    private buildStatusesTemplate (characters: Character[]): string {
         const uniqueStatuses = new Map<string, Status>();
 
         for (const character of characters ?? []) {
@@ -265,7 +265,7 @@ export class TextGeneration implements ITextGeneration {
         return DEFAULT_TEXT_ADVENTURE_STATUSES_TEMPLATE.replace('{statuses}', statuses);
     }
 
-    private buildCharactersTemplate(characters: Character[]): string {
+    private buildCharactersTemplate (characters: Character[]): string {
         let charactersText = '';
         for (const character of characters ?? []) {
             if (character.worldMaster === true) {

@@ -1,6 +1,6 @@
 import { SystemPrompt } from '@domain/entities';
 
-export function createSystemPromptHelper(overrides?: Partial<SystemPrompt>): SystemPrompt {
+export function createSystemPromptHelper (overrides?: Partial<SystemPrompt>): SystemPrompt {
     return {
         id: '1',
         name: 'Test SystemPrompt',

@@ -1,6 +1,6 @@
 import { AdventureFormData } from './constants';
 
-function generateDefaultName(): string {
+function generateDefaultName (): string {
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -11,7 +11,7 @@ function generateDefaultName(): string {
     return `${year}${month}${day} ${hours}:${minutes}:${seconds} new adventure`;
 }
 
-export function setInitialAdventureState(): AdventureFormData {
+export function setInitialAdventureState (): AdventureFormData {
     return {
         id: '',
         name: generateDefaultName(),
@@ -19,6 +19,7 @@ export function setInitialAdventureState(): AdventureFormData {
         characters: [],
         worldMaster: undefined,
         characterAsWorldMasterId: undefined,
+        charactersControlledByAi: [],
         avaliableCharacters: [],
         worlds: [],
         locations: [],

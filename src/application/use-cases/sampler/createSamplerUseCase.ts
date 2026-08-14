@@ -4,12 +4,12 @@ import { ICreateSamplerService } from '@domain/services';
 import { CreateSamplerUseCaseParams, CreateSamplerUseCaseResponse, ICreateSamplerUseCase } from '@domain/use-cases';
 
 export class CreateSamplerUseCase implements ICreateSamplerUseCase {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly samplerRepository: ISamplerRepository,
         private readonly service: ICreateSamplerService
     ) { }
-    async execute(params: CreateSamplerUseCaseParams): Promise<CreateSamplerUseCaseResponse> {
+    async execute (params: CreateSamplerUseCaseParams): Promise<CreateSamplerUseCaseResponse> {
         this.logger.info('Executing CreateSamplerUseCase::execute');
         this.validate(params);
         this.logger.debug('CreateSamplerUseCase::execute - params', params);
@@ -51,7 +51,7 @@ export class CreateSamplerUseCase implements ICreateSamplerUseCase {
         };
     }
 
-    private validate(params: CreateSamplerUseCaseParams): void {
+    private validate (params: CreateSamplerUseCaseParams): void {
         if (!params.name?.trim()) {
             throw new Error('A name is required to create a sampler');
         }

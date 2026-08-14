@@ -2,7 +2,7 @@ import { World } from '@domain/entities';
 import { isRecord, parseDate } from './shared';
 
 export class WorldDTO {
-    constructor(
+    constructor (
         private readonly id: string,
         private readonly name: string,
         private readonly activationWord: string,
@@ -12,7 +12,7 @@ export class WorldDTO {
         private readonly updatedAt: Date
     ) { }
 
-    toEntity(): World {
+    toEntity (): World {
         return {
             id: this.id,
             name: this.name,
@@ -24,7 +24,7 @@ export class WorldDTO {
         };
     }
 
-    static fromStorage(data: unknown): WorldDTO | null {
+    static fromStorage (data: unknown): WorldDTO | null {
         if (!isRecord(data)) {
             return null;
         }

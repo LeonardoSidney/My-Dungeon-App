@@ -1,4 +1,4 @@
-export * from './adventureAppendChatController';
+export * from './appendChatAdventureController';
 export * from './createAdventureController';
 export * from './editAdventureController';
 export * from './createChatAdventureController';
@@ -6,3 +6,7 @@ export * from './getAdventuresController';
 export * from './getAdventureTextController';
 export * from './eraseAdventuresController';
 export * from './eraseAdventureController';
+export * from './startStreamingChatController';
+export * from './updateStreamingChatController';
+export * from './finishStreamingChatController';
+export * from './isAdventureStreamingController';

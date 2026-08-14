@@ -1,13 +1,13 @@
 import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { styles } from '../styles';
-import { SelectListProps } from './constants';
+import { SelectListProps, SelectItemBase } from './constants';
 
-export function SelectList<T extends { id: string; name: string; }> ({ items, selectedItems, onToggle }: SelectListProps<T>) {
+export function SelectList<T extends SelectItemBase> ({ items, selectedItems, onToggle }: SelectListProps<T>) {
   const shouldScroll = items.length > 4;
 
   const renderItems = items.map((item) => {
-    const isSelected = selectedItems.some((s: any) => s.id === item.id);
+    const isSelected = selectedItems.some((s) => s.id === item.id);
     return (
       <TouchableOpacity
         key={item.id}

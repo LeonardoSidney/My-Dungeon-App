@@ -6,7 +6,7 @@ interface UseWorldMasterSelectionProps {
     onSelect?: (worldMaster: WorldMaster | undefined) => void;
 }
 
-export function useWorldMasterSelection(params?: UseWorldMasterSelectionProps) {
+export function useWorldMasterSelection (params?: UseWorldMasterSelectionProps) {
     const { onSelect } = params || {};
     const [worldMasters, setWorldMasters] = useState<WorldMaster[]>([]);
     const [showList, setShowList] = useState(false);
@@ -25,7 +25,7 @@ export function useWorldMasterSelection(params?: UseWorldMasterSelectionProps) {
         }
     }, [showList, prevShowList]);
 
-    async function loadWorldMasters() {
+    async function loadWorldMasters () {
         const controller = getWorldMasterController();
         try {
             const response = await controller.handle();
@@ -37,11 +37,11 @@ export function useWorldMasterSelection(params?: UseWorldMasterSelectionProps) {
         }
     }
 
-    function toggleList() {
+    function toggleList () {
         setShowList(!showList);
     }
 
-    function selectWorldMaster(worldMaster: WorldMaster) {
+    function selectWorldMaster (worldMaster: WorldMaster) {
         setShowList(false);
         if (onSelect) {
             onSelect(worldMaster);

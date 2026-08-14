@@ -2,7 +2,7 @@ import { MirostatEnum, Sampler } from '@domain/entities';
 import { isRecord, parseDate } from './shared';
 
 export class SamplerDTO {
-    constructor(
+    constructor (
         private readonly id: string,
         private readonly name: string,
         private readonly observation: string | undefined,
@@ -36,7 +36,7 @@ export class SamplerDTO {
         private readonly updatedAt: Date
     ) { }
 
-    toEntity(): Sampler {
+    toEntity (): Sampler {
         return {
             id: this.id,
             name: this.name,
@@ -72,7 +72,7 @@ export class SamplerDTO {
         };
     }
 
-    static fromStorage(data: unknown): SamplerDTO | null {
+    static fromStorage (data: unknown): SamplerDTO | null {
         if (!isRecord(data)) {
             return null;
         }

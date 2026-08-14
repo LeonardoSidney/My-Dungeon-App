@@ -4,12 +4,12 @@ import { ICreateConnectionConfigService } from '@domain/services';
 import { CreateConnectionConfigParams, CreateConnectionConfigReturn, ICreateConnectionConfigUseCase } from '@domain/use-cases';
 
 export class CreateConnectionConfigUseCase implements ICreateConnectionConfigUseCase {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly service: ICreateConnectionConfigService,
         private readonly connectionRepository: IConnectionRepository
     ) { }
-    async execute(params: CreateConnectionConfigParams): Promise<CreateConnectionConfigReturn> {
+    async execute (params: CreateConnectionConfigParams): Promise<CreateConnectionConfigReturn> {
         this.logger.info('Executing CreateConnectionConfigUseCase::execute');
         this.validate(params);
         const { name, ip, port, auth } = params;
@@ -60,7 +60,7 @@ export class CreateConnectionConfigUseCase implements ICreateConnectionConfigUse
         };
     }
 
-    private validate(params: CreateConnectionConfigParams): void {
+    private validate (params: CreateConnectionConfigParams): void {
         if (!params.name?.trim()) {
             throw new Error('A name is required to create a connection config');
         }

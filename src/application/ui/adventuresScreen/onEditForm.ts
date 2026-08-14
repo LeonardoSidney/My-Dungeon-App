@@ -2,14 +2,14 @@ import { Dispatch, SetStateAction } from 'react';
 import { Adventure } from '@domain/entities';
 import { AdventureFormData } from './constants';
 
-export function onEditForm(
+export function onEditForm (
     adventure: Adventure,
     setShowForm: Dispatch<SetStateAction<boolean>>,
     setAdventureFormData: Dispatch<SetStateAction<AdventureFormData>>
 ) {
-    const characterAsWorldMaster = adventure.characters.find(
-        c => c.worldMaster === true
-    );
+    const characterAsWorldMaster = adventure.characters.find(c => c.worldMaster === true);
+
+    const charactersControlledByAi = adventure.characters.filter(c => c.aiControlled === true).map(c => c.id);
 
     setAdventureFormData({
         id: adventure.id,
@@ -18,6 +18,7 @@ export function onEditForm(
         characters: adventure.characters,
         worldMaster: adventure.worldMaster,
         characterAsWorldMasterId: characterAsWorldMaster?.id,
+        charactersControlledByAi,
         avaliableCharacters: adventure.characters,
         worlds: adventure.worlds,
         locations: adventure.locations,

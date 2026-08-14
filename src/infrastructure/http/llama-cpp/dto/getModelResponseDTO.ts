@@ -44,12 +44,12 @@ export class GetModelResponseDTO {
     public data: GetModelResponseDTOData[];
     public models: GetModelResponseDTOModels[];
 
-    constructor(data: GetModelResponseDTOData[], models: GetModelResponseDTOModels[]) {
+    constructor (data: GetModelResponseDTOData[], models: GetModelResponseDTOModels[]) {
         this.data = data;
         this.models = models;
     }
 
-    toEntity(connection: Connection): Model[] {
+    toEntity (connection: Connection): Model[] {
         const models: Model[] = [];
         for (let i = 0; i < this.models.length; i++) {
             const data = this.data[i];

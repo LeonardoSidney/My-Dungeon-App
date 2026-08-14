@@ -4,13 +4,13 @@ import { ICreateSystemPromptService } from '@domain/services';
 import { CreateSystemPromptUseCaseParams, CreateSystemPromptUseCaseResponse, ICreateSystemPromptUseCase } from '@domain/use-cases';
 
 export class CreateSystemPromptUseCase implements ICreateSystemPromptUseCase {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly systemPromptRepository: ISystemPromptRepository,
         private readonly service: ICreateSystemPromptService
     ) { }
 
-    async execute(params: CreateSystemPromptUseCaseParams): Promise<CreateSystemPromptUseCaseResponse> {
+    async execute (params: CreateSystemPromptUseCaseParams): Promise<CreateSystemPromptUseCaseResponse> {
         this.logger.info('Executing CreateSystemPromptUseCase::execute');
         this.logger.debug('CreateSystemPromptUseCase::execute - params:', params);
 
@@ -50,7 +50,7 @@ export class CreateSystemPromptUseCase implements ICreateSystemPromptUseCase {
         };
     }
 
-    private validate(params: CreateSystemPromptUseCaseParams): void {
+    private validate (params: CreateSystemPromptUseCaseParams): void {
         if (!params.name?.trim()) {
             throw new Error('Name is required to create a system prompt');
         }

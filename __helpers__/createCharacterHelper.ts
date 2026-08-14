@@ -1,7 +1,7 @@
 import { Character } from '@domain/entities';
 import { createAssistantHelper } from './createAssistantHelper';
 
-export function createCharacterHelper(overrides?: Partial<Character>): Character {
+export function createCharacterHelper (overrides?: Partial<Character>): Character {
     return {
         id: '1',
         name: 'Test Character',

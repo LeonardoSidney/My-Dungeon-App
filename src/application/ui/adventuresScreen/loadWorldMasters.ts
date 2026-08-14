@@ -2,7 +2,7 @@ import { getWorldMasterController } from '@infra/container';
 import { Dispatch } from 'react';
 import { WorldMaster } from '@domain/entities';
 
-export async function loadWorldMasters(
+export async function loadWorldMasters (
     setWorldMasters: Dispatch<React.SetStateAction<WorldMaster[]>>
 ) {
     try {

@@ -2,11 +2,11 @@ import { ILogger, LogLevel, LogLevelEnum } from '@domain/logger';
 
 export class Logger implements ILogger {
     private logLevel: LogLevel;
-    constructor() {
+    constructor () {
         this.logLevel = LogLevelEnum.DEBUG;
     }
 
-    private serializeArgs(args: unknown[]): unknown[] {
+    private serializeArgs (args: unknown[]): unknown[] {
         return args.map(arg => {
             if (typeof arg === 'object' && arg !== null) {
                 try {
@@ -19,31 +19,31 @@ export class Logger implements ILogger {
         });
     }
 
-    debug(message: string, ...args: unknown[]): void {
+    debug (message: string, ...args: unknown[]): void {
         if (this.logLevel <= LogLevelEnum.DEBUG) {
             console.info(`[DEBUG] ${message}`, ...this.serializeArgs(args));
         }
     }
 
-    info(message: string, ...args: unknown[]): void {
+    info (message: string, ...args: unknown[]): void {
         if (this.logLevel <= LogLevelEnum.INFO) {
             console.info(`[INFO] ${message}`, ...this.serializeArgs(args));
         }
     }
 
-    warning(message: string, ...args: unknown[]): void {
+    warning (message: string, ...args: unknown[]): void {
         if (this.logLevel <= LogLevelEnum.WARN) {
             console.info(`[WARN] ${message}`, ...this.serializeArgs(args));
         }
     }
 
-    error(message: string, ...args: unknown[]): void {
+    error (message: string, ...args: unknown[]): void {
         if (this.logLevel <= LogLevelEnum.ERROR) {
             console.error(`[ERROR] ${message}`, ...this.serializeArgs(args));
         }
     }
 
-    log(message: string, ...args: unknown[]): void {
+    log (message: string, ...args: unknown[]): void {
         if (this.logLevel <= LogLevelEnum.LOG) {
             console.log(`[LOG] ${message}`, ...this.serializeArgs(args));
         }

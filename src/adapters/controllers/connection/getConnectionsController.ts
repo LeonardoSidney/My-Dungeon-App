@@ -4,11 +4,11 @@ import { ILogger } from '@domain/logger';
 import { IGetConnectionsUseCase } from '@domain/use-cases';
 
 export class GetConnectionsController implements IGetConnectionsController {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly useCase: IGetConnectionsUseCase
     ) { }
-    async handle(): Promise<Connection[]> {
+    async handle (): Promise<Connection[]> {
         this.logger.info('Executing GetConnectionsController::handle');
         return this.useCase.execute();
     }

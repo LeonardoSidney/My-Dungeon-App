@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
-} from 'react-native';
+import { Text, TextInput, TouchableOpacity, View, ScrollView } from 'react-native';
 import { styles } from './styles';
 import { CharacterFormProps } from './constants';
 import { Ability, Status, Proficiency, Attribute } from '@domain/entities';
@@ -12,22 +7,22 @@ import { SelectList } from './selectList';
 
 function handleAbilityToggle (currentAbilities: Ability[], ability: Ability): Ability[] {
   const abilitiesSelected = [...currentAbilities, ability];
-  const isAbilitySelected = currentAbilities.some((a) => a.id === ability.id);
-  const filteredAbilities = currentAbilities.filter((a) => a.id !== ability.id);
+  const isAbilitySelected = currentAbilities.some(a => a.id === ability.id);
+  const filteredAbilities = currentAbilities.filter(a => a.id !== ability.id);
   return isAbilitySelected ? filteredAbilities : abilitiesSelected;
 }
 
 function handleProficiencyToggle (currentProficiencies: Proficiency[], proficiency: Proficiency): Proficiency[] {
   const proficienciesSelected = [...currentProficiencies, proficiency];
-  const isProficiencySelected = currentProficiencies.some((p) => p.id === proficiency.id);
-  const filteredProficiencies = currentProficiencies.filter((p) => p.id !== proficiency.id);
+  const isProficiencySelected = currentProficiencies.some(p => p.id === proficiency.id);
+  const filteredProficiencies = currentProficiencies.filter(p => p.id !== proficiency.id);
   return isProficiencySelected ? filteredProficiencies : proficienciesSelected;
 }
 
 function handleStatusToggle (currentStatuses: Status[], status: Status): Status[] {
   const statusesSelected = [...currentStatuses, status];
-  const isStatusSelected = currentStatuses.some((s) => s.id === status.id);
-  const filteredStatuses = currentStatuses.filter((s) => s.id !== status.id);
+  const isStatusSelected = currentStatuses.some(s => s.id === status.id);
+  const filteredStatuses = currentStatuses.filter(s => s.id !== status.id);
   return isStatusSelected ? filteredStatuses : statusesSelected;
 }
 
@@ -61,12 +56,10 @@ export function CharacterForm ({
   abilities,
   proficiencies,
   statuses,
-  formErrors
+  formErrors,
 }: CharacterFormProps) {
   const { name, activationWord, prompt, observation, assistant, attributes } = characterStateFormData;
   const isEditing = !!characterStateFormData.id;
-
-
 
   if (!showForm) {
     return <></>;
@@ -76,9 +69,7 @@ export function CharacterForm ({
     <View style={styles.container}>
       <View style={styles.form}>
         <View style={styles.formHeader}>
-          <Text style={styles.formTitle}>
-            {isEditing ? 'Edit Character' : 'New Character'}
-          </Text>
+          <Text style={styles.formTitle}>{isEditing ? 'Edit Character' : 'New Character'}</Text>
           <TouchableOpacity onPress={onCancel} style={styles.closeButton}>
             <Text style={styles.closeButtonText}>✕</Text>
           </TouchableOpacity>
@@ -91,11 +82,9 @@ export function CharacterForm ({
             placeholder="e.g., NPC Merchant"
             placeholderTextColor="#666"
             value={name}
-            onChangeText={(value) => onChange('name', value)}
+            onChangeText={value => onChange('name', value)}
           />
-          {formErrors.name && (
-            <Text style={styles.errorText}>{formErrors.name}</Text>
-          )}
+          {formErrors.name && <Text style={styles.errorText}>{formErrors.name}</Text>}
         </View>
 
         <View style={styles.inputGroup}>
@@ -105,35 +94,28 @@ export function CharacterForm ({
             placeholder="e.g., Merchant"
             placeholderTextColor="#666"
             value={activationWord}
-            onChangeText={(value) => onChange('activationWord', value)}
+            onChangeText={value => onChange('activationWord', value)}
           />
-          {formErrors.activationWord && (
-            <Text style={styles.errorText}>{formErrors.activationWord}</Text>
-          )}
+          {formErrors.activationWord && <Text style={styles.errorText}>{formErrors.activationWord}</Text>}
         </View>
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Assistant</Text>
           <View style={[styles.dropdown, formErrors.assistant && styles.inputError]}>
-            {assistants.map((assistantItem) => (
-              <TouchableOpacity
-                key={assistantItem.id}
-                style={[
-                  styles.dropdownOption,
-                  assistant?.id === assistantItem.id && styles.dropdownOptionSelected
-                ]}
-                onPress={() => onChange('assistant', assistantItem)}
-              >
-                <Text style={styles.dropdownOptionText}>{assistantItem.name}</Text>
-              </TouchableOpacity>
-            ))}
-            {assistants.length === 0 && (
-              <Text style={styles.emptyDropdownText}>No assistants available</Text>
-            )}
+            <ScrollView keyboardShouldPersistTaps="handled">
+              {assistants.map(assistantItem => (
+                <TouchableOpacity
+                  key={assistantItem.id}
+                  style={[styles.dropdownOption, assistant?.id === assistantItem.id && styles.dropdownOptionSelected]}
+                  onPress={() => onChange('assistant', assistantItem)}
+                >
+                  <Text style={styles.dropdownOptionText}>{assistantItem.name}</Text>
+                </TouchableOpacity>
+              ))}
+              {assistants.length === 0 && <Text style={styles.emptyDropdownText}>No assistants available</Text>}
+            </ScrollView>
           </View>
-          {formErrors.assistant && (
-            <Text style={styles.errorText}>{formErrors.assistant}</Text>
-          )}
+          {formErrors.assistant && <Text style={styles.errorText}>{formErrors.assistant}</Text>}
         </View>
 
         <View style={styles.inputGroup}>
@@ -143,12 +125,10 @@ export function CharacterForm ({
             placeholder="Enter the character prompt..."
             placeholderTextColor="#666"
             value={prompt}
-            onChangeText={(value) => onChange('prompt', value)}
+            onChangeText={value => onChange('prompt', value)}
             multiline
           />
-          {formErrors.prompt && (
-            <Text style={styles.errorText}>{formErrors.prompt}</Text>
-          )}
+          {formErrors.prompt && <Text style={styles.errorText}>{formErrors.prompt}</Text>}
         </View>
 
         <View style={styles.inputGroup}>
@@ -158,7 +138,7 @@ export function CharacterForm ({
             placeholder="Additional observations..."
             placeholderTextColor="#666"
             value={observation}
-            onChangeText={(value) => onChange('observation', value)}
+            onChangeText={value => onChange('observation', value)}
             multiline
           />
         </View>
@@ -169,15 +149,19 @@ export function CharacterForm ({
             <SelectList
               items={abilities}
               selectedItems={characterStateFormData.abilities}
-              onToggle={(ability) => onChange('abilities', handleAbilityToggle(characterStateFormData.abilities, ability))}
+              onToggle={ability =>
+                onChange('abilities', handleAbilityToggle(characterStateFormData.abilities, ability))
+              }
             />
             {characterStateFormData.abilities.length > 0 && (
               <View style={styles.selectedTags}>
-                {characterStateFormData.abilities.map((ability) => (
+                {characterStateFormData.abilities.map(ability => (
                   <TouchableOpacity
                     key={ability.id}
                     style={styles.tag}
-                    onPress={() => onChange('abilities', handleAbilityToggle(characterStateFormData.abilities, ability))}
+                    onPress={() =>
+                      onChange('abilities', handleAbilityToggle(characterStateFormData.abilities, ability))
+                    }
                   >
                     <Text style={styles.tagText}>{ability.name}</Text>
                     <Text style={styles.tagClose}>×</Text>
@@ -194,15 +178,22 @@ export function CharacterForm ({
             <SelectList
               items={proficiencies}
               selectedItems={characterStateFormData.proficiencies}
-              onToggle={(proficiency) => onChange('proficiencies', handleProficiencyToggle(characterStateFormData.proficiencies, proficiency))}
+              onToggle={proficiency =>
+                onChange('proficiencies', handleProficiencyToggle(characterStateFormData.proficiencies, proficiency))
+              }
             />
             {characterStateFormData.proficiencies.length > 0 && (
               <View style={styles.selectedTags}>
-                {characterStateFormData.proficiencies.map((proficiency) => (
+                {characterStateFormData.proficiencies.map(proficiency => (
                   <TouchableOpacity
                     key={proficiency.id}
                     style={styles.tag}
-                    onPress={() => onChange('proficiencies', handleProficiencyToggle(characterStateFormData.proficiencies, proficiency))}
+                    onPress={() =>
+                      onChange(
+                        'proficiencies',
+                        handleProficiencyToggle(characterStateFormData.proficiencies, proficiency)
+                      )
+                    }
                   >
                     <Text style={styles.tagText}>{proficiency.name}</Text>
                     <Text style={styles.tagClose}>×</Text>
@@ -219,11 +210,11 @@ export function CharacterForm ({
             <SelectList
               items={statuses}
               selectedItems={characterStateFormData.statuses}
-              onToggle={(status) => onChange('statuses', handleStatusToggle(characterStateFormData.statuses, status))}
+              onToggle={status => onChange('statuses', handleStatusToggle(characterStateFormData.statuses, status))}
             />
             {characterStateFormData.statuses.length > 0 && (
               <View style={styles.selectedTags}>
-                {characterStateFormData.statuses.map((status) => (
+                {characterStateFormData.statuses.map(status => (
                   <TouchableOpacity
                     key={status.id}
                     style={styles.tag}
@@ -241,7 +232,10 @@ export function CharacterForm ({
         <View style={styles.inputGroup}>
           <View style={styles.attributesHeader}>
             <Text style={styles.label}>Attributes</Text>
-            <TouchableOpacity onPress={() => onChange('attributes', handleAddAttribute(attributes))} style={styles.addAttributeButton}>
+            <TouchableOpacity
+              onPress={() => onChange('attributes', handleAddAttribute(attributes))}
+              style={styles.addAttributeButton}
+            >
               <Text style={styles.addAttributeButtonText}>+ Add</Text>
             </TouchableOpacity>
           </View>
@@ -250,14 +244,14 @@ export function CharacterForm ({
               <TextInput
                 style={[styles.attributeInput, styles.attributeNameInput]}
                 value={attr.name}
-                onChangeText={(value) => onChange('attributes', handleAttributeNameChange(attributes, index, value))}
+                onChangeText={value => onChange('attributes', handleAttributeNameChange(attributes, index, value))}
                 placeholder="Name (e.g., Strength)"
                 placeholderTextColor="#666"
               />
               <TextInput
                 style={[styles.attributeInput, styles.attributeValueInput]}
                 value={attr.value.toString()}
-                onChangeText={(value) => onChange('attributes', handleAttributeValueChange(attributes, index, value))}
+                onChangeText={value => onChange('attributes', handleAttributeValueChange(attributes, index, value))}
                 placeholder="Value"
                 placeholderTextColor="#666"
                 keyboardType="numeric"

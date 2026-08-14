@@ -4,12 +4,12 @@ import { IWorldRepository } from '@domain/repository';
 import { IGetWorldsUseCase } from '@domain/use-cases';
 
 export class GetWorldsUseCase implements IGetWorldsUseCase {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly worldRepository: IWorldRepository
     ) { }
 
-    async execute(): Promise<World[]> {
+    async execute (): Promise<World[]> {
         this.logger.info('Executing GetWorldsUseCase::execute');
         return this.worldRepository.getWorlds();
     }

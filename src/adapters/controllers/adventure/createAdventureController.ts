@@ -3,11 +3,11 @@ import { ILogger } from '@domain/logger';
 import { ICreateAdventureUseCase } from '@domain/use-cases';
 
 export class CreateAdventureController implements ICreateAdventureController {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly useCase: ICreateAdventureUseCase
     ) { }
-    async handle(request: CreateAdventureRequest): Promise<CreateAdventureResponse> {
+    async handle (request: CreateAdventureRequest): Promise<CreateAdventureResponse> {
         this.logger.info('Executing CreateAdventureController::handle');
         const { characters, name, systemPrompts, items, locations, worlds, worldMaster } = request;
         const response = await this.useCase.execute({

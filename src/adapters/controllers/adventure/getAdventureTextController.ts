@@ -3,12 +3,12 @@ import { ILogger } from '@domain/logger';
 import { IGetAdventureTextUseCase } from '@domain/use-cases';
 
 export class GetAdventureTextController implements IGetAdventureTextController {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly useCase: IGetAdventureTextUseCase
     ) { }
 
-    async handle(params: GetAdventureTextControllerParams): Promise<GetAdventureTextControllerResponse> {
+    async handle (params: GetAdventureTextControllerParams): Promise<GetAdventureTextControllerResponse> {
         this.logger.info('Executing GetAdventureTextController::handle');
         this.logger.debug('GetAdventureTextController::handle - params', params);
 

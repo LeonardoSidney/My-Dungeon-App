@@ -12,6 +12,7 @@ import { useWorldMastersLoad } from './useWorldMastersLoad';
 import { useWorldsLoad } from './useWorldsLoad';
 import { useLocationsLoad } from './useLocationsLoad';
 import { useItemsLoad } from './useItemsLoad';
+import { loadAdventures } from './loadAdventures';
 import { onEraseAdventure } from './onEraseAdventure';
 import { onAddNewAdventure } from './onAddNewAdventure';
 import { onCancelForm } from './onCancelForm';
@@ -21,7 +22,7 @@ import { handleAdventureFormChange } from './handleAdventureFormChange';
 import { setInitialAdventureState } from './setInitialAdventureState';
 import { AdventureFormData, FormErrors } from './constants';
 
-export function AdventuresScreen() {
+export function AdventuresScreen () {
   const [adventures, setAdventures] = useState<Adventure[]>([]);
   const [adventureStateFormData, setAdventureFormData] = useState<AdventureFormData>(setInitialAdventureState());
   const [showForm, setShowForm] = useState(false);
@@ -67,7 +68,7 @@ export function AdventuresScreen() {
     }
   };
 
-  const handleFormChange = (field: keyof AdventureFormData, value: any) => {
+  const handleFormChange = (field: keyof AdventureFormData, value: AdventureFormData[keyof AdventureFormData]) => {
     setFormErrors(prev => {
       const next = { ...prev };
       const errorField = field as keyof FormErrors;
@@ -97,6 +98,7 @@ export function AdventuresScreen() {
   const handleBackFromChat = () => {
     setShowChat(false);
     setSelectedAdventure(null);
+    loadAdventures(setAdventures);
   };
 
   return (

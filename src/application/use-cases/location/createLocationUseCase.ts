@@ -4,13 +4,13 @@ import { ICreateLocationService } from '@domain/services';
 import { CreateLocationUseCaseParams, CreateLocationUseCaseResponse, ICreateLocationUseCase } from '@domain/use-cases';
 
 export class CreateLocationUseCase implements ICreateLocationUseCase {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly locationRepository: ILocationRepository,
         private readonly service: ICreateLocationService
     ) { }
 
-    async execute(params: CreateLocationUseCaseParams): Promise<CreateLocationUseCaseResponse> {
+    async execute (params: CreateLocationUseCaseParams): Promise<CreateLocationUseCaseResponse> {
         this.logger.info('Executing CreateLocationUseCase::execute');
         this.logger.debug('CreateLocationUseCase::execute - params:', params);
 
@@ -50,7 +50,7 @@ export class CreateLocationUseCase implements ICreateLocationUseCase {
         };
     }
 
-    private validate(params: CreateLocationUseCaseParams): void {
+    private validate (params: CreateLocationUseCaseParams): void {
         if (!params.name?.trim()) {
             throw new Error('Name is required to create a location');
         }

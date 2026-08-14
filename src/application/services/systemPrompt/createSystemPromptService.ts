@@ -3,12 +3,12 @@ import { CreateSystemPromptServiceParams, CreateSystemPromptServiceResponse, ICr
 import { IIdGenerator } from '@domain/providers';
 
 export class CreateSystemPromptService implements ICreateSystemPromptService {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly idGenerator: IIdGenerator
     ) { }
 
-    createSystemPrompt(params: CreateSystemPromptServiceParams): CreateSystemPromptServiceResponse {
+    createSystemPrompt (params: CreateSystemPromptServiceParams): CreateSystemPromptServiceResponse {
         this.logger.info('CreateSystemPromptService::createSystemPrompt');
 
         const createdAt = new Date();

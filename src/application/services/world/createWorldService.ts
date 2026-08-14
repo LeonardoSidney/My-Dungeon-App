@@ -3,12 +3,12 @@ import { CreateWorldServiceParams, CreateWorldServiceResponse, ICreateWorldServi
 import { IIdGenerator } from '@domain/providers';
 
 export class CreateWorldService implements ICreateWorldService {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly idGenerator: IIdGenerator
     ) { }
 
-    createWorld(params: CreateWorldServiceParams): CreateWorldServiceResponse {
+    createWorld (params: CreateWorldServiceParams): CreateWorldServiceResponse {
         this.logger.info('CreateWorldService::createWorld');
 
         const createdAt = new Date();

@@ -1,54 +1,50 @@
-import { Text, TouchableOpacity, View } from 'react-native';
-import { Character, Adventure } from '@domain/entities';
-import { useState } from 'react';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { styles } from './styles';
+import { handleCharacterSelectFromList } from './handleCharacterSelectFromList';
+import { useCharacterSelectorToggle } from './hooks/useCharacterSelectorToggle';
+import { CharacterSelectorProps } from './constants';
 
-export function CharacterSelector({
-  adventure,
-  onCharacterSelect,
-  selectedCharacterId,
-  style,
-}: {
-  adventure: Adventure;
-  onCharacterSelect: (character: Character) => void;
-  selectedCharacterId?: string;
-  style?: any;
-}) {
-  const [showList, setShowList] = useState(false);
+export function CharacterSelector ({ adventure, onCharacterSelect, selectedCharacterId, style }: CharacterSelectorProps) {
+  const { showList, setShowList, toggleList, dropdownArrow } = useCharacterSelectorToggle();
 
-  function handleCharacterSelect(character: Character) {
-    onCharacterSelect(character);
-    setShowList(false);
-  }
+  const selectedCharacter = adventure.characters.find(c => c.id === selectedCharacterId) || adventure.characters[0];
+  const isFirstItem = (index: number) => index === 0;
+  const isLastItem = (index: number, total: number) => index === total - 1;
+  const hasNextItem = (index: number, total: number) => index < total - 1;
 
-  function getSelectedCharacter() {
-    return adventure.characters.find(c => c.id === selectedCharacterId) || adventure.characters[0];
-  }
+  const isListVisible = showList;
 
   return (
     <View style={[styles.container, style]}>
-      <TouchableOpacity style={styles.dropdownButton} onPress={() => setShowList(!showList)}>
+      <TouchableOpacity style={styles.dropdownButton} onPress={toggleList}>
         <Text style={styles.dropdownText}>
-          {showList ? '▼' : '▲'} {getSelectedCharacter().name}
+          {dropdownArrow} {selectedCharacter.name}
         </Text>
       </TouchableOpacity>
 
-      {showList && (
+      {isListVisible && (
         <View style={styles.dropdownList}>
-          {adventure.characters.map((character, index) => (
-            <TouchableOpacity
-              key={character.id}
-              style={[
+          <ScrollView keyboardShouldPersistTaps="handled">
+            {adventure.characters.map((character, index) => {
+              const totalCharacters = adventure.characters.length;
+              const itemStyle = [
                 styles.dropdownItem,
-                index < adventure.characters.length - 1 && styles.dropdownItemWithBorder,
-                index === 0 && styles.dropdownItemFirst,
-                index === adventure.characters.length - 1 && styles.dropdownItemLast,
-              ]}
-              onPress={() => handleCharacterSelect(character)}
-            >
-              <Text style={styles.itemText}>{character.name}</Text>
-            </TouchableOpacity>
-          ))}
+                hasNextItem(index, totalCharacters) && styles.dropdownItemWithBorder,
+                isFirstItem(index) && styles.dropdownItemFirst,
+                isLastItem(index, totalCharacters) && styles.dropdownItemLast,
+              ];
+
+              return (
+                <TouchableOpacity
+                  key={character.id}
+                  style={itemStyle}
+                  onPress={() => handleCharacterSelectFromList({ character, onCharacterSelect, setShowList })}
+                >
+                  <Text style={styles.itemText}>{character.name}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
         </View>
       )}
     </View>

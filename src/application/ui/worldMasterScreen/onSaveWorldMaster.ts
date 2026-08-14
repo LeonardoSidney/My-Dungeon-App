@@ -14,31 +14,36 @@ export async function onSaveWorldMaster (
 ) {
     const { id, name, activationWord, prompt, observation, assistant } = worldMasterFormData;
 
-    if (!name.trim() || !activationWord.trim() || !prompt.trim()) return;
+    const trimmedName = name.trim();
+    const trimmedActivationWord = activationWord.trim();
+    const trimmedPrompt = prompt.trim();
+    const trimmedObservation = observation.trim() || undefined;
+
+    if (!trimmedName || !trimmedActivationWord || !trimmedPrompt) return;
     if (!assistant) return;
 
     try {
         if (id) {
-            // Edit existing world master
             const ctrl = editWorldMasterController();
             await ctrl.handle({
                 id,
-                name: name.trim(),
-                activationWord: activationWord.trim(),
-                prompt: prompt.trim(),
-                observation: observation.trim() || undefined,
-                assistant: assistant,
+                name: trimmedName,
+                activationWord: trimmedActivationWord,
+                prompt: trimmedPrompt,
+                observation: trimmedObservation,
+                assistant,
                 createdAt: new Date(),
             });
-        } else {
-            // Create new world master
+        }
+
+        if (!id) {
             const ctrl = createWorldMasterController();
             await ctrl.handle({
-                name: name.trim(),
-                activationWord: activationWord.trim(),
-                prompt: prompt.trim(),
-                observation: observation.trim() || undefined,
-                assistant: assistant,
+                name: trimmedName,
+                activationWord: trimmedActivationWord,
+                prompt: trimmedPrompt,
+                observation: trimmedObservation,
+                assistant,
             });
         }
 

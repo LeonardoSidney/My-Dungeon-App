@@ -1,6 +1,6 @@
 import { SidebarRoute } from '@application/ui/sidebarPanel/SidebarPanel';
 
-export function useMenuNavigation(
+export function useMenuNavigation (
     onRouteChange?: (route: SidebarRoute) => void,
     onClosePanel?: () => void,
 ) {

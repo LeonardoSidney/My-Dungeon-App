@@ -7,11 +7,11 @@ import { ILogger } from '@domain/logger';
 import { ICreateConnectionConfigUseCase } from '@domain/use-cases';
 
 export class CreateConnectionConfigController implements ICreateConnectionConfigController {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly useCase: ICreateConnectionConfigUseCase
     ) { }
-    async handle(request: CreateConnectionConfigControllerRequest): Promise<CreateConnectionConfigControllerResponse> {
+    async handle (request: CreateConnectionConfigControllerRequest): Promise<CreateConnectionConfigControllerResponse> {
         this.logger.info('Executing CreateConnectionConfigController::handle');
         const { name, ip, port, auth } = request;
         const response = await this.useCase.execute({

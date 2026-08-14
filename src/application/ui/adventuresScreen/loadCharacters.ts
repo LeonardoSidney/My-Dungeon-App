@@ -2,7 +2,7 @@ import { getCharactersController } from '@infra/container';
 import { Dispatch } from 'react';
 import { Character } from '@domain/entities';
 
-export async function loadCharacters(
+export async function loadCharacters (
     setCharacters: Dispatch<React.SetStateAction<Character[]>>
 ) {
     try {

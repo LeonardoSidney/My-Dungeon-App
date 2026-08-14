@@ -16,6 +16,7 @@ export type Character = {
     attributes?: Attribute[];
     assistant: Assistant;
     worldMaster?: boolean;
+    aiControlled?: boolean;
     createdAt: Date;
     updatedAt: Date;
 };

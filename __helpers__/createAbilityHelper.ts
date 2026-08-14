@@ -1,6 +1,6 @@
 import { Ability } from '@domain/entities';
 
-export function createAbilityHelper(overrides?: Partial<Ability>): Ability {
+export function createAbilityHelper (overrides?: Partial<Ability>): Ability {
     return {
         id: '1',
         name: 'Test Ability',

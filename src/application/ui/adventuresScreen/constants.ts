@@ -1,13 +1,4 @@
-import {
-    Adventure,
-    Character,
-    Chat,
-    SystemPrompt,
-    WorldMaster,
-    World,
-    Location,
-    Item,
-} from '@domain/entities';
+import { Adventure, Character, Chat, SystemPrompt, WorldMaster, World, Location, Item } from '@domain/entities';
 
 export interface AdventuresPanelProps {
     adventures: Adventure[];
@@ -27,6 +18,7 @@ export type AdventureFormData = {
     characters: Character[];
     worldMaster?: WorldMaster;
     characterAsWorldMasterId?: string;
+    charactersControlledByAi: string[];
     avaliableCharacters: Character[];
     worlds?: World[];
     locations?: Location[];

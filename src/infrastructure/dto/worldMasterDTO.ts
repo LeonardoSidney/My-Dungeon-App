@@ -3,7 +3,7 @@ import { AssistantDTO } from './assistantDTO';
 import { isRecord, parseDate } from './shared';
 
 export class WorldMasterDTO {
-    constructor(
+    constructor (
         private readonly id: string,
         private readonly name: string,
         private readonly activationWord: string,
@@ -14,7 +14,7 @@ export class WorldMasterDTO {
         private readonly updatedAt: Date
     ) { }
 
-    toEntity(): WorldMaster {
+    toEntity (): WorldMaster {
         return {
             id: this.id,
             name: this.name,
@@ -27,7 +27,7 @@ export class WorldMasterDTO {
         };
     }
 
-    static fromStorage(data: unknown): WorldMasterDTO | null {
+    static fromStorage (data: unknown): WorldMasterDTO | null {
         if (!isRecord(data)) {
             return null;
         }
@@ -61,7 +61,7 @@ export class WorldMasterDTO {
         );
     }
 
-    private static toAssistant(assistant: unknown | undefined): Assistant | undefined {
+    private static toAssistant (assistant: unknown | undefined): Assistant | undefined {
         if (!isRecord(assistant)) {
             return undefined;
         }

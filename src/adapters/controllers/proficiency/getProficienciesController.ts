@@ -4,12 +4,12 @@ import { ILogger } from '@domain/logger';
 import { IGetProficienciesUseCase } from '@domain/use-cases';
 
 export class GetProficienciesController implements IGetProficienciesController {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly useCase: IGetProficienciesUseCase
     ) { }
 
-    async handle(): Promise<Proficiency[]> {
+    async handle (): Promise<Proficiency[]> {
         this.logger.info('Executing GetProficienciesController::handle');
         return await this.useCase.execute();
     }

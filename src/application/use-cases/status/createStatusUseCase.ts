@@ -4,12 +4,12 @@ import { ICreateStatusService } from '@domain/services';
 import { CreateStatusUseCaseParams, CreateStatusUseCaseResponse, ICreateStatusUseCase } from '@domain/use-cases';
 
 export class CreateStatusUseCase implements ICreateStatusUseCase {
-    constructor(
+    constructor (
         private readonly logger: ILogger,
         private readonly service: ICreateStatusService,
         private readonly statusRepository: IStatusRepository
     ) { }
-    async execute(params: CreateStatusUseCaseParams): Promise<CreateStatusUseCaseResponse> {
+    async execute (params: CreateStatusUseCaseParams): Promise<CreateStatusUseCaseResponse> {
         this.logger.info('Executing CreateStatusUseCase::execute');
         this.logger.debug('Executing CreateStatusUseCase::execute - params', params);
 
@@ -50,7 +50,7 @@ export class CreateStatusUseCase implements ICreateStatusUseCase {
         };
     }
 
-    private validate(params: CreateStatusUseCaseParams) {
+    private validate (params: CreateStatusUseCaseParams) {
         if (!params.name?.trim()) {
             throw new Error('name is required to create a status');
         }

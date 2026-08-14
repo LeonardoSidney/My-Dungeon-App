@@ -15,14 +15,7 @@ module.exports = {
         type: 'filesystem',
     },
     resolve: {
-        extensions: [
-            '.web.tsx',
-            '.web.ts',
-            '.tsx',
-            '.ts',
-            '.web.js',
-            '.js',
-        ],
+        extensions: ['.web.tsx', '.web.ts', '.tsx', '.ts', '.web.js', '.js'],
         symlinks: false,
         alias: {
             'react-native$': 'react-native-web',
@@ -57,6 +50,10 @@ module.exports = {
                     fullySpecified: false,
                 },
             },
+            {
+                test: /\.css$/,
+                use: ['style-loader', 'css-loader'],
+            },
         ],
     },
     plugins: [
@@ -77,14 +74,11 @@ module.exports = {
         },
         static: {
             watch: {
-                ignored: [
-                    '**/node_modules/**',
-                    '**/.git/**',
-                ],
+                ignored: ['**/node_modules/**', '**/.git/**'],
             },
         },
     },
     watchOptions: {
         ignored: /node_modules/,
-    }
+    },
 };

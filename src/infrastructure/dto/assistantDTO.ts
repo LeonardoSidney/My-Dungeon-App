@@ -4,7 +4,7 @@ import { SamplerDTO } from './samplerDTO';
 import { isRecord, parseDate } from './shared';
 
 export class AssistantDTO {
-    constructor(
+    constructor (
         private readonly id: string,
         private readonly name: string,
         private readonly observation: string | undefined,
@@ -14,7 +14,7 @@ export class AssistantDTO {
         private readonly updatedAt: Date
     ) { }
 
-    toEntity(): Assistant {
+    toEntity (): Assistant {
         return {
             id: this.id,
             name: this.name,
@@ -26,7 +26,7 @@ export class AssistantDTO {
         };
     }
 
-    static fromStorage(data: unknown): AssistantDTO | null {
+    static fromStorage (data: unknown): AssistantDTO | null {
         if (!isRecord(data)) {
             return null;
         }
@@ -59,7 +59,7 @@ export class AssistantDTO {
         );
     }
 
-    private static toModel(models: unknown | undefined): Model | undefined {
+    private static toModel (models: unknown | undefined): Model | undefined {
         if (!isRecord(models)) {
             return undefined;
         }
@@ -68,7 +68,7 @@ export class AssistantDTO {
         return modelDTO?.toEntity();
     }
 
-    private static toSampler(sampler: unknown | undefined): Sampler | undefined {
+    private static toSampler (sampler: unknown | undefined): Sampler | undefined {
         if (!isRecord(sampler)) {
             return undefined;
         }
