@@ -1,69 +1,47 @@
 import { Connection, Model } from '@domain/entities';
 
-export type GetModelResponseDTOData = {
-    aliases: string[];
-    created: number;
+export const DEFAULT_CONTEXT_SIZE = 4096;
+
+export type GetModelResponseDTOMeta = {
+    n_ctx: number;
+    n_ctx_train: number;
+    n_embd: number;
+    n_params: number;
+    n_vocab: number;
+    size: number;
+    vocab_type: number;
+};
+
+export type GetModelResponseDTOArchitecture = {
+    input_modalities: string[];
+    output_modalities: string[];
+};
+
+export type GetModelResponseDTOEntry = {
     id: string;
-    meta: {
-        n_ctx: number,
-        n_ctx_train: number,
-        n_embd: number,
-        n_params: number,
-        n_vocab: number,
-        size: number,
-        vocab_type: number;
-    };
-    object: string;
+    name?: string;
+    meta?: GetModelResponseDTOMeta;
+    architecture?: GetModelResponseDTOArchitecture;
     owned_by: string;
-    tags: string[];
 };
-
-export type GetModelResponseDTOModels = {
-    capabilities: string[];
-    description: string;
-    details: {
-        families: string[];
-        family: string;
-        format: string;
-        parameter_size: string;
-        parent_model: string;
-        quantization_level: string;
-    };
-    digest: string;
-    model: string;
-    modified_at: string;
-    name: string;
-    parameters: string;
-    size: string;
-    tags: string[];
-    type: string;
-};
-
 
 export class GetModelResponseDTO {
-    public data: GetModelResponseDTOData[];
-    public models: GetModelResponseDTOModels[];
-
-    constructor (data: GetModelResponseDTOData[], models: GetModelResponseDTOModels[]) {
-        this.data = data;
-        this.models = models;
-    }
+    constructor (readonly entries: GetModelResponseDTOEntry[]) { }
 
     toEntity (connection: Connection): Model[] {
-        const models: Model[] = [];
-        for (let i = 0; i < this.models.length; i++) {
-            const data = this.data[i];
-            const model = this.models[i];
-
-            models.push({
-                id: data.id,
-                name: model.name.split('/').pop() ?? 'Unknown',
+        return this.entries.map(entry => {
+            return {
+                id: entry.id,
+                name: entry.name ?? this.fallbackName(entry.id),
                 connection,
-                nCtx: data.meta.n_ctx,
-                ownedBy: data.owned_by
-            });
-        }
+                nCtx: entry.meta?.n_ctx ?? DEFAULT_CONTEXT_SIZE,
+                ownedBy: entry.owned_by
+            };
+        });
+    }
 
-        return models;
+    private fallbackName (id: string): string {
+        const segments = id.split('/');
+        return segments[segments.length - 1];
     }
 }
