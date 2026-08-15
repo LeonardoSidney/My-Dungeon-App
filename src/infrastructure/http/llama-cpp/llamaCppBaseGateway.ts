@@ -1,14 +1,15 @@
 import { Chat, Connection } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { IStreamProvider } from '@domain/providers';
-import { GetModelResponseDTO } from './dto/getModelResponseDTO';
+import { GetModelResponseDTO, GetModelResponseDTOEntry } from './dto/getModelResponseDTO';
 import { ApplyTemplateResponseDTO } from './dto/applyTemplateResponseDTO';
+import { isArrayRecord, isRecord } from '../../dto/shared';
 
 export abstract class LlamaCppBaseGateway {
     constructor (
         protected readonly logger: ILogger,
         protected readonly streamProvider: IStreamProvider
-    ) {}
+    ) { }
 
     protected buildUrl (connection: Connection, endpoint: string): string {
         const port = connection.port ? `:${connection.port}` : '';
@@ -19,22 +20,77 @@ export abstract class LlamaCppBaseGateway {
     async getModels (connection: Connection): Promise<GetModelResponseDTO | null> {
         this.logger.info('Executing LlamaCppBaseGateway::getModels');
         const url = this.buildUrl(connection, '/models');
+        let response: Response;
         try {
             this.logger.debug('Executing LlamaCppBaseGateway::getModels - url: ', url);
-            const response = await fetch(url);
-            this.logger.debug('Executing LlamaCppBaseGateway::getModels - response: ', response);
-            if (response.ok) {
-                const data = await response.json();
-                this.logger.debug('Executing LlamaCppBaseGateway::getModels - data: ', data);
-                if (data.models) {
-                    return new GetModelResponseDTO(data.data, data.models);
-                }
-            }
+            response = await fetch(url);
         } catch (error) {
             throw new Error(`Error fetching models from ${url}: ${error}`);
         }
 
-        return null;
+        if (!response.ok) {
+            this.logger.warning(`Executing LlamaCppBaseGateway::getModels - response not ok: ${response.status}`);
+            return null;
+        }
+
+        let body: unknown;
+        try {
+            body = await response.json();
+        } catch (error) {
+            this.logger.warning('Executing LlamaCppBaseGateway::getModels - response is not valid JSON: ', error);
+            return null;
+        }
+
+        const entries = this.parseModelsResponse(body);
+        if (!entries) {
+            this.logger.warning('Executing LlamaCppBaseGateway::getModels - response does not contain a models list');
+            return null;
+        }
+
+        this.logger.debug('Executing LlamaCppBaseGateway::getModels - entries: ', entries);
+        return new GetModelResponseDTO(entries);
+    }
+
+    protected parseModelsResponse (body: unknown): GetModelResponseDTOEntry[] | null {
+        if (!isRecord(body) || !isArrayRecord(body.data)) {
+            return null;
+        }
+
+        const entries: GetModelResponseDTOEntry[] = [];
+        for (const item of body.data) {
+            if (typeof item.id !== 'string' || typeof item.owned_by !== 'string') {
+                continue;
+            }
+
+            const entry: GetModelResponseDTOEntry = {
+                id: item.id,
+                owned_by: item.owned_by
+            };
+
+            if (typeof item.name === 'string') {
+                entry.name = item.name;
+            }
+
+            if (isRecord(item.meta) && typeof item.meta.n_ctx === 'number') {
+                entry.meta = {
+                    n_ctx: item.meta.n_ctx,
+                    n_ctx_train: this.toNumber(item.meta.n_ctx_train),
+                    n_embd: this.toNumber(item.meta.n_embd),
+                    n_params: this.toNumber(item.meta.n_params),
+                    n_vocab: this.toNumber(item.meta.n_vocab),
+                    size: this.toNumber(item.meta.size),
+                    vocab_type: this.toNumber(item.meta.vocab_type)
+                };
+            }
+
+            entries.push(entry);
+        }
+
+        return entries;
+    }
+
+    protected toNumber (value: unknown): number {
+        return typeof value === 'number' ? value : 0;
     }
 
     async applyTemplate (
