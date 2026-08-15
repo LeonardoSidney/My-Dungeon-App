@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { memo, ReactNode } from 'react';
 import { Linking, Text, TouchableOpacity, View } from 'react-native';
 import { styles } from './styles';
 import { LatexRendererBlock } from './LatexRendererBlock';
@@ -163,7 +163,7 @@ function RenderBlockElement ({ element }: RenderBlockElementProps): ReactNode {
   }
 }
 
-export function TextMarkdown ({ content, style: _style }: TextMarkdownProps) {
+function TextMarkdownBase ({ content, style: _style }: TextMarkdownProps) {
   const blocks = parseMarkdown(content);
 
   return (
@@ -174,3 +174,5 @@ export function TextMarkdown ({ content, style: _style }: TextMarkdownProps) {
     </>
   );
 }
+
+export const TextMarkdown = memo(TextMarkdownBase);

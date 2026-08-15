@@ -1,8 +1,8 @@
-import { KeyboardAvoidingView, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { styles } from './styles';
 import { AdventureChat } from './AdventureChat';
 import { AdventureChatSettings } from './AdventureChatSettings/AdventureChatSettings';
-import { CharacterSelector } from './CharacterSelector';
+import { MessageInput } from './MessageInput';
 import { useAdventureChatState } from './hooks/useAdventureChatState';
 import { useSettingsActions } from './hooks/useSettingsActions';
 import { useMessageActions } from './hooks/useMessageActions';
@@ -71,11 +71,8 @@ export function AdventureChatScreen (params: AdventureChatScreenProps) {
 
   const isStreamingActive = isStreaming;
   const sendButtonOnPress = isStreamingActive ? handleStopStreaming : handleSendMessage;
-  const sendButtonLabel = isStreamingActive ? 'Stop' : 'Send';
-  const sendButtonStyle = [styles.sendButtonContainer, isStreamingActive && styles.stopButtonContainer];
 
   const shouldShowScrollButton = isStreamingActive && showScrollToBottom;
-  const shouldShowResendButton = !isStreamingActive;
 
   if (showSettings) {
     return (
@@ -121,38 +118,17 @@ export function AdventureChatScreen (params: AdventureChatScreenProps) {
         )}
       </View>
 
-      <View style={styles.inputContainer}>
-        <CharacterSelector
-          adventure={currentAdventure}
-          onCharacterSelect={handleCharacterSelect}
-          selectedCharacterId={selectedCharacter.id}
-          style={styles.characterSelector}
-        />
-        <TextInput
-          style={styles.input}
-          value={message}
-          onChangeText={setMessage}
-          placeholder="Type a message..."
-          multiline
-          selectionColor="transparent"
-          cursorColor="transparent"
-          placeholderTextColor="#888"
-          autoCorrect={false}
-          underlineColorAndroid="transparent"
-          onKeyPress={handleKeyPress}
-        />
-        {shouldShowResendButton && (
-          <TouchableOpacity style={styles.resendButtonContainer} onPress={handleResend}>
-            <Text style={styles.resendButtonText}>↻</Text>
-          </TouchableOpacity>
-        )}
-        <TouchableOpacity
-          style={sendButtonStyle}
-          onPress={sendButtonOnPress}
-        >
-          <Text style={styles.sendButtonText}>{sendButtonLabel}</Text>
-        </TouchableOpacity>
-      </View>
+      <MessageInput
+        value={message}
+        onChangeText={setMessage}
+        onKeyPress={handleKeyPress}
+        isStreaming={isStreamingActive}
+        onSend={sendButtonOnPress}
+        onResend={handleResend}
+        adventure={currentAdventure}
+        selectedCharacterId={selectedCharacter.id}
+        onCharacterSelect={handleCharacterSelect}
+      />
     </KeyboardAvoidingView>
   );
 }
