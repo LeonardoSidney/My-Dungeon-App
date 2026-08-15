@@ -2,9 +2,7 @@ import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
     text: {
-        fontSize: 16,
-        color: '#e0e0e0',
-        lineHeight: 24
+        color: '#fff'
     },
     bold: {
         fontWeight: 'bold'
@@ -137,8 +135,7 @@ export const styles = StyleSheet.create({
         marginBottom: 4
     },
     listMarker: {
-        fontSize: 16,
-        color: '#e0e0e0',
+        color: '#fff',
         width: 30
     },
     table: {
