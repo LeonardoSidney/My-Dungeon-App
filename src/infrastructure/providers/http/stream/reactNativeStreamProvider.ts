@@ -1,80 +1,197 @@
+/// <reference types="web" />
 import { ILogger } from '@domain/logger';
 import { IStreamProvider, StreamProvider } from '@domain/providers';
-import EventSource, { ErrorEvent, MessageEvent, TimeoutEvent, ExceptionEvent } from 'react-native-sse';
+
+class SseLineParser {
+    private pendingLine = '';
+
+    process (newText: string, queue: string[], onDone: () => void): void {
+        this.pendingLine += newText;
+        const parts = this.pendingLine.split('\n');
+        this.pendingLine = parts.pop() ?? '';
+
+        for (const part of parts) {
+            const dataValue = this.parseDataLine(part);
+            if (dataValue === undefined) {
+                continue;
+            }
+
+            const isDone = dataValue === '[DONE]';
+            if (isDone) {
+                onDone();
+                return;
+            }
+
+            queue.push(dataValue);
+        }
+    }
+
+    flush (queue: string[], onDone: () => void): void {
+        if (!this.pendingLine) {
+            return;
+        }
+
+        const dataValue = this.parseDataLine(this.pendingLine);
+        this.pendingLine = '';
+        if (dataValue === undefined) {
+            return;
+        }
+
+        const isDone = dataValue === '[DONE]';
+        if (isDone) {
+            onDone();
+            return;
+        }
+
+        queue.push(dataValue);
+    }
+
+    private parseDataLine (line: string): string | undefined {
+        const trimmedLine = line.trim();
+        const isDataLine = trimmedLine.startsWith('data:');
+        if (!isDataLine) {
+            return undefined;
+        }
+
+        const dataValue = trimmedLine.replace(/^data:\s?/, '');
+        if (!dataValue) {
+            return undefined;
+        }
+
+        return dataValue;
+    }
+}
 
 export class ReactNativeStreamProvider implements IStreamProvider {
-    constructor (private readonly logger: ILogger) {}
+    constructor (private readonly logger: ILogger) { }
 
     stream (params: StreamProvider.params): IStreamProvider.StreamResult {
         const { url, method, headers, body } = params;
 
-        const options = {
-            method: method || 'GET',
-            headers: headers || {},
-            body: body ? JSON.stringify(body) : undefined,
+        const xhr = new XMLHttpRequest();
+        const isAbortedRef = { current: false };
+        const xhrErrorRef: { current: Error | null; } = { current: null };
+        const xhrStatusRef = { current: 0 };
+
+        const requestBody = this.stringifyBody(body);
+        const requestHeaders = {
+            Accept: 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            ...(headers || {})
         };
 
-        const es = new EventSource(url, options);
-        let isAborted = false;
-
+        const parser = new SseLineParser();
         const queue: string[] = [];
-        let resolveNext: ((value: void) => void) | null = null;
+        let processedLength = 0;
+        let resolveNext: (() => void) | null = null;
         let isFinished = false;
-        let error: Error | null = null;
 
-        es.addEventListener('message', event => {
-            const e = event as MessageEvent;
-            if (e.data) {
-                const isDone = e.data === '[DONE]';
+        const notify = () => {
+            if (resolveNext) {
+                const resolve = resolveNext;
+                resolveNext = null;
+                resolve();
+            }
+        };
 
-                if (isDone) {
+        const onStreamDone = () => {
+            if (isFinished) {
+                return;
+            }
+
+            isFinished = true;
+            notify();
+        };
+
+        const onReadyStateChange = () => {
+            const readyState = xhr.readyState;
+            const isRelevantState = readyState === XMLHttpRequest.LOADING || readyState === XMLHttpRequest.DONE;
+            if (!isRelevantState) {
+                return;
+            }
+
+            const rawText = xhr.responseText;
+            const newChunk = rawText.slice(processedLength);
+            processedLength = rawText.length;
+
+            const hasNewData = newChunk !== '';
+            if (hasNewData) {
+                parser.process(newChunk, queue, onStreamDone);
+            }
+
+            if (readyState === XMLHttpRequest.DONE) {
+                parser.flush(queue, onStreamDone);
+                if (!isFinished) {
+                    xhrStatusRef.current = xhr.status;
                     isFinished = true;
-                    es.close();
-                }
-
-                if (!isDone && !isAborted) {
-                    queue.push(e.data);
-                }
-
-                if (resolveNext) {
-                    resolveNext();
-                    resolveNext = null;
                 }
             }
-        });
 
-        es.addEventListener('error', (event: ErrorEvent | TimeoutEvent | ExceptionEvent) => {
-            const message = (event as ErrorEvent).message;
-            error = new Error(message || 'SSE Error');
+            if (hasNewData || readyState === XMLHttpRequest.DONE) {
+                notify();
+            }
+        };
+
+        const finishWithError = (errorMessage: string) => {
+            xhrErrorRef.current = new Error(errorMessage);
             isFinished = true;
-            es.close();
-            if (resolveNext) {
-                resolveNext();
-                resolveNext = null;
-            }
-        });
+            notify();
+        };
 
-        es.addEventListener('close', () => {
+        const onAbort = () => {
             isFinished = true;
-            if (resolveNext) {
-                resolveNext();
-                resolveNext = null;
+            notify();
+        };
+
+        const onError = () => {
+            if (isAbortedRef.current) {
+                return;
             }
-        });
+
+            const message = `Request to ${url} failed`;
+            finishWithError(message);
+        };
+
+        const onTimeout = () => {
+            finishWithError(`Request to ${url} timed out`);
+        };
+
+        xhr.open(method || 'GET', url, true);
+
+        for (const [name, value] of Object.entries(requestHeaders)) {
+            xhr.setRequestHeader(name, value);
+        }
+
+        xhr.addEventListener('readystatechange', onReadyStateChange);
+        xhr.addEventListener('abort', onAbort);
+        xhr.addEventListener('error', onError);
+        xhr.addEventListener('timeout', onTimeout);
+
+        const abort = () => {
+            isAbortedRef.current = true;
+            xhr.abort();
+        };
 
         async function* generate (): AsyncGenerator<string> {
             try {
+                xhr.send(requestBody === undefined ? undefined : requestBody);
+
                 while (true) {
                     if (queue.length > 0) {
-                        const data = queue.shift()!;
-                        yield data;
+                        yield queue.shift()!;
                         continue;
                     }
 
                     if (isFinished) {
-                        const shouldThrow = error && !isAborted;
+                        const errorToThrow = xhrErrorRef.current;
+                        if (errorToThrow !== null) {
+                            throw errorToThrow;
+                        }
 
-                        if (shouldThrow) throw error;
+                        if (!isAbortedRef.current && xhrStatusRef.current >= 400) {
+                            throw new Error(`Request failed with status ${xhrStatusRef.current}`);
+                        }
+
                         break;
                     }
 
@@ -82,17 +199,30 @@ export class ReactNativeStreamProvider implements IStreamProvider {
                         resolveNext = resolve;
                     });
                 }
+            } catch (error) {
+                isFinished = true;
+                notify();
+                throw error;
             } finally {
-                es.close();
+                if (!isFinished) {
+                    isFinished = true;
+                    abort();
+                    notify();
+                }
             }
         }
 
         return {
             stream: generate(),
-            abort: () => {
-                isAborted = true;
-                es.close();
-            },
+            abort,
         };
+    }
+
+    private stringifyBody (body: Record<string, unknown> | undefined): string | undefined {
+        if (!body) {
+            return undefined;
+        }
+
+        return JSON.stringify(body);
     }
 }

@@ -21,7 +21,6 @@
     "react-dom": "19.2.7",
     "react-native": "0.86.0",
     "react-native-safe-area-context": "5.8.0",
-    "react-native-sse": "1.2.1",
     "react-native-web": "0.21.2"
   },
   "devDependencies": {
