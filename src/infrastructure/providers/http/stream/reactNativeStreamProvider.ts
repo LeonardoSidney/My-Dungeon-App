@@ -1,72 +1,16 @@
 /// <reference types="web" />
 import { ILogger } from '@domain/logger';
-import { IStreamProvider, StreamProvider } from '@domain/providers';
-
-class SseLineParser {
-    private pendingLine = '';
-
-    process (newText: string, queue: string[], onDone: () => void): void {
-        this.pendingLine += newText;
-        const parts = this.pendingLine.split('\n');
-        this.pendingLine = parts.pop() ?? '';
-
-        for (const part of parts) {
-            const dataValue = this.parseDataLine(part);
-            if (dataValue === undefined) {
-                continue;
-            }
-
-            const isDone = dataValue === '[DONE]';
-            if (isDone) {
-                onDone();
-                return;
-            }
-
-            queue.push(dataValue);
-        }
-    }
-
-    flush (queue: string[], onDone: () => void): void {
-        if (!this.pendingLine) {
-            return;
-        }
-
-        const dataValue = this.parseDataLine(this.pendingLine);
-        this.pendingLine = '';
-        if (dataValue === undefined) {
-            return;
-        }
-
-        const isDone = dataValue === '[DONE]';
-        if (isDone) {
-            onDone();
-            return;
-        }
-
-        queue.push(dataValue);
-    }
-
-    private parseDataLine (line: string): string | undefined {
-        const trimmedLine = line.trim();
-        const isDataLine = trimmedLine.startsWith('data:');
-        if (!isDataLine) {
-            return undefined;
-        }
-
-        const dataValue = trimmedLine.replace(/^data:\s?/, '');
-        if (!dataValue) {
-            return undefined;
-        }
-
-        return dataValue;
-    }
-}
+import { ISseLineParser, IStreamProvider, StreamProvider } from '@domain/providers';
 
 export class ReactNativeStreamProvider implements IStreamProvider {
-    constructor (private readonly logger: ILogger) { }
+    constructor (
+        private readonly logger: ILogger,
+        private readonly sseLineParser: ISseLineParser
+    ) { }
 
     stream (params: StreamProvider.params): IStreamProvider.StreamResult {
         const { url, method, headers, body } = params;
+        this.logger.info('Executing ReactNativeStreamProvider::stream', url);
 
         const xhr = new XMLHttpRequest();
         const isAbortedRef = { current: false };
@@ -80,7 +24,7 @@ export class ReactNativeStreamProvider implements IStreamProvider {
             ...(headers || {})
         };
 
-        const parser = new SseLineParser();
+        const parser = this.sseLineParser;
         const queue: string[] = [];
         let processedLength = 0;
         let resolveNext: (() => void) | null = null;
@@ -133,12 +77,15 @@ export class ReactNativeStreamProvider implements IStreamProvider {
         };
 
         const finishWithError = (errorMessage: string) => {
+            this.logger.error('ReactNativeStreamProvider::stream failed:', errorMessage);
+            parser.flush([], onStreamDone);
             xhrErrorRef.current = new Error(errorMessage);
             isFinished = true;
             notify();
         };
 
         const onAbort = () => {
+            parser.flush([], onStreamDone);
             isFinished = true;
             notify();
         };
@@ -172,6 +119,8 @@ export class ReactNativeStreamProvider implements IStreamProvider {
             xhr.abort();
         };
 
+        const logger = this.logger;
+
         async function* generate (): AsyncGenerator<string> {
             try {
                 xhr.send(requestBody === undefined ? undefined : requestBody);
@@ -189,6 +138,7 @@ export class ReactNativeStreamProvider implements IStreamProvider {
                         }
 
                         if (!isAbortedRef.current && xhrStatusRef.current >= 400) {
+                            logger.error(`ReactNativeStreamProvider::stream failed with status ${xhrStatusRef.current}`, url);
                             throw new Error(`Request failed with status ${xhrStatusRef.current}`);
                         }
 

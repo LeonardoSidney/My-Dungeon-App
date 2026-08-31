@@ -3,6 +3,7 @@ import { Proficiency } from '../entities';
 export interface IProficiencyRepository {
     saveProficiency (params: SaveProficiencyParams): Promise<boolean>;
     getProficiencies (): Promise<Proficiency[]>;
+    getProficiencyById (proficiencyId: string): Promise<Proficiency | undefined>;
     editProficiency (params: EditProficiencyParams): Promise<EditProficiencyReturn>;
     eraseProficiency (proficiencyId: string): Promise<EraseProficiencyReturn>;
 }

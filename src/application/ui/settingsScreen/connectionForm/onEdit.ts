@@ -7,7 +7,7 @@ export async function onEdit (formData: ConnectionFormData, getPortNumber: () =>
 
     const portNumber = getPortNumber();
 
-    await editConnectionController().handle({
+    return editConnectionController().handle({
         id: formData.id,
         name: formData.name.trim(),
         ip: formData.ip.trim(),

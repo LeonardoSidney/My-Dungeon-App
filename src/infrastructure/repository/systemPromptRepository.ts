@@ -42,6 +42,12 @@ export class SystemPromptRepository implements ISystemPromptRepository {
         return true;
     }
 
+    async getSystemPromptById (systemPromptId: string): Promise<SystemPrompt | undefined> {
+        this.logger.info('Executing SystemPromptRepository::getSystemPromptById');
+        const systemPrompts = await this.getSystemPrompts();
+        return systemPrompts.find((sp) => sp.id === systemPromptId);
+    }
+
     async getSystemPrompts (): Promise<SystemPrompt[]> {
         this.logger.info('Executing SystemPromptRepository::getSystemPrompts');
         try {

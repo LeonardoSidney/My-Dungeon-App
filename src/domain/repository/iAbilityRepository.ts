@@ -3,6 +3,7 @@ import { Ability } from '../entities';
 export interface IAbilityRepository {
     saveAbility (params: SaveAbilityParams): Promise<boolean>;
     getAbilities (): Promise<Ability[]>;
+    getAbilityById (abilityId: string): Promise<Ability | undefined>;
     editAbility (params: EditAbilityParams): Promise<EditAbilityReturn>;
     eraseAbility (abilityId: string): Promise<EraseAbilityReturn>;
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import { Adventure, Character, SystemPrompt, WorldMaster, World, Location, Item } from '@domain/entities';
 import { styles } from './styles';
@@ -20,9 +20,9 @@ import { onEditForm } from './onEditForm';
 import { onSaveAdventure } from './onSaveAdventure';
 import { handleAdventureFormChange } from './handleAdventureFormChange';
 import { setInitialAdventureState } from './setInitialAdventureState';
-import { AdventureFormData, FormErrors } from './constants';
+import { AdventuresScreenProps, AdventureFormData, FormErrors } from './constants';
 
-export function AdventuresScreen () {
+export function AdventuresScreen ({ onChatVisibleChange }: AdventuresScreenProps) {
   const [adventures, setAdventures] = useState<Adventure[]>([]);
   const [adventureStateFormData, setAdventureFormData] = useState<AdventureFormData>(setInitialAdventureState());
   const [showForm, setShowForm] = useState(false);
@@ -35,6 +35,14 @@ export function AdventuresScreen () {
   const [items, setItems] = useState<Item[]>([]);
   const [showChat, setShowChat] = useState(false);
   const [selectedAdventure, setSelectedAdventure] = useState<Adventure | null>(null);
+
+  const isChatVisible = showChat && selectedAdventure !== null;
+
+  useEffect(() => {
+    onChatVisibleChange?.(isChatVisible);
+  }, [isChatVisible, onChatVisibleChange]);
+
+  useEffect(() => () => onChatVisibleChange?.(false), [onChatVisibleChange]);
 
   useAdventuresScreenLogic(setAdventures);
   useCharactersLoad(setCharacters);
@@ -56,16 +64,12 @@ export function AdventuresScreen () {
     }
     setFormErrors({});
 
-    try {
-      await onSaveAdventure(
-        { ...adventureStateFormData, avaliableCharacters: characters },
-        setAdventureFormData,
-        setShowForm,
-        setAdventures
-      );
-    } catch (error) {
-      setFormErrors({ name: (error as Error).message });
-    }
+    await onSaveAdventure(
+      { ...adventureStateFormData, avaliableCharacters: characters },
+      setAdventureFormData,
+      setShowForm,
+      setAdventures
+    );
   };
 
   const handleFormChange = (field: keyof AdventureFormData, value: AdventureFormData[keyof AdventureFormData]) => {
@@ -87,7 +91,7 @@ export function AdventuresScreen () {
 
   const handleEditAdventure = (adventure: Adventure) => {
     setFormErrors({});
-    onEditForm(adventure, setShowForm, setAdventureFormData);
+    onEditForm(adventure, characters, systemPrompts, worldMasters, worlds, locations, items, setShowForm, setAdventureFormData);
   };
 
   const handleChat = (adventure: Adventure) => {

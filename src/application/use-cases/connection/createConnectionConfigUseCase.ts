@@ -11,7 +11,14 @@ export class CreateConnectionConfigUseCase implements ICreateConnectionConfigUse
     ) { }
     async execute (params: CreateConnectionConfigParams): Promise<CreateConnectionConfigReturn> {
         this.logger.info('Executing CreateConnectionConfigUseCase::execute');
-        this.validate(params);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return {
+                success: false,
+                connection: undefined,
+                error: validationError
+            };
+        }
         const { name, ip, port, auth } = params;
         const createParams = {
             name,
@@ -23,20 +30,19 @@ export class CreateConnectionConfigUseCase implements ICreateConnectionConfigUse
         const response = this.service.createConnectionConfig(createParams);
         this.logger.debug('CreateConnectionConfigService executed successfully', response);
         if (!response.success) {
-            if (response.error) {
-                return {
-                    success: false,
-                    connection: undefined,
-                    error: response.error
-                };
-            }
-
-            const unknownErrorMessage = 'An unknown error occurred on CreateConnectionConfigService';
-            throw new Error(response.error ?? unknownErrorMessage);
+            return {
+                success: false,
+                connection: undefined,
+                error: response.error || 'An unknown error occurred on CreateConnectionConfigService'
+            };
         }
 
         if (!response.connection) {
-            throw new Error('Success is true but does not have an connection');
+            return {
+                success: false,
+                connection: undefined,
+                error: 'Success is true but does not have an connection'
+            };
         }
 
         const connections = await this.connectionRepository.getConnections();
@@ -60,17 +66,19 @@ export class CreateConnectionConfigUseCase implements ICreateConnectionConfigUse
         };
     }
 
-    private validate (params: CreateConnectionConfigParams): void {
+    private validate (params: CreateConnectionConfigParams): string | null {
         if (!params.name?.trim()) {
-            throw new Error('A name is required to create a connection config');
+            return 'A name is required to create a connection config';
         }
 
         if (!params.ip?.trim()) {
-            throw new Error('An IP is required to create a connection config');
+            return 'An IP is required to create a connection config';
         }
 
         if (params.port && params.port <= 0) {
-            throw new Error('A valid port is required to create a connection config');
+            return 'A valid port is required to create a connection config';
         }
+
+        return null;
     }
 }

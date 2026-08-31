@@ -3,7 +3,7 @@ import { Assistant } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { IAssistantRepository, SaveAssistantParams, EditAssistantParams, EditAssistantReturn, EraseAssistantReturn } from '@domain/repository';
 import { IStorage } from '@domain/storage';
-import { AssistantDTO } from '../dto';
+import { AssistantDTO } from '@infra/dto';
 
 export class AssistantRepository implements IAssistantRepository {
     constructor (
@@ -39,6 +39,12 @@ export class AssistantRepository implements IAssistantRepository {
             throw error;
         }
         return true;
+    }
+
+    async getAssistantById (assistantId: string): Promise<Assistant | undefined> {
+        this.logger.info('Executing AssistantRepository::getAssistantById');
+        const assistants = await this.getAssistants();
+        return assistants.find((a) => a.id === assistantId);
     }
 
     async getAssistants (): Promise<Assistant[]> {

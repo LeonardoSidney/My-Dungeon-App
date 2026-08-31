@@ -1,4 +1,4 @@
-import { Ability, Assistant, Attribute, Character, Proficiency, Status } from '../entities';
+import { Attribute, Character } from '../entities';
 
 export interface ICreateCharacterUseCase {
     execute (params: CreateCharacterUseCasePrams): Promise<CreateCharacterUseCaseResponse>;
@@ -9,12 +9,11 @@ export type CreateCharacterUseCasePrams = {
     activationWord: string;
     prompt: string;
     observation?: string;
-    abilities?: Ability[];
-    proficiencies?: Proficiency[];
-    statuses?: Status[];
+    abilityIds?: string[];
+    proficiencyIds?: string[];
+    statusIds?: string[];
     attributes?: Attribute[];
-    assistant: Assistant;
-    worldMaster?: boolean;
+    assistantId: string;
 };
 
 export type CreateCharacterUseCaseResponse = {

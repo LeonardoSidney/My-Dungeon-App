@@ -1,20 +1,38 @@
 import { ILogger } from '@domain/logger';
-import { IWorldMasterRepository } from '@domain/repository';
+import {
+    IAssistantRepository,
+    IWorldMasterRepository,
+} from '@domain/repository';
 import { ICreateWorldMasterService } from '@domain/services';
 import { CreateWorldMasterUseCaseParams, CreateWorldMasterUseCaseResponse, ICreateWorldMasterUseCase } from '@domain/use-cases';
+import { checkReferencedId } from '@application/shared/validateReferencedIds';
 
 export class CreateWorldMasterUseCase implements ICreateWorldMasterUseCase {
     constructor (
         private readonly logger: ILogger,
         private readonly worldMasterRepository: IWorldMasterRepository,
-        private readonly service: ICreateWorldMasterService
+        private readonly service: ICreateWorldMasterService,
+        private readonly assistantRepository: IAssistantRepository
     ) { }
 
     async execute (params: CreateWorldMasterUseCaseParams): Promise<CreateWorldMasterUseCaseResponse> {
         this.logger.info('Executing CreateWorldMasterUseCase::execute');
         this.logger.debug('CreateWorldMasterUseCase::execute - params:', params);
 
-        this.validate(params);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return {
+                success: false,
+                error: validationError
+            };
+        }
+        const missingIdError = await this.validateReferencedIds(params);
+        if (missingIdError) {
+            return {
+                success: false,
+                error: missingIdError
+            };
+        }
 
         this.logger.debug('Calling CreateWorldMasterService', params);
         const response = this.service.createWorldMaster(params);
@@ -28,7 +46,10 @@ export class CreateWorldMasterUseCase implements ICreateWorldMasterUseCase {
         }
 
         if (!response.worldMaster) {
-            throw new Error('Something went wrong when tried to create the world master');
+            return {
+                success: false,
+                error: 'Something went wrong when tried to create the world master'
+            };
         }
 
         const worldMasters = await this.worldMasterRepository.getWorldMasters();
@@ -51,17 +72,27 @@ export class CreateWorldMasterUseCase implements ICreateWorldMasterUseCase {
         };
     }
 
-    validate (params: CreateWorldMasterUseCaseParams): void {
+    validate (params: CreateWorldMasterUseCaseParams): string | null {
         if (!params.name?.trim()) {
-            throw new Error('Name is required to create a world master');
+            return 'Name is required to create a world master';
         }
 
         if (!params.prompt?.trim()) {
-            throw new Error('Prompt is required to create a world master');
+            return 'Prompt is required to create a world master';
         }
 
         if (!params.activationWord?.trim()) {
-            throw new Error('Activation word is required to create a world master');
+            return 'Activation word is required to create a world master';
         }
+
+        return null;
+    }
+
+    private async validateReferencedIds (params: CreateWorldMasterUseCaseParams): Promise<string | null> {
+        return checkReferencedId(
+            (id) => this.assistantRepository.getAssistantById(id),
+            params.assistantId,
+            'Assistant'
+        );
     }
 }

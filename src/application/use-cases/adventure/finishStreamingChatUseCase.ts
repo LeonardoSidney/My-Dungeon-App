@@ -12,7 +12,7 @@ export class FinishStreamingChatUseCase implements IFinishStreamingChatUseCase {
         private readonly logger: ILogger,
         private readonly finishStreamingChatService: IFinishStreamingChatService,
         private readonly adventureRepository: IAdventureRepository
-    ) {}
+    ) { }
 
     async execute (params: FinishStreamingChatUseCaseParams): Promise<FinishStreamingChatUseCaseReturn> {
         this.logger.info('Executing FinishStreamingChatUseCase::execute');
@@ -37,12 +37,19 @@ export class FinishStreamingChatUseCase implements IFinishStreamingChatUseCase {
         }
 
         if (!response.adventure) {
-            throw new Error('Service returned success but no adventure object');
+            return {
+                success: false,
+                error: 'Service returned success but no adventure object',
+            };
         }
 
         const update = await this.adventureRepository.updateAdventure({ adventure: response.adventure });
-        if (!update) {
-            throw new Error('Failed to save adventure');
+        if (!update.success) {
+            this.logger.error('FinishStreamingChatUseCase::execute - failed to save adventure', update.error);
+            return {
+                success: false,
+                error: update.error || 'Failed to save adventure',
+            };
         }
 
         this.logger.debug('FinishStreamingChatUseCase::execute - adventure persisted');

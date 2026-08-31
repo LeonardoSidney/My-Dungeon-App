@@ -11,7 +11,9 @@ export async function onSaveStatus (
     setShowForm: Dispatch<SetStateAction<boolean>>,
     setStatuses: Dispatch<SetStateAction<Status[]>>
 ) {
-    await onSubmit(formData);
+    const response = await onSubmit(formData);
+    if (!response || !response.success) return;
+
     setStatusFormData(setInitialStatusState());
     setShowForm(false);
     await loadStatuses(setStatuses);

@@ -1,3 +1,4 @@
+import { Alert } from 'react-native';
 import { Status } from '@domain/entities';
 import { Dispatch, SetStateAction } from 'react';
 import { onErase } from './statusForm/onErase';
@@ -7,6 +8,10 @@ export async function onEraseStatus (
     status: Status,
     setStatuses: Dispatch<SetStateAction<Status[]>>
 ) {
-    await onErase(status.id);
+    const response = await onErase(status.id);
+    if (!response.success) {
+        Alert.alert('Erro', response.error ?? 'Failed to erase status');
+        return;
+    }
     await loadStatuses(setStatuses);
 }

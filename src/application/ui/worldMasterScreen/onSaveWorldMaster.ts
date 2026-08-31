@@ -1,3 +1,4 @@
+import { Alert } from 'react-native';
 import { WorldMaster, Assistant } from '@domain/entities';
 import { WorldMasterFormData } from './constants';
 import { Dispatch, SetStateAction } from 'react';
@@ -22,36 +23,37 @@ export async function onSaveWorldMaster (
     if (!trimmedName || !trimmedActivationWord || !trimmedPrompt) return;
     if (!assistant) return;
 
-    try {
-        if (id) {
-            const ctrl = editWorldMasterController();
-            await ctrl.handle({
-                id,
-                name: trimmedName,
-                activationWord: trimmedActivationWord,
-                prompt: trimmedPrompt,
-                observation: trimmedObservation,
-                assistant,
-                createdAt: new Date(),
-            });
-        }
-
-        if (!id) {
-            const ctrl = createWorldMasterController();
-            await ctrl.handle({
-                name: trimmedName,
-                activationWord: trimmedActivationWord,
-                prompt: trimmedPrompt,
-                observation: trimmedObservation,
-                assistant,
-            });
-        }
-
-        await loadWorldMasters(setWorldMasters);
-    } catch (error) {
-        console.error('Failed to save world master:', error);
+    let saveResponse;
+    if (id) {
+        const ctrl = editWorldMasterController();
+        saveResponse = await ctrl.handle({
+            id,
+            name: trimmedName,
+            activationWord: trimmedActivationWord,
+            prompt: trimmedPrompt,
+            observation: trimmedObservation,
+            assistantId: assistant.id,
+            createdAt: new Date(),
+        });
     }
 
+    if (!id) {
+        const ctrl = createWorldMasterController();
+        saveResponse = await ctrl.handle({
+            name: trimmedName,
+            activationWord: trimmedActivationWord,
+            prompt: trimmedPrompt,
+            observation: trimmedObservation,
+            assistantId: assistant.id,
+        });
+    }
+
+    if (!saveResponse || !saveResponse.success) {
+        Alert.alert('Erro', saveResponse?.error ?? 'Failed to save world master');
+        return;
+    }
+
+    await loadWorldMasters(setWorldMasters);
     setShowForm(false);
     setWorldMasterFormData(setInitialWorldMasterState());
 }

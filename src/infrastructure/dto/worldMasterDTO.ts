@@ -1,5 +1,4 @@
-import { Assistant, WorldMaster } from '@domain/entities';
-import { AssistantDTO } from './assistantDTO';
+import { WorldMaster } from '@domain/entities';
 import { isRecord, parseDate } from './shared';
 
 export class WorldMasterDTO {
@@ -9,7 +8,7 @@ export class WorldMasterDTO {
         private readonly activationWord: string,
         private readonly prompt: string,
         private readonly observation: string | undefined,
-        private readonly assistant: Assistant,
+        private readonly assistantId: string,
         private readonly createdAt: Date,
         private readonly updatedAt: Date
     ) { }
@@ -21,7 +20,7 @@ export class WorldMasterDTO {
             activationWord: this.activationWord,
             prompt: this.prompt,
             observation: this.observation,
-            assistant: this.assistant,
+            assistantId: this.assistantId,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt
         };
@@ -34,7 +33,6 @@ export class WorldMasterDTO {
 
         const createdAt = parseDate(data.createdAt);
         const updatedAt = parseDate(data.updatedAt);
-        const assistant = this.toAssistant(data.assistant);
 
         if (
             typeof data.id !== 'string' ||
@@ -42,7 +40,7 @@ export class WorldMasterDTO {
             typeof data.activationWord !== 'string' ||
             typeof data.prompt !== 'string' ||
             (data.observation !== undefined && typeof data.observation !== 'string') ||
-            assistant === undefined ||
+            typeof data.assistantId !== 'string' ||
             createdAt === null ||
             updatedAt === null
         ) {
@@ -55,18 +53,9 @@ export class WorldMasterDTO {
             data.activationWord,
             data.prompt,
             data.observation,
-            assistant,
+            data.assistantId,
             createdAt,
             updatedAt
         );
-    }
-
-    private static toAssistant (assistant: unknown | undefined): Assistant | undefined {
-        if (!isRecord(assistant)) {
-            return undefined;
-        }
-
-        const assistantDTO = AssistantDTO.fromStorage(assistant);
-        return assistantDTO?.toEntity();
     }
 }

@@ -1,7 +1,7 @@
 import { GetWorldMastersController } from '@adapters/controllers';
 import { IGetWorldMastersUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
-import { WorldMaster, Assistant } from '@domain/entities';
+import { WorldMaster } from '@domain/entities';
 
 // Mock das dependências
 const mockLogger = {
@@ -28,16 +28,6 @@ describe('GetWorldMastersController', () => {
     });
 
     it('should call logger.info when handling a request', async () => {
-        const mockAssistant: Assistant = {
-            id: '1',
-            name: 'Test Assistant',
-            observation: 'Test observation',
-            model: {} as any,
-            sampler: {} as any,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        };
-
         const mockWorldMasters: WorldMaster[] = [
             {
                 id: '1',
@@ -45,7 +35,7 @@ describe('GetWorldMastersController', () => {
                 activationWord: 'activate',
                 prompt: 'WorldMaster 1 prompt',
                 observation: 'Observation 1',
-                assistant: mockAssistant,
+                assistantId: '1',
                 createdAt: new Date(),
                 updatedAt: new Date()
             },
@@ -55,7 +45,7 @@ describe('GetWorldMastersController', () => {
                 activationWord: 'enter',
                 prompt: 'WorldMaster 2 prompt',
                 observation: 'Observation 2',
-                assistant: mockAssistant,
+                assistantId: '1',
                 createdAt: new Date(),
                 updatedAt: new Date()
             }
@@ -69,16 +59,6 @@ describe('GetWorldMastersController', () => {
     });
 
     it('should execute use case and return world masters list', async () => {
-        const mockAssistant: Assistant = {
-            id: '1',
-            name: 'Test Assistant',
-            observation: 'Test observation',
-            model: {} as any,
-            sampler: {} as any,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        };
-
         const mockWorldMasters: WorldMaster[] = [
             {
                 id: '1',
@@ -86,7 +66,7 @@ describe('GetWorldMastersController', () => {
                 activationWord: 'magic',
                 prompt: 'A magical fantasy realm',
                 observation: 'Dragons and castles',
-                assistant: mockAssistant,
+                assistantId: '1',
                 createdAt: new Date(),
                 updatedAt: new Date()
             },
@@ -96,7 +76,7 @@ describe('GetWorldMastersController', () => {
                 activationWord: 'warp',
                 prompt: 'A futuristic sci-fi universe',
                 observation: 'Spaceships and aliens',
-                assistant: mockAssistant,
+                assistantId: '1',
                 createdAt: new Date(),
                 updatedAt: new Date()
             },
@@ -106,7 +86,7 @@ describe('GetWorldMastersController', () => {
                 activationWord: 'knight',
                 prompt: 'A medieval kingdom',
                 observation: undefined,
-                assistant: mockAssistant,
+                assistantId: '1',
                 createdAt: new Date(),
                 updatedAt: new Date()
             }
@@ -132,16 +112,6 @@ describe('GetWorldMastersController', () => {
     });
 
     it('should return single world master', async () => {
-        const mockAssistant: Assistant = {
-            id: '1',
-            name: 'Test Assistant',
-            observation: 'Test observation',
-            model: {} as any,
-            sampler: {} as any,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        };
-
         const mockWorldMasters: WorldMaster[] = [
             {
                 id: '1',
@@ -149,7 +119,7 @@ describe('GetWorldMastersController', () => {
                 activationWord: 'summon',
                 prompt: 'The only master',
                 observation: 'Unique observation',
-                assistant: mockAssistant,
+                assistantId: '1',
                 createdAt: new Date(),
                 updatedAt: new Date()
             }
@@ -164,16 +134,6 @@ describe('GetWorldMastersController', () => {
     });
 
     it('should return world masters with different observation values', async () => {
-        const mockAssistant: Assistant = {
-            id: '1',
-            name: 'Test Assistant',
-            observation: 'Test observation',
-            model: {} as any,
-            sampler: {} as any,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        };
-
         const mockWorldMasters: WorldMaster[] = [
             {
                 id: '1',
@@ -181,7 +141,7 @@ describe('GetWorldMastersController', () => {
                 activationWord: 'go',
                 prompt: 'Prompt 1',
                 observation: 'Has observation',
-                assistant: mockAssistant,
+                assistantId: '1',
                 createdAt: new Date(),
                 updatedAt: new Date()
             },
@@ -191,7 +151,7 @@ describe('GetWorldMastersController', () => {
                 activationWord: 'go',
                 prompt: 'Prompt 2',
                 observation: undefined,
-                assistant: mockAssistant,
+                assistantId: '1',
                 createdAt: new Date(),
                 updatedAt: new Date()
             },
@@ -201,7 +161,7 @@ describe('GetWorldMastersController', () => {
                 activationWord: 'go',
                 prompt: 'Prompt 3',
                 observation: '',
-                assistant: mockAssistant,
+                assistantId: '1',
                 createdAt: new Date(),
                 updatedAt: new Date()
             }

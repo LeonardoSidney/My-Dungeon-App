@@ -8,7 +8,7 @@ export class EditWorldMasterService implements IEditWorldMasterService {
 
     editWorldMaster (params: EditWorldMasterServiceParams): EditWorldMasterServiceReturn {
         this.logger.info('Executing EditWorldMasterService::editWorldMaster');
-        const { id, name, activationWord, prompt, observation, assistant, createdAt } = params;
+        const { id, name, activationWord, prompt, observation, assistantId, createdAt } = params;
 
         const worldMaster = {
             id,
@@ -16,7 +16,7 @@ export class EditWorldMasterService implements IEditWorldMasterService {
             activationWord,
             prompt,
             observation,
-            assistant,
+            assistantId,
             createdAt: createdAt,
             updatedAt: new Date()
         };

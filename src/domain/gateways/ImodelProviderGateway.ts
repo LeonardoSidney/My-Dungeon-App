@@ -1,6 +1,4 @@
-import { GetModelResponseDTO } from '../../infrastructure/http/llama-cpp/dto/getModelResponseDTO';
-import { ApplyTemplateResponseDTO } from '../../infrastructure/http/llama-cpp/dto/applyTemplateResponseDTO';
-import { Chat, Connection, Sampler } from '../entities';
+import { Chat, Connection, Model, Sampler } from '../entities';
 
 export namespace ModelProviderGateway {
     export type StreamResult = {
@@ -10,13 +8,13 @@ export namespace ModelProviderGateway {
 }
 
 export interface IModelProviderGateway {
-    getModels(connection: Connection): Promise<GetModelResponseDTO | null>;
+    getModels(connection: Connection): Promise<Model[] | null>;
     applyTemplate(
         connection: Connection,
         modelId: string,
         systemPrompt: string,
         chat: Chat[]
-    ): Promise<ApplyTemplateResponseDTO | null>;
+    ): Promise<string | null>;
     streamCompletion(
         connection: Connection,
         sampler: Sampler,

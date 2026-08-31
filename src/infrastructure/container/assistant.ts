@@ -4,7 +4,7 @@ import {
     EditAssistantController,
     EraseAssistantController,
 } from '@adapters/controllers';
-import { CreateAssistantService, EditAssistantService } from '@application/services';
+import { CreateAssistantService, EditAssistantService, GetSamplersService } from '@application/services';
 import {
     CreateAssistantUseCase,
     GetAssistantsUseCase,
@@ -18,12 +18,24 @@ import {
     IEraseAssistantController,
 } from '@domain/controllers';
 import { idGenerate, logger, storage } from './shared';
-import { createAssistantRepository } from './repository';
+import {
+    createAssistantRepository,
+    createConnectionRepository,
+    createSamplerRepository,
+} from './repository';
 
 export function createAssistantController (): ICreateAssistantController {
     const createAssistantService = new CreateAssistantService(logger, idGenerate);
+    const getSamplersService = new GetSamplersService(logger);
     const assistantRepository = createAssistantRepository(storage, logger);
-    const createAssistantUseCase = new CreateAssistantUseCase(logger, assistantRepository, createAssistantService);
+    const createAssistantUseCase = new CreateAssistantUseCase(
+        logger,
+        assistantRepository,
+        createAssistantService,
+        createSamplerRepository(storage, logger),
+        getSamplersService,
+        createConnectionRepository(storage, logger)
+    );
     return new CreateAssistantController(logger, createAssistantUseCase);
 }
 
@@ -36,7 +48,15 @@ export function getAssistantsController (): IGetAssistantsController {
 export function editAssistantController (): IEditAssistantController {
     const assistantRepository = createAssistantRepository(storage, logger);
     const editAssistantService = new EditAssistantService(logger);
-    const editAssistantUseCase = new EditAssistantUseCase(logger, editAssistantService, assistantRepository);
+    const getSamplersService = new GetSamplersService(logger);
+    const editAssistantUseCase = new EditAssistantUseCase(
+        logger,
+        editAssistantService,
+        assistantRepository,
+        createSamplerRepository(storage, logger),
+        getSamplersService,
+        createConnectionRepository(storage, logger)
+    );
     return new EditAssistantController(logger, editAssistantUseCase);
 }
 

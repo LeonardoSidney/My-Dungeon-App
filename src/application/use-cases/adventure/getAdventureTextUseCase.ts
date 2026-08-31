@@ -1,57 +1,111 @@
 import { ILogger } from '@domain/logger';
 import { ITextGeneration } from '@domain/providers';
 import { IModelProviderGateway } from '@domain/gateways';
-import { Model, Character, WorldMaster } from '@domain/entities';
-import { GetAdventureTextUseCaseParams, GetAdventureTextUseCaseResponse, IGetAdventureTextUseCase } from '@domain/use-cases';
+import { Connection } from '@domain/entities';
+import {
+    GetAdventureTextUseCaseParams,
+    GetAdventureTextUseCaseResponse,
+    HydratedAdventure,
+    IGetAdventureTextUseCase,
+    IHydrateAdventureUseCase,
+} from '@domain/use-cases';
 
 export class GetAdventureTextUseCase implements IGetAdventureTextUseCase {
     constructor (
         private readonly logger: ILogger,
         private readonly provider: ITextGeneration,
-        private readonly gateway: IModelProviderGateway
+        private readonly gateway: IModelProviderGateway,
+        private readonly hydrateAdventureUseCase: IHydrateAdventureUseCase
     ) { }
 
     async execute (params: GetAdventureTextUseCaseParams): Promise<GetAdventureTextUseCaseResponse> {
         this.logger.info('Executing GetAdventureTextUseCase::execute');
         this.logger.debug('Executing GetAdventureTextUseCase::execute - params', params);
 
-        const systemPrompt = this.provider.buildAdventureTextSystemPrompt(params.adventure);
-        this.logger.debug('Executing GetAdventureTextUseCase:execute - systemPrompt', systemPrompt);
+        try {
+            const hydrateResponse = await this.hydrateAdventureUseCase.execute({ adventure: params.adventure });
 
-        const model = this.getWorldMasterModel(params.adventure.worldMaster, params.adventure.characters);
-        const connection = model.connection;
+            if (!hydrateResponse.success || !hydrateResponse.hydrated) {
+                this.logger.warning('GetAdventureTextUseCase::execute - failed to hydrate adventure', hydrateResponse.error);
+                return {
+                    success: false,
+                    error: hydrateResponse.error ?? 'Failed to hydrate adventure',
+                };
+            }
 
-        this.logger.debug('Executing GetAdventureTextUseCase::execute - calling applyTemplate');
-        const templateResponse = await this.gateway.applyTemplate(
-            connection,
-            model.id,
-            systemPrompt,
-            params.adventure.chat
-        );
+            const hydrated = hydrateResponse.hydrated;
+            const systemPrompt = this.provider.buildAdventureTextSystemPrompt(hydrated);
+            this.logger.debug('Executing GetAdventureTextUseCase:execute - systemPrompt', systemPrompt);
 
-        this.logger.debug('Executing GetAdventureTextUseCase::execute - templateResponse', templateResponse);
+            const { connection, modelId } = this.getWorldMasterRuntime(hydrated);
 
-        if (!templateResponse) {
-            throw new Error('Can not generate response');
+            this.logger.debug('Executing GetAdventureTextUseCase::execute - calling applyTemplate');
+            const prompt = await this.gateway.applyTemplate(
+                connection,
+                modelId,
+                systemPrompt,
+                params.adventure.chat
+            );
+
+            this.logger.debug('Executing GetAdventureTextUseCase:execute - prompt', prompt);
+
+            if (!prompt) {
+                return {
+                    success: false,
+                    error: 'Can not generate response',
+                };
+            }
+
+            return {
+                success: true,
+                prompt
+            };
+        } catch (error) {
+            if (error instanceof Error) {
+                this.logger.error('Error in GetAdventureTextUseCase::execute', error);
+                return {
+                    success: false,
+                    error: error.message,
+                };
+            }
+
+            this.logger.error('Error in GetAdventureTextUseCase::execute', error);
+            return {
+                success: false,
+                error: 'Get adventure text failed',
+            };
+        }
+    }
+
+    private getWorldMasterRuntime (hydrated: HydratedAdventure): { connection: Connection; modelId: string; } {
+        const dedicatedWorldMaster = hydrated.worldMaster;
+        const worldMasterCharacter = dedicatedWorldMaster
+            ? undefined
+            : hydrated.characters.find(c => c.worldMaster === true);
+
+        const assistantId = dedicatedWorldMaster
+            ? dedicatedWorldMaster.assistantId
+            : worldMasterCharacter?.assistantId;
+
+        if (!assistantId) {
+            this.logger.warning('GetAdventureTextUseCase::getWorldMasterRuntime - worldMaster not found');
+            throw new Error('WorldMaster not found');
+        }
+
+        const assistant = hydrated.assistants[assistantId];
+
+        if (!assistant) {
+            throw new Error(`Assistant not found: ${assistantId}`);
+        }
+
+        const connection = hydrated.connections.find(c => c.id === assistant.connectionId);
+        if (!connection) {
+            throw new Error(`Connection not found: ${assistant.connectionId}`);
         }
 
         return {
-            success: true,
-            prompt: templateResponse.prompt
+            connection,
+            modelId: assistant.modelId,
         };
-    }
-
-    private getWorldMasterModel (worldMaster: WorldMaster | undefined, characters: Character[]): Model {
-        if (worldMaster) {
-            return worldMaster.assistant.model;
-        }
-
-        const worldMasterCharacter = characters.find(c => c.worldMaster === true);
-        if (!worldMasterCharacter) {
-            this.logger.warning('Executing GetAdventureTextUseCase::getWorldMasterModel - worldMaster character not found');
-            throw new Error('WorldMaster character not found');
-        }
-
-        return worldMasterCharacter.assistant.model;
     }
 }

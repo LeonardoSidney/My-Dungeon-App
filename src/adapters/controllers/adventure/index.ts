@@ -1,6 +1,7 @@
 export * from './appendChatAdventureController';
 export * from './createAdventureController';
 export * from './editAdventureController';
+export * from './hydrateAdventureController';
 export * from './createChatAdventureController';
 export * from './getAdventuresController';
 export * from './getAdventureTextController';

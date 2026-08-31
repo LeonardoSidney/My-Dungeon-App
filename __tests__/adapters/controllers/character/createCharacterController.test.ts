@@ -3,10 +3,6 @@ import { CreateCharacterControllerPrams, CreateCharacterControllerResponse } fro
 import { ICreateCharacterUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { createCharacterHelper } from '../../../../__helpers__/createCharacterHelper';
-import { createAssistantHelper } from '../../../../__helpers__/createAssistantHelper';
-import { createAbilityHelper } from '../../../../__helpers__/createAbilityHelper';
-import { createProficiencyHelper } from '../../../../__helpers__/createProficiencyHelper';
-import { createStatusHelper } from '../../../../__helpers__/createStatusHelper';
 import { createAttributeHelper } from '../../../../__helpers__/createAttributeHelper';
 
 // Mock das dependências
@@ -39,7 +35,7 @@ describe('CreateCharacterController', () => {
             activationWord: 'activate',
             prompt: 'Character prompt',
             observation: 'Test observation',
-            assistant: createAssistantHelper()
+            assistantId: '1'
         };
 
         const mockResponse: CreateCharacterControllerResponse = {
@@ -55,49 +51,12 @@ describe('CreateCharacterController', () => {
     });
 
     it('should call use case execute with correct parameters', async () => {
-        const assistant = createAssistantHelper({ id: '1', name: 'Test Assistant' });
         const params: CreateCharacterControllerPrams = {
             name: 'Test Character',
             activationWord: 'activate',
             prompt: 'Character prompt',
             observation: 'Test observation',
-            assistant
-        };
-
-        const mockResponse: CreateCharacterControllerResponse = {
-            success: true,
-            character: createCharacterHelper({ id: '1', name: 'Test Character', assistant })
-        };
-
-        mockUseCase.execute.mockResolvedValue(mockResponse);
-
-        await controller.handle(params);
-
-        expect(mockUseCase.execute).toHaveBeenCalledWith({
-            name: params.name,
-            activationWord: params.activationWord,
-            prompt: params.prompt,
-            observation: params.observation,
-            abilities: params.abilities,
-            proficiencies: params.proficiencies,
-            statuses: params.statuses,
-            attributes: params.attributes,
-            assistant: params.assistant
-        });
-    });
-
-    it('should pass params with optional fields to use case', async () => {
-        const assistant = createAssistantHelper({ id: '1', name: 'Test Assistant' });
-        const params: CreateCharacterControllerPrams = {
-            name: 'Test Character',
-            activationWord: 'activate',
-            prompt: 'Character prompt',
-            observation: 'Test observation',
-            abilities: [createAbilityHelper({ id: '1', name: 'Strength' })],
-            proficiencies: [createProficiencyHelper({ id: '1', name: 'Swordsmanship' })],
-            statuses: [createStatusHelper({ id: '1', name: 'Healthy' })],
-            attributes: [createAttributeHelper({ name: 'STR', value: 10 })],
-            assistant
+            assistantId: '1'
         };
 
         const mockResponse: CreateCharacterControllerResponse = {
@@ -114,25 +73,59 @@ describe('CreateCharacterController', () => {
             activationWord: params.activationWord,
             prompt: params.prompt,
             observation: params.observation,
-            abilities: params.abilities,
-            proficiencies: params.proficiencies,
-            statuses: params.statuses,
+            abilityIds: params.abilityIds,
+            proficiencyIds: params.proficiencyIds,
+            statusIds: params.statusIds,
             attributes: params.attributes,
-            assistant: params.assistant
+            assistantId: params.assistantId
         });
     });
 
-    it('should return success response with character when use case succeeds', async () => {
-        const assistant = createAssistantHelper({ id: '1', name: 'Test Assistant' });
+    it('should pass params with optional fields to use case', async () => {
         const params: CreateCharacterControllerPrams = {
             name: 'Test Character',
             activationWord: 'activate',
             prompt: 'Character prompt',
             observation: 'Test observation',
-            assistant
+            abilityIds: ['1'],
+            proficiencyIds: ['1'],
+            statusIds: ['1'],
+            attributes: [createAttributeHelper({ name: 'STR', value: 10 })],
+            assistantId: '1'
         };
 
-        const mockCharacter = createCharacterHelper({ id: '1', name: 'Test Character', assistant });
+        const mockResponse: CreateCharacterControllerResponse = {
+            success: true,
+            character: createCharacterHelper({ id: '1', name: 'Test Character' })
+        };
+
+        mockUseCase.execute.mockResolvedValue(mockResponse);
+
+        await controller.handle(params);
+
+        expect(mockUseCase.execute).toHaveBeenCalledWith({
+            name: params.name,
+            activationWord: params.activationWord,
+            prompt: params.prompt,
+            observation: params.observation,
+            abilityIds: params.abilityIds,
+            proficiencyIds: params.proficiencyIds,
+            statusIds: params.statusIds,
+            attributes: params.attributes,
+            assistantId: params.assistantId
+        });
+    });
+
+    it('should return success response with character when use case succeeds', async () => {
+        const params: CreateCharacterControllerPrams = {
+            name: 'Test Character',
+            activationWord: 'activate',
+            prompt: 'Character prompt',
+            observation: 'Test observation',
+            assistantId: '1'
+        };
+
+        const mockCharacter = createCharacterHelper({ id: '1', name: 'Test Character' });
         const mockResponse: CreateCharacterControllerResponse = {
             success: true,
             character: mockCharacter
@@ -150,13 +143,12 @@ describe('CreateCharacterController', () => {
     });
 
     it('should return success false with error when use case fails', async () => {
-        const assistant = createAssistantHelper({ id: '1', name: 'Test Assistant' });
         const params: CreateCharacterControllerPrams = {
             name: 'Test Character',
             activationWord: 'activate',
             prompt: 'Character prompt',
             observation: 'Test observation',
-            assistant
+            assistantId: '1'
         };
 
         const mockResponse: CreateCharacterControllerResponse = {
@@ -175,13 +167,12 @@ describe('CreateCharacterController', () => {
     });
 
     it('should return response with success true and error undefined when successful', async () => {
-        const assistant = createAssistantHelper({ id: '1', name: 'Test Assistant' });
         const params: CreateCharacterControllerPrams = {
             name: 'Test Character',
             activationWord: 'activate',
             prompt: 'Character prompt',
             observation: 'Test observation',
-            assistant
+            assistantId: '1'
         };
 
         const mockResponse: CreateCharacterControllerResponse = {
@@ -204,7 +195,7 @@ describe('CreateCharacterController', () => {
             activationWord: 'activate',
             prompt: 'Character prompt',
             observation: 'Test observation',
-            assistant: createAssistantHelper()
+            assistantId: '1'
         };
 
         const mockResponse: CreateCharacterControllerResponse = {
@@ -225,7 +216,7 @@ describe('CreateCharacterController', () => {
             activationWord: 'activate',
             prompt: 'Character prompt',
             observation: 'Test observation',
-            assistant: createAssistantHelper()
+            assistantId: '1'
         };
 
         const mockResponse: CreateCharacterControllerResponse = {

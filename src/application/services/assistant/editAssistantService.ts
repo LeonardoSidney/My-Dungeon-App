@@ -8,14 +8,15 @@ export class EditAssistantService implements IEditAssistantService {
 
     editAssistant (params: EditAssistantServiceParams): EditAssistantServiceReturn {
         this.logger.info('Executing EditAssistantService::editAssistant');
-        const { id, name, observation, model, sampler, createdAt } = params;
+        const { id, name, observation, modelId, samplerId, connectionId, createdAt } = params;
 
         const assistant = {
             id,
             name,
             observation,
-            model,
-            sampler,
+            modelId,
+            samplerId,
+            connectionId,
             createdAt: createdAt,
             updatedAt: new Date()
         };

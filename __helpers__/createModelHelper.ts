@@ -1,11 +1,10 @@
 import { Model } from '@domain/entities';
-import { createConnectionHelper } from './createConnectionHelper';
 
 export function createModelHelper (overrides?: Partial<Model>): Model {
     return {
         id: '1',
         name: 'Test Model',
-        connection: createConnectionHelper(),
+        connectionId: '1',
         nCtx: 4096,
         ownedBy: 'test',
         ...overrides

@@ -34,11 +34,7 @@ export function StatusesScreen () {
     }
     setFormErrors({});
 
-    try {
-      await onSaveStatus(statusStateFormData, setStatusFormData, setShowForm, setStatuses);
-    } catch (error) {
-      setFormErrors({ name: (error as Error).message });
-    }
+    await onSaveStatus(statusStateFormData, setStatusFormData, setShowForm, setStatuses);
   };
 
   const handleFormChange = (field: keyof StatusFormData, value: string | Date) => {

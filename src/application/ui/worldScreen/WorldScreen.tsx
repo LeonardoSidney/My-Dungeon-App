@@ -35,11 +35,7 @@ export function WorldScreen () {
     }
     setFormErrors({});
 
-    try {
-      await onSaveWorld(worldStateFormData, setWorldFormData, setShowForm, setWorlds);
-    } catch (error) {
-      setFormErrors({ name: (error as Error).message });
-    }
+    await onSaveWorld(worldStateFormData, setWorldFormData, setShowForm, setWorlds);
   };
 
   const handleFormChange = (field: keyof WorldFormData, value: string) => {

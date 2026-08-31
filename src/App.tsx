@@ -17,14 +17,15 @@ import {
   AdventuresScreen,
   sidebarMenuItems
 } from '@application/ui';
-import { runMigration } from './migration';
+import { runSeed } from './migration';
 
 function App () {
   const [prompt, setPrompt] = useState<string>('Seélokomeu');
   const [activeRoute, setActiveRoute] = useState<SidebarRoute>('home');
+  const [isChatVisible, setIsChatVisible] = useState(false);
 
   useEffect(() => {
-    runMigration().catch(console.error).then((textPrompt) => {
+    runSeed().catch(console.error).then((textPrompt) => {
       if (textPrompt) {
         setPrompt(textPrompt);
       }
@@ -38,8 +39,10 @@ function App () {
           menuItems={sidebarMenuItems}
           activeRoute={activeRoute}
           onRouteChange={setActiveRoute}
+          isFullScreen={isChatVisible}
         >
           <KeyboardAvoidingView
+            enabled={!isChatVisible}
             behavior={Platform.OS !== 'web' ? 'padding' : 'height'}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
             style={styles.scrollView}
@@ -61,7 +64,7 @@ function App () {
             ) : activeRoute === 'abilities' ? (
               <AbilitiesScreen />
             ) : activeRoute === 'adventures' ? (
-              <AdventuresScreen />
+              <AdventuresScreen onChatVisibleChange={setIsChatVisible} />
             ) : activeRoute === 'statuses' ? (
               <StatusesScreen />
             ) : activeRoute === 'systemPrompts' ? (

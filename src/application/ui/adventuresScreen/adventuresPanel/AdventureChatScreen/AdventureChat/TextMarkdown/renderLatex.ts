@@ -1,7 +1,4 @@
 import katex from 'katex';
-import { Platform } from 'react-native';
-
-const IS_WEB = Platform.OS === 'web';
 
 export function renderLatexWeb (
     latex: string,
@@ -14,8 +11,4 @@ export function renderLatexWeb (
     });
 
     return rendered;
-}
-
-export function isWebPlatform (): boolean {
-    return IS_WEB;
 }

@@ -1,5 +1,5 @@
-import { Adventure } from '@domain/entities';
+import { HydratedAdventure } from '@domain/use-cases';
 
 export interface ITextGeneration {
-    buildAdventureTextSystemPrompt(adventure: Adventure): string;
+    buildAdventureTextSystemPrompt (hydrated: HydratedAdventure): string;
 }

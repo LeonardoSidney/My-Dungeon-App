@@ -1,12 +1,10 @@
-import { Connection, Sampler } from '../entities';
-
 export interface INativeStreamCompletionUseCase {
-    execute(params: NativeStreamCompletionUseCaseParams): Promise<NativeStreamCompletionUseCaseResponse>;
+    execute (params: NativeStreamCompletionUseCaseParams): Promise<NativeStreamCompletionUseCaseResponse>;
 }
 
 export type NativeStreamCompletionUseCaseParams = {
-    connection: Connection;
-    sampler: Sampler;
+    connectionId: string;
+    samplerId: string;
     modelId: string;
     prompt: string;
 };

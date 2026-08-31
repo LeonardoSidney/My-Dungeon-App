@@ -12,7 +12,14 @@ export class EditSystemPromptUseCase implements IEditSystemPromptUseCase {
 
     async execute (params: EditSystemPromptParams): Promise<EditSystemPromptReturn> {
         this.logger.info('Executing EditSystemPromptUseCase::execute');
-        this.validate(params);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return {
+                success: false,
+                systemPrompt: undefined,
+                error: validationError
+            };
+        }
 
         const { systemPrompt } = params;
 
@@ -67,19 +74,21 @@ export class EditSystemPromptUseCase implements IEditSystemPromptUseCase {
         };
     }
 
-    private validate (params: EditSystemPromptParams): void {
+    private validate (params: EditSystemPromptParams): string | null {
         const { systemPrompt } = params;
 
         if (!systemPrompt.id) {
-            throw new Error('System prompt id is required');
+            return 'System prompt id is required';
         }
 
         if (!systemPrompt.name?.trim()) {
-            throw new Error('System prompt name is required');
+            return 'System prompt name is required';
         }
 
         if (!systemPrompt.content?.trim()) {
-            throw new Error('System prompt content is required');
+            return 'System prompt content is required';
         }
+
+        return null;
     }
 }

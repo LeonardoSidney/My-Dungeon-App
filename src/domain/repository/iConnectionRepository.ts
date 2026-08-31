@@ -11,16 +11,17 @@ export type EditConnectionRepositoryReturn = {
 };
 
 export interface IConnectionRepository {
-    saveConnection(params: SaveConnectionParams): Promise<boolean>;
-    getConnections(): Promise<Connection[]>;
-    eraseConnection(connectionId: string): Promise<EraseConnectionRepositoryReturn>;
-    editConnection(params: EditConnectionParams): Promise<EditConnectionRepositoryReturn>;
+    saveConnection (params: SaveConnectionParams): Promise<boolean>;
+    getConnections (): Promise<Connection[]>;
+    getConnectionById (connectionId: string): Promise<Connection | undefined>;
+    eraseConnection (connectionId: string): Promise<EraseConnectionRepositoryReturn>;
+    editConnection (params: EditConnectionParams): Promise<EditConnectionRepositoryReturn>;
 }
 
 export type SaveConnectionParams = {
-    connection: Connection
-}
+    connection: Connection;
+};
 
 export type EditConnectionParams = {
     connection: Connection;
-}
+};

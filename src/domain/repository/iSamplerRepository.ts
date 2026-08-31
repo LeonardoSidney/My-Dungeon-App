@@ -2,6 +2,7 @@ import { Sampler } from '../entities';
 
 export interface ISamplerRepository {
     getSamplers (): Promise<Sampler[]>;
+    getSamplerById (samplerId: string): Promise<Sampler | undefined>;
     saveSampler (params: SaveSamplerParams): Promise<boolean>;
     editSampler (params: EditSamplerParams): Promise<EditSamplerRepositoryReturn>;
     eraseSampler (samplerId: string): Promise<EraseSamplerRepositoryReturn>;

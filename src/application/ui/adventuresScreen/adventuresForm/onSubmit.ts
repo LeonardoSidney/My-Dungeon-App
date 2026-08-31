@@ -1,36 +1,35 @@
+import { Alert } from 'react-native';
 import { AdventureFormData } from '../constants';
-import { Character } from '@domain/entities';
 import { onCreate } from './onCreate';
 import { onEdit } from './onEdit';
-import { getCharactersWithFlags } from './getCharactersWithFlags';
 
 export async function onSubmit (formData: AdventureFormData) {
-    const allCharacters: Character[] = [...formData.characters];
-    if (formData.characterAsWorldMasterId) {
-        const worldMasterCharacter = formData.avaliableCharacters.find(c => c.id === formData.characterAsWorldMasterId);
-        if (worldMasterCharacter && !allCharacters.some(c => c.id === worldMasterCharacter.id)) {
-            allCharacters.push(worldMasterCharacter);
-        }
-    }
-
+    const characterIdSet = new Set(formData.characters.map(c => c.id));
     for (const charId of formData.charactersControlledByAi) {
-        const aiCharacter = formData.avaliableCharacters.find(c => c.id === charId);
-        if (aiCharacter && !allCharacters.some(c => c.id === aiCharacter.id)) {
-            allCharacters.push(aiCharacter);
-        }
+        characterIdSet.add(charId);
+    }
+    if (formData.characterAsWorldMasterId) {
+        characterIdSet.add(formData.characterAsWorldMasterId);
     }
 
-    const charactersWithFlags = getCharactersWithFlags(
-        allCharacters,
-        formData.characterAsWorldMasterId,
-        formData.charactersControlledByAi
-    );
+    const availableById = new Map(formData.avaliableCharacters.map(c => [c.id, c]));
+    const allCharacters = [...characterIdSet]
+        .map(id => availableById.get(id))
+        .filter(c => c !== undefined);
 
-    const updatedFormData = { ...formData, characters: charactersWithFlags };
+    const updatedFormData = { ...formData, characters: allCharacters };
 
     if (formData.id) {
-        return onEdit(updatedFormData);
+        const response = await onEdit(updatedFormData);
+        if (response && !response.success) {
+            Alert.alert('Erro', response.error ?? 'Failed to save adventure');
+        }
+        return response;
     }
 
-    return onCreate(updatedFormData);
+    const response = await onCreate(updatedFormData);
+    if (!response.success) {
+        Alert.alert('Erro', response.error ?? 'Failed to create adventure');
+    }
+    return response;
 }

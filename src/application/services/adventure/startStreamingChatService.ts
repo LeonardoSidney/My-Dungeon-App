@@ -11,13 +11,13 @@ export class StartStreamingChatService implements IStartStreamingChatService {
     constructor (
         private readonly logger: ILogger,
         private readonly idGenerator: IIdGenerator
-    ) {}
+    ) { }
 
     startStreamingChat (params: StartStreamingChatServiceParams): StartStreamingChatServiceReturn {
         this.logger.info('Executing StartStreamingChatService::startStreamingChat');
         this.logger.debug('StartStreamingChatService::startStreamingChat - params', params);
 
-        const { adventure, role, characterName } = params;
+        const { adventure, role, characterId } = params;
 
         const now = new Date();
         const chatId = this.idGenerator.generate();
@@ -28,7 +28,7 @@ export class StartStreamingChatService implements IStartStreamingChatService {
             index: 0,
             content: [''],
             think: undefined,
-            characterName,
+            characterId,
             isStreaming: true,
             createdAt: now,
             updatedAt: now,

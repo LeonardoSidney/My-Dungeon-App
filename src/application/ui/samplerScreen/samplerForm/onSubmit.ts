@@ -1,3 +1,4 @@
+import { Alert } from 'react-native';
 import { SamplerFormData } from '../constants';
 import { Sampler } from '@domain/entities';
 import { onCreate } from './onCreate';
@@ -5,7 +6,8 @@ import { onEdit } from './onEdit';
 
 export async function onSubmit (formData: SamplerFormData) {
     if (!formData.name.trim()) {
-        throw new Error('Name is required');
+        Alert.alert('Erro', 'Name is required');
+        return;
     }
 
     if (formData.id) {
@@ -43,7 +45,11 @@ export async function onSubmit (formData: SamplerFormData) {
             updatedAt: formData.updatedAt ?? new Date(),
         };
 
-        return onEdit(sampler);
+        const response = await onEdit(sampler);
+        if (response && !response.success) {
+            Alert.alert('Erro', response.error ?? 'Failed to save sampler');
+        }
+        return response;
     }
 
     const samplerData: Omit<Sampler, 'id' | 'createdAt' | 'updatedAt'> = {
@@ -77,5 +83,9 @@ export async function onSubmit (formData: SamplerFormData) {
         systemDefault: false,
     };
 
-    return onCreate(samplerData);
+    const response = await onCreate(samplerData);
+    if (!response.success) {
+        Alert.alert('Erro', response.error ?? 'Failed to create sampler');
+    }
+    return response;
 }

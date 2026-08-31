@@ -1,21 +1,33 @@
+import { Alert } from 'react-native';
 import { StatusFormData } from '../constants';
 import { onCreate } from './onCreate';
 import { onEdit } from './onEdit';
 
 export async function onSubmit (formData: StatusFormData) {
     if (!formData.name.trim()) {
-        throw new Error('Name is required');
+        Alert.alert('Erro', 'Name is required');
+        return;
     }
     if (!formData.activationWord.trim()) {
-        throw new Error('Activation Word is required');
+        Alert.alert('Erro', 'Activation Word is required');
+        return;
     }
     if (!formData.prompt.trim()) {
-        throw new Error('Prompt is required');
+        Alert.alert('Erro', 'Prompt is required');
+        return;
     }
 
     if (formData.id) {
-        return onEdit(formData);
+        const response = await onEdit(formData);
+        if (response && !response.success) {
+            Alert.alert('Erro', response.error ?? 'Failed to save status');
+        }
+        return response;
     }
 
-    return onCreate(formData);
+    const response = await onCreate(formData);
+    if (!response.success) {
+        Alert.alert('Erro', response.error ?? 'Failed to create status');
+    }
+    return response;
 }

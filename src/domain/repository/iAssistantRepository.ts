@@ -3,6 +3,7 @@ import { Assistant } from '../entities';
 export interface IAssistantRepository {
     saveAssistant (params: SaveAssistantParams): Promise<boolean>;
     getAssistants (): Promise<Assistant[]>;
+    getAssistantById (assistantId: string): Promise<Assistant | undefined>;
     editAssistant (params: EditAssistantParams): Promise<EditAssistantReturn>;
     eraseAssistant (assistantId: string): Promise<EraseAssistantReturn>;
 }

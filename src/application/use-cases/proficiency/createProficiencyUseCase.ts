@@ -13,7 +13,13 @@ export class CreateProficiencyUseCase implements ICreateProficiencyUseCase {
         this.logger.info('Executing CreateProficiencyUseCase::execute');
         this.logger.debug('Executing CreateProficiencyUseCase::execute - params', params);
 
-        this.validate(params);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return {
+                success: false,
+                error: validationError
+            };
+        }
 
         this.logger.debug('Calling CreateProficiencyService', params);
         const response = this.service.createProficiency(params);
@@ -27,7 +33,10 @@ export class CreateProficiencyUseCase implements ICreateProficiencyUseCase {
         }
 
         if (!response.proficiency) {
-            throw new Error('Unexpected error while creating proficiency');
+            return {
+                success: false,
+                error: 'Unexpected error while creating proficiency'
+            };
         }
 
         const proficiencies = await this.proficiencyRepository.getProficiencies();
@@ -50,17 +59,19 @@ export class CreateProficiencyUseCase implements ICreateProficiencyUseCase {
         };
     }
 
-    private validate (params: CreateProficiencyUseCaseParams) {
+    private validate (params: CreateProficiencyUseCaseParams): string | null {
         if (!params.name?.trim()) {
-            throw new Error('name is required to create a proficiency');
+            return 'name is required to create a proficiency';
         }
 
         if (!params.prompt?.trim()) {
-            throw new Error('prompt is required to create a proficiency');
+            return 'prompt is required to create a proficiency';
         }
 
         if (!params.activationWord?.trim()) {
-            throw new Error('activationWord is required to create a proficiency');
+            return 'activationWord is required to create a proficiency';
         }
+
+        return null;
     }
 }

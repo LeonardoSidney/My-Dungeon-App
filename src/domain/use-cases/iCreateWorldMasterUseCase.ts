@@ -1,7 +1,7 @@
-import { Assistant, WorldMaster } from '../entities';
+import { WorldMaster } from '../entities';
 
 export interface ICreateWorldMasterUseCase {
-    execute(params: CreateWorldMasterUseCaseParams): Promise<CreateWorldMasterUseCaseResponse>;
+    execute (params: CreateWorldMasterUseCaseParams): Promise<CreateWorldMasterUseCaseResponse>;
 }
 
 export type CreateWorldMasterUseCaseParams = {
@@ -9,7 +9,7 @@ export type CreateWorldMasterUseCaseParams = {
     activationWord: string;
     prompt: string;
     observation?: string;
-    assistant: Assistant;
+    assistantId: string;
 };
 
 export type CreateWorldMasterUseCaseResponse = {

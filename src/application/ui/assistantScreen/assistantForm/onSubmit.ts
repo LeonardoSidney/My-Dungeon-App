@@ -1,21 +1,35 @@
+import { Alert } from 'react-native';
 import { AssistantFormData } from '../constants';
 import { onCreate } from './onCreate';
 import { onEdit } from './onEdit';
 
 export async function onSubmit (formData: AssistantFormData) {
     if (!formData.name.trim()) {
-        throw new Error('Name is required');
+        Alert.alert('Erro', 'Name is required');
+        return;
     }
     if (!formData.model) {
-        throw new Error('Model is required');
+        Alert.alert('Erro', 'Model is required');
+        return;
     }
     if (!formData.sampler) {
-        throw new Error('Sampler is required');
+        Alert.alert('Erro', 'Sampler is required');
+        return;
     }
 
     if (formData.id) {
-        return onEdit(formData);
+        const response = await onEdit(formData);
+        if (!response) return;
+        if (!response.success) {
+            Alert.alert('Erro', response.error ?? 'Failed to save assistant');
+        }
+        return response;
     }
 
-    return onCreate(formData);
+    const response = await onCreate(formData);
+    if (!response) return;
+    if (!response.success) {
+        Alert.alert('Erro', response.error ?? 'Failed to create assistant');
+    }
+    return response;
 }

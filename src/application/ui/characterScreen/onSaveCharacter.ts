@@ -16,12 +16,10 @@ export async function onSaveCharacter (
     if (!characterStateFormData.prompt.trim()) return;
     if (!characterStateFormData.assistant) return;
 
-    try {
-        await onSubmit(characterStateFormData);
-        setCharacterFormData(setInitialCharacterState());
-        setShowForm(false);
-        await loadCharacters(setCharacters);
-    } catch (error) {
-        console.error('Failed to save character:', error);
-    }
+    const response = await onSubmit(characterStateFormData);
+    if (!response || !response.success) return;
+
+    setCharacterFormData(setInitialCharacterState());
+    setShowForm(false);
+    await loadCharacters(setCharacters);
 }

@@ -1,8 +1,4 @@
-import { Ability } from './Ability';
-import { Assistant } from './Assistant';
 import { Attribute } from './Attribute';
-import { Proficiency } from './Proficiency';
-import { Status } from './Status';
 
 export type Character = {
     id: string;
@@ -10,13 +6,11 @@ export type Character = {
     activationWord: string;
     prompt: string;
     observation?: string;
-    abilities?: Ability[];
-    proficiencies?: Proficiency[];
-    statuses?: Status[];
+    abilityIds?: string[];
+    proficiencyIds?: string[];
+    statusIds?: string[];
     attributes?: Attribute[];
-    assistant: Assistant;
-    worldMaster?: boolean;
-    aiControlled?: boolean;
+    assistantId: string;
     createdAt: Date;
     updatedAt: Date;
 };

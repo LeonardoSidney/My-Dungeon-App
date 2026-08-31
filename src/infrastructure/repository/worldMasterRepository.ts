@@ -3,7 +3,7 @@ import { WorldMaster } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { IWorldMasterRepository, SaveWorldMasterParams, EditWorldMasterParams, EditWorldMasterReturn, EraseWorldMasterReturn } from '@domain/repository';
 import { IStorage } from '@domain/storage';
-import { WorldMasterDTO } from '../dto';
+import { WorldMasterDTO } from '@infra/dto';
 
 export class WorldMasterRepository implements IWorldMasterRepository {
     constructor (
@@ -25,6 +25,12 @@ export class WorldMasterRepository implements IWorldMasterRepository {
             throw error;
         }
         return true;
+    }
+
+    async getWorldMasterById (worldMasterId: string): Promise<WorldMaster | undefined> {
+        this.logger.info('Executing WorldMasterRepository::getWorldMasterById');
+        const worldMasters = await this.getWorldMasters();
+        return worldMasters.find((wm) => wm.id === worldMasterId);
     }
 
     async getWorldMasters (): Promise<WorldMaster[]> {

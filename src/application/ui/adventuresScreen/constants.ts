@@ -2,7 +2,13 @@ import { Adventure, Character, Chat, SystemPrompt, WorldMaster, World, Location,
 
 export interface AdventuresPanelProps {
     adventures: Adventure[];
+    onEdit: (adventure: Adventure) => void;
     onDelete: (adventure: Adventure) => Promise<void>;
+    onChat: (adventure: Adventure) => void;
+}
+
+export interface AdventuresScreenProps {
+    onChatVisibleChange?: (visible: boolean) => void;
 }
 
 export type FormErrors = {

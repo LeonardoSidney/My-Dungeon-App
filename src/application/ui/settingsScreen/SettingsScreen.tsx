@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, View, ScrollView } from 'react-native';
+import { Alert, Text, View, ScrollView } from 'react-native';
 import { Connection } from '@domain/entities';
 import { styles } from './styles';
 import { ConnectionPanel } from './connectionPanel';
@@ -34,7 +34,8 @@ export function SettingsScreen () {
       const ctrl = eraseAdventuresController();
       await ctrl.handle();
     } catch (error) {
-      console.error('Failed to erase adventures:', error);
+      const message = error instanceof Error ? error.message : 'Failed to erase adventures';
+      Alert.alert('Erro', message);
     } finally {
       setErasing(false);
     }
@@ -48,16 +49,12 @@ export function SettingsScreen () {
     }
     setFormErrors({});
 
-    try {
-      await onSaveConnection(
-        connectionStateFormData,
-        setConnectionFormData,
-        setShowForm,
-        setConnections
-      );
-    } catch (error) {
-      setFormErrors({ name: (error as Error).message });
-    }
+    await onSaveConnection(
+      connectionStateFormData,
+      setConnectionFormData,
+      setShowForm,
+      setConnections
+    );
   };
 
   const handleFormChange = (field: keyof ConnectionFormData, value: string) => {

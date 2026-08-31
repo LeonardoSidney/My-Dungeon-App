@@ -38,11 +38,7 @@ export function WorldMasterScreen () {
     }
     setFormErrors({});
 
-    try {
-      await onSaveWorldMaster(worldMasterStateFormData, setWorldMasterFormData, setShowForm, setWorldMasters, assistants);
-    } catch (error) {
-      setFormErrors({ name: (error as Error).message });
-    }
+    await onSaveWorldMaster(worldMasterStateFormData, setWorldMasterFormData, setShowForm, setWorldMasters, assistants);
   };
 
   const handleFormChange = (field: keyof WorldMasterFormData, value: WorldMasterFormData[keyof WorldMasterFormData]) => {

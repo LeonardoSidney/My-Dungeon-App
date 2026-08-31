@@ -13,7 +13,13 @@ export class CreateAbilityUseCase implements ICreateAbilityUseCase {
         this.logger.info('Executing CreateAbilityUseCase::execute');
         this.logger.debug('Executing CreateAbilityUseCase::execute - params', params);
 
-        this.validate(params);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return {
+                success: false,
+                error: validationError
+            };
+        }
 
         this.logger.debug('Calling CreateAbilityService', params);
         const response = this.service.createAbility(params);
@@ -27,7 +33,10 @@ export class CreateAbilityUseCase implements ICreateAbilityUseCase {
         }
 
         if (!response.ability) {
-            throw new Error('Unexpected error while creating ability');
+            return {
+                success: false,
+                error: 'Unexpected error while creating ability'
+            };
         }
 
         const abilities = await this.abilityRepository.getAbilities();
@@ -50,17 +59,19 @@ export class CreateAbilityUseCase implements ICreateAbilityUseCase {
         };
     }
 
-    private validate (params: CreateAbilityUseCaseParams) {
+    private validate (params: CreateAbilityUseCaseParams): string | null {
         if (!params.name?.trim()) {
-            throw new Error('name is required to create an ability');
+            return 'name is required to create an ability';
         }
 
         if (!params.activationWorld?.trim()) {
-            throw new Error('activationWorld is required to create an ability');
+            return 'activationWorld is required to create an ability';
         }
 
         if (!params.prompt?.trim()) {
-            throw new Error('prompt is required to create an ability');
+            return 'prompt is required to create an ability';
         }
+
+        return null;
     }
 }

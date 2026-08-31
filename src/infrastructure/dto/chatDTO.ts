@@ -9,10 +9,10 @@ export class ChatDTO {
         private readonly index: number,
         private readonly content: string[],
         private readonly think: Think[] | undefined,
-        private readonly characterName: string,
+        private readonly characterId: string,
         private readonly createdAt: Date,
         private readonly updatedAt: Date
-    ) {}
+    ) { }
 
     toEntity (): Chat {
         return {
@@ -21,7 +21,7 @@ export class ChatDTO {
             index: this.index,
             content: this.content,
             think: this.think,
-            characterName: this.characterName,
+            characterId: this.characterId,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
         };
@@ -43,14 +43,14 @@ export class ChatDTO {
             typeof data.id !== 'string' ||
             !role ||
             typeof data.index !== 'number' ||
-            typeof data.characterName !== 'string' ||
+            typeof data.characterId !== 'string' ||
             !createdAt ||
             !updatedAt
         ) {
             return null;
         }
 
-        return new ChatDTO(data.id, role, data.index, content, think, data.characterName, createdAt, updatedAt);
+        return new ChatDTO(data.id, role, data.index, content, think, data.characterId, createdAt, updatedAt);
     }
 
     private static toRole (role: unknown): Role | undefined {

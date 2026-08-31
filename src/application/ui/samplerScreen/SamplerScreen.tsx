@@ -32,11 +32,7 @@ export function SamplerScreen () {
     }
     setFormErrors({});
 
-    try {
-      await onSaveSampler(samplerStateFormData, setSamplerFormData, setShowForm, setSamplers);
-    } catch (error) {
-      setFormErrors({ name: (error as Error).message });
-    }
+    await onSaveSampler(samplerStateFormData, setSamplerFormData, setShowForm, setSamplers);
   };
 
   const handleFormChange = (field: keyof SamplerFormData, value: string | Date | MirostatEnum | undefined) => {

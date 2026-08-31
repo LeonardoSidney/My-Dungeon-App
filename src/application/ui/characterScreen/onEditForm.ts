@@ -11,10 +11,10 @@ export function onEditForm (
     setShowForm: Dispatch<SetStateAction<boolean>>,
     setCharacterFormData: Dispatch<SetStateAction<CharacterFormData>>
 ) {
-    const currentAssistant = findAssistantFromCharacter(assistants, character.assistant);
-    const currentAbilities = findAbilitiesFromCharacter(abilities, character.abilities || []);
-    const currentProficiencies = findProficienciesFromCharacter(proficiencies, character.proficiencies || []);
-    const currentStatuses = findStatusesFromCharacter(statuses, character.statuses || []);
+    const currentAssistant = findAssistantFromCharacter(assistants, character.assistantId);
+    const currentAbilities = findAbilitiesFromCharacter(abilities, character.abilityIds || []);
+    const currentProficiencies = findProficienciesFromCharacter(proficiencies, character.proficiencyIds || []);
+    const currentStatuses = findStatusesFromCharacter(statuses, character.statusIds || []);
     const currentAttributes = findAttributesFromCharacter(character.attributes || []);
 
     setCharacterFormData({
@@ -36,30 +36,30 @@ export function onEditForm (
 
 function findAssistantFromCharacter (
     assistants: Assistant[],
-    characterAssistant: Assistant
+    assistantId: string
 ): Assistant | null {
-    return assistants.find((a) => a.id === characterAssistant.id) ?? null;
+    return assistants.find((a) => a.id === assistantId) ?? null;
 }
 
 function findAbilitiesFromCharacter (
     abilities: Ability[],
-    characterAbilities: Ability[]
+    abilityIds: string[]
 ): Ability[] {
-    return abilities.filter((a) => characterAbilities.some((ca) => ca.id === a.id));
+    return abilities.filter((a) => abilityIds.includes(a.id));
 }
 
 function findProficienciesFromCharacter (
     proficiencies: Proficiency[],
-    characterProficiencies: Proficiency[]
+    proficiencyIds: string[]
 ): Proficiency[] {
-    return proficiencies.filter((p) => characterProficiencies.some((cp) => cp.id === p.id));
+    return proficiencies.filter((p) => proficiencyIds.includes(p.id));
 }
 
 function findStatusesFromCharacter (
     statuses: Status[],
-    characterStatuses: Status[]
+    statusIds: string[]
 ): Status[] {
-    return statuses.filter((s) => characterStatuses.some((cs) => cs.id === s.id));
+    return statuses.filter((s) => statusIds.includes(s.id));
 }
 
 function findAttributesFromCharacter (

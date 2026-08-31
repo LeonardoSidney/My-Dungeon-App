@@ -11,7 +11,9 @@ export async function onSaveAbility (
     setShowForm: Dispatch<SetStateAction<boolean>>,
     setAbilities: Dispatch<SetStateAction<Ability[]>>
 ) {
-    await onSubmit(formData);
+    const response = await onSubmit(formData);
+    if (!response || !response.success) return;
+
     setAbilityFormData(setInitialAbilityState());
     setShowForm(false);
     await loadAbilities(setAbilities);

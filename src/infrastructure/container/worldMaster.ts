@@ -18,7 +18,10 @@ import {
     IEraseWorldMasterController,
 } from '@domain/controllers';
 import { idGenerate, logger, storage } from './shared';
-import { createWorldMasterRepository } from './repository';
+import {
+    createAssistantRepository,
+    createWorldMasterRepository,
+} from './repository';
 
 export function createWorldMasterController (): ICreateWorldMasterController {
     const worldMasterRepository = createWorldMasterRepository(storage, logger);
@@ -26,7 +29,8 @@ export function createWorldMasterController (): ICreateWorldMasterController {
     const createWorldMasterUseCase = new CreateWorldMasterUseCase(
         logger,
         worldMasterRepository,
-        createWorldMasterService
+        createWorldMasterService,
+        createAssistantRepository(storage, logger)
     );
     return new CreateWorldMasterController(logger, createWorldMasterUseCase);
 }
@@ -40,7 +44,12 @@ export function getWorldMasterController (): IGetWorldMastersController {
 export function editWorldMasterController (): IEditWorldMasterController {
     const worldMasterRepository = createWorldMasterRepository(storage, logger);
     const editWorldMasterService = new EditWorldMasterService(logger);
-    const editWorldMasterUseCase = new EditWorldMasterUseCase(logger, editWorldMasterService, worldMasterRepository);
+    const editWorldMasterUseCase = new EditWorldMasterUseCase(
+        logger,
+        editWorldMasterService,
+        worldMasterRepository,
+        createAssistantRepository(storage, logger)
+    );
     return new EditWorldMasterController(logger, editWorldMasterUseCase);
 }
 

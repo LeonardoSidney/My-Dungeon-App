@@ -4,10 +4,10 @@ import { handleCharacterSelectFromList } from './handleCharacterSelectFromList';
 import { useCharacterSelectorToggle } from './hooks/useCharacterSelectorToggle';
 import { CharacterSelectorProps } from './constants';
 
-export function CharacterSelector ({ adventure, onCharacterSelect, selectedCharacterId, style }: CharacterSelectorProps) {
+export function CharacterSelector ({ characters, onCharacterSelect, selectedCharacterId, style }: CharacterSelectorProps) {
   const { showList, setShowList, toggleList, dropdownArrow } = useCharacterSelectorToggle();
 
-  const selectedCharacter = adventure.characters.find(c => c.id === selectedCharacterId) || adventure.characters[0];
+  const selectedCharacter = characters.find(c => c.id === selectedCharacterId) || characters[0];
   const isFirstItem = (index: number) => index === 0;
   const isLastItem = (index: number, total: number) => index === total - 1;
   const hasNextItem = (index: number, total: number) => index < total - 1;
@@ -25,8 +25,8 @@ export function CharacterSelector ({ adventure, onCharacterSelect, selectedChara
       {isListVisible && (
         <View style={styles.dropdownList}>
           <ScrollView keyboardShouldPersistTaps="handled">
-            {adventure.characters.map((character, index) => {
-              const totalCharacters = adventure.characters.length;
+            {characters.map((character, index) => {
+              const totalCharacters = characters.length;
               const itemStyle = [
                 styles.dropdownItem,
                 hasNextItem(index, totalCharacters) && styles.dropdownItemWithBorder,

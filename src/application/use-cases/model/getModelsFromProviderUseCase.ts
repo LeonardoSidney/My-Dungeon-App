@@ -11,11 +11,11 @@ export class GetModelsFromProviderUseCase implements IGetModelsFromProviderUseCa
     async execute (params: GetModelsFromProviderParamsUseCase): Promise<GetModelsFromProviderParamsReturn> {
         this.logger.info('Executing GetModelsFromProviderUseCase::execute');
         const { connection } = params;
-        const modelsDTO = await this.gateway.getModels(connection);
-        this.logger.debug('Gateway getModelsFromProvider executed successfully: ', modelsDTO);
+        const models = await this.gateway.getModels(connection);
+        this.logger.debug('Gateway getModelsFromProvider executed successfully: ', models);
         return {
             success: true,
-            models: modelsDTO?.toEntity(connection)
+            models: models ?? undefined
         };
     }
 }

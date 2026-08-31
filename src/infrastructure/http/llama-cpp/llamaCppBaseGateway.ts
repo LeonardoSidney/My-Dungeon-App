@@ -1,8 +1,7 @@
-import { Chat, Connection } from '@domain/entities';
+import { Chat, Connection, Model } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { IStreamProvider } from '@domain/providers';
-import { GetModelResponseDTO, GetModelResponseDTOEntry } from './dto/getModelResponseDTO';
-import { ApplyTemplateResponseDTO } from './dto/applyTemplateResponseDTO';
+import { GetModelResponseDTOEntry } from './dto/getModelResponseDTO';
 import { isArrayRecord, isRecord } from '../../dto/shared';
 
 export abstract class LlamaCppBaseGateway {
@@ -17,7 +16,7 @@ export abstract class LlamaCppBaseGateway {
         return `${ip}${port}${endpoint}`;
     }
 
-    async getModels (connection: Connection): Promise<GetModelResponseDTO | null> {
+    async getModels (connection: Connection): Promise<Model[] | null> {
         this.logger.info('Executing LlamaCppBaseGateway::getModels');
         const url = this.buildUrl(connection, '/models');
         let response: Response;
@@ -48,7 +47,33 @@ export abstract class LlamaCppBaseGateway {
         }
 
         this.logger.debug('Executing LlamaCppBaseGateway::getModels - entries: ', entries);
-        return new GetModelResponseDTO(entries);
+        return this.toModels(entries, connection);
+    }
+
+    protected toModels (entries: GetModelResponseDTOEntry[], connection: Connection): Model[] {
+        const models: Model[] = [];
+        for (const entry of entries) {
+            const nCtx = entry.meta?.n_ctx;
+            if (nCtx === undefined) {
+                this.logger.warning(`Executing LlamaCppBaseGateway::toModels - model without n_ctx, skipping: ${entry.id}`);
+                continue;
+            }
+
+            models.push({
+                id: entry.id,
+                name: entry.name ?? this.fallbackName(entry.id),
+                connectionId: connection.id,
+                nCtx,
+                ownedBy: entry.owned_by
+            });
+        }
+
+        return models;
+    }
+
+    private fallbackName (id: string): string {
+        const segments = id.split('/');
+        return segments[segments.length - 1];
     }
 
     protected parseModelsResponse (body: unknown): GetModelResponseDTOEntry[] | null {
@@ -73,13 +98,7 @@ export abstract class LlamaCppBaseGateway {
 
             if (isRecord(item.meta) && typeof item.meta.n_ctx === 'number') {
                 entry.meta = {
-                    n_ctx: item.meta.n_ctx,
-                    n_ctx_train: this.toNumber(item.meta.n_ctx_train),
-                    n_embd: this.toNumber(item.meta.n_embd),
-                    n_params: this.toNumber(item.meta.n_params),
-                    n_vocab: this.toNumber(item.meta.n_vocab),
-                    size: this.toNumber(item.meta.size),
-                    vocab_type: this.toNumber(item.meta.vocab_type)
+                    n_ctx: item.meta.n_ctx
                 };
             }
 
@@ -89,16 +108,12 @@ export abstract class LlamaCppBaseGateway {
         return entries;
     }
 
-    protected toNumber (value: unknown): number {
-        return typeof value === 'number' ? value : 0;
-    }
-
     async applyTemplate (
         connection: Connection,
         modelId: string,
         systemPrompt: string,
         chat: Chat[]
-    ): Promise<ApplyTemplateResponseDTO | null> {
+    ): Promise<string | null> {
         this.logger.info('Executing LlamaCppBaseGateway::applyTemplate');
         const url = this.buildUrl(connection, '/apply-template');
         const chats = this.formatChatMessages(chat);
@@ -118,7 +133,7 @@ export abstract class LlamaCppBaseGateway {
             if (response.ok) {
                 const data = await response.json();
                 this.logger.debug('Executing LlamaCppBaseGateway::applyTemplate - data: ', data);
-                return new ApplyTemplateResponseDTO(data.prompt);
+                return data.prompt;
             }
         } catch (error) {
             throw new Error(`Error calling applyTemplate on ${url}: ${error}`);

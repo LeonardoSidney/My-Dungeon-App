@@ -11,7 +11,13 @@ export class CreateSamplerUseCase implements ICreateSamplerUseCase {
     ) { }
     async execute (params: CreateSamplerUseCaseParams): Promise<CreateSamplerUseCaseResponse> {
         this.logger.info('Executing CreateSamplerUseCase::execute');
-        this.validate(params);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return {
+                success: false,
+                error: validationError
+            };
+        }
         this.logger.debug('CreateSamplerUseCase::execute - params', params);
         const response = this.service.createSampler(params);
         this.logger.debug('CreateSamplerUseCase::execute - sampler created', response);
@@ -23,53 +29,45 @@ export class CreateSamplerUseCase implements ICreateSamplerUseCase {
             };
         }
 
+        if (!response.sampler) {
+            return {
+                success: false,
+                error: 'Something went wrong when creating the sampler'
+            };
+        }
+
+        const sampler = response.sampler;
         const samplers = await this.samplerRepository.getSamplers();
-        const alreadyExists = samplers.find(s => s.name === response.sampler?.name);
+        const alreadyExists = samplers.find(s => s.name === sampler.name);
         if (alreadyExists) {
+            this.logger.warning(`A sampler with name ${sampler.name} already exists`);
             return {
                 success: false,
                 error: 'A sampler with this name already exists'
             };
         }
 
-        if (!response.success) {
-            return {
-                success: false,
-                error: response.error || 'An unknown error occurred'
-            };
-        }
-
-        if (!response.sampler) {
-            throw new Error('Something went wrong when creating the sampler');
-        }
-
-        await this.samplerRepository.saveSampler({ sampler: response.sampler });
+        await this.samplerRepository.saveSampler({ sampler });
 
         return {
-            success: response.success,
+            success: true,
             sampler: response.sampler
         };
     }
 
-    private validate (params: CreateSamplerUseCaseParams): void {
+    private validate (params: CreateSamplerUseCaseParams): string | null {
         if (!params.name?.trim()) {
-            throw new Error('A name is required to create a sampler');
+            return 'A name is required to create a sampler';
         }
 
-        if (
-            params.adaptativeTarget &&
-            params.adaptativeTarget > 0 &&
-            params.adaptativeTarget <= 1
-        ) {
-            throw new Error('A valid adaptative target is required to create a sampler');
+        if (params.adaptativeTarget !== undefined && (params.adaptativeTarget <= 0 || params.adaptativeTarget > 1)) {
+            return 'Adaptative target must be greater than 0 and up to 1 to create a sampler';
         }
 
-        if (
-            params.adaptativeDecay &&
-            params.adaptativeDecay > 0 &&
-            params.adaptativeDecay <= 1
-        ) {
-            throw new Error('A valid adaptative decay is required to create a sampler');
+        if (params.adaptativeDecay !== undefined && (params.adaptativeDecay <= 0 || params.adaptativeDecay > 1)) {
+            return 'Adaptative decay must be greater than 0 and up to 1 to create a sampler';
         }
+
+        return null;
     }
 }

@@ -19,7 +19,7 @@ export class CreateWorldMasterService implements ICreateWorldMasterService {
                 activationWord: params.activationWord,
                 prompt: params.prompt,
                 observation: params.observation,
-                assistant: params.assistant,
+                assistantId: params.assistantId,
                 createdAt: createdAt,
                 updatedAt: createdAt
             }

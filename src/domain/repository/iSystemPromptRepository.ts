@@ -1,10 +1,11 @@
 import { SystemPrompt } from '../entities';
 
 export interface ISystemPromptRepository {
-    saveSystemPrompt(params: SaveSystemPromptParams): Promise<boolean>;
-    getSystemPrompts(): Promise<SystemPrompt[]>;
-    editSystemPrompt(params: EditSystemPromptParams): Promise<EditSystemPromptReturn>;
-    eraseSystemPrompt(systemPromptId: string): Promise<EraseSystemPromptReturn>;
+    saveSystemPrompt (params: SaveSystemPromptParams): Promise<boolean>;
+    getSystemPrompts (): Promise<SystemPrompt[]>;
+    getSystemPromptById (systemPromptId: string): Promise<SystemPrompt | undefined>;
+    editSystemPrompt (params: EditSystemPromptParams): Promise<EditSystemPromptReturn>;
+    eraseSystemPrompt (systemPromptId: string): Promise<EraseSystemPromptReturn>;
 }
 
 export type SaveSystemPromptParams = {

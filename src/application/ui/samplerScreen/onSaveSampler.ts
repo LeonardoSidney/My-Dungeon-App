@@ -11,7 +11,9 @@ export async function onSaveSampler (
     setShowForm: Dispatch<SetStateAction<boolean>>,
     setSamplers: Dispatch<SetStateAction<Sampler[]>>
 ) {
-    await onSubmit(formData);
+    const response = await onSubmit(formData);
+    if (!response || !response.success) return;
+
     setSamplerFormData(setInitialSamplerState());
     setShowForm(false);
     await loadSamplers(setSamplers);

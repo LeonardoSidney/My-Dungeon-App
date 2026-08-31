@@ -7,7 +7,7 @@ import { ILogger } from '@domain/logger';
 import { ICreateChatAdventureUseCase } from '@domain/use-cases';
 
 export class CreateChatAdventureController implements ICreateChatAdventureController {
-    constructor (private readonly logger: ILogger, private readonly useCase: ICreateChatAdventureUseCase) {}
+    constructor (private readonly logger: ILogger, private readonly useCase: ICreateChatAdventureUseCase) { }
 
     async handle (request: CreateChatAdventureControllerRequest): Promise<CreateChatAdventureControllerResponse> {
         this.logger.info('Executing CreateChatAdventureController::handle');
@@ -17,7 +17,7 @@ export class CreateChatAdventureController implements ICreateChatAdventureContro
             content: request.content,
             role: request.role,
             think: request.think,
-            characterName: request.characterName,
+            characterId: request.characterId,
         });
 
         return {

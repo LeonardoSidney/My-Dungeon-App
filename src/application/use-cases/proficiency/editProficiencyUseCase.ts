@@ -12,7 +12,14 @@ export class EditProficiencyUseCase implements IEditProficiencyUseCase {
 
     async execute (params: EditProficiencyParams): Promise<EditProficiencyReturn> {
         this.logger.info('Executing EditProficiencyUseCase::execute');
-        this.validate(params);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return {
+                success: false,
+                proficiency: undefined,
+                error: validationError
+            };
+        }
 
         const { proficiency } = params;
 
@@ -66,23 +73,25 @@ export class EditProficiencyUseCase implements IEditProficiencyUseCase {
         };
     }
 
-    private validate (params: EditProficiencyParams): void {
+    private validate (params: EditProficiencyParams): string | null {
         const { proficiency } = params;
 
         if (!proficiency.id) {
-            throw new Error('An id is required to edit a proficiency');
+            return 'An id is required to edit a proficiency';
         }
 
         if (!proficiency.name?.trim()) {
-            throw new Error('A name is required to edit a proficiency');
+            return 'A name is required to edit a proficiency';
         }
 
         if (!proficiency.activationWord?.trim()) {
-            throw new Error('An activation word is required to edit a proficiency');
+            return 'An activation word is required to edit a proficiency';
         }
 
         if (!proficiency.prompt?.trim()) {
-            throw new Error('A prompt is required to edit a proficiency');
+            return 'A prompt is required to edit a proficiency';
         }
+
+        return null;
     }
 }

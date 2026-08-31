@@ -37,6 +37,7 @@ export * from './iEditWorldMasterController';
 export * from './iGetAbilitiesController';
 export * from './iGetAdventuresController';
 export * from './iGetAdventureTextController';
+export * from './iHydrateAdventureController';
 export * from './iGetAssistantsController';
 export * from './iGetCharactersController';
 export * from './iGetConnectionsController';

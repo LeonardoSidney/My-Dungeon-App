@@ -14,7 +14,13 @@ export class CreateSystemPromptUseCase implements ICreateSystemPromptUseCase {
         this.logger.info('Executing CreateSystemPromptUseCase::execute');
         this.logger.debug('CreateSystemPromptUseCase::execute - params:', params);
 
-        this.validate(params);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return {
+                success: false,
+                error: validationError
+            };
+        }
 
         const response = this.service.createSystemPrompt(params);
         this.logger.debug('CreateSystemPromptService executed successfully', response);
@@ -27,7 +33,10 @@ export class CreateSystemPromptUseCase implements ICreateSystemPromptUseCase {
         }
 
         if (!response.systemPrompt) {
-            throw new Error('Something went wrong when tried to create the system prompt');
+            return {
+                success: false,
+                error: 'Something went wrong when tried to create the system prompt'
+            };
         }
 
         const systemPrompts = await this.systemPromptRepository.getSystemPrompts();
@@ -50,13 +59,15 @@ export class CreateSystemPromptUseCase implements ICreateSystemPromptUseCase {
         };
     }
 
-    private validate (params: CreateSystemPromptUseCaseParams): void {
+    private validate (params: CreateSystemPromptUseCaseParams): string | null {
         if (!params.name?.trim()) {
-            throw new Error('Name is required to create a system prompt');
+            return 'Name is required to create a system prompt';
         }
 
         if (!params.content?.trim()) {
-            throw new Error('Content is required to create a system prompt');
+            return 'Content is required to create a system prompt';
         }
+
+        return null;
     }
 }

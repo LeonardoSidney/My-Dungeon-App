@@ -3,7 +3,7 @@ import { Sampler } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { ISamplerRepository, SaveSamplerParams, EditSamplerParams, EditSamplerRepositoryReturn, EraseSamplerRepositoryReturn } from '@domain/repository';
 import { IStorage } from '@domain/storage';
-import { SamplerDTO } from '../dto';
+import { SamplerDTO } from '@infra/dto';
 
 
 export class SamplerRepository implements ISamplerRepository {
@@ -24,6 +24,12 @@ export class SamplerRepository implements ISamplerRepository {
     private replaceAt (samplers: Sampler[], index: number, newItem: Sampler): Sampler[] {
         samplers[index] = newItem;
         return samplers;
+    }
+
+    async getSamplerById (samplerId: string): Promise<Sampler | undefined> {
+        this.logger.info('Executing SamplerRepository::getSamplerById');
+        const samplers = await this.getSamplers();
+        return samplers.find((s) => s.id === samplerId);
     }
 
     async getSamplers (): Promise<Sampler[]> {

@@ -1,18 +1,29 @@
+import { Alert } from 'react-native';
 import { SystemPromptFormData } from '../constants';
 import { onCreate } from './onCreate';
 import { onEdit } from './onEdit';
 
 export async function onSubmit (formData: SystemPromptFormData) {
     if (!formData.name.trim()) {
-        throw new Error('Name is required');
+        Alert.alert('Erro', 'Name is required');
+        return;
     }
     if (!formData.content.trim()) {
-        throw new Error('Content is required');
+        Alert.alert('Erro', 'Content is required');
+        return;
     }
 
     if (formData.id) {
-        return onEdit(formData);
+        const response = await onEdit(formData);
+        if (response && !response.success) {
+            Alert.alert('Erro', response.error ?? 'Failed to save system prompt');
+        }
+        return response;
     }
 
-    return onCreate(formData);
+    const response = await onCreate(formData);
+    if (!response.success) {
+        Alert.alert('Erro', response.error ?? 'Failed to create system prompt');
+    }
+    return response;
 }

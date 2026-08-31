@@ -11,7 +11,9 @@ export async function onSaveProficiency (
     setShowForm: Dispatch<SetStateAction<boolean>>,
     setProficiencies: Dispatch<SetStateAction<Proficiency[]>>
 ) {
-    await onSubmit(formData);
+    const response = await onSubmit(formData);
+    if (!response || !response.success) return;
+
     setProficiencyFormData(setInitialProficiencyState());
     setShowForm(false);
     await loadProficiencies(setProficiencies);

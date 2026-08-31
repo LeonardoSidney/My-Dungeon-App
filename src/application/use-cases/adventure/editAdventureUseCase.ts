@@ -1,23 +1,53 @@
 import { ILogger } from '@domain/logger';
-import { IAdventureRepository } from '@domain/repository';
+import {
+    IAdventureRepository,
+    ICharacterRepository,
+    IItemRepository,
+    ILocationRepository,
+    ISystemPromptRepository,
+    IWorldRepository,
+    IWorldMasterRepository,
+} from '@domain/repository';
 import { IEditAdventureService } from '@domain/services';
 import { EditAdventureParams, EditAdventureReturn, IEditAdventureUseCase } from '@domain/use-cases';
+import { checkReferencedId, checkReferencedIds } from '@application/shared/validateReferencedIds';
 
 export class EditAdventureUseCase implements IEditAdventureUseCase {
     constructor (
         private readonly logger: ILogger,
         private readonly service: IEditAdventureService,
-        private readonly adventureRepository: IAdventureRepository
+        private readonly adventureRepository: IAdventureRepository,
+        private readonly characterRepository: ICharacterRepository,
+        private readonly systemPromptRepository: ISystemPromptRepository,
+        private readonly worldRepository: IWorldRepository,
+        private readonly locationRepository: ILocationRepository,
+        private readonly itemRepository: IItemRepository,
+        private readonly worldMasterRepository: IWorldMasterRepository
     ) { }
 
     async execute (params: EditAdventureParams): Promise<EditAdventureReturn> {
         this.logger.info('Executing EditAdventureUseCase::execute');
-        this.validate(params);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return {
+                success: false,
+                adventure: undefined,
+                error: validationError
+            };
+        }
+        const missingIdError = await this.validateReferencedIds(params);
+        if (missingIdError) {
+            return {
+                success: false,
+                adventure: undefined,
+                error: missingIdError
+            };
+        }
 
-        const { id, name, systemPrompts, characters, worldMaster, locations, worlds, items, chat, createdAt } = params;
+        const { id, name, systemPromptIds, characterIds, worldMasterId, characterAsWorldMasterId, charactersControlledByAi, worldIds, locationIds, itemIds, chat, createdAt } = params;
 
-        this.logger.debug('Calling EditAdventureService', { id, name, systemPrompts, characters, worldMaster, locations, worlds, items, chat, createdAt });
-        const response = this.service.editAdventure({ id, name, systemPrompts, characters, worldMaster, locations, worlds, items, chat, createdAt: createdAt ?? new Date() });
+        this.logger.debug('Calling EditAdventureService', { id, name, systemPromptIds, characterIds, worldMasterId, characterAsWorldMasterId, charactersControlledByAi, worldIds, locationIds, itemIds, chat, createdAt });
+        const response = this.service.editAdventure({ id, name, systemPromptIds, characterIds, worldMasterId, characterAsWorldMasterId, charactersControlledByAi, worldIds, locationIds, itemIds, chat, createdAt: createdAt ?? new Date() });
         this.logger.debug('EditAdventureService executed successfully', response);
 
         if (!response.success) {
@@ -67,12 +97,65 @@ export class EditAdventureUseCase implements IEditAdventureUseCase {
         };
     }
 
-    private validate (params: EditAdventureParams): void {
+    private validate (params: EditAdventureParams): string | null {
         if (!params.id) {
-            throw new Error('Adventure id is required');
+            return 'Adventure id is required';
         }
         if (!params.name?.trim()) {
-            throw new Error('Adventure name is required');
+            return 'Adventure name is required';
         }
+        return null;
+    }
+
+    private async validateReferencedIds (params: EditAdventureParams): Promise<string | null> {
+        const characterError = await checkReferencedIds(
+            (id) => this.characterRepository.getCharacterById(id),
+            params.characterIds,
+            'Character'
+        );
+        if (characterError) {
+            return characterError;
+        }
+        const worldMasterIdError = await checkReferencedId(
+            (id) => this.worldMasterRepository.getWorldMasterById(id),
+            params.worldMasterId,
+            'WorldMaster'
+        );
+        if (worldMasterIdError) {
+            return worldMasterIdError;
+        }
+        const systemPromptError = await checkReferencedIds(
+            (id) => this.systemPromptRepository.getSystemPromptById(id),
+            params.systemPromptIds,
+            'SystemPrompt'
+        );
+        if (systemPromptError) {
+            return systemPromptError;
+        }
+        const worldError = await checkReferencedIds(
+            (id) => this.worldRepository.getWorldById(id),
+            params.worldIds,
+            'World'
+        );
+        if (worldError) {
+            return worldError;
+        }
+        const locationError = await checkReferencedIds(
+            (id) => this.locationRepository.getLocationById(id),
+            params.locationIds,
+            'Location'
+        );
+        if (locationError) {
+            return locationError;
+        }
+        const itemError = await checkReferencedIds(
+            (id) => this.itemRepository.getItemById(id),
+            params.itemIds,
+            'Item'
+        );
+        if (itemError) {
+            return itemError;
+        }
+        return null;
     }
 }

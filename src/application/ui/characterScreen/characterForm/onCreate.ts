@@ -9,16 +9,21 @@ export async function onCreate (
     if (!formData.assistant) return;
 
     const controller = createCharacterController();
+    const abilityIds = formData.abilities.map(ability => ability.id);
+    const proficiencyIds = formData.proficiencies.map(proficiency => proficiency.id);
+    const statusIds = formData.statuses.map(status => status.id);
+    const assistantId = formData.assistant.id;
+    const attributes = filterAttributes(formData.attributes);
     const newCharacter: CreateCharacterControllerPrams = {
         name: formData.name,
         activationWord: formData.activationWord,
         prompt: formData.prompt,
         observation: formData.observation || undefined,
-        assistant: formData.assistant,
-        abilities: formData.abilities,
-        proficiencies: formData.proficiencies,
-        statuses: formData.statuses,
-        attributes: filterAttributes(formData.attributes),
+        assistantId,
+        abilityIds,
+        proficiencyIds,
+        statusIds,
+        attributes,
     };
 
     return controller.handle(newCharacter);

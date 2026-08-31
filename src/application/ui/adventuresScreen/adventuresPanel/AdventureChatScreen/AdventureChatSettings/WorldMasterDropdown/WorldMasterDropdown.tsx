@@ -11,9 +11,9 @@ interface WorldMasterDropdownProps {
 
 export function WorldMasterDropdown (params: WorldMasterDropdownProps) {
   const { adventure, onWorldMasterSelect } = params;
-  
+
   const { worldMasters } = useWorldMasterList();
-  
+
   const {
     showList,
     isAdding,
@@ -42,7 +42,9 @@ export function WorldMasterDropdown (params: WorldMasterDropdownProps) {
     );
   }
 
-  const selectedWorldMaster = worldMasters.find(wm => wm.id === adventure.worldMaster?.id);
+  const selectedWorldMaster = adventure.worldMasterId
+    ? worldMasters.find(wm => wm.id === adventure.worldMasterId)
+    : undefined;
 
   return (
     <View style={styles.worldMasterSection}>

@@ -21,6 +21,10 @@ export function isArrayRecord (value: unknown): value is Record<string, unknown>
     return Array.isArray(value) && value.every((item) => isRecord(item));
 }
 
+export function isStringArray (value: unknown): value is string[] {
+    return Array.isArray(value) && value.every((item) => typeof item === 'string');
+}
+
 export function isInEnum<T extends Record<string, string | number>> (enumObj: T, value: string | number): value is T[keyof T] {
     return Object.values(enumObj).includes(value);
 }

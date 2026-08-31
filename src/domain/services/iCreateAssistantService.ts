@@ -1,14 +1,15 @@
-import { Assistant, Model, Sampler } from '../entities';
+import { Assistant } from '../entities';
 
 export interface ICreateAssistantService {
-    createAssistant(params: CreateAssistantServiceParams): Promise<CreateAssistantServiceResponse>;
+    createAssistant (params: CreateAssistantServiceParams): Promise<CreateAssistantServiceResponse>;
 }
 
 export type CreateAssistantServiceParams = {
     name: string;
     observation?: string;
-    model: Model;
-    sampler: Sampler;
+    modelId: string;
+    samplerId: string;
+    connectionId: string;
 };
 
 export type CreateAssistantServiceResponse = {

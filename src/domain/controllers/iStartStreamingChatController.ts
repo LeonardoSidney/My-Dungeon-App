@@ -1,13 +1,13 @@
 import { Adventure, Chat, Role } from '@domain/entities';
 
 export interface IStartStreamingChatController {
-    handle(request: StartStreamingChatControllerRequest): Promise<StartStreamingChatControllerResponse>;
+    handle (request: StartStreamingChatControllerRequest): Promise<StartStreamingChatControllerResponse>;
 }
 
 export type StartStreamingChatControllerRequest = {
     adventure: Adventure;
     role: Role;
-    characterName: string;
+    characterId: string;
 };
 
 export type StartStreamingChatControllerResponse = {

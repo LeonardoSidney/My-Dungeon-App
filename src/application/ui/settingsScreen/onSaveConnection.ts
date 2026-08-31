@@ -17,12 +17,10 @@ export async function onSaveConnection (
         return portNumber;
     };
 
-    try {
-        await onSubmit(formData, getPortNumber);
-        setConnectionFormData(setInitialConnectionState());
-        setShowForm(false);
-        await loadConnections(setConnections);
-    } catch (error) {
-        console.error('Failed to save connection:', error);
-    }
+    const response = await onSubmit(formData, getPortNumber);
+    if (!response || !response.success) return;
+
+    setConnectionFormData(setInitialConnectionState());
+    setShowForm(false);
+    await loadConnections(setConnections);
 }

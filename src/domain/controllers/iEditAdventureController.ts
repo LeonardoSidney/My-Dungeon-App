@@ -1,4 +1,4 @@
-import { Adventure, Character, Chat, Item, Location, SystemPrompt, World, WorldMaster } from '../entities';
+import { Adventure, Chat } from '../entities';
 
 export interface IEditAdventureController {
     handle (request: EditAdventureControllerRequest): Promise<EditAdventureControllerResponse>;
@@ -7,12 +7,14 @@ export interface IEditAdventureController {
 export type EditAdventureControllerRequest = {
     id: string;
     name: string;
-    systemPrompts: SystemPrompt[];
-    characters: Character[];
-    worldMaster?: WorldMaster;
-    locations?: Location[];
-    worlds?: World[];
-    items?: Item[];
+    systemPromptIds: string[];
+    characterIds: string[];
+    worldMasterId?: string;
+    characterAsWorldMasterId?: string;
+    charactersControlledByAi: string[];
+    worldIds: string[];
+    locationIds: string[];
+    itemIds: string[];
     chat: Chat[];
     createdAt?: Date;
 };

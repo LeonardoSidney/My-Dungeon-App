@@ -12,7 +12,14 @@ export class EditWorldUseCase implements IEditWorldUseCase {
 
     async execute (params: EditWorldParams): Promise<EditWorldReturn> {
         this.logger.info('Executing EditWorldUseCase::execute');
-        this.validate(params);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return {
+                success: false,
+                world: undefined,
+                error: validationError
+            };
+        }
 
         const { id, name, activationWord, prompt, observation, createdAt } = params;
 
@@ -66,21 +73,23 @@ export class EditWorldUseCase implements IEditWorldUseCase {
         };
     }
 
-    private validate (params: EditWorldParams): void {
+    private validate (params: EditWorldParams): string | null {
         if (!params.id) {
-            throw new Error('An id is required to edit a world');
+            return 'An id is required to edit a world';
         }
 
         if (!params.name?.trim()) {
-            throw new Error('A name is required to edit a world');
+            return 'A name is required to edit a world';
         }
 
         if (!params.activationWord?.trim()) {
-            throw new Error('An activation word is required to edit a world');
+            return 'An activation word is required to edit a world';
         }
 
         if (!params.prompt?.trim()) {
-            throw new Error('A prompt is required to edit a world');
+            return 'A prompt is required to edit a world';
         }
+
+        return null;
     }
 }

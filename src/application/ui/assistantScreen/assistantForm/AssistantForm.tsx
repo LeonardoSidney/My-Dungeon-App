@@ -1,8 +1,14 @@
 import React from 'react';
 import { Text, TextInput, TouchableOpacity, View, ScrollView } from 'react-native';
-import '@domain/entities';
+import { Connection } from '@domain/entities';
 import { styles } from './styles';
 import { AssistantFormProps } from './constants';
+
+function getConnectionName (connectionId: string, connections: Connection[]): string {
+  const connection = connections.find(c => c.id === connectionId);
+  const connectionName = connection?.name;
+  return connectionName ?? connectionId;
+}
 
 export function AssistantForm ({
   showForm,
@@ -12,6 +18,7 @@ export function AssistantForm ({
   onSave,
   models,
   samplers,
+  connections,
   formErrors,
 }: AssistantFormProps) {
   const { name, observation, model, sampler } = assistantStateFormData;
@@ -45,46 +52,50 @@ export function AssistantForm ({
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Model</Text>
-          <View style={[styles.dropdown, formErrors.model && styles.inputError]}>
-            <ScrollView keyboardShouldPersistTaps="handled">
-              {models.map(modelItem => (
-                <TouchableOpacity
-                  key={`${modelItem.id}-${modelItem.connection.id}`}
-                  style={[
-                    styles.dropdownOption,
-                    model?.id === modelItem.id &&
-                      model?.connection.id === modelItem.connection.id &&
-                      styles.dropdownOptionSelected,
-                  ]}
-                  onPress={() => onChange('model', modelItem)}
-                >
-                  <Text style={styles.dropdownOptionText}>
-                    {modelItem.name} ({modelItem.connection.name})
-                  </Text>
-                </TouchableOpacity>
-              ))}
-              {models.length === 0 && <Text style={styles.emptyDropdownText}>No models available</Text>}
-            </ScrollView>
-          </View>
+          <ScrollView
+            style={[styles.dropdown, formErrors.model && styles.inputError]}
+            nestedScrollEnabled
+            keyboardShouldPersistTaps="handled"
+          >
+            {models.map(modelItem => (
+              <TouchableOpacity
+                key={`${modelItem.id}-${modelItem.connectionId}`}
+                style={[
+                  styles.dropdownOption,
+                  model?.id === modelItem.id &&
+                  model?.connectionId === modelItem.connectionId &&
+                  styles.dropdownOptionSelected,
+                ]}
+                onPress={() => onChange('model', modelItem)}
+              >
+                <Text style={styles.dropdownOptionText}>
+                  {modelItem.name} ({getConnectionName(modelItem.connectionId, connections)})
+                </Text>
+              </TouchableOpacity>
+            ))}
+            {models.length === 0 && <Text style={styles.emptyDropdownText}>No models available</Text>}
+          </ScrollView>
           {formErrors.model && <Text style={styles.errorText}>{formErrors.model}</Text>}
         </View>
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Sampler</Text>
-          <View style={[styles.dropdown, formErrors.sampler && styles.inputError]}>
-            <ScrollView keyboardShouldPersistTaps="handled">
-              {samplers.map(samplerItem => (
-                <TouchableOpacity
-                  key={samplerItem.id}
-                  style={[styles.dropdownOption, sampler?.id === samplerItem.id && styles.dropdownOptionSelected]}
-                  onPress={() => onChange('sampler', samplerItem)}
-                >
-                  <Text style={styles.dropdownOptionText}>{samplerItem.name}</Text>
-                </TouchableOpacity>
-              ))}
-              {samplers.length === 0 && <Text style={styles.emptyDropdownText}>No samplers available</Text>}
-            </ScrollView>
-          </View>
+          <ScrollView
+            style={[styles.dropdown, formErrors.sampler && styles.inputError]}
+            nestedScrollEnabled
+            keyboardShouldPersistTaps="handled"
+          >
+            {samplers.map(samplerItem => (
+              <TouchableOpacity
+                key={samplerItem.id}
+                style={[styles.dropdownOption, sampler?.id === samplerItem.id && styles.dropdownOptionSelected]}
+                onPress={() => onChange('sampler', samplerItem)}
+              >
+                <Text style={styles.dropdownOptionText}>{samplerItem.name}</Text>
+              </TouchableOpacity>
+            ))}
+            {samplers.length === 0 && <Text style={styles.emptyDropdownText}>No samplers available</Text>}
+          </ScrollView>
           {formErrors.sampler && <Text style={styles.errorText}>{formErrors.sampler}</Text>}
         </View>
 

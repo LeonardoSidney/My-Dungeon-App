@@ -8,7 +8,7 @@ import {
 import { ICreateChatService } from '@domain/services';
 
 export class CreateChatAdventureUseCase implements ICreateChatAdventureUseCase {
-    constructor (private readonly logger: ILogger, private readonly createChatService: ICreateChatService) {}
+    constructor (private readonly logger: ILogger, private readonly createChatService: ICreateChatService) { }
 
     async execute (params: CreateChatAdventureUseCaseParams): Promise<CreateChatAdventureUseCaseReturn> {
         this.logger.info('Executing CreateChatAdventureUseCase::execute');
@@ -23,7 +23,7 @@ export class CreateChatAdventureUseCase implements ICreateChatAdventureUseCase {
             content: params.content,
             role: params.role,
             think: params.think,
-            characterName: params.characterName,
+            characterId: params.characterId,
         });
 
         this.logger.debug('CreateChatAdventureUseCase::execute - chat created', response.chat);

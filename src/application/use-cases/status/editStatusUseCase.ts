@@ -12,7 +12,14 @@ export class EditStatusUseCase implements IEditStatusUseCase {
 
     async execute (params: EditStatusParams): Promise<EditStatusReturn> {
         this.logger.info('Executing EditStatusUseCase::execute');
-        this.validate(params);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return {
+                success: false,
+                status: undefined,
+                error: validationError
+            };
+        }
 
         const { status } = params;
 
@@ -66,23 +73,25 @@ export class EditStatusUseCase implements IEditStatusUseCase {
         };
     }
 
-    private validate (params: EditStatusParams): void {
+    private validate (params: EditStatusParams): string | null {
         const { status } = params;
 
         if (!status.id) {
-            throw new Error('An id is required to edit a status');
+            return 'An id is required to edit a status';
         }
 
         if (!status.name?.trim()) {
-            throw new Error('A name is required to edit a status');
+            return 'A name is required to edit a status';
         }
 
         if (!status.activationWord?.trim()) {
-            throw new Error('An activation word is required to edit a status');
+            return 'An activation word is required to edit a status';
         }
 
         if (!status.prompt?.trim()) {
-            throw new Error('A prompt is required to edit a status');
+            return 'A prompt is required to edit a status';
         }
+
+        return null;
     }
 }

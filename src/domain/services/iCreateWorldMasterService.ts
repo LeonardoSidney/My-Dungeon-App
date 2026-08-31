@@ -1,7 +1,7 @@
-import { Assistant, WorldMaster } from '../entities';
+import { WorldMaster } from '../entities';
 
 export interface ICreateWorldMasterService {
-    createWorldMaster(params: CreateWorldMasterServiceParams): CreateWorldMasterServiceResponse;
+    createWorldMaster (params: CreateWorldMasterServiceParams): CreateWorldMasterServiceResponse;
 }
 
 export type CreateWorldMasterServiceParams = {
@@ -9,7 +9,7 @@ export type CreateWorldMasterServiceParams = {
     activationWord: string;
     prompt: string;
     observation?: string;
-    assistant: Assistant;
+    assistantId: string;
 };
 
 export type CreateWorldMasterServiceResponse = {

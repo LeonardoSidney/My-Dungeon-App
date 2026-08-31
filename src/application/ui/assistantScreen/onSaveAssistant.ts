@@ -14,12 +14,10 @@ export async function onSaveAssistant (
     if (!assistantStateFormData.model) return;
     if (!assistantStateFormData.sampler) return;
 
-    try {
-        await onSubmit(assistantStateFormData);
-        setAssistantFormData(setInitialAssistantState());
-        setShowForm(false);
-        await loadAssistants(setAssistants);
-    } catch (error) {
-        console.error('Failed to save assistant:', error);
-    }
+    const response = await onSubmit(assistantStateFormData);
+    if (!response || !response.success) return;
+
+    setAssistantFormData(setInitialAssistantState());
+    setShowForm(false);
+    await loadAssistants(setAssistants);
 }

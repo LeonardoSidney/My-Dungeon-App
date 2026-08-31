@@ -2,6 +2,7 @@ export * from './createAdventureUseCase';
 export * from './editAdventureUseCase';
 export * from './getAdventuresUseCase';
 export * from './getAdventureTextUseCase';
+export * from './hydrateAdventureUseCase';
 export * from './appendChatAdventureUseCase';
 export * from './createChatAdventureUseCase';
 export * from './eraseAdventuresUseCase';

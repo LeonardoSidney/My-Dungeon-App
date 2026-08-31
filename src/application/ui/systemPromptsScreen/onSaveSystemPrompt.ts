@@ -11,7 +11,9 @@ export async function onSaveSystemPrompt (
     setShowForm: Dispatch<SetStateAction<boolean>>,
     setSystemPrompts: Dispatch<SetStateAction<SystemPrompt[]>>
 ) {
-    await onSubmit(formData);
+    const response = await onSubmit(formData);
+    if (!response || !response.success) return;
+
     setSystemPromptFormData(setInitialSystemPromptState());
     setShowForm(false);
     await loadSystemPrompts(setSystemPrompts);

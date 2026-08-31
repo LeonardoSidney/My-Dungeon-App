@@ -13,7 +13,13 @@ export class CreateStatusUseCase implements ICreateStatusUseCase {
         this.logger.info('Executing CreateStatusUseCase::execute');
         this.logger.debug('Executing CreateStatusUseCase::execute - params', params);
 
-        this.validate(params);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return {
+                success: false,
+                error: validationError
+            };
+        }
 
         this.logger.debug('Calling CreateStatusService', params);
         const response = this.service.createStatus(params);
@@ -27,7 +33,10 @@ export class CreateStatusUseCase implements ICreateStatusUseCase {
         }
 
         if (!response.status) {
-            throw new Error('Unexpected error while creating status');
+            return {
+                success: false,
+                error: 'Unexpected error while creating status'
+            };
         }
 
         const statuses = await this.statusRepository.getStatuses();
@@ -50,17 +59,19 @@ export class CreateStatusUseCase implements ICreateStatusUseCase {
         };
     }
 
-    private validate (params: CreateStatusUseCaseParams) {
+    private validate (params: CreateStatusUseCaseParams): string | null {
         if (!params.name?.trim()) {
-            throw new Error('name is required to create a status');
+            return 'name is required to create a status';
         }
 
         if (!params.activationWord?.trim()) {
-            throw new Error('activationWord is required to create a status');
+            return 'activationWord is required to create a status';
         }
 
         if (!params.prompt?.trim()) {
-            throw new Error('prompt is required to create a status');
+            return 'prompt is required to create a status';
         }
+
+        return null;
     }
 }

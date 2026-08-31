@@ -3,7 +3,7 @@ import { Character } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { ICharacterRepository, SaveCharacterParams, EditCharacterParams, EditCharacterReturn, EraseCharacterReturn } from '@domain/repository';
 import { IStorage } from '@domain/storage';
-import { CharacterDTO } from '../dto';
+import { CharacterDTO } from '@infra/dto';
 
 export class CharacterRepository implements ICharacterRepository {
     constructor (
@@ -39,6 +39,12 @@ export class CharacterRepository implements ICharacterRepository {
             throw error;
         }
         return true;
+    }
+
+    async getCharacterById (characterId: string): Promise<Character | undefined> {
+        this.logger.info('Executing CharacterRepository::getCharacterById');
+        const characters = await this.getCharacters();
+        return characters.find((c) => c.id === characterId);
     }
 
     async getCharacters (): Promise<Character[]> {

@@ -19,12 +19,11 @@ export class CreateCharacterService implements ICreateCharacterService {
                 activationWord: params.activationWord,
                 prompt: params.prompt,
                 observation: params.observation,
-                abilities: params.abilities,
-                proficiencies: params.proficiencies,
-                statuses: params.statuses,
+                abilityIds: params.abilityIds,
+                proficiencyIds: params.proficiencyIds,
+                statusIds: params.statusIds,
                 attributes: params.attributes,
-                assistant: params.assistant,
-                worldMaster: params.worldMaster,
+                assistantId: params.assistantId,
                 createdAt: createdAt,
                 updatedAt: createdAt
             }

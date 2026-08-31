@@ -6,15 +6,13 @@ import {
 } from '@domain/services';
 
 export class UpdateStreamingChatService implements IUpdateStreamingChatService {
-    constructor (private readonly logger: ILogger) {}
+    constructor (private readonly logger: ILogger) { }
 
     updateStreamingChat (params: UpdateStreamingChatServiceParams): UpdateStreamingChatServiceReturn {
         this.logger.info('Executing UpdateStreamingChatService::updateStreamingChat');
         this.logger.debug('UpdateStreamingChatService::updateStreamingChat - params', params);
 
         const { adventure, chatId, content, think } = params;
-
-        console.log('UpdateStreamingChatService::updateStreamingChat - content:', content, 'think:', think);
 
         const chatIndex = adventure.chat.findIndex(c => c.id === chatId);
         if (chatIndex === -1) {

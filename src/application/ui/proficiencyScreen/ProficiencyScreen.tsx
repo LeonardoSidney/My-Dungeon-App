@@ -34,11 +34,7 @@ export function ProficiencyScreen () {
     }
     setFormErrors({});
 
-    try {
-      await onSaveProficiency(proficiencyStateFormData, setProficiencyFormData, setShowForm, setProficiencies);
-    } catch (error) {
-      setFormErrors({ name: (error as Error).message });
-    }
+    await onSaveProficiency(proficiencyStateFormData, setProficiencyFormData, setShowForm, setProficiencies);
   };
 
   const handleFormChange = (field: keyof ProficiencyFormData, value: string | Date) => {

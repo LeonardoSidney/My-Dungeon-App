@@ -1,9 +1,11 @@
+import { RefObject } from 'react';
+import { Alert } from 'react-native';
 import { Adventure, RoleEnum } from '@domain/entities';
+import { HydratedAdventure } from '@domain/use-cases';
 import {
     startStreamingChatController,
     updateStreamingChatController,
     finishStreamingChatController,
-    // getStreamCompletionController,
     getAdventureTextController,
     getNativeStreamCompletionController,
 } from '@infra/container';
@@ -11,6 +13,7 @@ import { parseThinkContent } from './parseThinkContent';
 
 export interface HandleStreamResponseParams {
     adventureToUpdate: Adventure;
+    hydratedRef: RefObject<HydratedAdventure | null>;
     isAbortedRef: { current: boolean; };
     setIsStreaming: (isStreaming: boolean) => void;
     streamRef: { current: AsyncGenerator<string, void, void> | null; };
@@ -18,39 +21,79 @@ export interface HandleStreamResponseParams {
     setCurrentAdventure: (adventure: Adventure) => void;
 }
 
+type WorldMasterRuntime = {
+    connectionId: string;
+    samplerId: string;
+    modelId: string;
+    characterId: string;
+};
+
+function resolveWorldMasterRuntime (hydrated: HydratedAdventure | null): WorldMasterRuntime | null {
+    if (!hydrated) return null;
+
+    const dedicatedWorldMaster = hydrated.worldMaster;
+    const worldMasterCharacter = dedicatedWorldMaster
+        ? undefined
+        : hydrated.characters.find(c => c.worldMaster === true);
+
+    const assistantId = dedicatedWorldMaster
+        ? dedicatedWorldMaster.assistantId
+        : worldMasterCharacter?.assistantId;
+
+    const characterId = dedicatedWorldMaster
+        ? dedicatedWorldMaster.id
+        : worldMasterCharacter?.id;
+
+    if (!assistantId || !characterId) return null;
+
+    const assistant = hydrated.assistants[assistantId];
+    if (!assistant) return null;
+
+    const connection = hydrated.connections.find(c => c.id === assistant.connectionId);
+    if (!connection) return null;
+
+    return {
+        connectionId: connection.id,
+        samplerId: assistant.samplerId,
+        modelId: assistant.modelId,
+        characterId,
+    };
+}
+
 export async function handleStreamResponse ({
     adventureToUpdate,
+    hydratedRef,
     isAbortedRef,
     setIsStreaming,
     streamRef,
     abortRef,
     setCurrentAdventure,
 }: HandleStreamResponseParams): Promise<Adventure | null> {
-    const worldMaster = adventureToUpdate.worldMaster || adventureToUpdate.characters.find(c => c.worldMaster);
-    if (!worldMaster) return null;
-
-    const assistant = worldMaster.assistant;
-    const connection = assistant.model.connection;
-    const modelId = assistant.model.name;
-    const sampler = assistant.sampler;
+    const runtime = resolveWorldMasterRuntime(hydratedRef.current);
+    if (!runtime) return null;
 
     const textController = getAdventureTextController();
     const textResponse = await textController.handle({
         adventure: adventureToUpdate,
     });
 
-    if (!textResponse.success || !textResponse.prompt) return null;
+    if (!textResponse.success || !textResponse.prompt) {
+        Alert.alert('Erro', textResponse.error ?? 'Failed to generate adventure text');
+        return null;
+    }
 
-    // const streamController = getStreamCompletionController();
     const streamController = getNativeStreamCompletionController();
     const result = await streamController.handle({
-        connection,
-        sampler,
-        modelId,
+        connectionId: runtime.connectionId,
+        samplerId: runtime.samplerId,
+        modelId: runtime.modelId,
         prompt: textResponse.prompt,
     });
 
-    if (!result.success || !result.stream) return null;
+    if (!result.success || !result.stream) {
+        Alert.alert('Erro', result.error ?? 'Failed to start model stream');
+        return null;
+    }
 
     isAbortedRef.current = false;
     setIsStreaming(true);
@@ -62,10 +105,11 @@ export async function handleStreamResponse ({
     const startResponse = await startStreamingChatController().handle({
         adventure: adventureToUpdate,
         role: RoleEnum.ASSISTANT,
-        characterName: worldMaster.name,
+        characterId: runtime.characterId,
     });
 
     if (!startResponse.success || !startResponse.chat || !startResponse.adventure) {
+        Alert.alert('Erro', startResponse.error ?? 'Failed to start assistant chat');
         setIsStreaming(false);
         return null;
     }
@@ -108,6 +152,10 @@ export async function handleStreamResponse ({
         think: finalThink,
     });
 
+    if (!updateResponse.success || !updateResponse.adventure) {
+        Alert.alert('Erro', updateResponse.error ?? 'Failed to save the final assistant message');
+    }
+
     if (updateResponse.success && updateResponse.adventure) {
         lastUpdatedAdventure = updateResponse.adventure;
         setCurrentAdventure(updateResponse.adventure);
@@ -117,6 +165,10 @@ export async function handleStreamResponse ({
         adventure: lastUpdatedAdventure,
         chatId: startResponse.chat.id,
     });
+
+    if (!finishResponse.success || !finishResponse.adventure) {
+        Alert.alert('Erro', finishResponse.error ?? 'Failed to finalize the assistant chat');
+    }
 
     if (finishResponse.success && finishResponse.adventure) {
         lastUpdatedAdventure = finishResponse.adventure;

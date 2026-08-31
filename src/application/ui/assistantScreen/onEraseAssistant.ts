@@ -1,3 +1,4 @@
+import { Alert } from 'react-native';
 import { Assistant } from '@domain/entities';
 import { Dispatch, SetStateAction } from 'react';
 import { eraseAssistantController } from '@infra/container';
@@ -7,11 +8,11 @@ export async function onEraseAssistant (
     assistant: Assistant,
     setAssistants: Dispatch<SetStateAction<Assistant[]>>
 ) {
-    try {
-        const ctrl = eraseAssistantController();
-        await ctrl.handle(assistant.id);
-        await loadAssistants(setAssistants);
-    } catch (error) {
-        console.error('Failed to delete assistant:', error);
+    const ctrl = eraseAssistantController();
+    const response = await ctrl.handle(assistant.id);
+    if (!response.success) {
+        Alert.alert('Erro', response.error ?? 'Failed to delete assistant');
+        return;
     }
+    await loadAssistants(setAssistants);
 }

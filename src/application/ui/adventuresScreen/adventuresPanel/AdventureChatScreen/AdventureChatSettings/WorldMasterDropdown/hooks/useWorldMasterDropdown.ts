@@ -18,7 +18,7 @@ export function useWorldMasterDropdown ({
     } = useDropdownVisibility();
 
     const { handleAddWorldMaster } = useAddWorldMaster({
-        adventureWorldMasterId: adventure.worldMaster?.id,
+        adventureWorldMasterId: adventure.worldMasterId,
         setWorldMasters,
         startAdding
     });

@@ -1,4 +1,5 @@
 import { Adventure, Character } from '@domain/entities';
+import { HydratedAdventure } from '@domain/use-cases';
 import { Dispatch, RefObject, SetStateAction } from 'react';
 import { NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 
@@ -23,6 +24,13 @@ export interface AdventureChatScreenProps {
     onCharacterSelect?: (adventure: Adventure) => void;
 }
 
+export interface AdventureChatContentProps {
+    adventure: Adventure;
+    hydrated: HydratedAdventure;
+    hydratedRef: RefObject<HydratedAdventure | null>;
+    onBack: () => void;
+}
+
 export interface RegenerateMessageParams {
     currentAdventure: Adventure;
     chatId: string;
@@ -32,7 +40,6 @@ export interface RegenerateMessageParams {
 }
 
 export type HandleRegenerateFromMessageParams = RegenerateMessageParams;
-export type OnRegenerateFromMessageParams = RegenerateMessageParams;
 
 export interface HandleStreamResponseParams {
     currentAdventure: Adventure;
@@ -60,11 +67,6 @@ export interface OnSendMessageParams {
     setCurrentAdventure: Dispatch<SetStateAction<Adventure>>;
     setMessage: Dispatch<SetStateAction<string>>;
     handleStreamResponse: (adventure: Adventure) => Promise<void>;
-}
-
-export interface OnStopStreamingParams {
-    refs: StreamingRefs;
-    setIsStreaming: Dispatch<SetStateAction<boolean>>;
 }
 
 export interface HandleDeleteMessageParams {

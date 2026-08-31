@@ -101,11 +101,11 @@ describe('CreateAdventureController', () => {
 
     it('should handle empty arrays correctly', async () => {
         const mockRequest = createAdventureRequestHelper({
-            characters: [],
-            systemPrompts: [],
-            items: [],
-            locations: [],
-            worlds: []
+            characterIds: [],
+            systemPromptIds: [],
+            itemIds: [],
+            locationIds: [],
+            worldIds: []
         });
 
         const mockResponse = {
@@ -127,12 +127,12 @@ describe('CreateAdventureController', () => {
 
     it('should handle null values correctly', async () => {
         const mockRequest = createAdventureRequestHelper({
-            characters: null as any,
-            systemPrompts: null as any,
-            items: null as any,
-            locations: null as any,
-            worlds: null as any,
-            worldMaster: null as any
+            characterIds: null as any,
+            systemPromptIds: null as any,
+            itemIds: null as any,
+            locationIds: null as any,
+            worldIds: null as any,
+            worldMasterId: null as any
         });
 
         const mockResponse = {

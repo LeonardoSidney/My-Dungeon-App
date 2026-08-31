@@ -1,25 +1,43 @@
 import { ILogger } from '@domain/logger';
-import { IAssistantRepository } from '@domain/repository';
-import { ICreateAssistantService } from '@domain/services';
+import {
+    IAssistantRepository,
+    IConnectionRepository,
+    ISamplerRepository,
+} from '@domain/repository';
+import { ICreateAssistantService, IGetSamplersService } from '@domain/services';
 import { CreateAssistantUseCaseParams, CreateAssistantUseCaseResponse, ICreateAssistantUseCase } from '@domain/use-cases';
+import { createSamplerResolver } from '@application/shared/resolveSampler';
+import { checkReferencedId } from '@application/shared/validateReferencedIds';
 
 export class CreateAssistantUseCase implements ICreateAssistantUseCase {
     constructor (
         private readonly logger: ILogger,
         private readonly assistantRepository: IAssistantRepository,
-        private readonly service: ICreateAssistantService
+        private readonly service: ICreateAssistantService,
+        private readonly samplerRepository: ISamplerRepository,
+        private readonly getSamplersService: IGetSamplersService,
+        private readonly connectionRepository: IConnectionRepository
     ) { }
 
     async execute (params: CreateAssistantUseCaseParams): Promise<CreateAssistantUseCaseResponse> {
         this.logger.info('Executing CreateAssistantUseCase::execute');
         this.logger.debug('Execute CreateAssistantUseCase::execute - params: ', params);
 
-        const { name, observation, model, sampler } = params;
+        const missingIdError = await this.validateReferencedIds(params);
+        if (missingIdError) {
+            return {
+                success: false,
+                error: missingIdError
+            };
+        }
+
+        const { name, observation, modelId, samplerId, connectionId } = params;
         const response = await this.service.createAssistant({
             name,
             observation,
-            model,
-            sampler
+            modelId,
+            samplerId,
+            connectionId
         });
         this.logger.debug('Execute CreateAssistantUseCase::execute - service response: ', response);
 
@@ -31,7 +49,10 @@ export class CreateAssistantUseCase implements ICreateAssistantUseCase {
         }
 
         if (!response.assistant) {
-            throw new Error('Unexpected error: assistant is null');
+            return {
+                success: false,
+                error: 'Unexpected error: assistant is null'
+            };
         }
 
         const assistants = await this.assistantRepository.getAssistants();
@@ -52,5 +73,22 @@ export class CreateAssistantUseCase implements ICreateAssistantUseCase {
             success: true,
             assistant: response.assistant
         };
+    }
+
+    private async validateReferencedIds (params: CreateAssistantUseCaseParams): Promise<string | null> {
+        const resolveSampler = createSamplerResolver(this.samplerRepository, this.getSamplersService);
+        const samplerError = await checkReferencedId(
+            (id) => resolveSampler(id),
+            params.samplerId,
+            'Sampler'
+        );
+        if (samplerError) {
+            return samplerError;
+        }
+        return checkReferencedId(
+            (id) => this.connectionRepository.getConnectionById(id),
+            params.connectionId,
+            'Connection'
+        );
     }
 }
