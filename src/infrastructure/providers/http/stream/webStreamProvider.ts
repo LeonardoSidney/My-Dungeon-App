@@ -1,12 +1,16 @@
 /// <reference types="web" />
 import { ILogger } from '@domain/logger';
-import { IStreamProvider, StreamProvider } from '@domain/providers';
+import { ISseLineParser, IStreamProvider, StreamProvider } from '@domain/providers';
 
 export class WebStreamProvider implements IStreamProvider {
-    constructor (private readonly logger: ILogger) {}
+    constructor (
+        private readonly logger: ILogger,
+        private readonly sseLineParser: ISseLineParser
+    ) { }
 
     stream (params: StreamProvider.params): IStreamProvider.StreamResult {
         const { url, method, headers, body } = params;
+        this.logger.info('Executing WebStreamProvider::stream', url);
 
         const abortController = new AbortController();
 
@@ -20,21 +24,42 @@ export class WebStreamProvider implements IStreamProvider {
             options.body = JSON.stringify(body);
         }
 
+        const logger = this.logger;
+        const parser = this.sseLineParser;
+
         async function* generate (): AsyncGenerator<string> {
+            let request: Response;
             try {
-                const request = await fetch(url, options);
-
-                if (!request.ok) {
-                    throw new Error('Something is wrong');
+                request = await fetch(url, options);
+            } catch (error) {
+                if (error instanceof Error && error.name === 'AbortError') {
+                    logger.info('WebStreamProvider::stream aborted', url);
+                    return;
                 }
 
-                if (!request.body) {
-                    throw new Error('request does not have body');
-                }
+                logger.error('WebStreamProvider::stream request failed:', url, error);
+                throw error;
+            }
 
-                const reader = request.body.getReader();
-                const decoder = new TextDecoder();
+            if (!request.ok) {
+                logger.error(`WebStreamProvider::stream failed with status ${request.status}`, url);
+                throw new Error(`Request failed with status ${request.status}`);
+            }
 
+            if (!request.body) {
+                logger.error('WebStreamProvider::stream request does not have a body', url);
+                throw new Error('Request does not have a body');
+            }
+
+            const reader = request.body.getReader();
+            const decoder = new TextDecoder();
+            let streamDone = false;
+
+            const onStreamDone = () => {
+                streamDone = true;
+            };
+
+            try {
                 while (true) {
                     const { done, value } = await reader.read();
 
@@ -42,28 +67,35 @@ export class WebStreamProvider implements IStreamProvider {
                         break;
                     }
 
+                    if (streamDone) {
+                        break;
+                    }
+
                     const text = decoder.decode(value, {
                         stream: true,
                     });
 
-                    for (const line of text.split('\n')) {
-                        if (!line.startsWith('data: ')) {
-                            continue;
-                        }
+                    const pendingChunks: string[] = [];
+                    parser.process(text, pendingChunks, onStreamDone);
 
-                        const json = line.slice(6);
+                    for (const chunk of pendingChunks) {
+                        yield chunk;
+                    }
 
-                        if (json === '[DONE]') {
-                            break;
-                        }
-
-                        yield json;
+                    if (streamDone) {
+                        break;
                     }
                 }
             } catch (error) {
-                if (error instanceof Error && error.name !== 'AbortError') {
+                if (error instanceof Error && error.name === 'AbortError') {
+                    logger.info('WebStreamProvider::stream aborted', url);
+                } else {
+                    logger.error('WebStreamProvider::stream read failed:', url, error);
                     throw error;
                 }
+            } finally {
+                parser.flush([], onStreamDone);
+                reader.releaseLock();
             }
         }
 

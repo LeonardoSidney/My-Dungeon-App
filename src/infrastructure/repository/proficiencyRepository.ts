@@ -3,7 +3,7 @@ import { Proficiency } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { IProficiencyRepository, SaveProficiencyParams, EditProficiencyParams, EditProficiencyReturn, EraseProficiencyReturn } from '@domain/repository';
 import { IStorage } from '@domain/storage';
-import { ProficiencyDTO } from '../dto';
+import { ProficiencyDTO } from '@infra/dto';
 
 export class ProficiencyRepository implements IProficiencyRepository {
     constructor (
@@ -39,6 +39,12 @@ export class ProficiencyRepository implements IProficiencyRepository {
             throw error;
         }
         return true;
+    }
+
+    async getProficiencyById (proficiencyId: string): Promise<Proficiency | undefined> {
+        this.logger.info('Executing ProficiencyRepository::getProficiencyById');
+        const proficiencies = await this.getProficiencies();
+        return proficiencies.find((p) => p.id === proficiencyId);
     }
 
     async getProficiencies (): Promise<Proficiency[]> {

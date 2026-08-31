@@ -1,4 +1,4 @@
-import { Model, Sampler } from '@domain/entities';
+import { Connection, Model, Sampler } from '@domain/entities';
 import { AssistantFormData } from '../constants';
 
 export type FormErrors = {
@@ -15,5 +15,6 @@ export type AssistantFormProps = {
     onSave: () => void;
     models: Model[];
     samplers: Sampler[];
+    connections: Connection[];
     formErrors: FormErrors;
 };

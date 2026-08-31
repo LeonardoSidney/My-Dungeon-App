@@ -1,3 +1,4 @@
+import { Alert } from 'react-native';
 import { RoleEnum } from '@domain/entities';
 import { HandleRegenerateFromMessageParams } from './constants';
 
@@ -9,12 +10,14 @@ export async function handleRegenerateFromMessage ({
     handleStreamResponse,
 }: HandleRegenerateFromMessageParams): Promise<void> {
     if (!currentAdventure?.chat) {
-        throw new Error('Current adventure must have chat history');
+        Alert.alert('Erro', 'Current adventure must have chat history');
+        return;
     }
 
     const chatIndex = currentAdventure.chat.findIndex(c => c.id === chatId);
     if (chatIndex === -1) {
-        throw new Error(`Chat with id ${chatId} not found`);
+        Alert.alert('Erro', `Chat with id ${chatId} not found`);
+        return;
     }
 
     const chatsBeforeTarget = currentAdventure.chat.slice(0, chatIndex + 1);
@@ -23,7 +26,8 @@ export async function handleRegenerateFromMessage ({
     const lastUserMessageIndex = chatsBeforeTarget.length - 1 - userIndexInReversed;
 
     if (lastUserMessageIndex === -1) {
-        throw new Error(`No user message found before chat ${chatId}`);
+        Alert.alert('Erro', `No user message found before chat ${chatId}`);
+        return;
     }
 
     const newChats = currentAdventure.chat.slice(0, lastUserMessageIndex + 1);

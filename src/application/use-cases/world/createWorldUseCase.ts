@@ -14,7 +14,13 @@ export class CreateWorldUseCase implements ICreateWorldUseCase {
         this.logger.info('Executing CreateWorldUseCase::execute');
         this.logger.debug('CreateWorldUseCase::execute - params:', params);
 
-        this.validate(params);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return {
+                success: false,
+                error: validationError
+            };
+        }
 
         const response = this.service.createWorld(params);
         this.logger.debug('CreateWorldService executed successfully', response);
@@ -27,7 +33,10 @@ export class CreateWorldUseCase implements ICreateWorldUseCase {
         }
 
         if (!response.world) {
-            throw new Error('Something went wrong when tried to create the world');
+            return {
+                success: false,
+                error: 'Something went wrong when tried to create the world'
+            };
         }
 
         const worlds = await this.worldRepository.getWorlds();
@@ -50,17 +59,19 @@ export class CreateWorldUseCase implements ICreateWorldUseCase {
         };
     }
 
-    private validate (params: CreateWorldUseCaseParams): void {
+    private validate (params: CreateWorldUseCaseParams): string | null {
         if (!params.name?.trim()) {
-            throw new Error('Name is required to create a world');
+            return 'Name is required to create a world';
         }
 
         if (!params.prompt?.trim()) {
-            throw new Error('Prompt is required to create a world');
+            return 'Prompt is required to create a world';
         }
 
         if (!params.activationWord?.trim()) {
-            throw new Error('Activation word is required to create a world');
+            return 'Activation word is required to create a world';
         }
+
+        return null;
     }
 }

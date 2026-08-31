@@ -1,20 +1,15 @@
 import { CreateAdventureRequest } from '@domain/controllers';
-import { createCharacterHelper } from './createCharacterHelper';
-import { createSystemPromptHelper } from './createSystemPromptHelper';
-import { createItemHelper } from './createItemHelper';
-import { createLocationHelper } from './createLocationHelper';
-import { createWorldHelper } from './createWorldHelper';
-import { createWorldMasterHelper } from './createWorldMasterHelper';
 
 export function createAdventureRequestHelper (overrides?: Partial<CreateAdventureRequest>): CreateAdventureRequest {
     return {
         name: 'Test Adventure',
-        systemPrompts: [createSystemPromptHelper()],
-        characters: [createCharacterHelper()],
-        worldMaster: createWorldMasterHelper(),
-        locations: [createLocationHelper()],
-        worlds: [createWorldHelper()],
-        items: [createItemHelper()],
+        systemPromptIds: ['1'],
+        characterIds: ['1'],
+        worldMasterId: '1',
+        charactersControlledByAi: [],
+        worldIds: ['1'],
+        locationIds: ['1'],
+        itemIds: ['1'],
         ...overrides
     };
 }

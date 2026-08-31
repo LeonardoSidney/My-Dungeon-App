@@ -1,13 +1,13 @@
 import { Adventure, Chat, Role } from '@domain/entities';
 
 export interface IStartStreamingChatService {
-    startStreamingChat(params: StartStreamingChatServiceParams): StartStreamingChatServiceReturn;
+    startStreamingChat (params: StartStreamingChatServiceParams): StartStreamingChatServiceReturn;
 }
 
 export type StartStreamingChatServiceParams = {
     adventure: Adventure;
     role: Role;
-    characterName: string;
+    characterId: string;
 };
 
 export type StartStreamingChatServiceReturn = {

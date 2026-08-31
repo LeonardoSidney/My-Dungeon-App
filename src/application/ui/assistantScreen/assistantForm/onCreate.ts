@@ -9,11 +9,15 @@ export async function onCreate (
     if (!formData.sampler) return;
 
     const controller = createAssistantController();
+    const modelId = formData.model.id;
+    const connectionId = formData.model.connectionId;
+    const samplerId = formData.sampler.id;
     const newAssistant: CreateAssistantControllerParams = {
         name: formData.name,
         observation: formData.observation || undefined,
-        model: formData.model,
-        sampler: formData.sampler,
+        modelId,
+        connectionId,
+        samplerId,
     };
 
     return controller.handle(newAssistant);

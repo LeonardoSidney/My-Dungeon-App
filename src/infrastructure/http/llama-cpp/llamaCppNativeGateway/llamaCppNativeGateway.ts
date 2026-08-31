@@ -38,10 +38,15 @@ export class LlamaCppNativeGateway extends LlamaCppBaseGateway implements IModel
             for await (const chunkString of providerStream) {
                 try {
                     const parsed = JSON.parse(chunkString);
-                    console.log('parsed', parsed);
-                    if (!parsed.stop) {
-                        yield parsed.content;
+                    if (parsed.stop) {
+                        continue;
                     }
+
+                    if (typeof parsed.content !== 'string') {
+                        continue;
+                    }
+
+                    yield parsed.content;
                 } catch (error) {
                     logger.error('Error parsing streaming completion chunk:', error);
                 }

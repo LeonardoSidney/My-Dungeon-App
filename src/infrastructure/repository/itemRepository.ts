@@ -3,7 +3,7 @@ import { Item } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { IItemRepository, SaveItemParams } from '@domain/repository';
 import { IStorage } from '@domain/storage';
-import { ItemDTO } from '../dto';
+import { ItemDTO } from '@infra/dto';
 
 export class ItemRepository implements IItemRepository {
     constructor (
@@ -26,6 +26,12 @@ export class ItemRepository implements IItemRepository {
         }
 
         return true;
+    }
+
+    async getItemById (itemId: string): Promise<Item | undefined> {
+        this.logger.info('Executing ItemRepository::getItemById');
+        const items = await this.getItems();
+        return items.find((i) => i.id === itemId);
     }
 
     async getItems (): Promise<Item[]> {

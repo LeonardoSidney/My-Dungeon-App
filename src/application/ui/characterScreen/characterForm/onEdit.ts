@@ -11,6 +11,11 @@ export async function onEdit (
     if (!formData.updatedAt) return;
 
     const controller = editCharacterController();
+    const abilityIds = formData.abilities.map(ability => ability.id);
+    const proficiencyIds = formData.proficiencies.map(proficiency => proficiency.id);
+    const statusIds = formData.statuses.map(status => status.id);
+    const assistantId = formData.assistant.id;
+    const attributes = filterAttributes(formData.attributes);
 
     return controller.handle({
         character: {
@@ -19,11 +24,11 @@ export async function onEdit (
             activationWord: formData.activationWord,
             prompt: formData.prompt,
             observation: formData.observation,
-            assistant: formData.assistant,
-            abilities: formData.abilities,
-            proficiencies: formData.proficiencies,
-            statuses: formData.statuses,
-            attributes: filterAttributes(formData.attributes),
+            assistantId,
+            abilityIds,
+            proficiencyIds,
+            statusIds,
+            attributes,
             createdAt: formData.createdAt,
             updatedAt: formData.updatedAt,
         },

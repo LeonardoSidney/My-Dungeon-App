@@ -41,6 +41,10 @@ export class LlamaCppOAGateway extends LlamaCppBaseGateway implements IModelProv
                     const finishReason = parsed.choices?.[0]?.finish_reason;
                     if (finishReason !== 'stop') {
                         const text = parsed.choices?.[0]?.text;
+                        if (typeof text !== 'string') {
+                            continue;
+                        }
+
                         yield text;
                     }
                 } catch (error) {

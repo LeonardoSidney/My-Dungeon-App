@@ -1,12 +1,10 @@
-import { Assistant } from './Assistant';
-
 export type WorldMaster = {
     id: string;
     name: string;
     activationWord: string;
     prompt: string;
     observation?: string;
-    assistant: Assistant;
+    assistantId: string;
     createdAt: Date;
     updatedAt: Date;
 };

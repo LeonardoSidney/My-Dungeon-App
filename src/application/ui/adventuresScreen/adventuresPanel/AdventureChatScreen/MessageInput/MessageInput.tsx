@@ -12,7 +12,7 @@ function MessageInputBase (props: MessageInputProps) {
     isStreaming,
     onSend,
     onResend,
-    adventure,
+    characters,
     selectedCharacterId,
     onCharacterSelect
   } = props;
@@ -24,7 +24,7 @@ function MessageInputBase (props: MessageInputProps) {
   return (
     <View style={styles.inputContainer}>
       <CharacterSelector
-        adventure={adventure}
+        characters={characters}
         onCharacterSelect={onCharacterSelect}
         selectedCharacterId={selectedCharacterId}
         style={styles.characterSelector}
@@ -36,7 +36,7 @@ function MessageInputBase (props: MessageInputProps) {
         placeholder="Type a message..."
         multiline
         selectionColor="transparent"
-        cursorColor="transparent"
+        cursorColor="#fff"
         placeholderTextColor="#888"
         autoCorrect={false}
         underlineColorAndroid="transparent"

@@ -10,7 +10,7 @@ export class CreateAssistantService implements ICreateAssistantService {
     async createAssistant (params: CreateAssistantServiceParams): Promise<CreateAssistantServiceResponse> {
         this.logger.info('Execute CreateAssistantService::createAssistant');
         this.logger.debug('Execute CreateAssistantService::createAssistant - params: ', params);
-        const { name, observation, model, sampler } = params;
+        const { name, observation, modelId, samplerId, connectionId } = params;
         const createdAt = new Date();
 
         return {
@@ -19,8 +19,9 @@ export class CreateAssistantService implements ICreateAssistantService {
                 id: this.idGenerate.generate(),
                 name,
                 observation,
-                model,
-                sampler,
+                modelId,
+                samplerId,
+                connectionId,
                 createdAt: createdAt,
                 updatedAt: createdAt
             },

@@ -1,15 +1,22 @@
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { Assistant } from '@domain/entities';
+import { Assistant, Model } from '@domain/entities';
 import { styles } from './styles';
 
 type AssistantPanelProps = {
   assistants: Assistant[];
+  models: Model[];
   onEdit: (assistant: Assistant) => void;
   onDelete: (assistant: Assistant) => void;
 };
 
-export function AssistantPanel ({ assistants, onEdit, onDelete }: AssistantPanelProps) {
+function getAssistantModelName (assistant: Assistant, models: Model[]): string {
+  const model = models.find(m => m.id === assistant.modelId && m.connectionId === assistant.connectionId);
+  const modelName = model?.name;
+  return modelName ?? 'unknown';
+}
+
+export function AssistantPanel ({ assistants, models, onEdit, onDelete }: AssistantPanelProps) {
   return (
     <>
       {assistants.length === 0 && (
@@ -20,7 +27,7 @@ export function AssistantPanel ({ assistants, onEdit, onDelete }: AssistantPanel
           <View style={styles.assistantInfo}>
             <Text style={styles.assistantName}>{assistant.name}</Text>
             <Text style={styles.assistantDetails}>
-              Model: {assistant.model.name}
+              Model: {getAssistantModelName(assistant, models)}
             </Text>
           </View>
           <View style={styles.assistantActions}>

@@ -1,18 +1,44 @@
 import { ILogger } from '@domain/logger';
-import { ICharacterRepository } from '@domain/repository';
+import {
+    IAbilityRepository,
+    IAssistantRepository,
+    ICharacterRepository,
+    IProficiencyRepository,
+    IStatusRepository,
+} from '@domain/repository';
 import { IEditCharacterService } from '@domain/services';
 import { EditCharacterParams, EditCharacterReturn, IEditCharacterUseCase } from '@domain/use-cases';
+import { checkReferencedId, checkReferencedIds } from '@application/shared/validateReferencedIds';
 
 export class EditCharacterUseCase implements IEditCharacterUseCase {
     constructor (
         private readonly logger: ILogger,
         private readonly service: IEditCharacterService,
-        private readonly characterRepository: ICharacterRepository
+        private readonly characterRepository: ICharacterRepository,
+        private readonly assistantRepository: IAssistantRepository,
+        private readonly abilityRepository: IAbilityRepository,
+        private readonly proficiencyRepository: IProficiencyRepository,
+        private readonly statusRepository: IStatusRepository
     ) { }
 
     async execute (params: EditCharacterParams): Promise<EditCharacterReturn> {
         this.logger.info('Executing EditCharacterUseCase::execute');
-        this.validate(params);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return {
+                success: false,
+                character: undefined,
+                error: validationError
+            };
+        }
+        const missingIdError = await this.validateReferencedIds(params);
+        if (missingIdError) {
+            return {
+                success: false,
+                character: undefined,
+                error: missingIdError
+            };
+        }
 
         const { character } = params;
 
@@ -66,23 +92,62 @@ export class EditCharacterUseCase implements IEditCharacterUseCase {
         };
     }
 
-    private validate (params: EditCharacterParams): void {
+    private validate (params: EditCharacterParams): string | null {
         const { character } = params;
 
         if (!character.id) {
-            throw new Error('An id is required to edit a character');
+            return 'An id is required to edit a character';
         }
 
         if (!character.name?.trim()) {
-            throw new Error('A name is required to edit a character');
+            return 'A name is required to edit a character';
         }
 
         if (!character.activationWord?.trim()) {
-            throw new Error('An activation word is required to edit a character');
+            return 'An activation word is required to edit a character';
         }
 
         if (!character.prompt?.trim()) {
-            throw new Error('A prompt is required to edit a character');
+            return 'A prompt is required to edit a character';
         }
+
+        return null;
+    }
+
+    private async validateReferencedIds (params: EditCharacterParams): Promise<string | null> {
+        const { character } = params;
+        const assistantError = await checkReferencedId(
+            (id) => this.assistantRepository.getAssistantById(id),
+            character.assistantId,
+            'Assistant'
+        );
+        if (assistantError) {
+            return assistantError;
+        }
+        const abilityError = await checkReferencedIds(
+            (id) => this.abilityRepository.getAbilityById(id),
+            character.abilityIds ?? [],
+            'Ability'
+        );
+        if (abilityError) {
+            return abilityError;
+        }
+        const proficiencyError = await checkReferencedIds(
+            (id) => this.proficiencyRepository.getProficiencyById(id),
+            character.proficiencyIds ?? [],
+            'Proficiency'
+        );
+        if (proficiencyError) {
+            return proficiencyError;
+        }
+        const statusError = await checkReferencedIds(
+            (id) => this.statusRepository.getStatusById(id),
+            character.statusIds ?? [],
+            'Status'
+        );
+        if (statusError) {
+            return statusError;
+        }
+        return null;
     }
 }

@@ -1,7 +1,7 @@
 import { buttonStyles, styles } from '@application/ui/textAreaStream/styles';
 import { getConnectionsController, getStreamCompletionController } from '@infra/container';
 import { Dispatch } from 'react';
-import { Pressable, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, Text, TextInput, View } from 'react-native';
 
 interface TextAreaStreamProps {
   prompt: string;
@@ -28,8 +28,8 @@ async function bolinhaDePelo (prompt: string, setPrompt: Dispatch<React.SetState
 
   const streamCompletionController = getStreamCompletionController();
   const result = await streamCompletionController.handle({
-    connection,
-    sampler,
+    connectionId: connection.id,
+    samplerId: sampler.id,
     modelId: '/mnt/nvme_xpg/models/Qwen3.6-35B-A3B-UD-Q5_K_S.gguf',
     prompt,
   });
@@ -57,7 +57,12 @@ async function bolinhaDePelo (prompt: string, setPrompt: Dispatch<React.SetState
 
 export function TextAreaStream ({ prompt, setPrompt }: TextAreaStreamProps) {
   const handleStream = async () => {
-    await bolinhaDePelo(prompt, setPrompt);
+    try {
+      await bolinhaDePelo(prompt, setPrompt);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to stream response';
+      Alert.alert('Erro', message);
+    }
   };
 
   return (

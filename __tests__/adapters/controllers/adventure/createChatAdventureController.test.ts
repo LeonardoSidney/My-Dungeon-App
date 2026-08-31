@@ -35,7 +35,7 @@ describe('CreateChatAdventureController', () => {
             content: 'Test content',
             role: RoleEnum.USER,
             think: { id: 'think-1', content: 'Thinking...', enabled: true },
-            characterName: 'Unknown',
+            characterId: '1',
         };
 
         const mockChat: Chat = {
@@ -43,7 +43,7 @@ describe('CreateChatAdventureController', () => {
             role: RoleEnum.USER,
             index: 0,
             content: ['Test content'],
-            characterName: 'Unknown',
+            characterId: '1',
             createdAt: new Date(),
             updatedAt: new Date(),
         };
@@ -67,7 +67,7 @@ describe('CreateChatAdventureController', () => {
         const mockRequest = {
             content: 'Debug test',
             role: RoleEnum.ASSISTANT,
-            characterName: 'Unknown',
+            characterId: '1',
         };
 
         const mockResponse = {
@@ -77,7 +77,7 @@ describe('CreateChatAdventureController', () => {
                 role: RoleEnum.ASSISTANT,
                 index: 0,
                 content: ['Debug test'],
-                characterName: 'Unknown',
+                characterId: '1',
                 createdAt: new Date(),
                 updatedAt: new Date(),
             },
@@ -99,7 +99,7 @@ describe('CreateChatAdventureController', () => {
             content: 'Test content',
             role: RoleEnum.USER,
             think: { id: 'think-1', enabled: false },
-            characterName: 'Unknown',
+            characterId: '1',
         };
 
         const mockResponse = {
@@ -109,7 +109,7 @@ describe('CreateChatAdventureController', () => {
                 role: RoleEnum.USER,
                 index: 0,
                 content: ['Test content'],
-                characterName: 'Unknown',
+                characterId: '1',
                 createdAt: new Date(),
                 updatedAt: new Date(),
             },
@@ -124,7 +124,7 @@ describe('CreateChatAdventureController', () => {
             content: mockRequest.content,
             role: mockRequest.role,
             think: mockRequest.think,
-            characterName: 'Unknown',
+            characterId: '1',
         });
     });
 
@@ -132,7 +132,7 @@ describe('CreateChatAdventureController', () => {
         const mockRequest = {
             content: 'Test content',
             role: RoleEnum.SYSTEM,
-            characterName: 'Unknown',
+            characterId: '1',
         };
 
         const mockResponse = {
@@ -142,7 +142,7 @@ describe('CreateChatAdventureController', () => {
                 role: RoleEnum.SYSTEM,
                 index: 0,
                 content: ['Test content'],
-                characterName: 'Unknown',
+                characterId: '1',
                 createdAt: new Date(),
                 updatedAt: new Date(),
             },
@@ -157,7 +157,7 @@ describe('CreateChatAdventureController', () => {
             content: mockRequest.content,
             role: mockRequest.role,
             think: undefined,
-            characterName: 'Unknown',
+            characterId: '1',
         });
     });
 
@@ -165,7 +165,7 @@ describe('CreateChatAdventureController', () => {
         const mockRequest = {
             content: 'Hello world',
             role: RoleEnum.USER,
-            characterName: 'Unknown',
+            characterId: '1',
         };
 
         const mockChat: Chat = {
@@ -173,7 +173,7 @@ describe('CreateChatAdventureController', () => {
             role: RoleEnum.USER,
             index: 0,
             content: ['Hello world'],
-            characterName: 'Unknown',
+            characterId: '1',
             createdAt: new Date(),
             updatedAt: new Date(),
         };
@@ -200,7 +200,7 @@ describe('CreateChatAdventureController', () => {
             content: 'Test content',
             role: RoleEnum.ASSISTANT,
             think: { id: 'think-1', content: 'Thinking...', enabled: true },
-            characterName: 'Unknown',
+            characterId: '1',
         };
 
         const mockResponse = {
@@ -224,7 +224,7 @@ describe('CreateChatAdventureController', () => {
         const mockRequest = {
             content: 'Assistant response',
             role: RoleEnum.ASSISTANT,
-            characterName: 'Unknown',
+            characterId: '1',
         };
 
         const mockChat: Chat = {
@@ -232,7 +232,7 @@ describe('CreateChatAdventureController', () => {
             role: RoleEnum.ASSISTANT,
             index: 1,
             content: ['Assistant response'],
-            characterName: 'Unknown',
+            characterId: '1',
             createdAt: new Date(),
             updatedAt: new Date(),
         };
@@ -258,7 +258,7 @@ describe('CreateChatAdventureController', () => {
         const mockRequest = {
             content: 'System message',
             role: RoleEnum.SYSTEM,
-            characterName: 'Unknown',
+            characterId: '1',
         };
 
         const mockChat: Chat = {
@@ -266,7 +266,7 @@ describe('CreateChatAdventureController', () => {
             role: RoleEnum.SYSTEM,
             index: 0,
             content: ['System message'],
-            characterName: 'Unknown',
+            characterId: '1',
             createdAt: new Date(),
             updatedAt: new Date(),
         };
@@ -293,7 +293,7 @@ describe('CreateChatAdventureController', () => {
             content: 'Test',
             role: RoleEnum.USER,
             think: { id: 'think-2', enabled: true },
-            characterName: 'Unknown',
+            characterId: '1',
         };
 
         const mockResponse = {
@@ -303,6 +303,7 @@ describe('CreateChatAdventureController', () => {
                 role: RoleEnum.USER,
                 index: 0,
                 content: ['Test'],
+                characterId: '1',
                 createdAt: new Date(),
                 updatedAt: new Date(),
             },
@@ -318,7 +319,7 @@ describe('CreateChatAdventureController', () => {
             content: 'Test',
             role: RoleEnum.USER,
             think: { id: 'think-2', enabled: true },
-            characterName: 'Unknown',
+            characterId: '1',
         });
     });
 
@@ -327,7 +328,7 @@ describe('CreateChatAdventureController', () => {
             content: 'Test without thinking',
             role: RoleEnum.USER,
             think: { id: 'think-3', content: '', enabled: false },
-            characterName: 'Unknown',
+            characterId: '1',
         };
 
         const mockResponse = {
@@ -337,6 +338,7 @@ describe('CreateChatAdventureController', () => {
                 role: RoleEnum.USER,
                 index: 0,
                 content: ['Test without thinking'],
+                characterId: '1',
                 createdAt: new Date(),
                 updatedAt: new Date(),
             },

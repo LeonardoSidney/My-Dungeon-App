@@ -14,16 +14,18 @@ export class EditAdventureController implements IEditAdventureController {
 
     async handle (request: EditAdventureControllerRequest): Promise<EditAdventureControllerResponse> {
         this.logger.info('Executing EditAdventureController::handle');
-        const { id, name, systemPrompts, characters, worldMaster, locations, worlds, items, chat, createdAt } = request;
+        const { id, name, systemPromptIds, characterIds, worldMasterId, characterAsWorldMasterId, charactersControlledByAi, worldIds, locationIds, itemIds, chat, createdAt } = request;
         const response = await this.useCase.execute({
             id,
             name,
-            systemPrompts,
-            characters,
-            worldMaster,
-            locations,
-            worlds,
-            items,
+            systemPromptIds,
+            characterIds,
+            worldMasterId,
+            characterAsWorldMasterId,
+            charactersControlledByAi,
+            worldIds,
+            locationIds,
+            itemIds,
             chat,
             createdAt
         });

@@ -77,8 +77,9 @@ async function setAssistant (sampler: Sampler, model: Model) {
     const createAssistant = createAssistantController();
 
     await createAssistant.handle({
-        model,
-        sampler,
+        modelId: model.id,
+        samplerId: sampler.id,
+        connectionId: model.connectionId,
         name: 'test',
         observation: 'test',
     });
@@ -98,11 +99,11 @@ async function setCharacter (
         activationWord: 'taco;metroviaria;lata de lixo',
         prompt: 'Uma poderosa e apatica protagonista.',
         observation: 'Alguém para se ter certo medo',
-        assistant,
-        abilities,
+        assistantId: assistant.id,
+        abilityIds: abilities.map(a => a.id),
         attributes,
-        proficiencies,
-        statuses,
+        proficiencyIds: proficiencies.map(p => p.id),
+        statusIds: statuses.map(s => s.id),
     });
 }
 
@@ -189,7 +190,7 @@ async function setWorldMaster (assistant: Assistant) {
         activationWord: 'dungeon master;dm',
         prompt: 'Você é o mestre do jogo de RPG Dungeon & Dragons',
         observation: 'O mestre do jogo',
-        assistant,
+        assistantId: assistant.id,
     });
 }
 
@@ -268,12 +269,13 @@ async function setAdventure (
     const createAdventure = createAdventureController();
     await createAdventure.handle({
         name: 'Aventura de Teste',
-        worlds,
-        locations,
-        characters,
-        items,
-        worldMaster,
-        systemPrompts,
+        worldIds: worlds.map(w => w.id),
+        locationIds: locations.map(l => l.id),
+        characterIds: characters.map(c => c.id),
+        itemIds: items.map(i => i.id),
+        worldMasterId: worldMaster.id,
+        systemPromptIds: systemPrompts.map(sp => sp.id),
+        charactersControlledByAi: [],
     });
 }
 
@@ -327,7 +329,7 @@ async function getAdventureText (adventure: Adventure) {
     return getAdventureTextCtrl.handle({ adventure });
 }
 
-export async function runMigration (): Promise<string | undefined> {
+export async function runSeed (): Promise<string | undefined> {
     // await eraseAdventures();
     await setConnection();
     const connections = await getConnections();

@@ -1,8 +1,6 @@
 import { CreateAssistantController } from '@adapters/controllers';
 import { ICreateAssistantUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
-import { createModelHelper } from '../../../../__helpers__/createModelHelper';
-import { createSamplerHelper } from '../../../../__helpers__/createSamplerHelper';
 import { createAssistantHelper } from '../../../../__helpers__/createAssistantHelper';
 
 // Mock das dependências
@@ -33,8 +31,9 @@ describe('CreateAssistantController', () => {
         const params = {
             name: 'Test Assistant',
             observation: 'Test observation',
-            model: createModelHelper(),
-            sampler: createSamplerHelper()
+            modelId: '1',
+            samplerId: '1',
+            connectionId: '1'
         };
 
         const mockResponse = {
@@ -53,8 +52,9 @@ describe('CreateAssistantController', () => {
         const params = {
             name: 'Test Assistant',
             observation: 'Test observation',
-            model: createModelHelper(),
-            sampler: createSamplerHelper()
+            modelId: '1',
+            samplerId: '1',
+            connectionId: '1'
         };
 
         const mockResponse = {
@@ -69,16 +69,18 @@ describe('CreateAssistantController', () => {
         expect(mockUseCase.execute).toHaveBeenCalledWith({
             name: params.name,
             observation: params.observation,
-            model: params.model,
-            sampler: params.sampler
+            modelId: params.modelId,
+            samplerId: params.samplerId,
+            connectionId: params.connectionId
         });
     });
 
     it('should pass params without observation to use case', async () => {
         const params = {
             name: 'Test Assistant Without Observation',
-            model: createModelHelper(),
-            sampler: createSamplerHelper()
+            modelId: '1',
+            samplerId: '1',
+            connectionId: '1'
         };
 
         const mockResponse = {
@@ -93,8 +95,9 @@ describe('CreateAssistantController', () => {
         expect(mockUseCase.execute).toHaveBeenCalledWith({
             name: params.name,
             observation: undefined,
-            model: params.model,
-            sampler: params.sampler
+            modelId: params.modelId,
+            samplerId: params.samplerId,
+            connectionId: params.connectionId
         });
     });
 
@@ -102,8 +105,9 @@ describe('CreateAssistantController', () => {
         const params = {
             name: 'Test Assistant',
             observation: 'Test observation',
-            model: createModelHelper(),
-            sampler: createSamplerHelper()
+            modelId: '1',
+            samplerId: '1',
+            connectionId: '1'
         };
 
         const mockAssistant = createAssistantHelper({ id: '1', name: 'Test Assistant' });
@@ -127,8 +131,9 @@ describe('CreateAssistantController', () => {
         const params = {
             name: 'Test Assistant',
             observation: 'Test observation',
-            model: createModelHelper(),
-            sampler: createSamplerHelper()
+            modelId: '1',
+            samplerId: '1',
+            connectionId: '1'
         };
 
         const mockResponse = {
@@ -149,8 +154,9 @@ describe('CreateAssistantController', () => {
     it('should return response with success true and error undefined when successful', async () => {
         const params = {
             name: 'Test Assistant',
-            model: createModelHelper(),
-            sampler: createSamplerHelper()
+            modelId: '1',
+            samplerId: '1',
+            connectionId: '1'
         };
 
         const mockAssistant = createAssistantHelper({ id: '1' });
@@ -172,8 +178,9 @@ describe('CreateAssistantController', () => {
         const params = {
             name: 'Test Assistant',
             observation: 'Test observation',
-            model: createModelHelper(),
-            sampler: createSamplerHelper()
+            modelId: '1',
+            samplerId: '1',
+            connectionId: '1'
         };
 
         const mockAssistant = createAssistantHelper({ id: '1', name: 'Full Assistant' });
@@ -196,8 +203,9 @@ describe('CreateAssistantController', () => {
     it('should return response with all fields when failed', async () => {
         const params = {
             name: 'Test Assistant',
-            model: createModelHelper(),
-            sampler: createSamplerHelper()
+            modelId: '1',
+            samplerId: '1',
+            connectionId: '1'
         };
 
         const mockResponse = {
@@ -219,8 +227,9 @@ describe('CreateAssistantController', () => {
     it('should call logger.info exactly once', async () => {
         const params = {
             name: 'Test Assistant',
-            model: createModelHelper(),
-            sampler: createSamplerHelper()
+            modelId: '1',
+            samplerId: '1',
+            connectionId: '1'
         };
 
         mockUseCase.execute.mockResolvedValue({
@@ -236,8 +245,9 @@ describe('CreateAssistantController', () => {
     it('should call use case execute exactly once', async () => {
         const params = {
             name: 'Test Assistant',
-            model: createModelHelper(),
-            sampler: createSamplerHelper()
+            modelId: '1',
+            samplerId: '1',
+            connectionId: '1'
         };
 
         mockUseCase.execute.mockResolvedValue({
@@ -253,8 +263,9 @@ describe('CreateAssistantController', () => {
     it('should return undefined assistant when use case returns undefined assistant', async () => {
         const params = {
             name: 'Test Assistant',
-            model: createModelHelper(),
-            sampler: createSamplerHelper()
+            modelId: '1',
+            samplerId: '1',
+            connectionId: '1'
         };
 
         mockUseCase.execute.mockResolvedValue({
@@ -274,8 +285,9 @@ describe('CreateAssistantController', () => {
         const params = {
             name: 'Test Assistant',
             observation: 'Test observation',
-            model: createModelHelper(),
-            sampler: createSamplerHelper()
+            modelId: '1',
+            samplerId: '1',
+            connectionId: '1'
         };
 
         const mockAssistant = createAssistantHelper({
@@ -299,8 +311,9 @@ describe('CreateAssistantController', () => {
         const longName = 'A'.repeat(100);
         const params = {
             name: longName,
-            model: createModelHelper(),
-            sampler: createSamplerHelper()
+            modelId: '1',
+            samplerId: '1',
+            connectionId: '1'
         };
 
         mockUseCase.execute.mockResolvedValue({
@@ -318,8 +331,9 @@ describe('CreateAssistantController', () => {
         const params = {
             name: 'Test Assistant',
             observation: '',
-            model: createModelHelper(),
-            sampler: createSamplerHelper()
+            modelId: '1',
+            samplerId: '1',
+            connectionId: '1'
         };
 
         mockUseCase.execute.mockResolvedValue({
@@ -332,8 +346,9 @@ describe('CreateAssistantController', () => {
         expect(mockUseCase.execute).toHaveBeenCalledWith({
             name: params.name,
             observation: '',
-            model: params.model,
-            sampler: params.sampler
+            modelId: params.modelId,
+            samplerId: params.samplerId,
+            connectionId: params.connectionId
         });
     });
 });

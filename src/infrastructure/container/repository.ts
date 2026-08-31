@@ -1,4 +1,3 @@
-import { Logger } from '../logger';
 import {
     AbilityRepository,
     AdventureRepository,
@@ -14,7 +13,6 @@ import {
     WorldRepository,
     WorldMasterRepository,
 } from '../repository';
-import { MobileStorage } from '../storage';
 import {
     IAbilityRepository,
     IAdventureRepository,
@@ -30,55 +28,57 @@ import {
     IWorldRepository,
     IWorldMasterRepository,
 } from '@domain/repository';
+import { ILogger } from '@domain/logger';
+import { IStorage } from '@domain/storage';
 
-export function createAbilityRepository (storage: MobileStorage, logger: Logger): IAbilityRepository {
+export function createAbilityRepository (storage: IStorage, logger: ILogger): IAbilityRepository {
     return new AbilityRepository(logger, storage);
 }
 
-export function createAdventureRepository (storage: MobileStorage, logger: Logger): IAdventureRepository {
+export function createAdventureRepository (storage: IStorage, logger: ILogger): IAdventureRepository {
     return new AdventureRepository(logger, storage);
 }
 
-export function createAssistantRepository (storage: MobileStorage, logger: Logger): IAssistantRepository {
+export function createAssistantRepository (storage: IStorage, logger: ILogger): IAssistantRepository {
     return new AssistantRepository(logger, storage);
 }
 
-export function createCharacterRepository (storage: MobileStorage, logger: Logger): ICharacterRepository {
+export function createCharacterRepository (storage: IStorage, logger: ILogger): ICharacterRepository {
     return new CharacterRepository(logger, storage);
 }
 
-export function createConnectionRepository (storage: MobileStorage, logger: Logger): IConnectionRepository {
+export function createConnectionRepository (storage: IStorage, logger: ILogger): IConnectionRepository {
     return new ConnectionRepository(logger, storage);
 }
 
-export function createItemRepository (storage: MobileStorage, logger: Logger): IItemRepository {
+export function createItemRepository (storage: IStorage, logger: ILogger): IItemRepository {
     return new ItemRepository(logger, storage);
 }
 
-export function createLocationRepository (storage: MobileStorage, logger: Logger): ILocationRepository {
+export function createLocationRepository (storage: IStorage, logger: ILogger): ILocationRepository {
     return new LocationRepository(logger, storage);
 }
 
-export function createProficiencyRepository (storage: MobileStorage, logger: Logger): IProficiencyRepository {
+export function createProficiencyRepository (storage: IStorage, logger: ILogger): IProficiencyRepository {
     return new ProficiencyRepository(logger, storage);
 }
 
-export function createSamplerRepository (storage: MobileStorage, logger: Logger): ISamplerRepository {
+export function createSamplerRepository (storage: IStorage, logger: ILogger): ISamplerRepository {
     return new SamplerRepository(logger, storage);
 }
 
-export function createStatusRepository (storage: MobileStorage, logger: Logger): IStatusRepository {
+export function createStatusRepository (storage: IStorage, logger: ILogger): IStatusRepository {
     return new StatusRepository(logger, storage);
 }
 
-export function createSystemPromptRepository (storage: MobileStorage, logger: Logger): ISystemPromptRepository {
+export function createSystemPromptRepository (storage: IStorage, logger: ILogger): ISystemPromptRepository {
     return new SystemPromptRepository(logger, storage);
 }
 
-export function createWorldRepository (storage: MobileStorage, logger: Logger): IWorldRepository {
+export function createWorldRepository (storage: IStorage, logger: ILogger): IWorldRepository {
     return new WorldRepository(logger, storage);
 }
 
-export function createWorldMasterRepository (storage: MobileStorage, logger: Logger): IWorldMasterRepository {
+export function createWorldMasterRepository (storage: IStorage, logger: ILogger): IWorldMasterRepository {
     return new WorldMasterRepository(logger, storage);
 }

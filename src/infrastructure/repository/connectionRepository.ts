@@ -3,6 +3,7 @@ import { Connection } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { IConnectionRepository, SaveConnectionParams, EditConnectionParams, EraseConnectionRepositoryReturn, EditConnectionRepositoryReturn } from '@domain/repository';
 import { IStorage } from '@domain/storage';
+import { ConnectionDTO } from '@infra/dto';
 
 export class ConnectionRepository implements IConnectionRepository {
     constructor (
@@ -40,13 +41,38 @@ export class ConnectionRepository implements IConnectionRepository {
         return true;
     }
 
+    async getConnectionById (connectionId: string): Promise<Connection | undefined> {
+        this.logger.info('Executing ConnectionRepository::getConnectionById');
+        const connections = await this.getConnections();
+        return connections.find((c) => c.id === connectionId);
+    }
+
     async getConnections (): Promise<Connection[]> {
         this.logger.info('Executing ConnectionRepository::getConnections');
 
         try {
-            const connections = await this.storage.load<Connection[]>(`${STORAGE_NAMESPACE}/${CONNECTION_STORAGE_NAMESPACE}`);
+            const connections: Connection[] = [];
+            const rawData = await this.storage.load<unknown[]>(`${STORAGE_NAMESPACE}/${CONNECTION_STORAGE_NAMESPACE}`);
+            this.logger.debug('Executing ConnectionRepository::getConnections - rawData: ', rawData);
+
+            if (rawData) {
+                const connectionsDTO: ConnectionDTO[] = [];
+                for (const connectionUnknown of rawData) {
+                    const connection = ConnectionDTO.fromStorage(connectionUnknown);
+                    if (connection) {
+                        connectionsDTO.push(connection);
+                    }
+                }
+
+                connections.push(...connectionsDTO.map(dto => dto.toEntity()));
+
+                if (rawData.length !== connections.length) {
+                    this.logger.warning('Some connections were not converted to entity');
+                }
+            }
+
             this.logger.debug('Executing ConnectionRepository::getConnections - connections: ', connections);
-            return connections || [];
+            return connections;
         } catch (error) {
             this.logger.error('Error on ConnectionRepository::getConnections', error);
             throw error;

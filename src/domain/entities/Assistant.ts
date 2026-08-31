@@ -1,12 +1,10 @@
-import { Model } from './Model';
-import { Sampler } from './Sampler';
-
 export type Assistant = {
     id: string;
     name: string;
     observation?: string;
-    model: Model;
-    sampler: Sampler;
+    modelId: string;
+    samplerId: string;
+    connectionId: string;
     createdAt: Date;
     updatedAt: Date;
 };

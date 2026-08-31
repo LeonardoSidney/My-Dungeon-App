@@ -1,7 +1,7 @@
-import { Assistant, WorldMaster } from '../entities';
+import { WorldMaster } from '../entities';
 
 export interface ICreateWorldMasterController {
-    handle(params: CreateWorldMasterControllerParams): Promise<CreateWorldMasterControllerResponse>;
+    handle (params: CreateWorldMasterControllerParams): Promise<CreateWorldMasterControllerResponse>;
 }
 
 export type CreateWorldMasterControllerParams = {
@@ -9,7 +9,7 @@ export type CreateWorldMasterControllerParams = {
     activationWord: string;
     prompt: string;
     observation?: string;
-    assistant: Assistant;
+    assistantId: string;
 };
 
 export type CreateWorldMasterControllerResponse = {

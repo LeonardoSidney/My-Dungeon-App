@@ -1,20 +1,45 @@
 import { ILogger } from '@domain/logger';
-import { ICharacterRepository } from '@domain/repository';
+import {
+    IAbilityRepository,
+    IAssistantRepository,
+    ICharacterRepository,
+    IProficiencyRepository,
+    IStatusRepository,
+} from '@domain/repository';
 import { ICreateCharacterService } from '@domain/services';
 import { CreateCharacterUseCasePrams, CreateCharacterUseCaseResponse, ICreateCharacterUseCase } from '@domain/use-cases';
+import { checkReferencedId, checkReferencedIds } from '@application/shared/validateReferencedIds';
 
 export class CreateCharacterUseCase implements ICreateCharacterUseCase {
     constructor (
         private readonly logger: ILogger,
         private readonly characterRepository: ICharacterRepository,
-        private readonly service: ICreateCharacterService
+        private readonly service: ICreateCharacterService,
+        private readonly assistantRepository: IAssistantRepository,
+        private readonly abilityRepository: IAbilityRepository,
+        private readonly proficiencyRepository: IProficiencyRepository,
+        private readonly statusRepository: IStatusRepository
     ) { }
 
     async execute (params: CreateCharacterUseCasePrams): Promise<CreateCharacterUseCaseResponse> {
         this.logger.info('Executing CreateCharacterUseCase::execute');
         this.logger.debug('CreateCharacterUseCase::execute - params:', params);
 
-        this.validate(params);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return {
+                success: false,
+                character: undefined,
+                error: validationError
+            };
+        }
+        const missingIdError = await this.validateReferencedIds(params);
+        if (missingIdError) {
+            return {
+                success: false,
+                error: missingIdError
+            };
+        }
 
         this.logger.debug('Calling CreateCharacterService', params);
         const response = this.service.createCharacter(params);
@@ -28,7 +53,11 @@ export class CreateCharacterUseCase implements ICreateCharacterUseCase {
         }
 
         if (!response.character) {
-            throw new Error('Something went wrong when tried to create the character');
+            return {
+                success: false,
+                character: undefined,
+                error: 'Something went wrong when tried to create the character'
+            };
         }
 
         const characters = await this.characterRepository.getCharacters();
@@ -51,17 +80,55 @@ export class CreateCharacterUseCase implements ICreateCharacterUseCase {
         };
     }
 
-    validate (params: CreateCharacterUseCasePrams): void {
+    validate (params: CreateCharacterUseCasePrams): string | null {
         if (!params.name?.trim()) {
-            throw new Error('Name is required to create a character');
+            return 'Name is required to create a character';
         }
 
         if (!params.prompt?.trim()) {
-            throw new Error('Prompt is required to create a character');
+            return 'Prompt is required to create a character';
         }
 
         if (!params.activationWord?.trim()) {
-            throw new Error('Activation word is required to create a character');
+            return 'Activation word is required to create a character';
         }
+
+        return null;
+    }
+
+    private async validateReferencedIds (params: CreateCharacterUseCasePrams): Promise<string | null> {
+        const assistantError = await checkReferencedId(
+            (id) => this.assistantRepository.getAssistantById(id),
+            params.assistantId,
+            'Assistant'
+        );
+        if (assistantError) {
+            return assistantError;
+        }
+        const abilityError = await checkReferencedIds(
+            (id) => this.abilityRepository.getAbilityById(id),
+            params.abilityIds ?? [],
+            'Ability'
+        );
+        if (abilityError) {
+            return abilityError;
+        }
+        const proficiencyError = await checkReferencedIds(
+            (id) => this.proficiencyRepository.getProficiencyById(id),
+            params.proficiencyIds ?? [],
+            'Proficiency'
+        );
+        if (proficiencyError) {
+            return proficiencyError;
+        }
+        const statusError = await checkReferencedIds(
+            (id) => this.statusRepository.getStatusById(id),
+            params.statusIds ?? [],
+            'Status'
+        );
+        if (statusError) {
+            return statusError;
+        }
+        return null;
     }
 }

@@ -1,4 +1,4 @@
-import { Assistant, WorldMaster } from '../entities';
+import { WorldMaster } from '../entities';
 
 export interface IEditWorldMasterUseCase {
     execute (request: EditWorldMasterParams): Promise<EditWorldMasterReturn>;
@@ -10,7 +10,7 @@ export type EditWorldMasterParams = {
     activationWord: string;
     prompt: string;
     observation?: string;
-    assistant: Assistant;
+    assistantId: string;
     createdAt: Date;
 };
 

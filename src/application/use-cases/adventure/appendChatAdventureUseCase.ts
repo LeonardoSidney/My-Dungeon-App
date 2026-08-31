@@ -8,7 +8,7 @@ export class AppendChatAdventureUseCase implements IAppendChatAdventureUseCase {
         private readonly logger: ILogger,
         private readonly adventureRepository: IAdventureRepository,
         private readonly service: IAppendChatAdventureService
-    ) {}
+    ) { }
 
     async execute (params: AppendChatUseCaseParams): Promise<AppendChatUseCaseReturn> {
         this.logger.info('Executing AppendChatAdventureUseCase::execute');
@@ -26,12 +26,19 @@ export class AppendChatAdventureUseCase implements IAppendChatAdventureUseCase {
         }
 
         if (!response.adventure) {
-            throw new Error('Service returned success but no adventure object');
+            return {
+                success: false,
+                error: 'Service returned success but no adventure object',
+            };
         }
 
         const update = await this.adventureRepository.updateAdventure({ adventure: response.adventure });
-        if (!update) {
-            throw new Error('Failed to save adventure');
+        if (!update.success) {
+            this.logger.error('AppendChatAdventureUseCase::execute - failed to save adventure', update.error);
+            return {
+                success: false,
+                error: update.error || 'Failed to save adventure',
+            };
         }
 
         return {

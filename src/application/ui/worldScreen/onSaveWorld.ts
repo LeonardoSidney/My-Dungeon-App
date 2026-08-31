@@ -11,7 +11,9 @@ export async function onSaveWorld (
     setShowForm: Dispatch<SetStateAction<boolean>>,
     setWorlds: Dispatch<SetStateAction<World[]>>
 ) {
-    await onSubmit(worldStateFormData);
+    const response = await onSubmit(worldStateFormData);
+    if (!response || !response.success) return;
+
     setWorldFormData(setInitialWorldState());
     setShowForm(false);
     await loadWorlds(setWorlds);

@@ -8,11 +8,13 @@ export function useStreamResponse ({
     setIsStreaming,
     streamRef,
     abortRef,
-    setCurrentAdventure
+    setCurrentAdventure,
+    hydratedRef
 }: UseStreamResponseParams) {
     const handleStreamResponseInternal = useCallback(async (adventureToUpdate: Adventure) => {
         const updatedAdventure = await handleStreamResponse({
             adventureToUpdate,
+            hydratedRef,
             isAbortedRef,
             setIsStreaming,
             streamRef,
@@ -23,7 +25,7 @@ export function useStreamResponse ({
         if (!updatedAdventure) return;
 
         setCurrentAdventure(updatedAdventure);
-    }, [isAbortedRef, setIsStreaming, streamRef, abortRef, setCurrentAdventure]);
+    }, [isAbortedRef, setIsStreaming, streamRef, abortRef, setCurrentAdventure, hydratedRef]);
 
     return { handleStreamResponse: handleStreamResponseInternal };
 }

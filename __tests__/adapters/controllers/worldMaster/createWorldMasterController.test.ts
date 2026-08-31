@@ -1,7 +1,7 @@
 import { CreateWorldMasterController } from '@adapters/controllers';
 import { ICreateWorldMasterUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
-import { WorldMaster, Assistant } from '@domain/entities';
+import { WorldMaster } from '@domain/entities';
 
 // Mock das dependências
 const mockLogger = {
@@ -28,22 +28,12 @@ describe('CreateWorldMasterController', () => {
     });
 
     it('should call logger.info when handling a request', async () => {
-        const mockAssistant: Assistant = {
-            id: '1',
-            name: 'Test Assistant',
-            observation: 'Test observation',
-            model: {} as any,
-            sampler: {} as any,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        };
-
         const mockRequest = {
             name: 'Test WorldMaster',
             activationWord: 'activate',
             prompt: 'Master prompt',
             observation: 'Test observation',
-            assistant: mockAssistant
+            assistantId: '1'
         };
 
         const mockWorldMaster: WorldMaster = {
@@ -52,7 +42,7 @@ describe('CreateWorldMasterController', () => {
             activationWord: 'activate',
             prompt: 'Master prompt',
             observation: 'Test observation',
-            assistant: mockAssistant,
+            assistantId: '1',
             createdAt: new Date(),
             updatedAt: new Date()
         };
@@ -71,22 +61,12 @@ describe('CreateWorldMasterController', () => {
     });
 
     it('should execute use case with correct parameters', async () => {
-        const mockAssistant: Assistant = {
-            id: '1',
-            name: 'Test Assistant',
-            observation: 'Test observation',
-            model: {} as any,
-            sampler: {} as any,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        };
-
         const mockRequest = {
             name: 'Dungeon Master',
             activationWord: 'start',
             prompt: 'A dark fantasy dungeon master',
             observation: 'You enter a dark dungeon',
-            assistant: mockAssistant
+            assistantId: '1'
         };
 
         const mockResponse = {
@@ -97,7 +77,7 @@ describe('CreateWorldMasterController', () => {
                 activationWord: 'start',
                 prompt: 'A dark fantasy dungeon master',
                 observation: 'You enter a dark dungeon',
-                assistant: mockAssistant,
+                assistantId: '1',
                 createdAt: new Date(),
                 updatedAt: new Date()
             },
@@ -113,26 +93,16 @@ describe('CreateWorldMasterController', () => {
             activationWord: mockRequest.activationWord,
             prompt: mockRequest.prompt,
             observation: mockRequest.observation,
-            assistant: mockRequest.assistant
+            assistantId: mockRequest.assistantId
         });
     });
 
     it('should execute use case without observation when not provided', async () => {
-        const mockAssistant: Assistant = {
-            id: '1',
-            name: 'Test Assistant',
-            observation: 'Test observation',
-            model: {} as any,
-            sampler: {} as any,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        };
-
         const mockRequest = {
             name: 'Simple WorldMaster',
             activationWord: 'go',
             prompt: 'A simple world master',
-            assistant: mockAssistant
+            assistantId: '1'
         };
 
         const mockResponse = {
@@ -143,7 +113,7 @@ describe('CreateWorldMasterController', () => {
                 activationWord: 'go',
                 prompt: 'A simple world master',
                 observation: undefined,
-                assistant: mockAssistant,
+                assistantId: '1',
                 createdAt: new Date(),
                 updatedAt: new Date()
             },
@@ -159,26 +129,16 @@ describe('CreateWorldMasterController', () => {
             activationWord: mockRequest.activationWord,
             prompt: mockRequest.prompt,
             observation: undefined,
-            assistant: mockRequest.assistant
+            assistantId: mockRequest.assistantId
         });
     });
 
     it('should return success response when use case succeeds', async () => {
-        const mockAssistant: Assistant = {
-            id: '1',
-            name: 'Test Assistant',
-            observation: 'Test observation',
-            model: {} as any,
-            sampler: {} as any,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        };
-
         const mockRequest = {
             name: 'Success WorldMaster',
             activationWord: 'success',
             prompt: 'Success prompt',
-            assistant: mockAssistant
+            assistantId: '1'
         };
 
         const mockWorldMaster: WorldMaster = {
@@ -187,7 +147,7 @@ describe('CreateWorldMasterController', () => {
             activationWord: 'success',
             prompt: 'Success prompt',
             observation: undefined,
-            assistant: mockAssistant,
+            assistantId: '1',
             createdAt: new Date(),
             updatedAt: new Date()
         };
@@ -209,21 +169,11 @@ describe('CreateWorldMasterController', () => {
     });
 
     it('should return error response when use case fails', async () => {
-        const mockAssistant: Assistant = {
-            id: '1',
-            name: 'Test Assistant',
-            observation: 'Test observation',
-            model: {} as any,
-            sampler: {} as any,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        };
-
         const mockRequest = {
             name: 'Failed WorldMaster',
             activationWord: 'fail',
             prompt: 'Failed prompt',
-            assistant: mockAssistant
+            assistantId: '1'
         };
 
         const mockResponse = {
@@ -242,23 +192,13 @@ describe('CreateWorldMasterController', () => {
         expect(result.error).toBe('Creation failed');
     });
 
-    it('should pass assistant object correctly to use case', async () => {
-        const mockAssistant: Assistant = {
-            id: 'assistant-1',
-            name: 'Custom Assistant',
-            observation: 'Custom observation',
-            model: {} as any,
-            sampler: {} as any,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        };
-
+    it('should pass assistantId correctly to use case', async () => {
         const mockRequest = {
             name: 'Assistant WorldMaster',
             activationWord: 'summon',
             prompt: 'Summon prompt',
             observation: 'Summon observation',
-            assistant: mockAssistant
+            assistantId: 'assistant-1'
         };
 
         const mockResponse = {
@@ -269,7 +209,7 @@ describe('CreateWorldMasterController', () => {
                 activationWord: 'summon',
                 prompt: 'Summon prompt',
                 observation: 'Summon observation',
-                assistant: mockAssistant,
+                assistantId: 'assistant-1',
                 createdAt: new Date(),
                 updatedAt: new Date()
             },
@@ -282,7 +222,7 @@ describe('CreateWorldMasterController', () => {
 
         expect(mockUseCase.execute).toHaveBeenCalledWith(
             expect.objectContaining({
-                assistant: mockAssistant
+                assistantId: 'assistant-1'
             })
         );
     });

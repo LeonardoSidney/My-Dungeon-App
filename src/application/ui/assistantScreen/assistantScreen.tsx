@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Text, View, ScrollView, TouchableOpacity } from 'react-native';
-import { Assistant, Model, Sampler } from '@domain/entities';
+import { Assistant, Connection, Model, Sampler } from '@domain/entities';
 import { styles } from './styles';
 import { AssistantPanel } from './assistantPanel';
 import { AssistantForm } from './assistantForm';
 import { useAssistantScreenLogic } from './useAssistantScreenLogic';
 import { useModelsLoad } from './useModelsLoad';
 import { useSamplersLoad } from './useSamplersLoad';
+import { loadConnections } from './loadConnections';
 import { AssistantFormData, FormErrors, setInitialAssistantState } from './constants';
 import { handleAssistantFormChange } from './handleAssistantFormChange';
 import { onAddNewAssistant } from './onAddNewAssistant';
@@ -20,12 +21,17 @@ export function AssistantScreen () {
   const [assistantStateFormData, setAssistantFormData] = useState<AssistantFormData>(setInitialAssistantState);
   const [models, setModels] = useState<Model[]>([]);
   const [samplers, setSamplers] = useState<Sampler[]>([]);
+  const [connections, setConnections] = useState<Connection[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
 
   useAssistantScreenLogic(setAssistants);
   useModelsLoad(setModels);
   useSamplersLoad(setSamplers);
+
+  useEffect(() => {
+    loadConnections().then(setConnections);
+  }, []);
 
   const handleFormSave = async () => {
     const errors: FormErrors = {};
@@ -39,11 +45,7 @@ export function AssistantScreen () {
     }
     setFormErrors({});
 
-    try {
-      await onSaveAssistant(assistantStateFormData, setAssistantFormData, setShowForm, setAssistants);
-    } catch (error) {
-      setFormErrors({ name: (error as Error).message });
-    }
+    await onSaveAssistant(assistantStateFormData, setAssistantFormData, setShowForm, setAssistants);
   };
 
   const handleFormChange = (field: keyof AssistantFormData, value: AssistantFormData[keyof AssistantFormData]) => {
@@ -77,6 +79,7 @@ export function AssistantScreen () {
 
         <AssistantPanel
           assistants={assistants}
+          models={models}
           onEdit={handleEditAssistant}
           onDelete={(assistant: Assistant) => onEraseAssistant(assistant, setAssistants)}
         />
@@ -96,6 +99,7 @@ export function AssistantScreen () {
           onSave={handleFormSave}
           models={models}
           samplers={samplers}
+          connections={connections}
           formErrors={formErrors}
         />
 

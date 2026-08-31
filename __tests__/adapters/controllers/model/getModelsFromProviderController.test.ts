@@ -42,14 +42,14 @@ describe('GetModelsFromProviderController', () => {
             {
                 id: '1',
                 name: 'Test Model 1',
-                connection: mockConnection,
+                connectionId: mockConnection.id,
                 nCtx: 4096,
                 ownedBy: 'test'
             },
             {
                 id: '2',
                 name: 'Test Model 2',
-                connection: mockConnection,
+                connectionId: mockConnection.id,
                 nCtx: 8192,
                 ownedBy: 'test'
             }
@@ -80,7 +80,7 @@ describe('GetModelsFromProviderController', () => {
             {
                 id: '1',
                 name: 'Test Model',
-                connection: mockConnection,
+                connectionId: mockConnection.id,
                 nCtx: 4096,
                 ownedBy: 'test'
             }
@@ -111,14 +111,14 @@ describe('GetModelsFromProviderController', () => {
             {
                 id: '1',
                 name: 'Model 1',
-                connection: mockConnection,
+                connectionId: mockConnection.id,
                 nCtx: 4096,
                 ownedBy: 'test'
             },
             {
                 id: '2',
                 name: 'Model 2',
-                connection: mockConnection,
+                connectionId: mockConnection.id,
                 nCtx: 8192,
                 ownedBy: 'test'
             }

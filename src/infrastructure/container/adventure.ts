@@ -11,6 +11,7 @@ import {
     UpdateStreamingChatController,
     FinishStreamingChatController,
     IsAdventureStreamingController,
+    HydrateAdventureController,
 } from '@adapters/controllers';
 import {
     CreateAdventureService,
@@ -21,6 +22,8 @@ import {
     UpdateStreamingChatService,
     FinishStreamingChatService,
     IsAdventureStreamingService,
+    GetSamplersService,
+    TextGenerationTemplatesService,
 } from '@application/services';
 import {
     CreateAdventureUseCase,
@@ -35,6 +38,7 @@ import {
     UpdateStreamingChatUseCase,
     FinishStreamingChatUseCase,
     IsAdventureStreamingUseCase,
+    HydrateAdventureUseCase,
 } from '../../application/use-cases';
 import {
     ICreateAdventureController,
@@ -49,23 +53,78 @@ import {
     IUpdateStreamingChatController,
     IFinishStreamingChatController,
     IIsAdventureStreamingController,
+    IHydrateAdventureController,
 } from '@domain/controllers';
+import { IHydrateAdventureUseCase } from '@domain/use-cases';
 import { idGenerate, logger, storage, getStreamProvider } from './shared';
-import { createAdventureRepository } from './repository';
+import {
+    createAbilityRepository,
+    createAdventureRepository,
+    createAssistantRepository,
+    createCharacterRepository,
+    createConnectionRepository,
+    createItemRepository,
+    createLocationRepository,
+    createProficiencyRepository,
+    createSamplerRepository,
+    createStatusRepository,
+    createSystemPromptRepository,
+    createWorldMasterRepository,
+    createWorldRepository,
+} from './repository';
 import { LlamaCppOAGateway } from '../http/llama-cpp';
 import { TextGeneration } from '../providers/textGeneration';
+
+export function createHydrateAdventureUseCase (): IHydrateAdventureUseCase {
+    return new HydrateAdventureUseCase(
+        logger,
+        createCharacterRepository(storage, logger),
+        createWorldMasterRepository(storage, logger),
+        createAssistantRepository(storage, logger),
+        createConnectionRepository(storage, logger),
+        createSamplerRepository(storage, logger),
+        new GetSamplersService(logger),
+        createWorldRepository(storage, logger),
+        createLocationRepository(storage, logger),
+        createItemRepository(storage, logger),
+        createSystemPromptRepository(storage, logger),
+        createAbilityRepository(storage, logger),
+        createProficiencyRepository(storage, logger),
+        createStatusRepository(storage, logger)
+    );
+}
 
 export function createAdventureController (): ICreateAdventureController {
     const adventureRepository = createAdventureRepository(storage, logger);
     const createAdventureService = new CreateAdventureService(logger, idGenerate);
-    const createAdventureUseCase = new CreateAdventureUseCase(logger, createAdventureService, adventureRepository);
+    const createAdventureUseCase = new CreateAdventureUseCase(
+        logger,
+        createAdventureService,
+        adventureRepository,
+        createCharacterRepository(storage, logger),
+        createSystemPromptRepository(storage, logger),
+        createWorldRepository(storage, logger),
+        createLocationRepository(storage, logger),
+        createItemRepository(storage, logger),
+        createWorldMasterRepository(storage, logger)
+    );
     return new CreateAdventureController(logger, createAdventureUseCase);
 }
 
 export function editAdventureController (): IEditAdventureController {
     const adventureRepository = createAdventureRepository(storage, logger);
     const editAdventureService = new EditAdventureService(logger);
-    const editAdventureUseCase = new EditAdventureUseCase(logger, editAdventureService, adventureRepository);
+    const editAdventureUseCase = new EditAdventureUseCase(
+        logger,
+        editAdventureService,
+        adventureRepository,
+        createCharacterRepository(storage, logger),
+        createSystemPromptRepository(storage, logger),
+        createWorldRepository(storage, logger),
+        createLocationRepository(storage, logger),
+        createItemRepository(storage, logger),
+        createWorldMasterRepository(storage, logger)
+    );
     return new EditAdventureController(logger, editAdventureUseCase);
 }
 
@@ -105,10 +164,17 @@ export function eraseAdventureController (): IEraseAdventureController {
 }
 
 export function getAdventureTextController (): IGetAdventureTextController {
-    const textGeneration = new TextGeneration(logger);
+    const textGenerationTemplatesService = new TextGenerationTemplatesService(logger);
+    const textGeneration = new TextGeneration(logger, textGenerationTemplatesService);
     const llamaCppOAGateway = new LlamaCppOAGateway(logger, getStreamProvider());
-    const getAdventureTextUseCase = new GetAdventureTextUseCase(logger, textGeneration, llamaCppOAGateway);
+    const hydrateAdventureUseCase = createHydrateAdventureUseCase();
+    const getAdventureTextUseCase = new GetAdventureTextUseCase(logger, textGeneration, llamaCppOAGateway, hydrateAdventureUseCase);
     return new GetAdventureTextController(logger, getAdventureTextUseCase);
+}
+
+export function hydrateAdventureController (): IHydrateAdventureController {
+    const hydrateAdventureUseCase = createHydrateAdventureUseCase();
+    return new HydrateAdventureController(logger, hydrateAdventureUseCase);
 }
 
 export function startStreamingChatController (): IStartStreamingChatController {

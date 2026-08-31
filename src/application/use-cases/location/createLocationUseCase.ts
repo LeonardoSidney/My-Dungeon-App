@@ -14,7 +14,13 @@ export class CreateLocationUseCase implements ICreateLocationUseCase {
         this.logger.info('Executing CreateLocationUseCase::execute');
         this.logger.debug('CreateLocationUseCase::execute - params:', params);
 
-        this.validate(params);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return {
+                success: false,
+                error: validationError
+            };
+        }
 
         const response = this.service.createLocation(params);
         this.logger.debug('CreateLocationService executed successfully', response);
@@ -27,7 +33,10 @@ export class CreateLocationUseCase implements ICreateLocationUseCase {
         }
 
         if (!response.location) {
-            throw new Error('Something went wrong when tried to create the location');
+            return {
+                success: false,
+                error: 'Something went wrong when tried to create the location'
+            };
         }
 
         const locations = await this.locationRepository.getLocations();
@@ -50,17 +59,19 @@ export class CreateLocationUseCase implements ICreateLocationUseCase {
         };
     }
 
-    private validate (params: CreateLocationUseCaseParams): void {
+    private validate (params: CreateLocationUseCaseParams): string | null {
         if (!params.name?.trim()) {
-            throw new Error('Name is required to create a location');
+            return 'Name is required to create a location';
         }
 
         if (!params.prompt?.trim()) {
-            throw new Error('Prompt is required to create a location');
+            return 'Prompt is required to create a location';
         }
 
         if (!params.activationWord?.trim()) {
-            throw new Error('Activation word is required to create a location');
+            return 'Activation word is required to create a location';
         }
+
+        return null;
     }
 }

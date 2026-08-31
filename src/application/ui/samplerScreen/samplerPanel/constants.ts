@@ -25,5 +25,3 @@ export const samplerAttributes = [
     { key: 'adaptativeTarget', label: 'Adaptative Target' },
     { key: 'ignoreEOS', label: 'Ignore EOS' },
 ] as const;
-
-export type SamplerAttributeKey = typeof samplerAttributes[number]['key'];

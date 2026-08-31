@@ -1,5 +1,6 @@
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, RefObject } from 'react';
 import { Adventure, Character } from '@domain/entities';
+import { HydratedAdventure } from '@domain/use-cases';
 import { useStreaming } from './hooks/useStreaming';
 import { useStreamResponse } from './hooks/useStreamResponse';
 import { useResend } from './hooks/useResend';
@@ -13,10 +14,11 @@ interface UseAdventureStreamingParams {
     message: string;
     setCurrentAdventure: Dispatch<SetStateAction<Adventure>>;
     setMessage: Dispatch<SetStateAction<string>>;
+    hydratedRef: RefObject<HydratedAdventure | null>;
 }
 
 export function useAdventureStreaming (params: UseAdventureStreamingParams) {
-    const { currentAdventure, selectedCharacter, message, setCurrentAdventure, setMessage } = params;
+    const { currentAdventure, selectedCharacter, message, setCurrentAdventure, setMessage, hydratedRef } = params;
 
     const {
         isStreaming,
@@ -31,7 +33,8 @@ export function useAdventureStreaming (params: UseAdventureStreamingParams) {
         setIsStreaming,
         streamRef,
         abortRef,
-        setCurrentAdventure
+        setCurrentAdventure,
+        hydratedRef
     });
 
     const { handleResend } = useResend({

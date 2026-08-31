@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction } from 'react';
 import { ScrollView } from 'react-native';
 import { Adventure, Character } from '@domain/entities';
+import { HydratedAdventure, HydratedCharacter } from '@domain/use-cases';
 
 export interface UseScrollToBottomParams {
     scrollViewRef: React.RefObject<ScrollView | null>;
@@ -19,17 +20,11 @@ export interface UseScrollHandlerParams {
 
 export interface UseAdventureChatStateParams {
     adventure: Adventure;
+    hydratedCharacters: HydratedCharacter[];
 }
 
-export interface UseAdventureChatActionsParams {
-    currentAdventure: Adventure;
-    setCurrentAdventure: Dispatch<SetStateAction<Adventure>>;
-    selectedCharacter: Character;
-    setSelectedCharacter: Dispatch<SetStateAction<Character>>;
-    message: string;
-    setMessage: Dispatch<SetStateAction<string>>;
-    setShowSettings: Dispatch<SetStateAction<boolean>>;
-    handleSendMessage: () => Promise<void>;
+export interface UseHydratedAdventureParams {
+    adventure: Adventure;
 }
 
 export interface UseStreamResponseParams {
@@ -38,6 +33,7 @@ export interface UseStreamResponseParams {
     streamRef: React.RefObject<AsyncGenerator<string, void, void> | null>;
     abortRef: React.RefObject<(() => void) | null>;
     setCurrentAdventure: Dispatch<SetStateAction<Adventure>>;
+    hydratedRef: React.RefObject<HydratedAdventure | null>;
 }
 
 export interface UseStopStreamingParams {

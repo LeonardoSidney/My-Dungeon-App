@@ -12,7 +12,7 @@ export class StartStreamingChatUseCase implements IStartStreamingChatUseCase {
         private readonly logger: ILogger,
         private readonly startStreamingChatService: IStartStreamingChatService,
         private readonly adventureRepository: IAdventureRepository
-    ) {}
+    ) { }
 
     async execute (params: StartStreamingChatUseCaseParams): Promise<StartStreamingChatUseCaseReturn> {
         this.logger.info('Executing StartStreamingChatUseCase::execute');
@@ -26,7 +26,7 @@ export class StartStreamingChatUseCase implements IStartStreamingChatUseCase {
         const response = this.startStreamingChatService.startStreamingChat({
             adventure: params.adventure,
             role: params.role,
-            characterName: params.characterName,
+            characterId: params.characterId,
         });
 
         if (!response.success) {
@@ -38,12 +38,19 @@ export class StartStreamingChatUseCase implements IStartStreamingChatUseCase {
         }
 
         if (!response.adventure) {
-            throw new Error('Service returned success but no adventure object');
+            return {
+                success: false,
+                error: 'Service returned success but no adventure object',
+            };
         }
 
         const update = await this.adventureRepository.updateAdventure({ adventure: response.adventure });
-        if (!update) {
-            throw new Error('Failed to save adventure');
+        if (!update.success) {
+            this.logger.error('StartStreamingChatUseCase::execute - failed to save adventure', update.error);
+            return {
+                success: false,
+                error: update.error || 'Failed to save adventure',
+            };
         }
 
         this.logger.debug('StartStreamingChatUseCase::execute - adventure persisted');
@@ -56,11 +63,11 @@ export class StartStreamingChatUseCase implements IStartStreamingChatUseCase {
     }
 
     private validate (params: StartStreamingChatUseCaseParams): StartStreamingChatUseCaseReturn {
-        if (!params.characterName?.trim()) {
-            this.logger.warning('StartStreamingChatUseCase::validate - characterName is required');
+        if (!params.characterId?.trim()) {
+            this.logger.warning('StartStreamingChatUseCase::validate - characterId is required');
             return {
                 success: false,
-                error: 'Character name is required',
+                error: 'Character id is required',
             };
         }
 

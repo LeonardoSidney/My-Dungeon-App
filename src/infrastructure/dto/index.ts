@@ -10,3 +10,7 @@ export * from './worldDTO';
 export * from './locationDTO';
 export * from './itemDTO';
 export * from './systemPromptDTO';
+export * from './adventureDTO';
+export * from './chatDTO';
+export * from './thinkDTO';
+export * from './ModelDTO';

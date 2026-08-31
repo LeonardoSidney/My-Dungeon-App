@@ -12,7 +12,14 @@ export class EditSamplerUseCase implements IEditSamplerUseCase {
 
     async execute (params: EditSamplerParams): Promise<EditSamplerReturn> {
         this.logger.info('Executing EditSamplerUseCase::execute');
-        this.validate(params);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return {
+                success: false,
+                sampler: undefined,
+                error: validationError
+            };
+        }
 
         const { id, name } = params;
 
@@ -68,9 +75,11 @@ export class EditSamplerUseCase implements IEditSamplerUseCase {
         };
     }
 
-    private validate (params: EditSamplerParams): void {
+    private validate (params: EditSamplerParams): string | null {
         if (!params.name?.trim()) {
-            throw new Error('A name is required to edit a sampler');
+            return 'A name is required to edit a sampler';
         }
+
+        return null;
     }
 }

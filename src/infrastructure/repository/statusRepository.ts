@@ -3,7 +3,7 @@ import { Status } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { IStatusRepository, SaveStatusParams, EditStatusParams, EditStatusReturn, EraseStatusReturn } from '@domain/repository';
 import { IStorage } from '@domain/storage';
-import { StatusDTO } from '../dto';
+import { StatusDTO } from '@infra/dto';
 
 export class StatusRepository implements IStatusRepository {
     constructor (
@@ -39,6 +39,12 @@ export class StatusRepository implements IStatusRepository {
             throw error;
         }
         return true;
+    }
+
+    async getStatusById (statusId: string): Promise<Status | undefined> {
+        this.logger.info('Executing StatusRepository::getStatusById');
+        const statuses = await this.getStatuses();
+        return statuses.find((s) => s.id === statusId);
     }
 
     async getStatuses (): Promise<Status[]> {

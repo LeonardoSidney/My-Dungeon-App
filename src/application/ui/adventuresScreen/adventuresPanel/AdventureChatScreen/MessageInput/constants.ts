@@ -1,4 +1,4 @@
-import { Adventure, Character } from '@domain/entities';
+import { Character } from '@domain/entities';
 import { TextInputKeyPressEvent } from 'react-native';
 
 export interface MessageInputProps {
@@ -8,7 +8,7 @@ export interface MessageInputProps {
     isStreaming: boolean;
     onSend: () => void;
     onResend: () => void;
-    adventure: Adventure;
+    characters: Character[];
     selectedCharacterId: string;
     onCharacterSelect: (character: Character) => void;
 }

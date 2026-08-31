@@ -3,6 +3,7 @@ import { Character } from '../entities';
 export interface ICharacterRepository {
     saveCharacter (params: SaveCharacterParams): Promise<boolean>;
     getCharacters (): Promise<Character[]>;
+    getCharacterById (characterId: string): Promise<Character | undefined>;
     editCharacter (params: EditCharacterParams): Promise<EditCharacterReturn>;
     eraseCharacter (characterId: string): Promise<EraseCharacterReturn>;
 }

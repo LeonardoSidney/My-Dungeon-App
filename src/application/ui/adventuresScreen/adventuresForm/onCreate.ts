@@ -5,13 +5,15 @@ export async function onCreate (
     formData: AdventureFormData
 ) {
     const controller = createAdventureController();
-    await controller.handle({
+    return controller.handle({
         name: formData.name,
-        systemPrompts: formData.systemPrompts,
-        characters: formData.characters,
-        worldMaster: formData.worldMaster,
-        worlds: formData.worlds,
-        locations: formData.locations,
-        items: formData.items,
+        systemPromptIds: formData.systemPrompts.map(sp => sp.id),
+        characterIds: formData.characters.map(c => c.id),
+        worldMasterId: formData.worldMaster?.id,
+        characterAsWorldMasterId: formData.characterAsWorldMasterId,
+        charactersControlledByAi: formData.charactersControlledByAi,
+        worldIds: (formData.worlds ?? []).map(w => w.id),
+        locationIds: (formData.locations ?? []).map(l => l.id),
+        itemIds: (formData.items ?? []).map(i => i.id),
     });
 }

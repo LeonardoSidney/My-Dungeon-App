@@ -1,12 +1,10 @@
-import { Connection, Sampler } from '../entities';
-
 export interface INativeStreamCompletionController {
-    handle(request: NativeStreamCompletionControllerRequest): Promise<NativeStreamCompletionControllerResponse>;
+    handle (request: NativeStreamCompletionControllerRequest): Promise<NativeStreamCompletionControllerResponse>;
 }
 
 export type NativeStreamCompletionControllerRequest = {
-    connection: Connection;
-    sampler: Sampler;
+    connectionId: string;
+    samplerId: string;
     modelId: string;
     prompt: string;
 };

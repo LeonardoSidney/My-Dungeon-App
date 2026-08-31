@@ -1,5 +1,6 @@
 import { IModelProviderGateway } from '@domain/gateways';
 import { ILogger } from '@domain/logger';
+import { IConnectionRepository, ISamplerRepository } from '@domain/repository';
 import {
     INativeStreamCompletionUseCase,
     NativeStreamCompletionUseCaseParams,
@@ -9,8 +10,10 @@ import {
 export class NativeStreamCompletionUseCase implements INativeStreamCompletionUseCase {
     constructor (
         private readonly logger: ILogger,
-        private readonly gateway: IModelProviderGateway
-    ) {}
+        private readonly gateway: IModelProviderGateway,
+        private readonly connectionRepository: IConnectionRepository,
+        private readonly samplerRepository: ISamplerRepository
+    ) { }
 
     async execute (params: NativeStreamCompletionUseCaseParams): Promise<NativeStreamCompletionUseCaseResponse> {
         this.logger.info('Executing NativeStreamCompletionUseCase::execute');
@@ -18,9 +21,27 @@ export class NativeStreamCompletionUseCase implements INativeStreamCompletionUse
         try {
             this.validate(params);
 
+            const connection = await this.connectionRepository.getConnectionById(params.connectionId);
+
+            if (!connection) {
+                return {
+                    success: false,
+                    error: `Connection not found: ${params.connectionId}`,
+                };
+            }
+
+            const sampler = await this.samplerRepository.getSamplerById(params.samplerId);
+
+            if (!sampler) {
+                return {
+                    success: false,
+                    error: `Sampler not found: ${params.samplerId}`,
+                };
+            }
+
             const { stream, abort } = this.gateway.streamCompletion(
-                params.connection,
-                params.sampler,
+                connection,
+                sampler,
                 params.modelId,
                 params.prompt
             );
@@ -48,12 +69,16 @@ export class NativeStreamCompletionUseCase implements INativeStreamCompletionUse
     }
 
     private validate (params: NativeStreamCompletionUseCaseParams): void {
-        if (!params.prompt?.trim()) {
-            throw new Error('Prompt is required');
+        if (!params.connectionId?.trim()) {
+            throw new Error('Connection id is required');
         }
 
-        if (!params.connection?.ip) {
-            throw new Error('Connection IP is required');
+        if (!params.samplerId?.trim()) {
+            throw new Error('Sampler id is required');
+        }
+
+        if (!params.prompt?.trim()) {
+            throw new Error('Prompt is required');
         }
     }
 }

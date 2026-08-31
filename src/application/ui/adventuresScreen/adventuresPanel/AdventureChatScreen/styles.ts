@@ -5,6 +5,22 @@ export const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#1a1a1a',
     },
+    loadingContainer: {
+        flex: 1,
+        backgroundColor: '#1a1a1a',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    loadingText: {
+        marginTop: 16,
+        fontSize: 14,
+        color: '#fff',
+    },
+    errorText: {
+        fontSize: 14,
+        color: '#fff',
+        marginBottom: 16,
+    },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',

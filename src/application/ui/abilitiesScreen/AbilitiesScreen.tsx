@@ -34,11 +34,7 @@ export function AbilitiesScreen () {
     }
     setFormErrors({});
 
-    try {
-      await onSaveAbility(abilityStateFormData, setAbilityFormData, setShowForm, setAbilities);
-    } catch (error) {
-      setFormErrors({ name: (error as Error).message });
-    }
+    await onSaveAbility(abilityStateFormData, setAbilityFormData, setShowForm, setAbilities);
   };
 
   const handleFormChange = (field: keyof AbilityFormData, value: string | Date) => {

@@ -3,7 +3,7 @@ import { Ability } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { IAbilityRepository, SaveAbilityParams, EditAbilityParams, EditAbilityReturn, EraseAbilityReturn } from '@domain/repository';
 import { IStorage } from '@domain/storage';
-import { AbilityDTO } from '../dto';
+import { AbilityDTO } from '@infra/dto';
 
 export class AbilityRepository implements IAbilityRepository {
     constructor (
@@ -25,6 +25,12 @@ export class AbilityRepository implements IAbilityRepository {
             throw error;
         }
         return true;
+    }
+
+    async getAbilityById (abilityId: string): Promise<Ability | undefined> {
+        this.logger.info('Executing AbilityRepository::getAbilityById');
+        const abilities = await this.getAbilities();
+        return abilities.find((a) => a.id === abilityId);
     }
 
     async getAbilities (): Promise<Ability[]> {

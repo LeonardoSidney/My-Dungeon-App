@@ -3,7 +3,7 @@ import { World } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { IWorldRepository, SaveWorldParams, EraseWorldRepositoryReturn, EditWorldRepositoryReturn, EditWorldParams } from '@domain/repository';
 import { IStorage } from '@domain/storage';
-import { WorldDTO } from '../dto';
+import { WorldDTO } from '@infra/dto';
 
 export class WorldRepository implements IWorldRepository {
     constructor (
@@ -40,6 +40,12 @@ export class WorldRepository implements IWorldRepository {
         }
 
         return true;
+    }
+
+    async getWorldById (worldId: string): Promise<World | undefined> {
+        this.logger.info('Executing WorldRepository::getWorldById');
+        const worlds = await this.getWorlds();
+        return worlds.find((w) => w.id === worldId);
     }
 
     async getWorlds (): Promise<World[]> {

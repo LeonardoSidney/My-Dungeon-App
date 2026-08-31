@@ -3,7 +3,7 @@ import { Location } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { ILocationRepository, SaveLocationParams } from '@domain/repository';
 import { IStorage } from '@domain/storage';
-import { LocationDTO } from '../dto';
+import { LocationDTO } from '@infra/dto';
 
 export class LocationRepository implements ILocationRepository {
     constructor (
@@ -26,6 +26,12 @@ export class LocationRepository implements ILocationRepository {
         }
 
         return true;
+    }
+
+    async getLocationById (locationId: string): Promise<Location | undefined> {
+        this.logger.info('Executing LocationRepository::getLocationById');
+        const locations = await this.getLocations();
+        return locations.find((l) => l.id === locationId);
     }
 
     async getLocations (): Promise<Location[]> {

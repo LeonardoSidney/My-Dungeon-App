@@ -1,9 +1,5 @@
-import { Ability, Assistant, Attribute, Character, Proficiency, Status } from '@domain/entities';
-import { AbilityDTO } from './abilityDTO';
-import { AssistantDTO } from './assistantDTO';
-import { ProficiencyDTO } from './proficiencyDTO';
-import { isArrayRecord, isRecord, parseDate } from './shared';
-import { StatusDTO } from './statusDTO';
+import { Attribute, Character } from '@domain/entities';
+import { isArrayRecord, isRecord, isStringArray, parseDate } from './shared';
 
 export class CharacterDTO {
     constructor (
@@ -12,12 +8,11 @@ export class CharacterDTO {
         private readonly activationWord: string,
         private readonly prompt: string,
         private readonly observation: string | undefined,
-        private readonly abilities: Ability[] | undefined,
-        private readonly proficiencies: Proficiency[] | undefined,
-        private readonly statuses: Status[] | undefined,
+        private readonly abilityIds: string[] | undefined,
+        private readonly proficiencyIds: string[] | undefined,
+        private readonly statusIds: string[] | undefined,
         private readonly attributes: Attribute[] | undefined,
-        private readonly assistant: Assistant,
-        private readonly worldMaster: boolean | undefined,
+        private readonly assistantId: string,
         private readonly createdAt: Date,
         private readonly updatedAt: Date
     ) { }
@@ -29,12 +24,11 @@ export class CharacterDTO {
             activationWord: this.activationWord,
             prompt: this.prompt,
             observation: this.observation,
-            abilities: this.abilities,
-            proficiencies: this.proficiencies,
-            statuses: this.statuses,
+            abilityIds: this.abilityIds,
+            proficiencyIds: this.proficiencyIds,
+            statusIds: this.statusIds,
             attributes: this.attributes,
-            assistant: this.assistant,
-            worldMaster: this.worldMaster,
+            assistantId: this.assistantId,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt
         };
@@ -48,11 +42,10 @@ export class CharacterDTO {
         const createdAt = parseDate(data.createdAt);
         const updatedAt = parseDate(data.updatedAt);
 
-        const abilities = this.toAbilities(data.abilities);
-        const proficiencies = this.toProficiencies(data.proficiencies);
-        const statuses = this.toStatus(data.statuses);
+        const abilityIds = this.toStringArray(data.abilityIds);
+        const proficiencyIds = this.toStringArray(data.proficiencyIds);
+        const statusIds = this.toStringArray(data.statusIds);
         const attributes = this.toAttributes(data.attributes);
-        const assistant = this.toAssistant(data.assistant);
 
         if (
             typeof data.id !== 'string' ||
@@ -60,8 +53,7 @@ export class CharacterDTO {
             typeof data.activationWord !== 'string' ||
             typeof data.prompt !== 'string' ||
             (data.observation !== undefined && typeof data.observation !== 'string') ||
-            (data.worldMaster !== undefined && typeof data.worldMaster !== 'boolean') ||
-            assistant === undefined ||
+            typeof data.assistantId !== 'string' ||
             createdAt === null ||
             updatedAt === null
         ) {
@@ -74,72 +66,26 @@ export class CharacterDTO {
             data.activationWord,
             data.prompt,
             data.observation,
-            abilities,
-            proficiencies,
-            statuses,
+            abilityIds,
+            proficiencyIds,
+            statusIds,
             attributes,
-            assistant,
-            data.worldMaster,
+            data.assistantId,
             createdAt,
             updatedAt
         );
     }
 
-    private static toAssistant (assistant: unknown | undefined): Assistant | undefined {
-        if (!isRecord(assistant)) {
+    private static toStringArray (ids: unknown | undefined): string[] | undefined {
+        if (ids === undefined) {
             return undefined;
         }
 
-        const assistantDTO = AssistantDTO.fromStorage(assistant);
-        return assistantDTO?.toEntity();
-    }
-
-    private static toAbilities (abilities: unknown | undefined): Ability[] | undefined {
-        if (!isArrayRecord(abilities)) {
+        if (!isStringArray(ids)) {
             return undefined;
         }
 
-        const abilitiesDTO = abilities.map(ability => AbilityDTO.fromStorage(ability));
-        const validAbilities: Ability[] = [];
-        for (const abilityDTO of abilitiesDTO) {
-            if (abilityDTO !== null) {
-                validAbilities.push(abilityDTO.toEntity());
-            }
-        }
-
-        return validAbilities;
-    }
-
-    private static toProficiencies (proficiencies: unknown | undefined): Proficiency[] | undefined {
-        if (!isArrayRecord(proficiencies)) {
-            return undefined;
-        }
-
-        const proficienciesDTO = proficiencies.map(proficiency => ProficiencyDTO.fromStorage(proficiency));
-        const validProficiencies: Proficiency[] = [];
-        for (const proficiencyDTO of proficienciesDTO) {
-            if (proficiencyDTO !== null) {
-                validProficiencies.push(proficiencyDTO.toEntity());
-            }
-        }
-
-        return validProficiencies;
-    }
-
-    private static toStatus (statuses: unknown | undefined): Status[] | undefined {
-        if (!isArrayRecord(statuses)) {
-            return undefined;
-        }
-
-        const statusesDTO = statuses.map(status => StatusDTO.fromStorage(status));
-        const validStatus: Status[] = [];
-        for (const element of statusesDTO) {
-            if (element !== null) {
-                validStatus.push(element.toEntity());
-            }
-        }
-
-        return validStatus;
+        return ids;
     }
 
     private static toAttributes (attributes: unknown | undefined): Attribute[] | undefined {

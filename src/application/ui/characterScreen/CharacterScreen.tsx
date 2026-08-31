@@ -47,11 +47,7 @@ export function CharacterScreen () {
     }
     setFormErrors({});
 
-    try {
-      await onSaveCharacter(characterStateFormData, setCharacterFormData, setShowForm, setCharacters);
-    } catch (error) {
-      setFormErrors({ name: (error as Error).message });
-    }
+    await onSaveCharacter(characterStateFormData, setCharacterFormData, setShowForm, setCharacters);
   };
 
   const handleFormChange = (field: keyof CharacterFormData, value: CharacterFormData[keyof CharacterFormData]) => {

@@ -13,6 +13,7 @@ export type EditWorldRepositoryReturn = {
 export interface IWorldRepository {
     saveWorld (params: SaveWorldParams): Promise<boolean>;
     getWorlds (): Promise<World[]>;
+    getWorldById (worldId: string): Promise<World | undefined>;
     eraseWorld (worldId: string): Promise<EraseWorldRepositoryReturn>;
     editWorld (params: EditWorldParams): Promise<EditWorldRepositoryReturn>;
 }

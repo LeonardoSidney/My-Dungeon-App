@@ -18,12 +18,26 @@ import {
     IEraseCharacterController,
 } from '@domain/controllers';
 import { idGenerate, logger, storage } from './shared';
-import { createCharacterRepository } from './repository';
+import {
+    createAbilityRepository,
+    createAssistantRepository,
+    createCharacterRepository,
+    createProficiencyRepository,
+    createStatusRepository,
+} from './repository';
 
 export function createCharacterController (): ICreateCharacterController {
     const characterRepository = createCharacterRepository(storage, logger);
     const createCharacterService = new CreateCharacterService(logger, idGenerate);
-    const createCharacterUseCase = new CreateCharacterUseCase(logger, characterRepository, createCharacterService);
+    const createCharacterUseCase = new CreateCharacterUseCase(
+        logger,
+        characterRepository,
+        createCharacterService,
+        createAssistantRepository(storage, logger),
+        createAbilityRepository(storage, logger),
+        createProficiencyRepository(storage, logger),
+        createStatusRepository(storage, logger)
+    );
     return new CreateCharacterController(logger, createCharacterUseCase);
 }
 
@@ -36,7 +50,15 @@ export function getCharactersController (): IGetCharactersController {
 export function editCharacterController (): IEditCharacterController {
     const characterRepository = createCharacterRepository(storage, logger);
     const editCharacterService = new EditCharacterService(logger);
-    const editCharacterUseCase = new EditCharacterUseCase(logger, editCharacterService, characterRepository);
+    const editCharacterUseCase = new EditCharacterUseCase(
+        logger,
+        editCharacterService,
+        characterRepository,
+        createAssistantRepository(storage, logger),
+        createAbilityRepository(storage, logger),
+        createProficiencyRepository(storage, logger),
+        createStatusRepository(storage, logger)
+    );
     return new EditCharacterController(logger, editCharacterUseCase);
 }
 

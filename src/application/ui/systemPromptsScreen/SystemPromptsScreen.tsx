@@ -33,11 +33,7 @@ export function SystemPromptsScreen () {
     }
     setFormErrors({});
 
-    try {
-      await onSaveSystemPrompt(systemPromptStateFormData, setSystemPromptFormData, setShowForm, setSystemPrompts);
-    } catch (error) {
-      setFormErrors({ name: (error as Error).message });
-    }
+    await onSaveSystemPrompt(systemPromptStateFormData, setSystemPromptFormData, setShowForm, setSystemPrompts);
   };
 
   const handleFormChange = (field: keyof SystemPromptFormData, value: string | Date) => {

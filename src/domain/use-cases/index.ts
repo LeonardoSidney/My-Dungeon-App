@@ -33,6 +33,7 @@ export * from './iEditConnectionUseCase';
 export * from './iGetAbilitiesUseCase';
 export * from './iGetAdventuresUseCase';
 export * from './iGetAdventureTextUseCase';
+export * from './iHydrateAdventureUseCase';
 export * from './iGetAssistantsUseCase';
 export * from './iGetCharactersUseCase';
 export * from './iGetConnectionsUseCase';

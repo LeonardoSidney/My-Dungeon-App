@@ -1,5 +1,4 @@
 import { WorldMaster } from '@domain/entities';
-import { createAssistantHelper } from './createAssistantHelper';
 
 export function createWorldMasterHelper (overrides?: Partial<WorldMaster>): WorldMaster {
     return {
@@ -8,7 +7,7 @@ export function createWorldMasterHelper (overrides?: Partial<WorldMaster>): Worl
         activationWord: 'activate',
         prompt: 'Master prompt',
         observation: 'Test observation',
-        assistant: createAssistantHelper(),
+        assistantId: '1',
         createdAt: new Date(),
         updatedAt: new Date(),
         ...overrides

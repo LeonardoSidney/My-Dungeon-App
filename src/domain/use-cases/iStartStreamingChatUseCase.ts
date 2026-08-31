@@ -1,13 +1,13 @@
 import { Adventure, Chat, Role } from '@domain/entities';
 
 export interface IStartStreamingChatUseCase {
-    execute(params: StartStreamingChatUseCaseParams): Promise<StartStreamingChatUseCaseReturn>;
+    execute (params: StartStreamingChatUseCaseParams): Promise<StartStreamingChatUseCaseReturn>;
 }
 
 export type StartStreamingChatUseCaseParams = {
     adventure: Adventure;
     role: Role;
-    characterName: string;
+    characterId: string;
 };
 
 export type StartStreamingChatUseCaseReturn = {

@@ -27,6 +27,7 @@ export interface SidebarPanelProps {
   activeRoute?: SidebarRoute;
   containerStyle?: ViewStyle;
   panelStyle?: ViewStyle;
+  isFullScreen?: boolean;
 }
 
 export function SidebarPanel ({
@@ -36,6 +37,7 @@ export function SidebarPanel ({
   activeRoute,
   containerStyle,
   panelStyle,
+  isFullScreen,
 }: SidebarPanelProps) {
   const { width } = useWindowWidth();
   const isWideScreen = width >= HD_THRESHOLD;
@@ -49,6 +51,8 @@ export function SidebarPanel ({
     }
   };
   const { handleMenuPress } = useMenuNavigation(onRouteChange, handleClosePanel);
+  const showToggleButton = !isWideScreen && !isFullScreen;
+  const contentPaddingTop = isFullScreen ? 0 : 70;
 
   return (
     <View style={[styles.container, containerStyle]}>
@@ -83,7 +87,7 @@ export function SidebarPanel ({
         </View>
       </Animated.View>
 
-      {!isWideScreen && (
+      {showToggleButton && (
         <Pressable
           onPress={toggleVisibility}
           style={[
@@ -98,7 +102,13 @@ export function SidebarPanel ({
         </Pressable>
       )}
 
-      <View style={[styles.contentArea, isWideScreen && { marginLeft: SIDEBAR_WIDTH }]}>
+      <View
+        style={[
+          styles.contentArea,
+          isWideScreen && { marginLeft: SIDEBAR_WIDTH },
+          { paddingTop: contentPaddingTop },
+        ]}
+      >
         {children}
       </View>
     </View>

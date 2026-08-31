@@ -10,13 +10,17 @@ export async function onEdit (
     if (!formData.createdAt) return;
 
     const controller = editAssistantController();
+    const modelId = formData.model.id;
+    const connectionId = formData.model.connectionId;
+    const samplerId = formData.sampler.id;
 
     return controller.handle({
         id: formData.id,
         name: formData.name,
         observation: formData.observation || undefined,
-        model: formData.model,
-        sampler: formData.sampler,
+        modelId,
+        connectionId,
+        samplerId,
         createdAt: formData.createdAt,
     });
 }

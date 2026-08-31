@@ -1,5 +1,4 @@
 import { Character } from '@domain/entities';
-import { createAssistantHelper } from './createAssistantHelper';
 
 export function createCharacterHelper (overrides?: Partial<Character>): Character {
     return {
@@ -8,8 +7,11 @@ export function createCharacterHelper (overrides?: Partial<Character>): Characte
         activationWord: 'activate',
         prompt: 'Character prompt',
         observation: 'Test observation',
-        assistant: createAssistantHelper(),
-        worldMaster: false,
+        abilityIds: [],
+        proficiencyIds: [],
+        statusIds: [],
+        attributes: [],
+        assistantId: '1',
         createdAt: new Date(),
         updatedAt: new Date(),
         ...overrides

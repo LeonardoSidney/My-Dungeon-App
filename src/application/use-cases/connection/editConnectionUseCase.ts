@@ -12,7 +12,14 @@ export class EditConnectionUseCase implements IEditConnectionUseCase {
 
     async execute (params: EditConnectionParams): Promise<EditConnectionReturn> {
         this.logger.info('Executing EditConnectionUseCase::execute');
-        this.validate(params);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return {
+                success: false,
+                connection: undefined,
+                error: validationError
+            };
+        }
 
         const { id, name, ip, port, auth, createdAt } = params;
 
@@ -64,21 +71,23 @@ export class EditConnectionUseCase implements IEditConnectionUseCase {
         };
     }
 
-    private validate (params: EditConnectionParams): void {
+    private validate (params: EditConnectionParams): string | null {
         if (!params.id) {
-            throw new Error('An id is required to edit a connection config');
+            return 'An id is required to edit a connection config';
         }
 
         if (!params.name?.trim()) {
-            throw new Error('A name is required to edit a connection config');
+            return 'A name is required to edit a connection config';
         }
 
         if (!params.ip?.trim()) {
-            throw new Error('An IP is required to edit a connection config');
+            return 'An IP is required to edit a connection config';
         }
 
         if (params.port && params.port <= 0) {
-            throw new Error('A valid port is required to edit a connection config');
+            return 'A valid port is required to edit a connection config';
         }
+
+        return null;
     }
 }

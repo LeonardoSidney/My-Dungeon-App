@@ -11,7 +11,7 @@ export class CreateChatService implements ICreateChatService {
     constructor (
         private readonly logger: ILogger,
         private readonly idGenerator: IIdGenerator
-    ) {}
+    ) { }
 
     createChat (params: CreateChatServiceParams): CreateChatServiceReturn {
         this.logger.info('Executing CreateChatService::createChat');
@@ -26,7 +26,7 @@ export class CreateChatService implements ICreateChatService {
             index: 0,
             content: [params.content],
             think: params.think ? [params.think] : undefined,
-            characterName: params.characterName,
+            characterId: params.characterId,
             createdAt: now,
             updatedAt: now,
         };

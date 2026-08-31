@@ -1,7 +1,7 @@
-import { Ability, Assistant, Attribute, Character, Proficiency, Status } from '../entities';
+import { Attribute, Character } from '../entities';
 
 export interface ICreateCharacterController {
-    handle(params: CreateCharacterControllerPrams): Promise<CreateCharacterControllerResponse>;
+    handle (params: CreateCharacterControllerPrams): Promise<CreateCharacterControllerResponse>;
 }
 
 export type CreateCharacterControllerPrams = {
@@ -9,11 +9,11 @@ export type CreateCharacterControllerPrams = {
     activationWord: string;
     prompt: string;
     observation?: string;
-    abilities?: Ability[];
-    proficiencies?: Proficiency[];
-    statuses?: Status[];
+    abilityIds?: string[];
+    proficiencyIds?: string[];
+    statusIds?: string[];
     attributes?: Attribute[];
-    assistant: Assistant;
+    assistantId: string;
 };
 
 export type CreateCharacterControllerResponse = {

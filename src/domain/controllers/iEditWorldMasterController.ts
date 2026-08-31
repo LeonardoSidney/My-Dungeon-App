@@ -1,4 +1,4 @@
-import { Assistant, WorldMaster } from '../entities';
+import { WorldMaster } from '../entities';
 
 export type EditWorldMasterControllerRequest = {
     id: string;
@@ -6,7 +6,7 @@ export type EditWorldMasterControllerRequest = {
     activationWord: string;
     prompt: string;
     observation?: string;
-    assistant: Assistant;
+    assistantId: string;
     createdAt: Date;
 };
 

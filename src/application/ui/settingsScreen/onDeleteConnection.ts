@@ -1,3 +1,4 @@
+import { Alert } from 'react-native';
 import { Connection } from '@domain/entities';
 import { Dispatch, SetStateAction } from 'react';
 import { eraseConnectionController } from '@infra/container';
@@ -7,11 +8,11 @@ export async function onDeleteConnection (
     connectionId: string,
     setConnections: Dispatch<SetStateAction<Connection[]>>
 ) {
-    try {
-        const ctrl = eraseConnectionController();
-        await ctrl.handle(connectionId);
-        await loadConnections(setConnections);
-    } catch (error) {
-        console.error('Failed to delete connection:', error);
+    const ctrl = eraseConnectionController();
+    const response = await ctrl.handle(connectionId);
+    if (!response.success) {
+        Alert.alert('Erro', response.error ?? 'Failed to delete connection');
+        return;
     }
+    await loadConnections(setConnections);
 }

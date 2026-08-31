@@ -7,9 +7,7 @@ export function onEditForm (
     setShowForm: (show: boolean) => void,
     setWorldMasterFormData: (updater: WorldMasterFormData) => void
 ) {
-    const validAssistant = worldMaster.assistant
-        ? (assistants.find(a => a.id === worldMaster.assistant.id) ?? null)
-        : null;
+    const validAssistant = assistants.find(a => a.id === worldMaster.assistantId) ?? null;
 
     setWorldMasterFormData({
         id: worldMaster.id,

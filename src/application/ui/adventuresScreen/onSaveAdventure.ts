@@ -11,7 +11,9 @@ export async function onSaveAdventure (
     setShowForm: Dispatch<SetStateAction<boolean>>,
     setAdventures: Dispatch<SetStateAction<Adventure[]>>
 ) {
-    await onSubmit(adventureStateFormData);
+    const response = await onSubmit(adventureStateFormData);
+    if (!response || !response.success) return;
+
     setAdventureFormData(setInitialAdventureState());
     setShowForm(false);
     await loadAdventures(setAdventures);

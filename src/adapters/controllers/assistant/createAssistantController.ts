@@ -9,12 +9,13 @@ export class CreateAssistantController implements ICreateAssistantController {
     ) { }
     async handle (params: CreateAssistantControllerParams): Promise<CreateAssistantControllerResponse> {
         this.logger.info('Executing CreateAssistantController::handle');
-        const { name, observation, model, sampler } = params;
+        const { name, observation, modelId, samplerId, connectionId } = params;
         const response = await this.useCase.execute({
             name,
             observation,
-            model,
-            sampler
+            modelId,
+            samplerId,
+            connectionId
         });
 
         return {

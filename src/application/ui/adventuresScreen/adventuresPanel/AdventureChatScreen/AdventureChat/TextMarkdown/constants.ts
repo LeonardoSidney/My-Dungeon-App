@@ -110,8 +110,6 @@ export interface HorizontalRuleBlock {
 
 export type BlockElement = ParagraphBlock | HeadingBlock | CodeBlock | ListBlock | TableBlock | BlockMathBlock | HorizontalRuleBlock;
 
-export type ParsedElement = BlockElement | InlineElement;
-
 export interface ParseMarkerResult {
     elements: InlineElement[];
     rest: string;
@@ -120,9 +118,9 @@ export interface ParseMarkerResult {
 
 export type MarkerHandler = (
     remaining: string,
-    match: { index: number; type: string; len: number },
-    counter: { current: number },
-    recursiveParse: (text: string, counter: { current: number }) => InlineElement[],
+    match: { index: number; type: string; len: number; },
+    counter: { current: number; },
+    recursiveParse: (text: string, counter: { current: number; }) => InlineElement[],
     elements: InlineElement[]
 ) => ParseMarkerResult;
 

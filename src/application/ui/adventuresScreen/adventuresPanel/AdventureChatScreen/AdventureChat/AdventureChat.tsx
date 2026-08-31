@@ -5,7 +5,7 @@ import { ChatItem } from './ChatItem';
 import { getStreamingChatFromList } from './getStreamingChatFromList';
 import { AdventureChatProps } from './constants';
 
-function AdventureChatBase ({ chats, streamingChat, onDeleteMessage, onRegenerateFromMessage }: AdventureChatProps) {
+function AdventureChatBase ({ chats, streamingChat, characterNameById, onDeleteMessage, onRegenerateFromMessage }: AdventureChatProps) {
   const streamingChatFromList = useMemo(() => getStreamingChatFromList({ streamingChat, chats }), [streamingChat, chats]);
   const streamingChatId = streamingChatFromList?.id ?? null;
 
@@ -16,6 +16,7 @@ function AdventureChatBase ({ chats, streamingChat, onDeleteMessage, onRegenerat
           key={chat.id}
           chat={chat}
           isStreaming={chat.id === streamingChatId}
+          characterNameById={characterNameById}
           onDeleteMessage={onDeleteMessage}
           onRegenerateFromMessage={onRegenerateFromMessage}
         />

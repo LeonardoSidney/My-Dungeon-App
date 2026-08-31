@@ -9,8 +9,8 @@ export function onEditForm (
     setShowForm: Dispatch<SetStateAction<boolean>>,
     setAssistantFormData: Dispatch<SetStateAction<AssistantFormData>>
 ) {
-    const currentModel = findModelFromAssistant(models, assistant.model);
-    const currentSampler = findSamplerFromAssistant(samplers, assistant.sampler);
+    const currentModel = findModelFromAssistant(models, assistant);
+    const currentSampler = findSamplerFromAssistant(samplers, assistant.samplerId);
 
     setAssistantFormData({
         id: assistant.id,
@@ -26,16 +26,16 @@ export function onEditForm (
 
 function findSamplerFromAssistant (
     samplers: Sampler[],
-    assistantSampler: Sampler
+    samplerId: string
 ): Sampler | null {
-    return samplers.find((s) => s.id === assistantSampler.id) ?? null;
+    return samplers.find((s) => s.id === samplerId) ?? null;
 }
 
 function findModelFromAssistant (
     models: Model[],
-    assistantModel: Model
+    assistant: Assistant
 ): Model | null {
     return models.find(
-        (m) => m.id === assistantModel.id && m.connection.id === assistantModel.connection.id
+        (m) => m.id === assistant.modelId && m.connectionId === assistant.connectionId
     ) ?? null;
 }

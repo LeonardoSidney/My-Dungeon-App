@@ -12,7 +12,14 @@ export class EditAbilityUseCase implements IEditAbilityUseCase {
 
     async execute (params: EditAbilityParams): Promise<EditAbilityReturn> {
         this.logger.info('Executing EditAbilityUseCase::execute');
-        this.validate(params);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return {
+                success: false,
+                ability: undefined,
+                error: validationError
+            };
+        }
 
         const { ability } = params;
 
@@ -66,23 +73,25 @@ export class EditAbilityUseCase implements IEditAbilityUseCase {
         };
     }
 
-    private validate (params: EditAbilityParams): void {
+    private validate (params: EditAbilityParams): string | null {
         const { ability } = params;
 
         if (!ability.id) {
-            throw new Error('An id is required to edit an ability');
+            return 'An id is required to edit an ability';
         }
 
         if (!ability.name?.trim()) {
-            throw new Error('A name is required to edit an ability');
+            return 'A name is required to edit an ability';
         }
 
         if (!ability.activationWorld?.trim()) {
-            throw new Error('An activation world is required to edit an ability');
+            return 'An activation world is required to edit an ability';
         }
 
         if (!ability.prompt?.trim()) {
-            throw new Error('A prompt is required to edit an ability');
+            return 'A prompt is required to edit an ability';
         }
+
+        return null;
     }
 }

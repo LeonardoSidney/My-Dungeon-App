@@ -3,7 +3,7 @@ import { Adventure } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { IAdventureRepository, SaveAdventureParams, UpdateAdventureParams, UpdateAdventureReturn, EraseAdventureReturn } from '@domain/repository';
 import { IStorage } from '@domain/storage';
-import { AdventureDTO } from '../dto/adventureDTO';
+import { AdventureDTO } from '@infra/dto';
 
 export class AdventureRepository implements IAdventureRepository {
     constructor (

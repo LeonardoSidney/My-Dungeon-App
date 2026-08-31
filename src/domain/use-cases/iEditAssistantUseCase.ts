@@ -1,4 +1,4 @@
-import { Assistant, Model, Sampler } from '../entities';
+import { Assistant } from '../entities';
 
 export interface IEditAssistantUseCase {
     execute (request: EditAssistantParams): Promise<EditAssistantReturn>;
@@ -8,8 +8,9 @@ export type EditAssistantParams = {
     id: string;
     name: string;
     observation?: string;
-    model: Model;
-    sampler: Sampler;
+    modelId: string;
+    samplerId: string;
+    connectionId: string;
     createdAt: Date;
 };
 

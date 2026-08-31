@@ -11,4 +11,8 @@ export class GetSamplersService implements IGetSamplersService {
         this.logger.info('Executing GetSamplersService::getSystemDefaultSamplers');
         return [DEFAULT_SAMPLER];
     }
+
+    findSystemDefaultSampler (samplerId: string): Sampler | undefined {
+        return this.getSystemDefaultSamplers().find(sampler => sampler.id === samplerId);
+    }
 }

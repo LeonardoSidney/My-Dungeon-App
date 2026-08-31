@@ -1,18 +1,30 @@
-import { KeyboardAvoidingView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { useMemo } from 'react';
+import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { styles } from './styles';
 import { AdventureChat } from './AdventureChat';
 import { AdventureChatSettings } from './AdventureChatSettings/AdventureChatSettings';
 import { MessageInput } from './MessageInput';
 import { useAdventureChatState } from './hooks/useAdventureChatState';
+import { useHydratedAdventure } from './hooks/useHydratedAdventure';
 import { useSettingsActions } from './hooks/useSettingsActions';
 import { useMessageActions } from './hooks/useMessageActions';
 import { useSelectionActions } from './hooks/useSelectionActions';
+import { useKeyboardLift } from './hooks/useKeyboardLift';
 import { useAdventureStreaming } from './useAdventureStreaming';
 import { useAdventureChatScreenLogic } from './useAdventureChatScreenLogic';
-import { AdventureChatScreenProps } from './constants';
+import { AdventureChatContentProps, AdventureChatScreenProps } from './constants';
 
-export function AdventureChatScreen (params: AdventureChatScreenProps) {
-  const { adventure, onBack } = params;
+function AdventureChatContent ({ adventure, hydrated, hydratedRef, onBack }: AdventureChatContentProps) {
+  const hydratedCharacters = hydrated.characters;
+  const keyboardHeight = useKeyboardLift();
+
+  const characterNameById = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const character of hydratedCharacters) {
+      map[character.id] = character.name;
+    }
+    return map;
+  }, [hydratedCharacters]);
 
   const {
     currentAdventure,
@@ -23,7 +35,7 @@ export function AdventureChatScreen (params: AdventureChatScreenProps) {
     setMessage,
     setSelectedCharacter,
     setShowSettings
-  } = useAdventureChatState({ adventure });
+  } = useAdventureChatState({ adventure, hydratedCharacters });
 
   const {
     isStreaming,
@@ -36,7 +48,8 @@ export function AdventureChatScreen (params: AdventureChatScreenProps) {
     selectedCharacter,
     message,
     setCurrentAdventure,
-    setMessage
+    setMessage,
+    hydratedRef
   });
 
   const { scrollViewRef, showScrollToBottom, handleScroll, handleScrollToBottom } = useAdventureChatScreenLogic(
@@ -85,7 +98,7 @@ export function AdventureChatScreen (params: AdventureChatScreenProps) {
   }
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior="padding">
+    <View style={[styles.container, { paddingBottom: keyboardHeight }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack}>
           <Text style={styles.headerText}>← Back</Text>
@@ -107,6 +120,7 @@ export function AdventureChatScreen (params: AdventureChatScreenProps) {
           <AdventureChat
             chats={currentAdventure.chat}
             streamingChat={null}
+            characterNameById={characterNameById}
             onDeleteMessage={onDeleteMessage}
             onRegenerateFromMessage={handleRegenerateFromMessage}
           />
@@ -125,10 +139,44 @@ export function AdventureChatScreen (params: AdventureChatScreenProps) {
         isStreaming={isStreamingActive}
         onSend={sendButtonOnPress}
         onResend={handleResend}
-        adventure={currentAdventure}
+        characters={hydratedCharacters}
         selectedCharacterId={selectedCharacter.id}
         onCharacterSelect={handleCharacterSelect}
       />
-    </KeyboardAvoidingView>
+    </View>
+  );
+}
+
+export function AdventureChatScreen (params: AdventureChatScreenProps) {
+  const { adventure, onBack } = params;
+  const { hydrated, hydratedRef, hydratedError } = useHydratedAdventure({ adventure });
+
+  if (hydrated) {
+    return (
+      <AdventureChatContent
+        adventure={adventure}
+        hydrated={hydrated}
+        hydratedRef={hydratedRef}
+        onBack={onBack}
+      />
+    );
+  }
+
+  if (hydratedError) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.errorText}>{hydratedError}</Text>
+        <TouchableOpacity onPress={onBack}>
+          <Text style={styles.headerText}>← Back</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color="#fff" />
+      <Text style={styles.loadingText}>Carregando aventura...</Text>
+    </View>
   );
 }

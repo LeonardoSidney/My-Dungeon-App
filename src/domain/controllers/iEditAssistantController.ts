@@ -1,4 +1,4 @@
-import { Assistant, Model, Sampler } from '../entities';
+import { Assistant } from '../entities';
 
 export interface IEditAssistantController {
     handle (params: EditAssistantControllerParams): Promise<EditAssistantControllerResponse>;
@@ -8,8 +8,9 @@ export type EditAssistantControllerParams = {
     id: string;
     name: string;
     observation?: string;
-    model: Model;
-    sampler: Sampler;
+    modelId: string;
+    samplerId: string;
+    connectionId: string;
     createdAt: Date;
 };
 

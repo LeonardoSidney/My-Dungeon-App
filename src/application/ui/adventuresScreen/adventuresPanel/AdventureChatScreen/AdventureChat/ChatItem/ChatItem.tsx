@@ -6,11 +6,12 @@ import { AdventureThink } from '../AdventureThink';
 import { TextMarkdown } from '../TextMarkdown';
 import { ChatItemProps } from './constants';
 
-function ChatItemBase ({ chat, isStreaming, onDeleteMessage, onRegenerateFromMessage }: ChatItemProps) {
+function ChatItemBase ({ chat, isStreaming, characterNameById, onDeleteMessage, onRegenerateFromMessage }: ChatItemProps) {
   const think = chat.think?.[chat.index];
   const streamingThink = isStreaming ? chat.think?.[0] : undefined;
   const content = chat.content[chat.index];
   const isUserMessage = chat.role === RoleEnum.USER;
+  const characterName = characterNameById[chat.characterId] ?? '';
 
   const thinkEnabled = Boolean(think?.enabled);
   const hasThink = thinkEnabled && Boolean(think?.content);
@@ -31,7 +32,7 @@ function ChatItemBase ({ chat, isStreaming, onDeleteMessage, onRegenerateFromMes
         <AdventureThink think={think} streamingThink={hasStreamingThink ? streamingThink : undefined} />
       )}
       <View style={chatItemStyle}>
-        <Text style={styles.characterName}>{chat.characterName}</Text>
+        <Text style={styles.characterName}>{characterName}</Text>
         {chatContent}
       </View>
       {isUserMessage && onDeleteMessage && (

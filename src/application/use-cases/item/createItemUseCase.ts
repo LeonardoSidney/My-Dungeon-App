@@ -14,7 +14,13 @@ export class CreateItemUseCase implements ICreateItemUseCase {
         this.logger.info('Executing CreateItemUseCase::execute');
         this.logger.debug('CreateItemUseCase::execute - params:', params);
 
-        this.validate(params);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return {
+                success: false,
+                error: validationError
+            };
+        }
 
         const response = this.service.createItem(params);
         this.logger.debug('CreateItemService executed successfully', response);
@@ -27,7 +33,10 @@ export class CreateItemUseCase implements ICreateItemUseCase {
         }
 
         if (!response.item) {
-            throw new Error('Something went wrong when tried to create the item');
+            return {
+                success: false,
+                error: 'Something went wrong when tried to create the item'
+            };
         }
 
         const items = await this.itemRepository.getItems();
@@ -50,17 +59,19 @@ export class CreateItemUseCase implements ICreateItemUseCase {
         };
     }
 
-    private validate (params: CreateItemUseCaseParams): void {
+    private validate (params: CreateItemUseCaseParams): string | null {
         if (!params.name?.trim()) {
-            throw new Error('Name is required to create an item');
+            return 'Name is required to create an item';
         }
 
         if (!params.prompt?.trim()) {
-            throw new Error('Prompt is required to create an item');
+            return 'Prompt is required to create an item';
         }
 
         if (!params.activationWord?.trim()) {
-            throw new Error('Activation word is required to create an item');
+            return 'Activation word is required to create an item';
         }
+
+        return null;
     }
 }

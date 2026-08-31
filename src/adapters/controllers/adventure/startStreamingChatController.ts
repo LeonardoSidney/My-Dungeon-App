@@ -10,7 +10,7 @@ export class StartStreamingChatController implements IStartStreamingChatControll
     constructor (
         private readonly logger: ILogger,
         private readonly useCase: IStartStreamingChatUseCase
-    ) {}
+    ) { }
 
     async handle (request: StartStreamingChatControllerRequest): Promise<StartStreamingChatControllerResponse> {
         this.logger.info('Executing StartStreamingChatController::handle');
@@ -19,7 +19,7 @@ export class StartStreamingChatController implements IStartStreamingChatControll
         const response = await this.useCase.execute({
             adventure: request.adventure,
             role: request.role,
-            characterName: request.characterName,
+            characterId: request.characterId,
         });
 
         return {

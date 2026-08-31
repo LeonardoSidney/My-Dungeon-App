@@ -1,12 +1,10 @@
-import { Connection, Sampler } from '../entities';
-
 export interface IStreamCompletionController {
-    handle(request: StreamCompletionControllerRequest): Promise<StreamCompletionControllerResponse>;
+    handle (request: StreamCompletionControllerRequest): Promise<StreamCompletionControllerResponse>;
 }
 
 export type StreamCompletionControllerRequest = {
-    connection: Connection;
-    sampler: Sampler;
+    connectionId: string;
+    samplerId: string;
     modelId: string;
     prompt: string;
 };

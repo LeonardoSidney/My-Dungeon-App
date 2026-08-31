@@ -1,14 +1,14 @@
 import { Chat, Role, Think } from '@domain/entities';
 
 export interface ICreateChatAdventureController {
-    handle(request: CreateChatAdventureControllerRequest): Promise<CreateChatAdventureControllerResponse>;
+    handle (request: CreateChatAdventureControllerRequest): Promise<CreateChatAdventureControllerResponse>;
 }
 
 export type CreateChatAdventureControllerRequest = {
     content: string;
     role: Role;
     think?: Think;
-    characterName: string;
+    characterId: string;
 };
 
 export type CreateChatAdventureControllerResponse = {

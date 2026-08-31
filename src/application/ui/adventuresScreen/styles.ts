@@ -83,6 +83,6 @@ export const styles = StyleSheet.create({
         right: 0,
         bottom: 0,
         backgroundColor: '#1a1a1a',
-        zIndex: 1000,
+        zIndex: 1,
     },
 });
