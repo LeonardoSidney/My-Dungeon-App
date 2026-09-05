@@ -1,4 +1,3 @@
-import { HD_THRESHOLD, SIDEBAR_WIDTH } from '@application/ui/sidebarPanel/constants';
 import React, { ReactNode, useRef } from 'react';
 import {
   Animated,
@@ -7,13 +6,12 @@ import {
   View,
   type ViewStyle,
 } from 'react-native';
-import { styles } from '@application/ui/sidebarPanel/styles';
-import { useWindowWidth } from '@application/ui/sidebarPanel/useWindowWidth';
-import { useSidebarVisibility } from '@application/ui/sidebarPanel/useSidebarVisibility';
-import { useToggle } from '@application/ui/sidebarPanel/useToggle';
-import { useMenuNavigation } from '@application/ui/sidebarPanel/useMenuNavigation';
+import { styles } from './styles';
+import { useSidebarPanel } from './useSidebarPanel';
+import { useWindowWidth } from './useWindowWidth';
+import { HD_THRESHOLD, SIDEBAR_WIDTH } from './constants';
 
-export type SidebarRoute = 'home' | 'adventures' | 'characters' | 'abilities' | 'statuses' | 'systemPrompts' | 'proficiencies' | 'assistants' | 'samplers' | 'worldMasters' | 'worlds' | 'settings';
+export type SidebarRoute = 'home' | 'adventures' | 'characters' | 'abilities' | 'statuses' | 'items' | 'locations' | 'systemPrompts' | 'proficiencies' | 'assistants' | 'samplers' | 'worldMasters' | 'worlds' | 'settings';
 
 export interface SidebarMenuItem {
   id: SidebarRoute;
@@ -39,18 +37,20 @@ export function SidebarPanel ({
   panelStyle,
   isFullScreen,
 }: SidebarPanelProps) {
-  const { width } = useWindowWidth();
-  const isWideScreen = width >= HD_THRESHOLD;
+  const windowWidth = useWindowWidth();
+  const isWideScreen = windowWidth >= HD_THRESHOLD;
   const panelTranslateX = useRef(new Animated.Value(isWideScreen ? 0 : -SIDEBAR_WIDTH)).current;
 
-  useSidebarVisibility(isWideScreen, panelTranslateX);
-  const { isVisible, toggleVisibility } = useToggle(isWideScreen, panelTranslateX);
+  const { isPanelOpen, togglePanel } = useSidebarPanel(isWideScreen, panelTranslateX);
   const handleClosePanel = () => {
-    if (!isWideScreen && isVisible) {
-      toggleVisibility();
+    if (!isWideScreen && isPanelOpen) {
+      togglePanel();
     }
   };
-  const { handleMenuPress } = useMenuNavigation(onRouteChange, handleClosePanel);
+  const handleMenuPress = (id: SidebarRoute) => {
+    onRouteChange?.(id);
+    handleClosePanel();
+  };
   const showToggleButton = !isWideScreen && !isFullScreen;
   const contentPaddingTop = isFullScreen ? 0 : 70;
 
@@ -89,15 +89,15 @@ export function SidebarPanel ({
 
       {showToggleButton && (
         <Pressable
-          onPress={toggleVisibility}
+          onPress={togglePanel}
           style={[
             styles.toggleButton,
-            isVisible && styles.toggleButtonOpen,
-            isVisible && { left: SIDEBAR_WIDTH + 12 },
+            isPanelOpen && styles.toggleButtonOpen,
+            isPanelOpen && { left: SIDEBAR_WIDTH + 12 },
           ]}
         >
           <Text style={styles.toggleButtonText}>
-            {isVisible ? '✕' : '☰'}
+            {isPanelOpen ? '✕' : '☰'}
           </Text>
         </Pressable>
       )}

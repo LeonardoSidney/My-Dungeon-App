@@ -1,0 +1,14 @@
+[
+    {
+        "name": "dungeon-master",
+        "observation": "A simple way to create a link to link samplers with models",
+        "modelId": "local-model",
+        "sampler": "top_k"
+    },
+    {
+        "name": "stelle",
+        "observation": "This is really necessary? Maybe. In the future?",
+        "modelId": "local-model",
+        "sampler": "creative-narrative"
+    }
+]

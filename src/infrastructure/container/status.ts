@@ -10,7 +10,7 @@ import {
     GetStatusesUseCase,
     EditStatusUseCase,
     EraseStatusUseCase,
-} from '../../application/use-cases';
+} from '@application/use-cases';
 import {
     ICreateStatusController,
     IGetStatusesController,

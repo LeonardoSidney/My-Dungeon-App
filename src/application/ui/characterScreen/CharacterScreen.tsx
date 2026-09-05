@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import { Character, Assistant, Ability, Proficiency, Status } from '@domain/entities';
 import { styles } from './styles';
-import { CharacterPanel } from './characterPanel';
-import { CharacterForm } from './characterForm';
-import { useCharactersLoad } from './useCharactersLoad';
-import { useAssistantsLoad } from './useAssistantsLoad';
-import { useAbilitiesLoad } from './useAbilitiesLoad';
-import { useProficienciesLoad } from './useProficienciesLoad';
-import { useStatusesLoad } from './useStatusesLoad';
-import { CharacterFormData, FormErrors } from './constants';
+import { ActivationPromptForm, CrudEntityList, SelectField, SingleSelect, MultiSelect, useEntityScreenLoad } from '@application/ui/components';
+import { useControllers } from '@adapters/ui/ControllersProvider';
+import { CharacterFormData, FormErrors, characterFormConfig } from './constants';
 import { setInitialCharacterState } from './setInitialCharacterState';
 import { handleCharacterFormChange } from './handleCharacterFormChange';
+import { loadCharacters } from './loadCharacters';
+import { loadAssistants } from './loadAssistants';
+import { loadAbilities } from './loadAbilities';
+import { loadProficiencies } from './loadProficiencies';
+import { loadStatuses } from './loadStatuses';
+import { renderAttributesField } from './attributesFields';
 import { onAddNewCharacter } from './onAddNewCharacter';
 import { onCancelForm } from './onCancelForm';
 import { onEditForm } from './onEditForm';
@@ -19,6 +20,7 @@ import { onEraseCharacter } from './onEraseCharacter';
 import { onSaveCharacter } from './onSaveCharacter';
 
 export function CharacterScreen () {
+  const { getCharacters, getAssistants, getAbilities, getProficiencies, getStatuses, createCharacter, editCharacter, eraseCharacter } = useControllers();
   const [characters, setCharacters] = useState<Character[]>([]);
   const [characterStateFormData, setCharacterFormData] = useState<CharacterFormData>(setInitialCharacterState());
   const [assistants, setAssistants] = useState<Assistant[]>([]);
@@ -28,11 +30,23 @@ export function CharacterScreen () {
   const [showForm, setShowForm] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
 
-  useCharactersLoad(setCharacters);
-  useAssistantsLoad(setAssistants);
-  useAbilitiesLoad(setAbilities);
-  useProficienciesLoad(setProficiencies);
-  useStatusesLoad(setStatuses);
+  const loadCharacterList = useCallback(() => loadCharacters(getCharacters, setCharacters), [getCharacters, setCharacters]);
+  const loadAssistantList = useCallback(() => loadAssistants(getAssistants, setAssistants), [getAssistants, setAssistants]);
+  const loadAbilityList = useCallback(() => loadAbilities(getAbilities, setAbilities), [getAbilities, setAbilities]);
+  const loadProficiencyList = useCallback(() => loadProficiencies(getProficiencies, setProficiencies), [getProficiencies, setProficiencies]);
+  const loadStatusList = useCallback(() => loadStatuses(getStatuses, setStatuses), [getStatuses, setStatuses]);
+
+  useEntityScreenLoad(loadCharacterList);
+  useEntityScreenLoad(loadAssistantList);
+  useEntityScreenLoad(loadAbilityList);
+  useEntityScreenLoad(loadProficiencyList);
+  useEntityScreenLoad(loadStatusList);
+
+  const handleToggleItem = <T extends { id: string; }> (current: T[], item: T): T[] => {
+    const isSelected = current.some(existing => existing.id === item.id);
+    const filtered = current.filter(existing => existing.id !== item.id);
+    return isSelected ? filtered : [...current, item];
+  };
 
   const handleFormSave = async () => {
     const errors: FormErrors = {};
@@ -47,7 +61,7 @@ export function CharacterScreen () {
     }
     setFormErrors({});
 
-    await onSaveCharacter(characterStateFormData, setCharacterFormData, setShowForm, setCharacters);
+    await onSaveCharacter(characterStateFormData, createCharacter, editCharacter, getCharacters, setCharacterFormData, setShowForm, setCharacters);
   };
 
   const handleFormChange = (field: keyof CharacterFormData, value: CharacterFormData[keyof CharacterFormData]) => {
@@ -79,10 +93,12 @@ export function CharacterScreen () {
           <Text style={styles.title}>Characters</Text>
         </View>
 
-        <CharacterPanel
-          characters={characters}
-          onEdit={(character: Character) => handleEditCharacter(character)}
-          onDelete={(character: Character) => onEraseCharacter(character, setCharacters)}
+        <CrudEntityList
+          items={characters}
+          emptyText="No characters found."
+          getDetailText={(character) => character.activationWord}
+          onEdit={handleEditCharacter}
+          onDelete={(character) => onEraseCharacter(character, eraseCharacter, getCharacters, setCharacters)}
         />
 
         <TouchableOpacity
@@ -92,16 +108,59 @@ export function CharacterScreen () {
           <Text style={styles.addButtonText}>Add Character</Text>
         </TouchableOpacity>
 
-        <CharacterForm
+        <ActivationPromptForm
           showForm={showForm}
-          characterStateFormData={characterStateFormData}
+          formData={characterStateFormData}
+          config={characterFormConfig}
+          singleSelect={
+            <SelectField label="Assistant" error={formErrors.assistant}>
+              <SingleSelect
+                items={assistants}
+                selectedId={characterStateFormData.assistant?.id}
+                hasError={!!formErrors.assistant}
+                emptyMessage="No assistants available"
+                onSelect={(assistant: Assistant) => handleFormChange('assistant', assistant)}
+              />
+            </SelectField>
+          }
+          multiSelect={
+            <>
+              <SelectField label="Abilities">
+                <MultiSelect
+                  items={abilities}
+                  selectedItems={characterStateFormData.abilities}
+                  emptyMessage="No abilities available"
+                  showTags
+                  onToggle={(ability: Ability) => handleFormChange('abilities', handleToggleItem(characterStateFormData.abilities, ability))}
+                />
+              </SelectField>
+              <SelectField label="Proficiencies">
+                <MultiSelect
+                  items={proficiencies}
+                  selectedItems={characterStateFormData.proficiencies}
+                  emptyMessage="No proficiencies available"
+                  showTags
+                  onToggle={(proficiency: Proficiency) => handleFormChange('proficiencies', handleToggleItem(characterStateFormData.proficiencies, proficiency))}
+                />
+              </SelectField>
+              <SelectField label="Statuses">
+                <MultiSelect
+                  items={statuses}
+                  selectedItems={characterStateFormData.statuses}
+                  emptyMessage="No statuses available"
+                  showTags
+                  onToggle={(status: Status) => handleFormChange('statuses', handleToggleItem(characterStateFormData.statuses, status))}
+                />
+              </SelectField>
+            </>
+          }
+          extraFields={renderAttributesField(
+            characterStateFormData.attributes,
+            (attributes) => handleFormChange('attributes', attributes)
+          )}
           onChange={handleFormChange}
           onCancel={() => onCancelForm(setShowForm, setCharacterFormData)}
           onSave={handleFormSave}
-          assistants={assistants}
-          abilities={abilities}
-          proficiencies={proficiencies}
-          statuses={statuses}
           formErrors={formErrors}
         />
 

@@ -1,39 +1,23 @@
-import { World } from '@domain/entities';
+import {
+    ActivationPromptFormData,
+    ActivationPromptFormConfig,
+    ActivationPromptFormErrors,
+} from '@application/ui/components';
 
-export type WorldFormData = {
-    id?: string;
-    name: string;
-    activationWord: string;
-    prompt: string;
-    observation: string;
-    createdAt?: Date;
+export const worldFormConfig: ActivationPromptFormConfig = {
+    entityName: 'World',
+    activationLabel: 'Activation Word',
+    namePlaceholder: 'e.g., Fantasy World',
+    activationPlaceholder: 'e.g., Dungeon',
+    promptPlaceholder: 'Enter the world prompt...',
 };
 
-export type WorldPanelProps = {
-    worlds: World[];
-    loading: boolean;
-    onEdit: (world: World) => void;
-    onDelete: (world: World) => void;
-};
-
-export type FormErrors = {
-    name?: string;
-    activationWord?: string;
-    prompt?: string;
-};
-
-export type WorldFormProps = {
-    showForm: boolean;
-    worldStateFormData: WorldFormData;
-    onChange: (field: keyof WorldFormData, value: string) => void;
-    onCancel: () => void;
-    onSave: () => void;
-    formErrors: FormErrors;
-};
+export type WorldFormData = ActivationPromptFormData;
+export type FormErrors = ActivationPromptFormErrors;
 
 export function setInitialWorldState (): WorldFormData {
     return {
-        id: undefined,
+        id: '',
         name: '',
         activationWord: '',
         prompt: '',

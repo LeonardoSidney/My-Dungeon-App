@@ -17,7 +17,7 @@ export class CreateAbilityService implements ICreateAbilityService {
             ability: {
                 id: this.idGenerator.generate(),
                 name: params.name,
-                activationWorld: params.activationWorld,
+                activationWord: params.activationWord,
                 prompt: params.prompt,
                 observation: params.observation,
                 createdAt: createdAt,

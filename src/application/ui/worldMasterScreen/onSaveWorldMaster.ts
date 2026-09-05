@@ -1,59 +1,23 @@
-import { Alert } from 'react-native';
-import { WorldMaster, Assistant } from '@domain/entities';
-import { WorldMasterFormData } from './constants';
+import { WorldMaster } from '@domain/entities';
+import { ICreateWorldMasterController, IEditWorldMasterController, IGetWorldMastersController } from '@domain/controllers';
+import { WorldMasterFormData, setInitialWorldMasterState } from './constants';
 import { Dispatch, SetStateAction } from 'react';
-import { createWorldMasterController, editWorldMasterController } from '@infra/container';
+import { onSubmitWorldMaster } from './onSubmitWorldMaster';
 import { loadWorldMasters } from './loadWorldMasters';
-import { setInitialWorldMasterState } from './setInitialWorldMasterState';
 
 export async function onSaveWorldMaster (
     worldMasterFormData: WorldMasterFormData,
+    createWorldMaster: ICreateWorldMasterController,
+    editWorldMaster: IEditWorldMasterController,
+    getWorldMasters: IGetWorldMastersController,
     setWorldMasterFormData: Dispatch<SetStateAction<WorldMasterFormData>>,
     setShowForm: Dispatch<SetStateAction<boolean>>,
-    setWorldMasters: Dispatch<SetStateAction<WorldMaster[]>>,
-    _assistants: Assistant[]
+    setWorldMasters: Dispatch<SetStateAction<WorldMaster[]>>
 ) {
-    const { id, name, activationWord, prompt, observation, assistant } = worldMasterFormData;
+    const response = await onSubmitWorldMaster(worldMasterFormData, createWorldMaster, editWorldMaster);
+    if (!response || !response.success) return;
 
-    const trimmedName = name.trim();
-    const trimmedActivationWord = activationWord.trim();
-    const trimmedPrompt = prompt.trim();
-    const trimmedObservation = observation.trim() || undefined;
-
-    if (!trimmedName || !trimmedActivationWord || !trimmedPrompt) return;
-    if (!assistant) return;
-
-    let saveResponse;
-    if (id) {
-        const ctrl = editWorldMasterController();
-        saveResponse = await ctrl.handle({
-            id,
-            name: trimmedName,
-            activationWord: trimmedActivationWord,
-            prompt: trimmedPrompt,
-            observation: trimmedObservation,
-            assistantId: assistant.id,
-            createdAt: new Date(),
-        });
-    }
-
-    if (!id) {
-        const ctrl = createWorldMasterController();
-        saveResponse = await ctrl.handle({
-            name: trimmedName,
-            activationWord: trimmedActivationWord,
-            prompt: trimmedPrompt,
-            observation: trimmedObservation,
-            assistantId: assistant.id,
-        });
-    }
-
-    if (!saveResponse || !saveResponse.success) {
-        Alert.alert('Erro', saveResponse?.error ?? 'Failed to save world master');
-        return;
-    }
-
-    await loadWorldMasters(setWorldMasters);
-    setShowForm(false);
     setWorldMasterFormData(setInitialWorldMasterState());
+    setShowForm(false);
+    await loadWorldMasters(getWorldMasters, setWorldMasters);
 }

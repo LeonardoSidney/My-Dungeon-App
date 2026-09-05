@@ -1,16 +1,14 @@
 import { World } from '../entities';
 
+export type WorldEditParams = Omit<World, 'id' | 'createdAt' | 'updatedAt'>;
+
 export interface IEditWorldService {
     editWorld(request: EditWorldServiceParams): EditWorldServiceReturn;
 }
 
 export type EditWorldServiceParams = {
-    id: string;
-    name: string;
-    activationWord: string;
-    prompt: string;
-    observation?: string;
-    createdAt: Date;
+    world: World;
+    editParams: WorldEditParams;
 };
 
 export type EditWorldServiceReturn = {

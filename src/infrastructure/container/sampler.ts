@@ -10,7 +10,7 @@ import {
     GetSamplersUseCase,
     EditSamplerUseCase,
     EraseSamplerUseCase,
-} from '../../application/use-cases';
+} from '@application/use-cases';
 import {
     ICreateSamplerController,
     IGetSamplersController,
@@ -22,8 +22,9 @@ import { createSamplerRepository } from './repository';
 
 export function createSamplerController (): ICreateSamplerController {
     const createSamplerService = new CreateSamplerService(logger, idGenerate);
+    const getSamplersService = new GetSamplersService(logger);
     const samplerRepository = createSamplerRepository(storage, logger);
-    const createSamplerUseCase = new CreateSamplerUseCase(logger, samplerRepository, createSamplerService);
+    const createSamplerUseCase = new CreateSamplerUseCase(logger, samplerRepository, createSamplerService, getSamplersService);
     return new CreateSamplerController(logger, createSamplerUseCase);
 }
 
@@ -37,7 +38,8 @@ export function getSamplersController (): IGetSamplersController {
 export function editSamplerController (): IEditSamplerController {
     const samplerRepository = createSamplerRepository(storage, logger);
     const editSamplerService = new EditSamplerService(logger);
-    const editSamplerUseCase = new EditSamplerUseCase(logger, editSamplerService, samplerRepository);
+    const getSamplersService = new GetSamplersService(logger);
+    const editSamplerUseCase = new EditSamplerUseCase(logger, editSamplerService, samplerRepository, getSamplersService);
     return new EditSamplerController(logger, editSamplerUseCase);
 }
 

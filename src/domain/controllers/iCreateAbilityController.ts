@@ -6,7 +6,7 @@ export interface ICreateAbilityController {
 
 export type CreateAbilityControllerParams = {
     name: string;
-    activationWorld: string;
+    activationWord: string;
     prompt: string;
     observation?: string;
 };

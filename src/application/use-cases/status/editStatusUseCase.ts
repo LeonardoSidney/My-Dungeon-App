@@ -21,10 +21,18 @@ export class EditStatusUseCase implements IEditStatusUseCase {
             };
         }
 
-        const { status } = params;
+        const { id, editParams } = params;
+        const status = await this.statusRepository.getStatusById(id);
+        if (!status) {
+            return {
+                success: false,
+                status: undefined,
+                error: `Status with id ${id} not found`
+            };
+        }
 
-        this.logger.debug('Calling EditStatusService', status);
-        const response = this.service.editStatus({ status });
+        this.logger.debug('Calling EditStatusService', { id, editParams });
+        const response = this.service.editStatus({ status, editParams });
         this.logger.debug('EditStatusService executed successfully', response);
 
         if (!response.success) {
@@ -74,21 +82,19 @@ export class EditStatusUseCase implements IEditStatusUseCase {
     }
 
     private validate (params: EditStatusParams): string | null {
-        const { status } = params;
-
-        if (!status.id) {
+        if (!params.id) {
             return 'An id is required to edit a status';
         }
 
-        if (!status.name?.trim()) {
+        if (!params.editParams.name?.trim()) {
             return 'A name is required to edit a status';
         }
 
-        if (!status.activationWord?.trim()) {
+        if (!params.editParams.activationWord?.trim()) {
             return 'An activation word is required to edit a status';
         }
 
-        if (!status.prompt?.trim()) {
+        if (!params.editParams.prompt?.trim()) {
             return 'A prompt is required to edit a status';
         }
 

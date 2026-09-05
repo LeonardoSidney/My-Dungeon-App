@@ -1,5 +1,5 @@
 import {
-    EditCharacterControllerRequest,
+    EditCharacterControllerParams,
     EditCharacterControllerResponse,
     IEditCharacterController
 } from '@domain/controllers';
@@ -12,12 +12,9 @@ export class EditCharacterController implements IEditCharacterController {
         private readonly useCase: IEditCharacterUseCase
     ) { }
 
-    async handle (request: EditCharacterControllerRequest): Promise<EditCharacterControllerResponse> {
+    async handle (params: EditCharacterControllerParams): Promise<EditCharacterControllerResponse> {
         this.logger.info('Executing EditCharacterController::handle');
-        const { character } = request;
-        const response = await this.useCase.execute({
-            character
-        });
+        const response = await this.useCase.execute(params);
 
         return {
             success: response.success,

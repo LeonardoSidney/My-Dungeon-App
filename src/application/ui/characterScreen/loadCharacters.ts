@@ -1,13 +1,13 @@
-import { getCharactersController } from '@infra/container';
-import { Dispatch } from 'react';
+import { IGetCharactersController } from '@domain/controllers';
+import { Dispatch, SetStateAction } from 'react';
 import { Character } from '@domain/entities';
 
 export async function loadCharacters (
-    setCharacters: Dispatch<React.SetStateAction<Character[]>>
+    getCharacters: IGetCharactersController,
+    setCharacters: Dispatch<SetStateAction<Character[]>>
 ) {
     try {
-        const ctrl = getCharactersController();
-        const result = await ctrl.handle();
+        const result = await getCharacters.handle();
         setCharacters(result);
     } catch (error) {
         console.error('Failed to load characters:', error);

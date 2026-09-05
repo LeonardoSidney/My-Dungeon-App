@@ -1,27 +1,28 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import { World } from '@domain/entities';
 import { styles } from './styles';
-import { WorldPanel } from './worldPanel';
-import { WorldForm } from './worldForm';
-import { useWorldScreenLogic } from './useWorldScreenLogic';
-import { WorldFormData } from './constants';
-import { setInitialWorldState } from './constants';
+import { ActivationPromptForm, CrudEntityList, useEntityScreenLoad } from '@application/ui/components';
+import { useControllers } from '@adapters/ui/ControllersProvider';
+import { WorldFormData, FormErrors, setInitialWorldState, worldFormConfig } from './constants';
 import { handleWorldFormChange } from './handleWorldFormChange';
+import { loadWorlds } from './loadWorlds';
 import { onAddNewWorld } from './onAddNewWorld';
 import { onCancelForm } from './onCancelForm';
 import { onEditForm } from './onEditForm';
 import { onEraseWorld } from './onEraseWorld';
 import { onSaveWorld } from './onSaveWorld';
-import { FormErrors } from './constants';
 
 export function WorldScreen () {
+  const { getWorlds, createWorld, editWorld, eraseWorld } = useControllers();
   const [worlds, setWorlds] = useState<World[]>([]);
   const [worldStateFormData, setWorldFormData] = useState<WorldFormData>(setInitialWorldState());
   const [showForm, setShowForm] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
 
-  useWorldScreenLogic(setWorlds);
+  const loadEntities = useCallback(() => loadWorlds(getWorlds, setWorlds), [getWorlds, setWorlds]);
+
+  useEntityScreenLoad(loadEntities);
 
   const handleFormSave = async () => {
     const errors: FormErrors = {};
@@ -35,7 +36,7 @@ export function WorldScreen () {
     }
     setFormErrors({});
 
-    await onSaveWorld(worldStateFormData, setWorldFormData, setShowForm, setWorlds);
+    await onSaveWorld(worldStateFormData, createWorld, editWorld, getWorlds, setWorldFormData, setShowForm, setWorlds);
   };
 
   const handleFormChange = (field: keyof WorldFormData, value: string) => {
@@ -62,15 +63,17 @@ export function WorldScreen () {
 
   return (
     <View style={styles.container}>
-      <ScrollView>
+      <ScrollView keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Text style={styles.title}>Worlds</Text>
         </View>
 
-        <WorldPanel
-          worlds={worlds}
+        <CrudEntityList
+          items={worlds}
+          emptyText="No worlds found."
+          getDetailText={(world) => world.activationWord}
           onEdit={handleEditWorld}
-          onDelete={(world: World) => onEraseWorld(world, setWorlds)}
+          onDelete={(world) => onEraseWorld(world, eraseWorld, getWorlds, setWorlds)}
         />
 
         <TouchableOpacity
@@ -80,9 +83,10 @@ export function WorldScreen () {
           <Text style={styles.addButtonText}>Add World</Text>
         </TouchableOpacity>
 
-        <WorldForm
+        <ActivationPromptForm
           showForm={showForm}
-          worldStateFormData={worldStateFormData}
+          formData={worldStateFormData}
+          config={worldFormConfig}
           onChange={handleFormChange}
           onCancel={() => onCancelForm(setShowForm, setWorldFormData)}
           onSave={handleFormSave}

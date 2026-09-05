@@ -1,0 +1,22 @@
+[
+    {
+        "name": "Test Adventure",
+        "characters": [
+            "Stelle"
+        ],
+        "worldMaster": "Dungeon Master",
+        "systemPrompts": [
+            "D&D Prompt"
+        ],
+        "worlds": [
+            "Test World"
+        ],
+        "locations": [
+            "Test City"
+        ],
+        "items": [
+            "Iron Sword"
+        ],
+        "charactersControlledByAi": []
+    }
+]

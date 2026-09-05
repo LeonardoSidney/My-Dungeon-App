@@ -4,7 +4,7 @@ import { StatusFormData } from './constants';
 export function handleStatusFormChange (
     setStatusFormData: Dispatch<SetStateAction<StatusFormData>>,
 ) {
-    return (field: keyof StatusFormData, value: string | Date) => {
+    return (field: keyof StatusFormData, value: string) => {
         setStatusFormData((prev) => ({ ...prev, [field]: value }));
     };
 }

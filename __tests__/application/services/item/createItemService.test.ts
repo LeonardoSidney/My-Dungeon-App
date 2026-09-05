@@ -5,8 +5,6 @@ import {
 } from '@domain/services';
 import { IIdGenerator } from '@domain/providers';
 import { ILogger } from '@domain/logger';
-import { createItemHelper } from '../../../../__helpers__/createItemHelper';
-import { createItemServiceResponseHelper } from '../../../../__helpers__/createItemServiceResponseHelper';
 
 // Mocks dos dependentes
 const mockLogger = {
@@ -90,21 +88,17 @@ describe('CreateItemService', () => {
 
         mockIdGenerator.generate.mockReturnValue('item-abc');
 
-        const expectedItem = createItemHelper({
+        const result = service.createItem(params);
+
+        expect(result.success).toBe(true);
+        expect(result.item).toMatchObject({
             id: 'item-abc',
             name: 'Magic Sword',
             activationWord: 'slash',
             prompt: 'A magical sword that glows',
             observation: 'An ancient blade'
         });
-
-        const expectedResult = createItemServiceResponseHelper({
-            success: true,
-            item: expectedItem
-        });
-
-        const result = service.createItem(params);
-
-        expect(result).toEqual(expectedResult);
+        expect(result.item).toHaveProperty('createdAt', expect.any(Date));
+        expect(result.item).toHaveProperty('updatedAt', expect.any(Date));
     });
 });

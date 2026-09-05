@@ -7,7 +7,30 @@ import {
 } from 'react-native';
 import { MirostatEnum } from '@domain/entities';
 import { styles } from './styles';
+import { SingleSelect } from '@application/ui/components';
 import { SamplerFormProps } from './constants';
+
+type MirostatOption = {
+  id: string;
+  label: string;
+  value: MirostatEnum;
+};
+
+const mirostatOptions: MirostatOption[] = [
+  { id: '0', label: 'Disabled', value: MirostatEnum.DEFAULT },
+  { id: '1', label: 'Mirostat 1.0', value: MirostatEnum.MIROSTAT1 },
+  { id: '2', label: 'Mirostat 2.0', value: MirostatEnum.MIROSTAT2 },
+];
+
+type IgnoreEOSOption = {
+  id: string;
+  label: string;
+};
+
+const ignoreEOSOptions: IgnoreEOSOption[] = [
+  { id: 'true', label: 'True' },
+  { id: 'false', label: 'False' },
+];
 
 export function SamplerForm (params: SamplerFormProps) {
   const { showForm, samplerStateFormData, onChange, onCancel, onSave, formErrors } = params;
@@ -166,35 +189,12 @@ export function SamplerForm (params: SamplerFormProps) {
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Mirostat</Text>
-          <View style={styles.dropdown}>
-            <TouchableOpacity
-              style={[
-                styles.dropdownOption,
-                samplerStateFormData.mirostat === 0 && styles.dropdownOptionSelected
-              ]}
-              onPress={() => onChange('mirostat', 0 as MirostatEnum)}
-            >
-              <Text style={styles.dropdownOptionText}>Disabled</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.dropdownOption,
-                samplerStateFormData.mirostat === 1 && styles.dropdownOptionSelected
-              ]}
-              onPress={() => onChange('mirostat', 1 as MirostatEnum)}
-            >
-              <Text style={styles.dropdownOptionText}>Mirostat 1.0</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.dropdownOption,
-                samplerStateFormData.mirostat === 2 && styles.dropdownOptionSelected
-              ]}
-              onPress={() => onChange('mirostat', 2 as MirostatEnum)}
-            >
-              <Text style={styles.dropdownOptionText}>Mirostat 2.0</Text>
-            </TouchableOpacity>
-          </View>
+          <SingleSelect
+            items={mirostatOptions}
+            selectedId={samplerStateFormData.mirostat?.toString()}
+            renderLabel={option => option.label}
+            onSelect={option => onChange('mirostat', option.value)}
+          />
         </View>
 
         {samplerStateFormData.mirostat !== undefined && samplerStateFormData.mirostat !== 0 && (
@@ -397,26 +397,12 @@ export function SamplerForm (params: SamplerFormProps) {
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Ignore EOS</Text>
-          <View style={styles.dropdown}>
-            <TouchableOpacity
-              style={[
-                styles.dropdownOption,
-                samplerStateFormData.ignoreEOS === 'true' && styles.dropdownOptionSelected
-              ]}
-              onPress={() => onChange('ignoreEOS', 'true')}
-            >
-              <Text style={styles.dropdownOptionText}>True</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.dropdownOption,
-                samplerStateFormData.ignoreEOS === 'false' && styles.dropdownOptionSelected
-              ]}
-              onPress={() => onChange('ignoreEOS', 'false')}
-            >
-              <Text style={styles.dropdownOptionText}>False</Text>
-            </TouchableOpacity>
-          </View>
+          <SingleSelect
+            items={ignoreEOSOptions}
+            selectedId={samplerStateFormData.ignoreEOS}
+            renderLabel={option => option.label}
+            onSelect={option => onChange('ignoreEOS', option.id)}
+          />
         </View>
 
         <View style={styles.formActions}>

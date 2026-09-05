@@ -1,12 +1,9 @@
 import { World } from '../entities';
+import { WorldEditParams } from '../services';
 
-export type EditWorldControllerRequest = {
+export type EditWorldControllerParams = {
     id: string;
-    name: string;
-    activationWord: string;
-    prompt: string;
-    observation?: string;
-    createdAt: Date;
+    editParams: WorldEditParams;
 };
 
 export type EditWorldControllerResponse = {
@@ -16,5 +13,5 @@ export type EditWorldControllerResponse = {
 };
 
 export interface IEditWorldController {
-    handle (request: EditWorldControllerRequest): Promise<EditWorldControllerResponse>;
+    handle (params: EditWorldControllerParams): Promise<EditWorldControllerResponse>;
 }

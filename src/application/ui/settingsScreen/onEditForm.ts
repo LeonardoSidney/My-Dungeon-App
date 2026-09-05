@@ -13,8 +13,6 @@ export function onEditForm (
         port: connection.port?.toString() || '',
         auth: connection.auth || '',
         id: connection.id,
-        createdAt: connection.createdAt,
-        updatedAt: connection.updatedAt,
     });
     setShowForm(true);
 }

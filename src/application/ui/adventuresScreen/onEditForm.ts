@@ -33,12 +33,11 @@ export function onEditForm (
         worldMaster: selectedWorldMaster,
         characterAsWorldMasterId: adventure.characterAsWorldMasterId,
         charactersControlledByAi: adventure.charactersControlledByAi,
-        avaliableCharacters: characters,
+        availableCharacters: characters,
         worlds: selectedWorlds,
         locations: selectedLocations,
         items: selectedItems,
         chat: adventure.chat,
-        createdAt: adventure.createdAt,
     });
     setShowForm(true);
 }

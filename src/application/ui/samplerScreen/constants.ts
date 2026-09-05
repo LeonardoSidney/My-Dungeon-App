@@ -39,6 +39,4 @@ export type SamplerFormData = {
     adaptativeDecay: string;
     adaptativeTarget: string;
     ignoreEOS: string;
-    createdAt: Date | undefined;
-    updatedAt: Date | undefined;
 };

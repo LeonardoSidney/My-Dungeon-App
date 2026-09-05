@@ -10,7 +10,7 @@ import {
     GetConnectionsUseCase,
     EraseConnectionUseCase,
     EditConnectionUseCase,
-} from '../../application/use-cases';
+} from '@application/use-cases';
 import {
     ICreateConnectionConfigController,
     IGetConnectionsController,

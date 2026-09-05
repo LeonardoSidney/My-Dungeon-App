@@ -1,7 +1,7 @@
 import { CreateAssistantController } from '@adapters/controllers';
 import { ICreateAssistantUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
-import { createAssistantHelper } from '../../../../__helpers__/createAssistantHelper';
+import { createAssistantHelper } from '@test/helpers';
 
 // Mock das dependências
 const mockLogger = {

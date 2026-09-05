@@ -1,3 +1,4 @@
+import { Status } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { EditStatusServiceParams, EditStatusServiceReturn, IEditStatusService } from '@domain/services';
 
@@ -7,17 +8,18 @@ export class EditStatusService implements IEditStatusService {
     ) { }
 
     editStatus (params: EditStatusServiceParams): EditStatusServiceReturn {
-        this.logger.info('EditStatusService::editStatus');
+        this.logger.info('Executing EditStatusService::editStatus');
+        const { status, editParams } = params;
 
-        const { status } = params;
-        const updatedAt = new Date();
+        const editedStatus: Status = {
+            ...status,
+            ...editParams,
+            updatedAt: new Date()
+        };
 
         return {
             success: true,
-            status: {
-                ...status,
-                updatedAt
-            }
+            status: editedStatus
         };
     }
 }

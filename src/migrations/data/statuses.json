@@ -1,0 +1,44 @@
+[
+    {
+        "name": "Curse",
+        "activationWord": "curse;dark soul;hex",
+        "prompt": "A negative status the character carries for as long as they live: their soul is darkened and something on the other side knows their name. The curse is not a single effect but a slow pressure — cold settles in the character's hands and will not leave, mirrors show their reflection a half-second late, and the dead in any room turn their heads toward them. Undead and things that serve them treat the character with interest rather than hostility, which helps in some encounters and makes the character a target in others. The curse cannot be shaken off by rest, bathing or forgetting; it only fades if its source is answered — a deal paid, a name returned, a debt of blood or memory settled. When narrating, keep it atmospheric and constant: the character should always feel the cold in their hands, and the world should keep giving small, wrong details that only they notice.",
+        "observation": "The dark soul — I wanted a curse that is a companion, not a damage number"
+    },
+    {
+        "name": "Fever",
+        "activationWord": "fever;burning;sick",
+        "prompt": "A negative status from illness or injury: the character's body is fighting something and paying for it. They run hot to the touch, sweat cools on their skin, and their vision blurs and swims at the edges, especially when they stand up or push themselves. While the fever runs, everything costs a little more effort — long walks feel like long falls, fine work with the hands suffers, and sharp thoughts come and go like a radio losing signal. The fever does not move; it waits out the body's response, running its course over a day or two of rest, and it is worst at night, when the character dreams in fragments and wakes drenched. Pushing through it is possible and it is never wise: a fevered character who fights, rides or climbs is making a choice the narration should mark with the weight of the cost. When narrating, use heat and haze: the sting of sweat in small cuts, the muffled, underwater quality of sound, and the way the character leans on everything because everything is heavier.",
+        "observation": "I wanted a realistic 'you cannot fight your way out of this' status — the body keeps its own score"
+    },
+    {
+        "name": "Marked",
+        "activationWord": "marked;hunted;tracked",
+        "prompt": "A negative status: something has decided the character is worth taking, and now it is looking. The mark is a presence, not a wound — the character can feel it most when the wind changes or the light shifts, a prickle along the back of the neck that means attention from somewhere in the distance. While marked, encounters with the marker's kind come faster and closer: patrols pass by in the direction the character is facing, hunters find their trail, and strangers' eyes linger a beat too long. The mark is not a beacon the character can hide — it can only be lost (by breaking the trail, changing route, or dealing with the one who marked them) or accepted. While it lasts, no town is quite safe and no road is quite empty. When narrating, keep the dread quiet: no alarms, no red banners — just the world getting slightly, continuously less safe, and the character starting to sleep in different spots each night.",
+        "observation": "I wanted a status that is pure paranoia — the world is not attacking yet, it is looking"
+    },
+    {
+        "name": "Blessed",
+        "activationWord": "blessed;blessing;divine",
+        "prompt": "A positive status from a priest, shrine or higher power: a small, warm weight on the character's chest, like a hand resting there for a moment and staying. While the blessing holds, the world is a little more favorable to the character — coin turns up in pockets, doors that were locked come open, weather leans away from them, and the small chances that usually break the other way start landing in theirs. It is not a power and it does not do things for the character; it is a turn of fortune that makes the same effort succeed where it would have failed. The blessing is finite: it lasts as long as it was granted (a day, a journey, a single deed) and then fades, and it can be lost early if the character acts against what was asked when it was given. When narrating, keep it gentle and specific: one lucky moment per scene at most, described as a small, clean coincidence the character notices — a coin in a pocket, a guard looking away, a bridge holding when it should not — and let the character feel the warmth lift when it runs out.",
+        "observation": "I wanted a positive buff that reads as luck, not a stat bump — the world tilting a few degrees in your favor"
+    },
+    {
+        "name": "Adrenaline",
+        "activationWord": "adrenaline;fight;focus",
+        "prompt": "A positive status of raised combat readiness: the character's body has gone into a state of high alert, and while it lasts they are faster and sharper than they feel. The world narrows — sounds get clearer, movement slows at the edges of the vision, and the character's hands know what to do a half-beat before the mind does. In a fight, the character reacts before others act, closes distance, and keeps their composure when anyone else's would crack. Adrenaline is a burst, not a state: it burns through quickly, peaking in the first moments and fading within a few exchanges, and when it leaves it leaves behind a crash — shaking hands, a ringing in the ears, and a sudden, heavy exhaustion that catches the character at the worst possible time. The character can push for another surge, but each one costs more of what is left. When narrating, contrast the two states: the cool, slow-bright clarity while it runs, and the sudden, heavy human weight that lands the moment it is gone.",
+        "observation": "I wanted a combat buff with a comedown — the high has to cost something when it leaves"
+    },
+    {
+        "name": "Second Sight",
+        "activationWord": "second sight;seeing;truth",
+        "prompt": "A neutral status: the character can see what is hidden, at no cost and no power. Ghosts, illusions, glamour, enchantment and things that wear a face they are not — all of it is visible to the character as it truly is, layered faintly over the ordinary view, like a second image the eyes have learned to read. The sight is constant, not something the character can turn off, so the world has quietly become more complicated: a face in the crowd is not quite a person, a locked chest is not quite a chest, a kind smile has something attached to it. Nothing in the sight is dangerous to the character — it does not burn, it does not speak, it does not follow — but it does not stop, and what the character knows now cannot be unlearned, and other people know that they see it. The sight changes how the character moves through a room and what they can and cannot believe about a person. When narrating, keep the second layer subtle and consistent: a wrongness under the ordinary, described in the same calm tone as the rest of the scene, so the hidden world never feels like a spectacle and always feels like a fact.",
+        "observation": "I wanted a status that is information, not power — the character sees everything and cannot stop, and that is the whole deal"
+    },
+    {
+        "name": "Wandering Soul",
+        "activationWord": "wandering soul;dead;between",
+        "prompt": "A neutral status: the character has died once and come back, and the world has not fully let go of them. They are alive — a heartbeat, a breath, a body that needs food — but they belong only halfway to the world of the living. The dead notice them: spirits, ghosts and the in-between kind pause when the character approaches, and the character can read them in a way the living cannot, the way you read the last look in a room before you leave. The living, meanwhile, feel something slightly off around the character without being able to name it — a held breath, a name forgotten mid-sentence, a dog that will not come. The character does not age quite the way others do, does not dream of the world they know, and in moments of deep sleep the border thins and they are somewhere else for a time, and they do not know what is there. The status has no mechanical cost and no mechanical gain; it is a condition of being, and it colors everything the character does with the quiet fact that the world has one fewer place for them than it thinks. When narrating, keep it soft and strange, never horror: a half-second of wrongness, a room that feels one person more crowded than it is, the character's face in a moment they cannot quite remember making.",
+        "observation": "I wanted a neutral status that is a condition of existence — the character has one fewer place in the world than they think, and the dead know it"
+    }
+]

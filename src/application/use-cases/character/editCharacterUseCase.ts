@@ -6,7 +6,7 @@ import {
     IProficiencyRepository,
     IStatusRepository,
 } from '@domain/repository';
-import { IEditCharacterService } from '@domain/services';
+import { CharacterEditParams, IEditCharacterService } from '@domain/services';
 import { EditCharacterParams, EditCharacterReturn, IEditCharacterUseCase } from '@domain/use-cases';
 import { checkReferencedId, checkReferencedIds } from '@application/shared/validateReferencedIds';
 
@@ -31,7 +31,7 @@ export class EditCharacterUseCase implements IEditCharacterUseCase {
                 error: validationError
             };
         }
-        const missingIdError = await this.validateReferencedIds(params);
+        const missingIdError = await this.validateReferencedIds(params.editParams);
         if (missingIdError) {
             return {
                 success: false,
@@ -40,10 +40,18 @@ export class EditCharacterUseCase implements IEditCharacterUseCase {
             };
         }
 
-        const { character } = params;
+        const { id, editParams } = params;
+        const character = await this.characterRepository.getCharacterById(id);
+        if (!character) {
+            return {
+                success: false,
+                character: undefined,
+                error: `Character with id ${id} not found`
+            };
+        }
 
-        this.logger.debug('Calling EditCharacterService', character);
-        const response = this.service.editCharacter({ character });
+        this.logger.debug('Calling EditCharacterService', { id, editParams });
+        const response = this.service.editCharacter({ character, editParams });
         this.logger.debug('EditCharacterService executed successfully', response);
 
         if (!response.success) {
@@ -93,32 +101,29 @@ export class EditCharacterUseCase implements IEditCharacterUseCase {
     }
 
     private validate (params: EditCharacterParams): string | null {
-        const { character } = params;
-
-        if (!character.id) {
+        if (!params.id?.trim()) {
             return 'An id is required to edit a character';
         }
 
-        if (!character.name?.trim()) {
+        if (!params.editParams.name?.trim()) {
             return 'A name is required to edit a character';
         }
 
-        if (!character.activationWord?.trim()) {
+        if (!params.editParams.activationWord?.trim()) {
             return 'An activation word is required to edit a character';
         }
 
-        if (!character.prompt?.trim()) {
+        if (!params.editParams.prompt?.trim()) {
             return 'A prompt is required to edit a character';
         }
 
         return null;
     }
 
-    private async validateReferencedIds (params: EditCharacterParams): Promise<string | null> {
-        const { character } = params;
+    private async validateReferencedIds (editParams: CharacterEditParams): Promise<string | null> {
         const assistantError = await checkReferencedId(
             (id) => this.assistantRepository.getAssistantById(id),
-            character.assistantId,
+            editParams.assistantId,
             'Assistant'
         );
         if (assistantError) {
@@ -126,7 +131,7 @@ export class EditCharacterUseCase implements IEditCharacterUseCase {
         }
         const abilityError = await checkReferencedIds(
             (id) => this.abilityRepository.getAbilityById(id),
-            character.abilityIds ?? [],
+            editParams.abilityIds ?? [],
             'Ability'
         );
         if (abilityError) {
@@ -134,7 +139,7 @@ export class EditCharacterUseCase implements IEditCharacterUseCase {
         }
         const proficiencyError = await checkReferencedIds(
             (id) => this.proficiencyRepository.getProficiencyById(id),
-            character.proficiencyIds ?? [],
+            editParams.proficiencyIds ?? [],
             'Proficiency'
         );
         if (proficiencyError) {
@@ -142,7 +147,7 @@ export class EditCharacterUseCase implements IEditCharacterUseCase {
         }
         const statusError = await checkReferencedIds(
             (id) => this.statusRepository.getStatusById(id),
-            character.statusIds ?? [],
+            editParams.statusIds ?? [],
             'Status'
         );
         if (statusError) {

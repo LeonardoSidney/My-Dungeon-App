@@ -1,11 +1,13 @@
 import { Status } from '../entities';
+import { StatusEditParams } from '../services';
 
 export interface IEditStatusUseCase {
     execute (request: EditStatusParams): Promise<EditStatusReturn>;
 }
 
 export type EditStatusParams = {
-    status: Status;
+    id: string;
+    editParams: StatusEditParams;
 };
 
 export type EditStatusReturn = {

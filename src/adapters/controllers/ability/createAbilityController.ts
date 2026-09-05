@@ -9,11 +9,11 @@ export class CreateAbilityController implements ICreateAbilityController {
     ) { }
     async handle (params: CreateAbilityControllerParams): Promise<CreateAbilityControllerResponse> {
         this.logger.info('Executing CreateAbilityController::handle');
-        const { name, prompt, activationWorld, observation } = params;
+        const { name, prompt, activationWord, observation } = params;
         const response = await this.useCase.execute({
             name,
             prompt,
-            activationWorld,
+            activationWord,
             observation
         });
 

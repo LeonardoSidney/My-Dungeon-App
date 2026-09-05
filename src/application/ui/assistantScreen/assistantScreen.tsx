@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import { Assistant, Connection, Model, Sampler } from '@domain/entities';
 import { styles } from './styles';
-import { AssistantPanel } from './assistantPanel';
-import { AssistantForm } from './assistantForm';
-import { useAssistantScreenLogic } from './useAssistantScreenLogic';
-import { useModelsLoad } from './useModelsLoad';
-import { useSamplersLoad } from './useSamplersLoad';
-import { loadConnections } from './loadConnections';
-import { AssistantFormData, FormErrors, setInitialAssistantState } from './constants';
+import { ActivationPromptForm, CrudEntityList, SelectField, SingleSelect, useEntityScreenLoad } from '@application/ui/components';
+import { useControllers } from '@adapters/ui/ControllersProvider';
+import { AssistantFormData, FormErrors, setInitialAssistantState, assistantFormConfig } from './constants';
 import { handleAssistantFormChange } from './handleAssistantFormChange';
+import { loadAssistants } from './loadAssistants';
+import { loadModels } from './loadModels';
+import { loadSamplers } from './loadSamplers';
+import { loadConnections } from './loadConnections';
 import { onAddNewAssistant } from './onAddNewAssistant';
 import { onCancelForm } from './onCancelForm';
 import { onEditForm } from './onEditForm';
@@ -17,21 +17,26 @@ import { onEraseAssistant } from './onEraseAssistant';
 import { onSaveAssistant } from './onSaveAssistant';
 
 export function AssistantScreen () {
+  const { getAssistants, getConnections, getModelsFromProvider, getSamplers, createAssistant, editAssistant, eraseAssistant } = useControllers();
   const [assistants, setAssistants] = useState<Assistant[]>([]);
-  const [assistantStateFormData, setAssistantFormData] = useState<AssistantFormData>(setInitialAssistantState);
+  const [assistantStateFormData, setAssistantFormData] = useState<AssistantFormData>(setInitialAssistantState());
   const [models, setModels] = useState<Model[]>([]);
   const [samplers, setSamplers] = useState<Sampler[]>([]);
   const [connections, setConnections] = useState<Connection[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
 
-  useAssistantScreenLogic(setAssistants);
-  useModelsLoad(setModels);
-  useSamplersLoad(setSamplers);
+  const loadEntityList = useCallback(() => loadAssistants(getAssistants, setAssistants), [getAssistants, setAssistants]);
+  const loadModelList = useCallback(() => loadModels(getConnections, getModelsFromProvider, setModels), [getConnections, getModelsFromProvider, setModels]);
+  const loadSamplerList = useCallback(() => loadSamplers(getSamplers, setSamplers), [getSamplers, setSamplers]);
+  const loadConnectionList = useCallback(async () => setConnections(await loadConnections(getConnections)), [getConnections]);
 
-  useEffect(() => {
-    loadConnections().then(setConnections);
-  }, []);
+  useEntityScreenLoad(loadEntityList);
+  useEntityScreenLoad(loadModelList);
+  useEntityScreenLoad(loadSamplerList);
+  useEntityScreenLoad(loadConnectionList);
+
+  const getConnectionName = (connectionId: string) => connections.find((c) => c.id === connectionId)?.name ?? connectionId;
 
   const handleFormSave = async () => {
     const errors: FormErrors = {};
@@ -45,7 +50,7 @@ export function AssistantScreen () {
     }
     setFormErrors({});
 
-    await onSaveAssistant(assistantStateFormData, setAssistantFormData, setShowForm, setAssistants);
+    await onSaveAssistant(assistantStateFormData, createAssistant, editAssistant, getAssistants, setAssistantFormData, setShowForm, setAssistants);
   };
 
   const handleFormChange = (field: keyof AssistantFormData, value: AssistantFormData[keyof AssistantFormData]) => {
@@ -77,11 +82,11 @@ export function AssistantScreen () {
           <Text style={styles.title}>Assistants</Text>
         </View>
 
-        <AssistantPanel
-          assistants={assistants}
-          models={models}
+        <CrudEntityList
+          items={assistants}
+          emptyText="No assistants found."
           onEdit={handleEditAssistant}
-          onDelete={(assistant: Assistant) => onEraseAssistant(assistant, setAssistants)}
+          onDelete={(assistant) => onEraseAssistant(assistant, eraseAssistant, getAssistants, setAssistants)}
         />
 
         <TouchableOpacity
@@ -91,15 +96,37 @@ export function AssistantScreen () {
           <Text style={styles.addButtonText}>Add Assistant</Text>
         </TouchableOpacity>
 
-        <AssistantForm
+        <ActivationPromptForm
           showForm={showForm}
-          assistantStateFormData={assistantStateFormData}
+          formData={assistantStateFormData}
+          config={assistantFormConfig}
+          singleSelect={
+            <>
+              <SelectField label="Model" error={formErrors.model}>
+                <SingleSelect
+                  items={models}
+                  selectedId={assistantStateFormData.model ? `${assistantStateFormData.model.id}-${assistantStateFormData.model.connectionId}` : undefined}
+                  itemKey={(model: Model) => `${model.id}-${model.connectionId}`}
+                  renderLabel={(model: Model) => `${model.name} (${getConnectionName(model.connectionId)})`}
+                  hasError={!!formErrors.model}
+                  emptyMessage="No models available"
+                  onSelect={(model: Model) => handleFormChange('model', model)}
+                />
+              </SelectField>
+              <SelectField label="Sampler" error={formErrors.sampler}>
+                <SingleSelect
+                  items={samplers}
+                  selectedId={assistantStateFormData.sampler?.id}
+                  hasError={!!formErrors.sampler}
+                  emptyMessage="No samplers available"
+                  onSelect={(sampler: Sampler) => handleFormChange('sampler', sampler)}
+                />
+              </SelectField>
+            </>
+          }
           onChange={handleFormChange}
           onCancel={() => onCancelForm(setShowForm, setAssistantFormData)}
           onSave={handleFormSave}
-          models={models}
-          samplers={samplers}
-          connections={connections}
           formErrors={formErrors}
         />
 

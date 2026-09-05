@@ -5,7 +5,7 @@ import { SamplerFormData } from './constants';
 export function handleSamplerFormChange (
     setSamplerFormData: Dispatch<SetStateAction<SamplerFormData>>,
 ) {
-    return (field: keyof SamplerFormData, value: string | Date | MirostatEnum | undefined) => {
+    return (field: keyof SamplerFormData, value: string | MirostatEnum | undefined) => {
         setSamplerFormData((prev) => ({ ...prev, [field]: value }));
     };
 }

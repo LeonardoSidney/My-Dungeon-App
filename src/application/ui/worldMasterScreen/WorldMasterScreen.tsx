@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import { Assistant, WorldMaster } from '@domain/entities';
 import { styles } from './styles';
-import { WorldMasterPanel } from './worldMasterPanel';
-import { WorldMasterForm } from './worldMasterForm';
-import { useWorldMasterScreenLogic } from './useWorldMasterScreenLogic';
-import { useAssistantWorldMasterLogic } from './useAssistantWorldMasterLogic';
-import { WorldMasterFormData, FormErrors } from './constants';
-import { setInitialWorldMasterState } from './setInitialWorldMasterState';
+import { ActivationPromptForm, CrudEntityList, SelectField, SingleSelect, useEntityScreenLoad } from '@application/ui/components';
+import { useControllers } from '@adapters/ui/ControllersProvider';
+import { WorldMasterFormData, FormErrors, setInitialWorldMasterState, worldMasterFormConfig } from './constants';
 import { handleWorldMasterFormChange } from './handleWorldMasterFormChange';
+import { loadWorldMasters } from './loadWorldMasters';
+import { loadAssistants } from './loadAssistants';
 import { onAddNewWorldMaster } from './onAddNewWorldMaster';
 import { onCancelForm } from './onCancelForm';
 import { onEditForm } from './onEditForm';
@@ -16,14 +15,18 @@ import { onEraseWorldMaster } from './onEraseWorldMaster';
 import { onSaveWorldMaster } from './onSaveWorldMaster';
 
 export function WorldMasterScreen () {
+  const { getWorldMasters, getAssistants, createWorldMaster, editWorldMaster, eraseWorldMaster } = useControllers();
   const [worldMasters, setWorldMasters] = useState<WorldMaster[]>([]);
   const [assistants, setAssistants] = useState<Assistant[]>([]);
   const [worldMasterStateFormData, setWorldMasterFormData] = useState<WorldMasterFormData>(setInitialWorldMasterState());
   const [showForm, setShowForm] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
 
-  useAssistantWorldMasterLogic(setAssistants);
-  useWorldMasterScreenLogic(setWorldMasters);
+  const loadEntityList = useCallback(() => loadWorldMasters(getWorldMasters, setWorldMasters), [getWorldMasters, setWorldMasters]);
+  const loadAssistantList = useCallback(() => loadAssistants(getAssistants, setAssistants), [getAssistants, setAssistants]);
+
+  useEntityScreenLoad(loadEntityList);
+  useEntityScreenLoad(loadAssistantList);
 
   const handleFormSave = async () => {
     const errors: FormErrors = {};
@@ -38,7 +41,7 @@ export function WorldMasterScreen () {
     }
     setFormErrors({});
 
-    await onSaveWorldMaster(worldMasterStateFormData, setWorldMasterFormData, setShowForm, setWorldMasters, assistants);
+    await onSaveWorldMaster(worldMasterStateFormData, createWorldMaster, editWorldMaster, getWorldMasters, setWorldMasterFormData, setShowForm, setWorldMasters);
   };
 
   const handleFormChange = (field: keyof WorldMasterFormData, value: WorldMasterFormData[keyof WorldMasterFormData]) => {
@@ -70,10 +73,12 @@ export function WorldMasterScreen () {
           <Text style={styles.title}>World Masters</Text>
         </View>
 
-        <WorldMasterPanel
-          worldMasters={worldMasters}
+        <CrudEntityList
+          items={worldMasters}
+          emptyText="No world masters found."
+          getDetailText={(worldMaster) => worldMaster.activationWord}
           onEdit={handleEditWorldMaster}
-          onDelete={(worldMaster: WorldMaster) => onEraseWorldMaster(worldMaster, setWorldMasters)}
+          onDelete={(worldMaster) => onEraseWorldMaster(worldMaster, eraseWorldMaster, getWorldMasters, setWorldMasters)}
         />
 
         <TouchableOpacity
@@ -83,13 +88,24 @@ export function WorldMasterScreen () {
           <Text style={styles.addButtonText}>Add World Master</Text>
         </TouchableOpacity>
 
-        <WorldMasterForm
+        <ActivationPromptForm
           showForm={showForm}
-          worldMasterStateFormData={worldMasterStateFormData}
+          formData={worldMasterStateFormData}
+          config={worldMasterFormConfig}
+          singleSelect={
+            <SelectField label="Assistant" error={formErrors.assistant}>
+              <SingleSelect
+                items={assistants}
+                selectedId={worldMasterStateFormData.assistant?.id}
+                hasError={!!formErrors.assistant}
+                emptyMessage="No assistants available"
+                onSelect={(assistant: Assistant) => handleFormChange('assistant', assistant)}
+              />
+            </SelectField>
+          }
           onChange={handleFormChange}
           onCancel={() => onCancelForm(setShowForm, setWorldMasterFormData)}
           onSave={handleFormSave}
-          assistants={assistants}
           formErrors={formErrors}
         />
 

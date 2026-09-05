@@ -26,8 +26,10 @@ module.exports = {
             '@domain': path.resolve(__dirname, 'src/domain'),
             '@application': path.resolve(__dirname, 'src/application'),
             '@adapters': path.resolve(__dirname, 'src/adapters'),
+            '@composition': path.resolve(__dirname, 'src/composition'),
             '@infra': path.resolve(__dirname, 'src/infrastructure'),
             '@src': path.resolve(__dirname, 'src'),
+            '@test/helpers': path.resolve(__dirname, '__helpers__'),
         },
     },
     module: {

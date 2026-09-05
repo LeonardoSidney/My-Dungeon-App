@@ -39,7 +39,7 @@ import {
     FinishStreamingChatUseCase,
     IsAdventureStreamingUseCase,
     HydrateAdventureUseCase,
-} from '../../application/use-cases';
+} from '@application/use-cases';
 import {
     ICreateAdventureController,
     IEditAdventureController,

@@ -20,12 +20,10 @@ export function setInitialAdventureState (): AdventureFormData {
         worldMaster: undefined,
         characterAsWorldMasterId: undefined,
         charactersControlledByAi: [],
-        avaliableCharacters: [],
+        availableCharacters: [],
         worlds: [],
         locations: [],
         items: [],
         chat: [],
-        createdAt: undefined,
-        updatedAt: undefined,
     };
 }

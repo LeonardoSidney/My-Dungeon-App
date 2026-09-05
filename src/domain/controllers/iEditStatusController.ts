@@ -1,11 +1,13 @@
 import { Status } from '../entities';
+import { StatusEditParams } from '../services';
 
 export interface IEditStatusController {
     handle (params: EditStatusControllerParams): Promise<EditStatusControllerResponse>;
 }
 
 export type EditStatusControllerParams = {
-    status: Status;
+    id: string;
+    editParams: StatusEditParams;
 };
 
 export type EditStatusControllerResponse = {

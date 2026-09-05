@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import { Ability } from '@domain/entities';
 import { styles } from './styles';
-import { AbilityPanel } from './abilitiesPanel';
-import { AbilityForm } from './abilitiesForm';
-import { useAbilitiesScreenLogic } from './useAbilitiesScreenLogic';
-import { AbilityFormData, FormErrors } from './constants';
+import { ActivationPromptForm, CrudEntityList, useEntityScreenLoad } from '@application/ui/components';
+import { useControllers } from '@adapters/ui/ControllersProvider';
+import { AbilityFormData, FormErrors, abilityFormConfig } from './constants';
 import { setInitialAbilityState } from './setInitialAbilityState';
 import { handleAbilityFormChange } from './handleAbilityFormChange';
+import { loadAbilities } from './loadAbilities';
 import { onAddNewAbility } from './onAddNewAbility';
 import { onCancelForm } from './onCancelForm';
 import { onEditForm } from './onEditForm';
@@ -15,17 +15,20 @@ import { onEraseAbility } from './onEraseAbility';
 import { onSaveAbility } from './onSaveAbility';
 
 export function AbilitiesScreen () {
+  const { getAbilities, createAbility, editAbility, eraseAbility } = useControllers();
   const [abilities, setAbilities] = useState<Ability[]>([]);
   const [abilityStateFormData, setAbilityFormData] = useState<AbilityFormData>(setInitialAbilityState());
   const [showForm, setShowForm] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
 
-  useAbilitiesScreenLogic(setAbilities);
+  const loadEntities = useCallback(() => loadAbilities(getAbilities, setAbilities), [getAbilities, setAbilities]);
+
+  useEntityScreenLoad(loadEntities);
 
   const handleFormSave = async () => {
     const errors: FormErrors = {};
     if (!abilityStateFormData.name.trim()) errors.name = 'Name is required';
-    if (!abilityStateFormData.activationWorld.trim()) errors.activationWorld = 'Activation World is required';
+    if (!abilityStateFormData.activationWord.trim()) errors.activationWord = 'Activation Word is required';
     if (!abilityStateFormData.prompt.trim()) errors.prompt = 'Prompt is required';
 
     if (Object.keys(errors).length > 0) {
@@ -34,10 +37,10 @@ export function AbilitiesScreen () {
     }
     setFormErrors({});
 
-    await onSaveAbility(abilityStateFormData, setAbilityFormData, setShowForm, setAbilities);
+    await onSaveAbility(abilityStateFormData, createAbility, editAbility, getAbilities, setAbilityFormData, setShowForm, setAbilities);
   };
 
-  const handleFormChange = (field: keyof AbilityFormData, value: string | Date) => {
+  const handleFormChange = (field: keyof AbilityFormData, value: string) => {
     setFormErrors(prev => {
       const next = { ...prev };
       const errorField = field as keyof FormErrors;
@@ -61,15 +64,17 @@ export function AbilitiesScreen () {
 
   return (
     <View style={styles.container}>
-      <ScrollView>
+      <ScrollView keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Text style={styles.title}>Abilities</Text>
         </View>
 
-        <AbilityPanel
-          abilities={abilities}
+        <CrudEntityList
+          items={abilities}
+          emptyText="No abilities found."
+          getDetailText={(ability) => ability.activationWord}
           onEdit={handleEditAbility}
-          onDelete={(ability) => onEraseAbility(ability, setAbilities)}
+          onDelete={(ability) => onEraseAbility(ability, eraseAbility, getAbilities, setAbilities)}
         />
 
         <TouchableOpacity
@@ -79,9 +84,10 @@ export function AbilitiesScreen () {
           <Text style={styles.addButtonText}>Add Ability</Text>
         </TouchableOpacity>
 
-        <AbilityForm
+        <ActivationPromptForm
           showForm={showForm}
-          abilityStateFormData={abilityStateFormData}
+          formData={abilityStateFormData}
+          config={abilityFormConfig}
           onChange={handleFormChange}
           onCancel={() => onCancelForm(setShowForm, setAbilityFormData)}
           onSave={handleFormSave}

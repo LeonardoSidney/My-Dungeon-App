@@ -1,4 +1,13 @@
+import { ActivationPromptFormConfig } from '@application/ui/components';
 import { Assistant, Ability, Proficiency, Status, Attribute } from '@domain/entities';
+
+export const characterFormConfig: ActivationPromptFormConfig = {
+    entityName: 'Character',
+    activationLabel: 'Activation Word',
+    namePlaceholder: 'e.g., NPC Merchant',
+    activationPlaceholder: 'e.g., Merchant',
+    promptPlaceholder: 'Enter the character prompt...',
+};
 
 export type FormErrors = {
     name?: string;
@@ -8,7 +17,7 @@ export type FormErrors = {
 };
 
 export type CharacterFormData = {
-    id?: string;
+    id: string;
     name: string;
     activationWord: string;
     prompt: string;
@@ -18,6 +27,4 @@ export type CharacterFormData = {
     proficiencies: Proficiency[];
     statuses: Status[];
     attributes: Attribute[];
-    createdAt?: Date;
-    updatedAt?: Date;
 };

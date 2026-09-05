@@ -8,7 +8,7 @@ import {
     IWorldRepository,
     IWorldMasterRepository,
 } from '@domain/repository';
-import { IEditAdventureService } from '@domain/services';
+import { AdventureEditParams, IEditAdventureService } from '@domain/services';
 import { EditAdventureParams, EditAdventureReturn, IEditAdventureUseCase } from '@domain/use-cases';
 import { checkReferencedId, checkReferencedIds } from '@application/shared/validateReferencedIds';
 
@@ -35,7 +35,7 @@ export class EditAdventureUseCase implements IEditAdventureUseCase {
                 error: validationError
             };
         }
-        const missingIdError = await this.validateReferencedIds(params);
+        const missingIdError = await this.validateReferencedIds(params.editParams);
         if (missingIdError) {
             return {
                 success: false,
@@ -44,10 +44,18 @@ export class EditAdventureUseCase implements IEditAdventureUseCase {
             };
         }
 
-        const { id, name, systemPromptIds, characterIds, worldMasterId, characterAsWorldMasterId, charactersControlledByAi, worldIds, locationIds, itemIds, chat, createdAt } = params;
+        const { id, editParams } = params;
+        const adventure = await this.adventureRepository.getAdventureById(id);
+        if (!adventure) {
+            return {
+                success: false,
+                adventure: undefined,
+                error: `Adventure with id ${id} not found`
+            };
+        }
 
-        this.logger.debug('Calling EditAdventureService', { id, name, systemPromptIds, characterIds, worldMasterId, characterAsWorldMasterId, charactersControlledByAi, worldIds, locationIds, itemIds, chat, createdAt });
-        const response = this.service.editAdventure({ id, name, systemPromptIds, characterIds, worldMasterId, characterAsWorldMasterId, charactersControlledByAi, worldIds, locationIds, itemIds, chat, createdAt: createdAt ?? new Date() });
+        this.logger.debug('Calling EditAdventureService', { id, editParams });
+        const response = this.service.editAdventure({ adventure, editParams });
         this.logger.debug('EditAdventureService executed successfully', response);
 
         if (!response.success) {
@@ -98,19 +106,19 @@ export class EditAdventureUseCase implements IEditAdventureUseCase {
     }
 
     private validate (params: EditAdventureParams): string | null {
-        if (!params.id) {
+        if (!params.id?.trim()) {
             return 'Adventure id is required';
         }
-        if (!params.name?.trim()) {
+        if (!params.editParams.name?.trim()) {
             return 'Adventure name is required';
         }
         return null;
     }
 
-    private async validateReferencedIds (params: EditAdventureParams): Promise<string | null> {
+    private async validateReferencedIds (editParams: AdventureEditParams): Promise<string | null> {
         const characterError = await checkReferencedIds(
             (id) => this.characterRepository.getCharacterById(id),
-            params.characterIds,
+            editParams.characterIds,
             'Character'
         );
         if (characterError) {
@@ -118,7 +126,7 @@ export class EditAdventureUseCase implements IEditAdventureUseCase {
         }
         const worldMasterIdError = await checkReferencedId(
             (id) => this.worldMasterRepository.getWorldMasterById(id),
-            params.worldMasterId,
+            editParams.worldMasterId,
             'WorldMaster'
         );
         if (worldMasterIdError) {
@@ -126,7 +134,7 @@ export class EditAdventureUseCase implements IEditAdventureUseCase {
         }
         const systemPromptError = await checkReferencedIds(
             (id) => this.systemPromptRepository.getSystemPromptById(id),
-            params.systemPromptIds,
+            editParams.systemPromptIds,
             'SystemPrompt'
         );
         if (systemPromptError) {
@@ -134,7 +142,7 @@ export class EditAdventureUseCase implements IEditAdventureUseCase {
         }
         const worldError = await checkReferencedIds(
             (id) => this.worldRepository.getWorldById(id),
-            params.worldIds,
+            editParams.worldIds,
             'World'
         );
         if (worldError) {
@@ -142,7 +150,7 @@ export class EditAdventureUseCase implements IEditAdventureUseCase {
         }
         const locationError = await checkReferencedIds(
             (id) => this.locationRepository.getLocationById(id),
-            params.locationIds,
+            editParams.locationIds,
             'Location'
         );
         if (locationError) {
@@ -150,7 +158,7 @@ export class EditAdventureUseCase implements IEditAdventureUseCase {
         }
         const itemError = await checkReferencedIds(
             (id) => this.itemRepository.getItemById(id),
-            params.itemIds,
+            editParams.itemIds,
             'Item'
         );
         if (itemError) {

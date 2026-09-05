@@ -9,47 +9,19 @@ export class EditSamplerService implements IEditSamplerService {
 
     editSampler (params: EditSamplerServiceParams): EditSamplerServiceReturn {
         this.logger.info('Executing EditSamplerService::editSampler');
-        const { id, name, observation, adaptativeDecay, adaptativeTarget, dryAllowedLenght, dryBase, dryMultiplier, drySequenceBreakers, dynaTempExp, dynaTempRange, frequencyPenalty, ignoreEOS, minP, mirostat, mirostatEnt, mirostatLr, presencePenalty, repeatLastN, repeatPenalty, seed, temperature, topK, topNSigma, topP, typicalP, xtcProbability, xtcThreshould, createdAt } = params;
+        const { sampler, editParams } = params;
 
-        const sampler: Sampler = {
-            id,
-            name,
-            observation,
-            systemDefault: false,
-            adaptativeDecay,
-            adaptativeTarget,
-            dryAllowedLenght,
-            dryBase,
-            dryMultiplier,
-            drySequenceBreakers,
-            dynaTempExp,
-            dynaTempRange,
-            frequencyPenalty,
-            ignoreEOS,
-            minP,
-            mirostat,
-            mirostatEnt,
-            mirostatLr,
-            presencePenalty,
-            repeatLastN,
-            repeatPenalty,
-            seed,
-            temperature,
-            topK,
-            topNSigma,
-            topP,
-            typicalP,
-            xtcProbability,
-            xtcThreshould,
-            createdAt: createdAt,
+        const editedSampler: Sampler = {
+            ...sampler,
+            ...editParams,
             updatedAt: new Date()
         };
 
-        this.logger.debug('Sampler edited with success', sampler);
+        this.logger.debug('Sampler edited with success', editedSampler);
 
         return {
             success: true,
-            sampler
+            sampler: editedSampler
         };
     }
 }

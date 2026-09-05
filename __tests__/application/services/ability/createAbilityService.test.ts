@@ -6,7 +6,7 @@ import {
 import { ILogger } from '@domain/logger';
 import { Ability } from '@domain/entities';
 import { IIdGenerator } from '@domain/providers';
-import { createAbilityHelper } from '../../../../__helpers__/createAbilityHelper';
+import { createAbilityHelper } from '@test/helpers';
 
 // Mocks dos dependentes
 const mockLogger = {
@@ -38,7 +38,7 @@ describe('CreateAbilityService', () => {
     it('should call logger.info when creating an ability', () => {
         const params: CreateAbilityServiceParams = {
             name: 'Fireball',
-            activationWorld: 'combat',
+            activationWord: 'combat',
             prompt: 'Deal fire damage to target'
         };
 
@@ -52,7 +52,7 @@ describe('CreateAbilityService', () => {
     it('should call idGenerator.generate to create ability id', () => {
         const params: CreateAbilityServiceParams = {
             name: 'Fireball',
-            activationWorld: 'combat',
+            activationWord: 'combat',
             prompt: 'Deal fire damage to target'
         };
 
@@ -66,7 +66,7 @@ describe('CreateAbilityService', () => {
     it('should return success: true when ability is created', () => {
         const params: CreateAbilityServiceParams = {
             name: 'Fireball',
-            activationWorld: 'combat',
+            activationWord: 'combat',
             prompt: 'Deal fire damage to target'
         };
 
@@ -80,7 +80,7 @@ describe('CreateAbilityService', () => {
     it('should return ability with correct id', () => {
         const params: CreateAbilityServiceParams = {
             name: 'Fireball',
-            activationWorld: 'combat',
+            activationWord: 'combat',
             prompt: 'Deal fire damage to target'
         };
 
@@ -95,7 +95,7 @@ describe('CreateAbilityService', () => {
     it('should return ability with correct name', () => {
         const params: CreateAbilityServiceParams = {
             name: 'Ice Storm',
-            activationWorld: 'magic',
+            activationWord: 'magic',
             prompt: 'Freeze enemies in area'
         };
 
@@ -107,10 +107,10 @@ describe('CreateAbilityService', () => {
         expect(ability.name).toBe('Ice Storm');
     });
 
-    it('should return ability with correct activationWorld', () => {
+    it('should return ability with correct activationWord', () => {
         const params: CreateAbilityServiceParams = {
             name: 'Shield',
-            activationWorld: 'defense',
+            activationWord: 'defense',
             prompt: 'Block incoming damage'
         };
 
@@ -119,13 +119,13 @@ describe('CreateAbilityService', () => {
         const result: CreateAbilityServiceReturn = service.createAbility(params);
         const ability: Ability = result.ability ?? createAbilityHelper();
 
-        expect(ability.activationWorld).toBe('defense');
+        expect(ability.activationWord).toBe('defense');
     });
 
     it('should return ability with correct prompt', () => {
         const params: CreateAbilityServiceParams = {
             name: 'Heal',
-            activationWorld: 'support',
+            activationWord: 'support',
             prompt: 'Restore health to ally'
         };
 
@@ -140,7 +140,7 @@ describe('CreateAbilityService', () => {
     it('should return ability with correct observation when provided', () => {
         const params: CreateAbilityServiceParams = {
             name: 'Stealth',
-            activationWorld: 'infiltration',
+            activationWord: 'infiltration',
             prompt: 'Become invisible',
             observation: 'Cannot be detected by normal senses'
         };
@@ -156,7 +156,7 @@ describe('CreateAbilityService', () => {
     it('should return ability with undefined observation when not provided', () => {
         const params: CreateAbilityServiceParams = {
             name: 'Fireball',
-            activationWorld: 'combat',
+            activationWord: 'combat',
             prompt: 'Deal fire damage to target'
         };
 
@@ -171,7 +171,7 @@ describe('CreateAbilityService', () => {
     it('should set createdAt and updatedAt to same Date instance', () => {
         const params: CreateAbilityServiceParams = {
             name: 'Lightning Bolt',
-            activationWorld: 'combat',
+            activationWord: 'combat',
             prompt: 'Strike target with lightning'
         };
 
@@ -188,7 +188,7 @@ describe('CreateAbilityService', () => {
     it('should return ability with all required fields', () => {
         const params: CreateAbilityServiceParams = {
             name: 'Teleport',
-            activationWorld: 'movement',
+            activationWord: 'movement',
             prompt: 'Instantly move to target location'
         };
 
@@ -199,17 +199,17 @@ describe('CreateAbilityService', () => {
 
         expect(ability).toHaveProperty('id');
         expect(ability).toHaveProperty('name');
-        expect(ability).toHaveProperty('activationWorld');
+        expect(ability).toHaveProperty('activationWord');
         expect(ability).toHaveProperty('prompt');
         expect(ability).toHaveProperty('observation');
         expect(ability).toHaveProperty('createdAt');
         expect(ability).toHaveProperty('updatedAt');
     });
 
-    it('should create ability with empty strings for name, activationWorld, and prompt', () => {
+    it('should create ability with empty strings for name, activationWord, and prompt', () => {
         const params: CreateAbilityServiceParams = {
             name: '',
-            activationWorld: '',
+            activationWord: '',
             prompt: ''
         };
 
@@ -219,14 +219,14 @@ describe('CreateAbilityService', () => {
         const ability: Ability = result.ability ?? createAbilityHelper();
 
         expect(ability.name).toBe('');
-        expect(ability.activationWorld).toBe('');
+        expect(ability.activationWord).toBe('');
         expect(ability.prompt).toBe('');
     });
 
     it('should create ability when observation is empty string', () => {
         const params: CreateAbilityServiceParams = {
             name: 'Test Ability',
-            activationWorld: 'test',
+            activationWord: 'test',
             prompt: 'Test prompt',
             observation: ''
         };
@@ -242,7 +242,7 @@ describe('CreateAbilityService', () => {
     it('should call logger.info exactly once per createAbility call', () => {
         const params: CreateAbilityServiceParams = {
             name: 'Dragon Breath',
-            activationWorld: 'combat',
+            activationWord: 'combat',
             prompt: 'Breathe dragon fire'
         };
 
@@ -256,7 +256,7 @@ describe('CreateAbilityService', () => {
     it('should call idGenerator.generate exactly once per createAbility call', () => {
         const params: CreateAbilityServiceParams = {
             name: 'Warp Strike',
-            activationWorld: 'combat',
+            activationWord: 'combat',
             prompt: 'Teleport and strike enemy'
         };
 
@@ -272,13 +272,13 @@ describe('CreateAbilityService', () => {
 
         const params1: CreateAbilityServiceParams = {
             name: 'Ability 1',
-            activationWorld: 'test',
+            activationWord: 'test',
             prompt: 'Prompt 1'
         };
 
         const params2: CreateAbilityServiceParams = {
             name: 'Ability 2',
-            activationWorld: 'test',
+            activationWord: 'test',
             prompt: 'Prompt 2'
         };
 

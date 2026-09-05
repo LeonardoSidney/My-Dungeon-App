@@ -2,7 +2,7 @@ import { GetAbilitiesController } from '@adapters/controllers';
 import { IGetAbilitiesUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { Ability } from '@domain/entities';
-import { createAbilityHelper } from '../../../../__helpers__/createAbilityHelper';
+import { createAbilityHelper } from '@test/helpers';
 
 // Mock das dependências
 const mockLogger = {

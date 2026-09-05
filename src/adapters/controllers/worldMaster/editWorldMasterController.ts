@@ -1,5 +1,5 @@
 import {
-    EditWorldMasterControllerRequest,
+    EditWorldMasterControllerParams,
     EditWorldMasterControllerResponse,
     IEditWorldMasterController
 } from '@domain/controllers';
@@ -12,9 +12,9 @@ export class EditWorldMasterController implements IEditWorldMasterController {
         private readonly useCase: IEditWorldMasterUseCase
     ) { }
 
-    async handle (request: EditWorldMasterControllerRequest): Promise<EditWorldMasterControllerResponse> {
+    async handle (params: EditWorldMasterControllerParams): Promise<EditWorldMasterControllerResponse> {
         this.logger.info('Executing EditWorldMasterController::handle');
-        const response = await this.useCase.execute(request);
+        const response = await this.useCase.execute(params);
 
         return {
             success: response.success,

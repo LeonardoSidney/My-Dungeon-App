@@ -2,7 +2,7 @@ import { CreateAbilityController } from '@adapters/controllers';
 import { CreateAbilityControllerParams, CreateAbilityControllerResponse } from '@domain/controllers';
 import { ICreateAbilityUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
-import { createAbilityHelper } from '../../../../__helpers__/createAbilityHelper';
+import { createAbilityHelper } from '@test/helpers';
 
 // Mock das dependências
 const mockLogger = {
@@ -31,7 +31,7 @@ describe('CreateAbilityController', () => {
     it('should call logger.info when handling a request', async () => {
         const params: CreateAbilityControllerParams = {
             name: 'Test Ability',
-            activationWorld: 'activate',
+            activationWord: 'activate',
             prompt: 'Ability prompt'
         };
 
@@ -50,7 +50,7 @@ describe('CreateAbilityController', () => {
     it('should call use case execute with correct parameters', async () => {
         const params: CreateAbilityControllerParams = {
             name: 'Test Ability',
-            activationWorld: 'activate',
+            activationWord: 'activate',
             prompt: 'Ability prompt'
         };
 
@@ -65,7 +65,7 @@ describe('CreateAbilityController', () => {
 
         expect(mockUseCase.execute).toHaveBeenCalledWith({
             name: params.name,
-            activationWorld: params.activationWorld,
+            activationWord: params.activationWord,
             prompt: params.prompt,
             observation: undefined
         });
@@ -74,7 +74,7 @@ describe('CreateAbilityController', () => {
     it('should pass params with optional observation field to use case', async () => {
         const params: CreateAbilityControllerParams = {
             name: 'Test Ability',
-            activationWorld: 'activate',
+            activationWord: 'activate',
             prompt: 'Ability prompt',
             observation: 'Test observation'
         };
@@ -90,7 +90,7 @@ describe('CreateAbilityController', () => {
 
         expect(mockUseCase.execute).toHaveBeenCalledWith({
             name: params.name,
-            activationWorld: params.activationWorld,
+            activationWord: params.activationWord,
             prompt: params.prompt,
             observation: params.observation
         });
@@ -99,7 +99,7 @@ describe('CreateAbilityController', () => {
     it('should return success response with ability when use case succeeds', async () => {
         const params: CreateAbilityControllerParams = {
             name: 'Test Ability',
-            activationWorld: 'activate',
+            activationWord: 'activate',
             prompt: 'Ability prompt'
         };
 
@@ -123,7 +123,7 @@ describe('CreateAbilityController', () => {
     it('should return error when use case fails', async () => {
         const params: CreateAbilityControllerParams = {
             name: 'Test Ability',
-            activationWorld: 'activate',
+            activationWord: 'activate',
             prompt: 'Ability prompt'
         };
 

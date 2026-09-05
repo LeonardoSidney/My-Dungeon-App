@@ -1,43 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
 import { Text, TextInput, TouchableOpacity, View, ScrollView } from 'react-native';
 import { styles } from './styles';
 import { AdventuresFormProps } from './constants';
-import { SelectList } from './selectList/SelectList';
-import { Character, SystemPrompt, WorldMaster, World, Location, Item } from '@domain/entities';
-
-function handleSystemPromptToggle (currentSystemPrompts: SystemPrompt[], systemPrompt: SystemPrompt): SystemPrompt[] {
-  const isSystemPromptSelected = currentSystemPrompts.some(s => s.id === systemPrompt.id);
-  return isSystemPromptSelected
-    ? currentSystemPrompts.filter(s => s.id !== systemPrompt.id)
-    : [...currentSystemPrompts, systemPrompt];
-}
-
-function handleCharacterToggle (currentCharacters: Character[], character: Character): Character[] {
-  const isCharacterSelected = currentCharacters.some(c => c.id === character.id);
-  return isCharacterSelected ? currentCharacters.filter(c => c.id !== character.id) : [...currentCharacters, character];
-}
-
-function handleWorldToggle (currentWorlds: World[], world: World): World[] {
-  const isWorldSelected = currentWorlds.some(w => w.id === world.id);
-  return isWorldSelected ? currentWorlds.filter(w => w.id !== world.id) : [...currentWorlds, world];
-}
-
-function handleLocationToggle (currentLocations: Location[], location: Location): Location[] {
-  const isLocationSelected = currentLocations.some(l => l.id === location.id);
-  return isLocationSelected ? currentLocations.filter(l => l.id !== location.id) : [...currentLocations, location];
-}
-
-function handleItemToggle (currentItems: Item[], item: Item): Item[] {
-  const isItemSelected = currentItems.some(i => i.id === item.id);
-  return isItemSelected ? currentItems.filter(i => i.id !== item.id) : [...currentItems, item];
-}
-
-function handleWorldMasterSelect (
-  currentWorldMaster: WorldMaster | undefined,
-  worldMaster: WorldMaster
-): WorldMaster | undefined {
-  return currentWorldMaster?.id === worldMaster.id ? undefined : worldMaster;
-}
+import { SelectListSection } from './selectListSection';
+import { useAdventureFormLogic } from './useAdventureFormLogic';
 
 export function AdventuresForm ({
   showForm,
@@ -53,68 +18,28 @@ export function AdventuresForm ({
   locations,
   items,
 }: AdventuresFormProps) {
-  const [_selectedCharacters, setSelectedCharacters] = useState<Character[]>([]);
-  const [characterAsWorldMaster, setCharacterAsWorldMaster] = useState<string | undefined>(
-    adventureStateFormData.characterAsWorldMasterId
-  );
-  const previousWorldMasterRef = useRef<string | undefined>(undefined);
-
-  useEffect(() => {
-    setCharacterAsWorldMaster(adventureStateFormData.characterAsWorldMasterId);
-  }, [adventureStateFormData.characterAsWorldMasterId]);
-
-  const handleWorldMasterCharacterSelect = (selectedCharacter: Character) => {
-    const newWorldMasterId = characterAsWorldMaster === selectedCharacter.id ? undefined : selectedCharacter.id;
-    if (previousWorldMasterRef.current && previousWorldMasterRef.current !== newWorldMasterId) {
-      setSelectedCharacters(prev => prev.filter(c => c.id !== previousWorldMasterRef.current));
-      onChange(
-        'charactersControlledByAi',
-        adventureStateFormData.charactersControlledByAi.filter(id => id !== previousWorldMasterRef.current)
-      );
-    }
-    if (newWorldMasterId && formSelectedCharacters.some(c => c.id === newWorldMasterId)) {
-      onChange(
-        'characters',
-        formSelectedCharacters.filter(c => c.id !== newWorldMasterId)
-      );
-    }
-    onChange(
-      'charactersControlledByAi',
-      adventureStateFormData.charactersControlledByAi.filter(id => id !== selectedCharacter.id)
-    );
-    setCharacterAsWorldMaster(newWorldMasterId);
-    onChange('characterAsWorldMasterId', newWorldMasterId);
-    previousWorldMasterRef.current = newWorldMasterId;
-  };
-
-  const handleAiCharacterToggle = (character: Character) => {
-    const isCharacterSelected = adventureStateFormData.charactersControlledByAi.includes(character.id);
-    const newCharactersControlledByAi = isCharacterSelected
-      ? adventureStateFormData.charactersControlledByAi.filter(id => id !== character.id)
-      : [...adventureStateFormData.charactersControlledByAi, character.id];
-    if (!isCharacterSelected && formSelectedCharacters.some(c => c.id === character.id)) {
-      onChange(
-        'characters',
-        formSelectedCharacters.filter(c => c.id !== character.id)
-      );
-    }
-    onChange('charactersControlledByAi', newCharactersControlledByAi);
-  };
-
-  const filteredCharacters = characters.filter(
-    character =>
-      character.id !== characterAsWorldMaster && !adventureStateFormData.charactersControlledByAi.includes(character.id)
-  );
+  const {
+    characterAsWorldMasterId,
+    formDataCharactersControlledByAi,
+    formSelectedCharacters,
+    filteredCharacters,
+    handleSystemPromptToggle,
+    handleCharacterToggle,
+    handleAiCharacterToggle,
+    handleWorldMasterCharacterSelect,
+    handleWorldMasterSelect,
+    handleWorldToggle,
+    handleLocationToggle,
+    handleItemToggle,
+  } = useAdventureFormLogic(adventureStateFormData, characters, onChange);
 
   const {
     name,
     systemPrompts: selectedSystemPrompts,
-    characters: formSelectedCharacters,
     worldMaster,
     worlds: selectedWorlds,
     locations: selectedLocations,
     items: selectedItems,
-    charactersControlledByAi: formDataCharactersControlledByAi,
   } = adventureStateFormData;
   const isEditing = !!adventureStateFormData.id;
 
@@ -144,99 +69,34 @@ export function AdventuresForm ({
           {formErrors.name && <Text style={styles.errorText}>{formErrors.name}</Text>}
         </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>System Prompts</Text>
-          {systemPrompts.length > 0 ? (
-            <>
-              <SelectList
-                items={systemPrompts}
-                selectedItems={selectedSystemPrompts}
-                onToggle={systemPrompt =>
-                  onChange('systemPrompts', handleSystemPromptToggle(selectedSystemPrompts, systemPrompt))
-                }
-              />
-              {selectedSystemPrompts.length > 0 && (
-                <View style={styles.selectedTagsContainer}>
-                  {selectedSystemPrompts.map(systemPrompt => (
-                    <TouchableOpacity
-                      key={systemPrompt.id}
-                      style={styles.selectedTag}
-                      onPress={() =>
-                        onChange('systemPrompts', handleSystemPromptToggle(selectedSystemPrompts, systemPrompt))
-                      }
-                    >
-                      <Text style={styles.selectedTagText}>{systemPrompt.name}</Text>
-                      <Text style={styles.selectedTagRemove}>×</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </>
-          ) : (
-            <Text style={styles.emptyDropdownText}>No system prompts available</Text>
-          )}
-          {formErrors.systemPrompts && <Text style={styles.errorText}>{formErrors.systemPrompts}</Text>}
-        </View>
+        <SelectListSection
+          label="System Prompts"
+          items={systemPrompts}
+          selectedItems={selectedSystemPrompts}
+          onToggle={handleSystemPromptToggle}
+          emptyText="No system prompts available"
+        />
+        {formErrors.systemPrompts && <Text style={styles.errorText}>{formErrors.systemPrompts}</Text>}
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Characters</Text>
-          {characters.length > 0 ? (
-            <>
-              <SelectList
-                items={filteredCharacters}
-                selectedItems={formSelectedCharacters}
-                onToggle={character => onChange('characters', handleCharacterToggle(formSelectedCharacters, character))}
-              />
-              {formSelectedCharacters.filter(
-                c => c.id !== characterAsWorldMaster && !formDataCharactersControlledByAi.includes(c.id)
-              ).length > 0 && (
-                <View style={styles.selectedTagsContainer}>
-                  {formSelectedCharacters
-                    .filter(c => c.id !== characterAsWorldMaster && !formDataCharactersControlledByAi.includes(c.id))
-                    .map(character => (
-                      <TouchableOpacity
-                        key={character.id}
-                        style={styles.selectedTag}
-                        onPress={() => onChange('characters', handleCharacterToggle(formSelectedCharacters, character))}
-                      >
-                        <Text style={styles.selectedTagText}>{character.name}</Text>
-                        <Text style={styles.selectedTagRemove}>×</Text>
-                      </TouchableOpacity>
-                    ))}
-                </View>
-              )}
-            </>
-          ) : (
-            <Text style={styles.emptyDropdownText}>No characters available</Text>
+        <SelectListSection
+          label="Characters"
+          items={filteredCharacters}
+          selectedItems={formSelectedCharacters}
+          onToggle={handleCharacterToggle}
+          emptyText="No characters available"
+          visibleSelectedItems={formSelectedCharacters.filter(
+            c => c.id !== characterAsWorldMasterId && !formDataCharactersControlledByAi.includes(c.id)
           )}
-          {formErrors.characters && <Text style={styles.errorText}>{formErrors.characters}</Text>}
-        </View>
+        />
+        {formErrors.characters && <Text style={styles.errorText}>{formErrors.characters}</Text>}
 
         {characters.length > 0 && (
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>AI Controlled Characters</Text>
-            <SelectList
-              items={characters.filter(character => character.id !== characterAsWorldMaster)}
-              selectedItems={characters.filter(character => formDataCharactersControlledByAi.includes(character.id))}
-              onToggle={character => handleAiCharacterToggle(character)}
-            />
-            {formDataCharactersControlledByAi.length > 0 && (
-              <View style={styles.selectedTagsContainer}>
-                {characters
-                  .filter(character => formDataCharactersControlledByAi.includes(character.id))
-                  .map(character => (
-                    <TouchableOpacity
-                      key={character.id}
-                      style={styles.selectedTag}
-                      onPress={() => handleAiCharacterToggle(character)}
-                    >
-                      <Text style={styles.selectedTagText}>{character.name}</Text>
-                      <Text style={styles.selectedTagRemove}>×</Text>
-                    </TouchableOpacity>
-                  ))}
-              </View>
-            )}
-          </View>
+          <SelectListSection
+            label="AI Controlled Characters"
+            items={characters.filter(character => character.id !== characterAsWorldMasterId)}
+            selectedItems={characters.filter(character => formDataCharactersControlledByAi.includes(character.id))}
+            onToggle={handleAiCharacterToggle}
+          />
         )}
 
         {!worldMaster && characters.length > 0 && (
@@ -248,7 +108,7 @@ export function AdventuresForm ({
                   key={character.id}
                   style={[
                     styles.dropdownOption,
-                    characterAsWorldMaster === character.id && styles.dropdownOptionSelected,
+                    characterAsWorldMasterId === character.id && styles.dropdownOptionSelected,
                   ]}
                   onPress={() => handleWorldMasterCharacterSelect(character)}
                 >
@@ -270,97 +130,40 @@ export function AdventuresForm ({
                     styles.dropdownOption,
                     worldMaster?.id === worldMasterItem.id && styles.dropdownOptionSelected,
                   ]}
-                  onPress={() => {
-                    onChange('worldMaster', handleWorldMasterSelect(worldMaster, worldMasterItem));
-                    onChange(
-                      'characters',
-                      formSelectedCharacters.filter(c => c.id !== characterAsWorldMaster)
-                    );
-                    setCharacterAsWorldMaster(undefined);
-                    onChange('characterAsWorldMasterId', undefined);
-                  }}
+                  onPress={() => handleWorldMasterSelect(worldMasterItem)}
                 >
                   <Text style={styles.dropdownOptionText}>{worldMasterItem.name}</Text>
                 </TouchableOpacity>
               ))}
-              {worldMasters.length === 0 && <Text style={styles.emptyDropdownText}>No world masters available</Text>}
             </ScrollView>
           </View>
         )}
 
         {worlds.length > 0 && (
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Worlds (optional)</Text>
-            <SelectList
-              items={worlds}
-              selectedItems={selectedWorlds ?? []}
-              onToggle={world => onChange('worlds', handleWorldToggle(selectedWorlds ?? [], world))}
-            />
-            {(selectedWorlds ?? []).length > 0 && (
-              <View style={styles.selectedTagsContainer}>
-                {(selectedWorlds ?? []).map(world => (
-                  <TouchableOpacity
-                    key={world.id}
-                    style={styles.selectedTag}
-                    onPress={() => onChange('worlds', handleWorldToggle(selectedWorlds ?? [], world))}
-                  >
-                    <Text style={styles.selectedTagText}>{world.name}</Text>
-                    <Text style={styles.selectedTagRemove}>×</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-          </View>
+          <SelectListSection
+            label="Worlds (optional)"
+            items={worlds}
+            selectedItems={selectedWorlds ?? []}
+            onToggle={handleWorldToggle}
+          />
         )}
 
         {locations.length > 0 && (
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Locations (optional)</Text>
-            <SelectList
-              items={locations}
-              selectedItems={selectedLocations ?? []}
-              onToggle={location => onChange('locations', handleLocationToggle(selectedLocations ?? [], location))}
-            />
-            {(selectedLocations ?? []).length > 0 && (
-              <View style={styles.selectedTagsContainer}>
-                {(selectedLocations ?? []).map(location => (
-                  <TouchableOpacity
-                    key={location.id}
-                    style={styles.selectedTag}
-                    onPress={() => onChange('locations', handleLocationToggle(selectedLocations ?? [], location))}
-                  >
-                    <Text style={styles.selectedTagText}>{location.name}</Text>
-                    <Text style={styles.selectedTagRemove}>×</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-          </View>
+          <SelectListSection
+            label="Locations (optional)"
+            items={locations}
+            selectedItems={selectedLocations ?? []}
+            onToggle={handleLocationToggle}
+          />
         )}
 
         {items.length > 0 && (
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Items (optional)</Text>
-            <SelectList
-              items={items}
-              selectedItems={selectedItems ?? []}
-              onToggle={item => onChange('items', handleItemToggle(selectedItems ?? [], item))}
-            />
-            {(selectedItems ?? []).length > 0 && (
-              <View style={styles.selectedTagsContainer}>
-                {(selectedItems ?? []).map(item => (
-                  <TouchableOpacity
-                    key={item.id}
-                    style={styles.selectedTag}
-                    onPress={() => onChange('items', handleItemToggle(selectedItems ?? [], item))}
-                  >
-                    <Text style={styles.selectedTagText}>{item.name}</Text>
-                    <Text style={styles.selectedTagRemove}>×</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-          </View>
+          <SelectListSection
+            label="Items (optional)"
+            items={items}
+            selectedItems={selectedItems ?? []}
+            onToggle={handleItemToggle}
+          />
         )}
 
         <View style={styles.formActions}>

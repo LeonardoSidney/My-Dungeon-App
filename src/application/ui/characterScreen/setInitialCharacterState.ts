@@ -12,7 +12,5 @@ export function setInitialCharacterState (): CharacterFormData {
         proficiencies: [],
         statuses: [],
         attributes: [],
-        createdAt: undefined,
-        updatedAt: undefined,
     };
 }

@@ -1,11 +1,13 @@
 import { Proficiency } from '../entities';
+import { ProficiencyEditParams } from '../services';
 
 export interface IEditProficiencyController {
     handle (params: EditProficiencyControllerParams): Promise<EditProficiencyControllerResponse>;
 }
 
 export type EditProficiencyControllerParams = {
-    proficiency: Proficiency;
+    id: string;
+    editParams: ProficiencyEditParams;
 };
 
 export type EditProficiencyControllerResponse = {

@@ -13,17 +13,18 @@ export function useSelectWorldMaster ({
         const controller = editAdventureController();
         const response = await controller.handle({
             id: adventure.id,
-            name: adventure.name,
-            systemPromptIds: adventure.systemPromptIds,
-            characterIds: adventure.characterIds,
-            worldMasterId: worldMaster.id,
-            characterAsWorldMasterId: adventure.characterAsWorldMasterId,
-            charactersControlledByAi: adventure.charactersControlledByAi,
-            worldIds: adventure.worldIds,
-            locationIds: adventure.locationIds,
-            itemIds: adventure.itemIds,
-            chat: adventure.chat,
-            createdAt: adventure.createdAt,
+            editParams: {
+                name: adventure.name,
+                systemPromptIds: adventure.systemPromptIds,
+                characterIds: adventure.characterIds,
+                worldMasterId: worldMaster.id,
+                characterAsWorldMasterId: adventure.characterAsWorldMasterId,
+                charactersControlledByAi: adventure.charactersControlledByAi,
+                worldIds: adventure.worldIds,
+                locationIds: adventure.locationIds,
+                itemIds: adventure.itemIds,
+                chat: adventure.chat,
+            },
         });
 
         if (!response.success) {

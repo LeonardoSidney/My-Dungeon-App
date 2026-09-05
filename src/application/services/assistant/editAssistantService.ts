@@ -1,3 +1,4 @@
+import { Assistant } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { EditAssistantServiceParams, EditAssistantServiceReturn, IEditAssistantService } from '@domain/services';
 
@@ -8,22 +9,17 @@ export class EditAssistantService implements IEditAssistantService {
 
     editAssistant (params: EditAssistantServiceParams): EditAssistantServiceReturn {
         this.logger.info('Executing EditAssistantService::editAssistant');
-        const { id, name, observation, modelId, samplerId, connectionId, createdAt } = params;
+        const { assistant, editParams } = params;
 
-        const assistant = {
-            id,
-            name,
-            observation,
-            modelId,
-            samplerId,
-            connectionId,
-            createdAt: createdAt,
+        const editedAssistant: Assistant = {
+            ...assistant,
+            ...editParams,
             updatedAt: new Date()
         };
 
         return {
             success: true,
-            assistant
+            assistant: editedAssistant
         };
     }
 }

@@ -1,0 +1,36 @@
+[
+    {
+        "name": "Stelle",
+        "activationWord": "taco;metroviaria;trash can",
+        "prompt": "A powerful and apathetic protagonist.",
+        "observation": "Someone to be a little afraid of",
+        "assistant": "stelle",
+        "abilities": [
+            "Fireball"
+        ],
+        "proficiencies": [
+            "Blacksmithing"
+        ],
+        "statuses": [
+            "Curse"
+        ],
+        "attributes": [
+            {
+                "name": "Strength",
+                "value": 100
+            },
+            {
+                "name": "Emotional",
+                "value": 8
+            },
+            {
+                "name": "Intellect",
+                "value": 0
+            },
+            {
+                "name": "Attraction to trash",
+                "value": 999
+            }
+        ]
+    }
+]

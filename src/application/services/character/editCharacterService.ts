@@ -1,3 +1,4 @@
+import { Character } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { EditCharacterServiceParams, EditCharacterServiceReturn, IEditCharacterService } from '@domain/services';
 
@@ -7,17 +8,18 @@ export class EditCharacterService implements IEditCharacterService {
     ) { }
 
     editCharacter (params: EditCharacterServiceParams): EditCharacterServiceReturn {
-        this.logger.info('EditCharacterService::editCharacter');
+        this.logger.info('Executing EditCharacterService::editCharacter');
+        const { character, editParams } = params;
 
-        const { character } = params;
-        const updatedAt = new Date();
+        const editedCharacter: Character = {
+            ...character,
+            ...editParams,
+            updatedAt: new Date()
+        };
 
         return {
             success: true,
-            character: {
-                ...character,
-                updatedAt
-            }
+            character: editedCharacter
         };
     }
 }

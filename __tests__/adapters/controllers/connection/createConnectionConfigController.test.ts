@@ -5,7 +5,7 @@ import {
 } from '@domain/controllers';
 import { ICreateConnectionConfigUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
-import { createConnectionHelper } from '../../../../__helpers__/createConnectionHelper';
+import { createConnectionHelper } from '@test/helpers';
 
 // Mock das dependências
 const mockLogger = {

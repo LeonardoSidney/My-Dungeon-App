@@ -8,7 +8,7 @@ export type FormErrors = {
 export interface SamplerFormProps {
     showForm: boolean;
     samplerStateFormData: SamplerFormData;
-    onChange: (field: keyof SamplerFormData, value: string | Date | MirostatEnum | undefined) => void;
+    onChange: (field: keyof SamplerFormData, value: string | MirostatEnum | undefined) => void;
     onCancel: () => void;
     onSave: () => Promise<void>;
     formErrors: FormErrors;

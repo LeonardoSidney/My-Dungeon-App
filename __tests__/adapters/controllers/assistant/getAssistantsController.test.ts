@@ -1,8 +1,8 @@
-import { GetAssistantsController } from '../../../../src/adapters/controllers/assistant/getAssistantsController';
+import { GetAssistantsController } from '@adapters/controllers';
 import { IGetAssistantsUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { Assistant } from '@domain/entities';
-import { createAssistantHelper } from '../../../../__helpers__/createAssistantHelper';
+import { createAssistantHelper } from '@test/helpers';
 
 // Mock das dependências
 const mockLogger = {

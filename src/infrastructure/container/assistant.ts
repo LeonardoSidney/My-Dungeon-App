@@ -10,7 +10,7 @@ import {
     GetAssistantsUseCase,
     EditAssistantUseCase,
     EraseAssistantUseCase,
-} from '../../application/use-cases';
+} from '@application/use-cases';
 import {
     ICreateAssistantController,
     IGetAssistantsController,

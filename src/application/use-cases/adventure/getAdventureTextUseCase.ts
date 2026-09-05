@@ -52,7 +52,7 @@ export class GetAdventureTextUseCase implements IGetAdventureTextUseCase {
             if (!prompt) {
                 return {
                     success: false,
-                    error: 'Can not generate response',
+                    error: 'Model did not return a prompt',
                 };
             }
 

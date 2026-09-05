@@ -21,10 +21,18 @@ export class EditProficiencyUseCase implements IEditProficiencyUseCase {
             };
         }
 
-        const { proficiency } = params;
+        const { id, editParams } = params;
+        const proficiency = await this.proficiencyRepository.getProficiencyById(id);
+        if (!proficiency) {
+            return {
+                success: false,
+                proficiency: undefined,
+                error: `Proficiency with id ${id} not found`
+            };
+        }
 
-        this.logger.debug('Calling EditProficiencyService', proficiency);
-        const response = this.service.editProficiency({ proficiency });
+        this.logger.debug('Calling EditProficiencyService', { id, editParams });
+        const response = this.service.editProficiency({ proficiency, editParams });
         this.logger.debug('EditProficiencyService executed successfully', response);
 
         if (!response.success) {
@@ -74,21 +82,19 @@ export class EditProficiencyUseCase implements IEditProficiencyUseCase {
     }
 
     private validate (params: EditProficiencyParams): string | null {
-        const { proficiency } = params;
-
-        if (!proficiency.id) {
+        if (!params.id) {
             return 'An id is required to edit a proficiency';
         }
 
-        if (!proficiency.name?.trim()) {
+        if (!params.editParams.name?.trim()) {
             return 'A name is required to edit a proficiency';
         }
 
-        if (!proficiency.activationWord?.trim()) {
+        if (!params.editParams.activationWord?.trim()) {
             return 'An activation word is required to edit a proficiency';
         }
 
-        if (!proficiency.prompt?.trim()) {
+        if (!params.editParams.prompt?.trim()) {
             return 'A prompt is required to edit a proficiency';
         }
 

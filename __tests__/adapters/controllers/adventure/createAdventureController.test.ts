@@ -1,7 +1,7 @@
 import { CreateAdventureController } from '@adapters/controllers';
 import { ICreateAdventureUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
-import { createAdventureRequestHelper } from '../../../../__helpers__/createAdventureRequestHelper';
+import { createAdventureRequestHelper } from '@test/helpers';
 
 // Mock das dependências
 const mockLogger = {

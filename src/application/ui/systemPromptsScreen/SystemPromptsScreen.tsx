@@ -36,7 +36,7 @@ export function SystemPromptsScreen () {
     await onSaveSystemPrompt(systemPromptStateFormData, setSystemPromptFormData, setShowForm, setSystemPrompts);
   };
 
-  const handleFormChange = (field: keyof SystemPromptFormData, value: string | Date) => {
+  const handleFormChange = (field: keyof SystemPromptFormData, value: string) => {
     setFormErrors(prev => {
       const next = { ...prev };
       const errorField = field as keyof FormErrors;

@@ -13,10 +13,8 @@ export function onEditForm (
     setAbilityFormData({
         id: ability.id,
         name: ability.name,
-        activationWorld: ability.activationWorld,
+        activationWord: ability.activationWord,
         prompt: ability.prompt,
         observation: ability.observation ?? '',
-        createdAt: ability.createdAt,
-        updatedAt: ability.updatedAt,
     });
 }

@@ -13,7 +13,5 @@ export function onEditForm (
         name: systemPrompt.name,
         content: systemPrompt.content,
         observation: systemPrompt.observation ?? '',
-        createdAt: systemPrompt.createdAt,
-        updatedAt: systemPrompt.updatedAt,
     });
 }

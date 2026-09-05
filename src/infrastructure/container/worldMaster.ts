@@ -10,7 +10,7 @@ import {
     GetWorldMastersUseCase,
     EditWorldMasterUseCase,
     EraseWorldMasterUseCase,
-} from '../../application/use-cases';
+} from '@application/use-cases';
 import {
     ICreateWorldMasterController,
     IGetWorldMastersController,

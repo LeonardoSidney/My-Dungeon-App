@@ -2,7 +2,7 @@ import { GetCharactersController } from '@adapters/controllers';
 import { IGetCharactersUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { Character } from '@domain/entities';
-import { createCharacterHelper } from '../../../../__helpers__/createCharacterHelper';
+import { createCharacterHelper } from '@test/helpers';
 
 // Mock das dependências
 const mockLogger = {

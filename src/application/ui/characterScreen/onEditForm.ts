@@ -28,8 +28,6 @@ export function onEditForm (
         proficiencies: currentProficiencies,
         statuses: currentStatuses,
         attributes: currentAttributes,
-        createdAt: character.createdAt,
-        updatedAt: character.updatedAt,
     });
     setShowForm(true);
 }

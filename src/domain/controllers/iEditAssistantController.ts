@@ -1,4 +1,5 @@
 import { Assistant } from '../entities';
+import { AssistantEditParams } from '../services';
 
 export interface IEditAssistantController {
     handle (params: EditAssistantControllerParams): Promise<EditAssistantControllerResponse>;
@@ -6,12 +7,7 @@ export interface IEditAssistantController {
 
 export type EditAssistantControllerParams = {
     id: string;
-    name: string;
-    observation?: string;
-    modelId: string;
-    samplerId: string;
-    connectionId: string;
-    createdAt: Date;
+    editParams: AssistantEditParams;
 };
 
 export type EditAssistantControllerResponse = {

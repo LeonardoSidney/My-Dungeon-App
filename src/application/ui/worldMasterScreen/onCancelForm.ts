@@ -1,5 +1,4 @@
-import { WorldMasterFormData } from './constants';
-import { setInitialWorldMasterState } from './setInitialWorldMasterState';
+import { WorldMasterFormData, setInitialWorldMasterState } from './constants';
 
 export function onCancelForm (
     setShowForm: (show: boolean) => void,

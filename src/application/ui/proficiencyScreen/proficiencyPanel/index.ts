@@ -1,1 +1,0 @@
-export { ProficiencyPanel } from './ProficiencyPanel';

@@ -4,10 +4,8 @@ export function setInitialAbilityState (): AbilityFormData {
     return {
         id: '',
         name: '',
-        activationWorld: '',
+        activationWord: '',
         prompt: '',
         observation: '',
-        createdAt: undefined,
-        updatedAt: undefined,
     };
 }

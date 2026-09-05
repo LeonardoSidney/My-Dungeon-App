@@ -10,7 +10,7 @@ import {
     GetCharactersUseCase,
     EditCharacterUseCase,
     EraseCharacterUseCase,
-} from '../../application/use-cases';
+} from '@application/use-cases';
 import {
     ICreateCharacterController,
     IGetCharactersController,

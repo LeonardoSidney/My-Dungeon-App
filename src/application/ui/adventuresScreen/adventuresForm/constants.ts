@@ -6,7 +6,7 @@ export interface AdventuresFormProps {
     adventureStateFormData: AdventureFormData;
     onChange: (field: keyof AdventureFormData, value: AdventureFormData[keyof AdventureFormData]) => void;
     onCancel: () => void;
-    onSave: () => void;
+    onSave: () => Promise<void>;
     formErrors: FormErrors;
     characters: Character[];
     systemPrompts: SystemPrompt[];

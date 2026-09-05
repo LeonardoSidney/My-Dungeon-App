@@ -14,6 +14,9 @@
       "@adapters/*": [
         "./src/adapters/*"
       ],
+      "@composition/*": [
+        "./src/composition/*"
+      ],
       "@infra/*": [
         "./src/infrastructure/*"
       ],
@@ -22,6 +25,12 @@
       ],
       "@tests/*": [
         "./__tests__/*"
+      ],
+      "@test/helpers": [
+        "./__helpers__"
+      ],
+      "@test/helpers/*": [
+        "./__helpers__/*"
       ]
     }
   },

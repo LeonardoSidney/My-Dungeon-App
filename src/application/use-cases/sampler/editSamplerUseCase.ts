@@ -1,13 +1,14 @@
 import { ILogger } from '@domain/logger';
 import { ISamplerRepository } from '@domain/repository';
-import { IEditSamplerService } from '@domain/services';
+import { IEditSamplerService, IGetSamplersService } from '@domain/services';
 import { EditSamplerParams, EditSamplerReturn, IEditSamplerUseCase } from '@domain/use-cases';
 
 export class EditSamplerUseCase implements IEditSamplerUseCase {
     constructor (
         private readonly logger: ILogger,
         private readonly service: IEditSamplerService,
-        private readonly samplerRepository: ISamplerRepository
+        private readonly samplerRepository: ISamplerRepository,
+        private readonly getSamplersService: IGetSamplersService
     ) { }
 
     async execute (params: EditSamplerParams): Promise<EditSamplerReturn> {
@@ -21,10 +22,27 @@ export class EditSamplerUseCase implements IEditSamplerUseCase {
             };
         }
 
-        const { id, name } = params;
+        const reservedNameError = this.getReservedNameError(params.editParams.name);
+        if (reservedNameError) {
+            return {
+                success: false,
+                sampler: undefined,
+                error: reservedNameError
+            };
+        }
 
-        this.logger.debug('Calling EditSamplerService', { id, name });
-        const response = this.service.editSampler(params);
+        const { id, editParams } = params;
+        const sampler = await this.samplerRepository.getSamplerById(id);
+        if (!sampler) {
+            return {
+                success: false,
+                sampler: undefined,
+                error: `Sampler with id ${id} not found`
+            };
+        }
+
+        this.logger.debug('Calling EditSamplerService', { id, editParams });
+        const response = this.service.editSampler({ sampler, editParams });
         this.logger.debug('EditSamplerService executed successfully', response);
 
         if (!response.success) {
@@ -76,10 +94,24 @@ export class EditSamplerUseCase implements IEditSamplerUseCase {
     }
 
     private validate (params: EditSamplerParams): string | null {
-        if (!params.name?.trim()) {
+        if (!params.id?.trim()) {
+            return 'A sampler id is required to edit a sampler';
+        }
+
+        if (!params.editParams.name?.trim()) {
             return 'A name is required to edit a sampler';
         }
 
         return null;
+    }
+
+    private getReservedNameError (name: string): string | null {
+        const defaultNames = this.getSamplersService.getSystemDefaultSamplers()
+            .map(defaultSampler => defaultSampler.name);
+        const isReserved = defaultNames.includes(name);
+        if (!isReserved) {
+            return null;
+        }
+        return `Sampler name "${name}" is reserved for a system default sampler`;
     }
 }
