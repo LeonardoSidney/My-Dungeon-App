@@ -1,3 +1,4 @@
+import { Proficiency } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { EditProficiencyServiceParams, EditProficiencyServiceReturn, IEditProficiencyService } from '@domain/services';
 
@@ -7,17 +8,18 @@ export class EditProficiencyService implements IEditProficiencyService {
     ) { }
 
     editProficiency (params: EditProficiencyServiceParams): EditProficiencyServiceReturn {
-        this.logger.info('EditProficiencyService::editProficiency');
+        this.logger.info('Executing EditProficiencyService::editProficiency');
+        const { proficiency, editParams } = params;
 
-        const { proficiency } = params;
-        const updatedAt = new Date();
+        const editedProficiency: Proficiency = {
+            ...proficiency,
+            ...editParams,
+            updatedAt: new Date()
+        };
 
         return {
             success: true,
-            proficiency: {
-                ...proficiency,
-                updatedAt
-            }
+            proficiency: editedProficiency
         };
     }
 }

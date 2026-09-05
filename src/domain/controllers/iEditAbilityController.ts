@@ -1,11 +1,13 @@
 import { Ability } from '../entities';
+import { AbilityEditParams } from '../services';
 
 export interface IEditAbilityController {
     handle (params: EditAbilityControllerParams): Promise<EditAbilityControllerResponse>;
 }
 
 export type EditAbilityControllerParams = {
-    ability: Ability;
+    id: string;
+    editParams: AbilityEditParams;
 };
 
 export type EditAbilityControllerResponse = {

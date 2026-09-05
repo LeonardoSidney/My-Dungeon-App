@@ -1,17 +1,14 @@
 import { Assistant } from '../entities';
 
+export type AssistantEditParams = Omit<Assistant, 'id' | 'createdAt' | 'updatedAt'>;
+
 export interface IEditAssistantService {
     editAssistant (request: EditAssistantServiceParams): EditAssistantServiceReturn;
 }
 
 export type EditAssistantServiceParams = {
-    id: string;
-    name: string;
-    observation?: string;
-    modelId: string;
-    samplerId: string;
-    connectionId: string;
-    createdAt: Date;
+    assistant: Assistant;
+    editParams: AssistantEditParams;
 };
 
 export type EditAssistantServiceReturn = {

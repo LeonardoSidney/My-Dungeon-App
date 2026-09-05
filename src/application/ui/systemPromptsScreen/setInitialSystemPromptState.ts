@@ -6,7 +6,5 @@ export function setInitialSystemPromptState (): SystemPromptFormData {
         name: '',
         content: '',
         observation: '',
-        createdAt: undefined,
-        updatedAt: undefined,
     };
 }

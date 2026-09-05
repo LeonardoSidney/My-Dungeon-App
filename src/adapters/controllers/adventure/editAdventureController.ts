@@ -1,5 +1,5 @@
 import {
-    EditAdventureControllerRequest,
+    EditAdventureControllerParams,
     EditAdventureControllerResponse,
     IEditAdventureController
 } from '@domain/controllers';
@@ -12,23 +12,9 @@ export class EditAdventureController implements IEditAdventureController {
         private readonly useCase: IEditAdventureUseCase
     ) { }
 
-    async handle (request: EditAdventureControllerRequest): Promise<EditAdventureControllerResponse> {
+    async handle (params: EditAdventureControllerParams): Promise<EditAdventureControllerResponse> {
         this.logger.info('Executing EditAdventureController::handle');
-        const { id, name, systemPromptIds, characterIds, worldMasterId, characterAsWorldMasterId, charactersControlledByAi, worldIds, locationIds, itemIds, chat, createdAt } = request;
-        const response = await this.useCase.execute({
-            id,
-            name,
-            systemPromptIds,
-            characterIds,
-            worldMasterId,
-            characterAsWorldMasterId,
-            charactersControlledByAi,
-            worldIds,
-            locationIds,
-            itemIds,
-            chat,
-            createdAt
-        });
+        const response = await this.useCase.execute(params);
 
         return {
             success: response.success,

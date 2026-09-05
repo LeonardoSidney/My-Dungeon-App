@@ -1,400 +1,147 @@
 import {
-    createAbilityController,
-    createCharacterController,
-    createAssistantController,
-    createConnectionConfigController,
     getAbilitiesController,
-    getCharactersController,
-    getAssistantsController,
-    getConnectionsController,
-    getModelsFromProviderController,
-    getSamplersController,
-    createStatusController,
-    getStatusesController,
-    createProficiencyController,
-    getProficienciesController,
-    createWorldMasterController,
-    getWorldMasterController,
-    createSystemPromptController,
-    getSystemPromptsController,
-    createWorldController,
-    getWorldsController,
-    createLocationController,
-    getLocationsController,
-    createItemController,
-    getItemsController,
-    createAdventureController,
-    getAdventuresController,
     getAdventureTextController,
-    // appendChatAdventureController,
-    // createChatAdventureController,
-    // eraseAdventuresController,
+    getAdventuresController,
+    getAssistantsController,
+    getCharactersController,
+    getItemsController,
+    getLocationsController,
+    getProficienciesController,
+    getStatusesController,
+    getSystemPromptsController,
+    getWorldMasterController,
+    getWorldsController,
 } from '@infra/container';
+import { logger } from '@infra/container/shared';
 import {
-    Ability,
-    Adventure,
-    Assistant,
-    Attribute,
-    Character,
-    Connection,
-    Item,
-    Location,
-    Model,
-    Proficiency,
-    // RoleEnum,
-    Sampler,
-    Status,
-    SystemPrompt,
-    World,
-    WorldMaster,
-} from '@domain/entities';
-
-async function setConnection (): Promise<void> {
-    const createConnection = createConnectionConfigController();
-    await createConnection.handle({
-        name: 'llamacpp2',
-        ip: '192.168.18.101',
-        port: 8080,
-    });
-}
-
-async function getConnections (): Promise<Connection[]> {
-    const connectionsController = getConnectionsController();
-    return connectionsController.handle();
-}
-
-async function getModels (connection: Connection) {
-    const modelsController = getModelsFromProviderController();
-    return modelsController.handle({ connection });
-}
-
-async function getSamplers () {
-    const samplersController = getSamplersController();
-    return samplersController.handle();
-}
-
-async function setAssistant (sampler: Sampler, model: Model) {
-    const createAssistant = createAssistantController();
-
-    await createAssistant.handle({
-        modelId: model.id,
-        samplerId: sampler.id,
-        connectionId: model.connectionId,
-        name: 'test',
-        observation: 'test',
-    });
-}
-
-async function setCharacter (
-    assistant: Assistant,
-    abilities: Ability[],
-    attributes: Attribute[],
-    proficiencies: Proficiency[],
-    statuses: Status[]
-) {
-    const createCharacter = createCharacterController();
-
-    await createCharacter.handle({
-        name: 'Stelle',
-        activationWord: 'taco;metroviaria;lata de lixo',
-        prompt: 'Uma poderosa e apatica protagonista.',
-        observation: 'Alguém para se ter certo medo',
-        assistantId: assistant.id,
-        abilityIds: abilities.map(a => a.id),
-        attributes,
-        proficiencyIds: proficiencies.map(p => p.id),
-        statusIds: statuses.map(s => s.id),
-    });
-}
-
-async function getAssistants () {
-    const assistantsController = getAssistantsController();
-    return assistantsController.handle();
-}
-
-async function setAbility () {
-    const createAbility = createAbilityController();
-    await createAbility.handle({
-        name: 'Bola de fogo',
-        prompt: 'Uma simples habilidade de bola de fogo',
-        observation: 'Tive essa ideia vendo um mago fazer magias mágicas',
-        activationWorld: 'bola de fogo;magia de fogo',
-    });
-}
-
-async function getAbilities () {
-    const abilitiesController = getAbilitiesController();
-    return abilitiesController.handle();
-}
-
-async function setStatus () {
-    const createStatus = createStatusController();
-    await createStatus.handle({
-        name: 'Curse',
-        prompt: 'Seu personagem foi amaldiçoado pela eternidade',
-        observation: 'A alma escura',
-        activationWord: 'curse;undead',
-    });
-}
-
-async function getStatuses () {
-    const statusesController = getStatusesController();
-    return statusesController.handle();
-}
-
-async function setProficiency () {
-    const createProficiency = createProficiencyController();
-    await createProficiency.handle({
-        name: 'Ferragem',
-        prompt: 'É quando um ferreiro sabe ferrear',
-        activationWord: 'ferreiro;ferramenta;martelo',
-        observation: 'Vi um ferreiro ferreando e tive uma ideia férrea',
-    });
-}
-
-async function getProficiencies () {
-    const proficienciesController = getProficienciesController();
-    return proficienciesController.handle();
-}
-
-async function getCharacters () {
-    const charactersController = getCharactersController();
-    return charactersController.handle();
-}
-
-function getAttributes (): Attribute[] {
-    return [
-        {
-            name: 'Força',
-            value: 100,
-        },
-        {
-            name: 'Emocional',
-            value: 8,
-        },
-        {
-            name: 'Intelecto',
-            value: 0,
-        },
-        {
-            name: 'Atração por lixo',
-            value: 999,
-        },
-    ];
-}
-
-async function setWorldMaster (assistant: Assistant) {
-    const createWorldMaster = createWorldMasterController();
-    await createWorldMaster.handle({
-        name: 'Dungeon Master',
-        activationWord: 'dungeon master;dm',
-        prompt: 'Você é o mestre do jogo de RPG Dungeon & Dragons',
-        observation: 'O mestre do jogo',
-        assistantId: assistant.id,
-    });
-}
-
-async function getWorldMasters () {
-    const worldMasters = getWorldMasterController();
-    return worldMasters.handle();
-}
-
-async function setSystemPrompt () {
-    const createSystemPrompt = createSystemPromptController();
-    await createSystemPrompt.handle({
-        name: 'D&D Prompt',
-        content: 'Você é um mestre de RPG que gera aventuras para jogadores iniciantes',
-        observation: 'Um mestre de RPG experiente',
-    });
-}
-
-async function getSystemPrompts () {
-    const systemPromptsController = getSystemPromptsController();
-    return systemPromptsController.handle();
-}
-
-async function setWorld () {
-    const createWorld = createWorldController();
-    await createWorld.handle({
-        name: 'Mundo de Teste',
-        activationWord: 'teste',
-        prompt: 'Um mundo de testes',
-        observation: 'Um mundo de testes para verificar se tudo funciona',
-    });
-}
-
-async function getWorlds () {
-    const worldsController = getWorldsController();
-    return worldsController.handle();
-}
-
-async function setLocation () {
-    const createLocation = createLocationController();
-    await createLocation.handle({
-        name: 'Cidade de Teste',
-        activationWord: 'teste',
-        prompt: 'Uma cidade de testes',
-        observation: 'Uma cidade de testes para verificar se tudo funciona',
-    });
-}
-
-async function getLocations () {
-    const locationsController = getLocationsController();
-    return locationsController.handle();
-}
-
-async function setItem () {
-    const createItem = createItemController();
-    await createItem.handle({
-        name: 'Espada de Ferro',
-        activationWord: 'espada;ferramenta;arma',
-        prompt: 'Uma espada de ferro comum',
-        observation: 'Uma espada de ferro comum para iniciantes',
-    });
-}
-
-async function getItems () {
-    const itemsController = getItemsController();
-    return itemsController.handle();
-}
-
-async function setAdventure (
-    worlds: World[],
-    locations: Location[],
-    characters: Character[],
-    items: Item[],
-    worldMaster: WorldMaster,
-    systemPrompts: SystemPrompt[]
-) {
-    const createAdventure = createAdventureController();
-    await createAdventure.handle({
-        name: 'Aventura de Teste',
-        worldIds: worlds.map(w => w.id),
-        locationIds: locations.map(l => l.id),
-        characterIds: characters.map(c => c.id),
-        itemIds: items.map(i => i.id),
-        worldMasterId: worldMaster.id,
-        systemPromptIds: systemPrompts.map(sp => sp.id),
-        charactersControlledByAi: [],
-    });
-}
-
-async function getAdventures () {
-    const adventuresController = getAdventuresController();
-    return adventuresController.handle();
-}
-
-// async function appendChatAdventure(adventure: Adventure) {
-//     const createChatController = createChatAdventureController();
-//     const chatResult = await createChatController.handle({
-//         content: 'Hello!!',
-//         role: RoleEnum.USER,
-//         characterName: 'Stelle',
-//     });
-
-//     if (!chatResult.success || !chatResult.chat) {
-//         throw new Error('Failed to create chat for adventure');
-//     }
-
-//     const appendChatController = appendAdventureChatController();
-//     await appendChatController.handle({
-//         adventure,
-//         message: chatResult.chat,
-//     });
-
-//     const assistantRoleChat = await createChatController.handle({
-//         content: 'Im hard thinking!!',
-//         think: { id: '123', content: 'Im thining a lot!', enabled: true },
-//         role: RoleEnum.ASSISTANT,
-//         characterName: 'Za warudo!',
-//     });
-
-//     if (!assistantRoleChat.success || !assistantRoleChat.chat) {
-//         throw new Error('Failed to create chat for adventure');
-//     }
-
-//     return appendChatController.handle({
-//         adventure,
-//         message: assistantRoleChat.chat,
-//     });
-// }
-
-// async function eraseAdventures() {
-//     const eraseAdventuresCtrl = eraseAdventuresController();
-//     await eraseAdventuresCtrl.handle();
-// }
-
-async function getAdventureText (adventure: Adventure) {
-    const getAdventureTextCtrl = getAdventureTextController();
-    return getAdventureTextCtrl.handle({ adventure });
-}
+    SeedAbility,
+    SeedAdventure,
+    SeedAssistant,
+    SeedCharacter,
+    SeedConnection,
+    SeedItem,
+    SeedLocation,
+    SeedProficiency,
+    SeedSampler,
+    SeedStatus,
+    SeedSystemPrompt,
+    SeedWorld,
+    SeedWorldMaster,
+} from './migrations/types';
+import {
+    isSeedAbility,
+    isSeedAdventure,
+    isSeedAssistant,
+    isSeedCharacter,
+    isSeedConnection,
+    isSeedItem,
+    isSeedLocation,
+    isSeedProficiency,
+    isSeedSampler,
+    isSeedStatus,
+    isSeedSystemPrompt,
+    isSeedWorld,
+    isSeedWorldMaster,
+    parseSeedArray,
+} from './migrations/guards';
+import { seedConnections, resolveActiveConnection } from './migrations/seedConnections';
+import { seedSamplers } from './migrations/seedSamplers';
+import { seedAssistants } from './migrations/seedAssistants';
+import { seedAbilities } from './migrations/seedAbilities';
+import { seedStatuses } from './migrations/seedStatuses';
+import { seedProficiencies } from './migrations/seedProficiencies';
+import { seedCharacters } from './migrations/seedCharacters';
+import { seedWorldMasters } from './migrations/seedWorldMasters';
+import { seedSystemPrompts } from './migrations/seedSystemPrompts';
+import { seedWorlds } from './migrations/seedWorlds';
+import { seedLocations } from './migrations/seedLocations';
+import { seedItems } from './migrations/seedItems';
+import { seedAdventures } from './migrations/seedAdventures';
+import connectionsData from './migrations/data/connections.json';
+import samplersData from './migrations/data/samplers.json';
+import assistantsData from './migrations/data/assistants.json';
+import abilitiesData from './migrations/data/abilities.json';
+import statusesData from './migrations/data/statuses.json';
+import proficienciesData from './migrations/data/proficiencies.json';
+import charactersData from './migrations/data/characters.json';
+import worldMastersData from './migrations/data/worldMasters.json';
+import systemPromptsData from './migrations/data/systemPrompts.json';
+import worldsData from './migrations/data/worlds.json';
+import locationsData from './migrations/data/locations.json';
+import itemsData from './migrations/data/items.json';
+import adventuresData from './migrations/data/adventures.json';
 
 export async function runSeed (): Promise<string | undefined> {
-    // await eraseAdventures();
-    await setConnection();
-    const connections = await getConnections();
-    console.log('connections: >>', connections);
-    const models = await getModels(connections[0]);
-    console.log('models: >>', models);
-    const samplers = await getSamplers();
-    console.log('samplers: >>', samplers);
-    if (!models.models) {
-        throw new Error('No models available');
+    logger.info('Migration: starting seed');
+
+    const connectionSeeds = parseSeedArray<SeedConnection>(connectionsData, 'connections', isSeedConnection);
+    const samplerSeeds = parseSeedArray<SeedSampler>(samplersData, 'samplers', isSeedSampler);
+    const assistantSeeds = parseSeedArray<SeedAssistant>(assistantsData, 'assistants', isSeedAssistant);
+    const abilitySeeds = parseSeedArray<SeedAbility>(abilitiesData, 'abilities', isSeedAbility);
+    const statusSeeds = parseSeedArray<SeedStatus>(statusesData, 'statuses', isSeedStatus);
+    const proficiencySeeds = parseSeedArray<SeedProficiency>(proficienciesData, 'proficiencies', isSeedProficiency);
+    const characterSeeds = parseSeedArray<SeedCharacter>(charactersData, 'characters', isSeedCharacter);
+    const worldMasterSeeds = parseSeedArray<SeedWorldMaster>(worldMastersData, 'worldMasters', isSeedWorldMaster);
+    const systemPromptSeeds = parseSeedArray<SeedSystemPrompt>(systemPromptsData, 'systemPrompts', isSeedSystemPrompt);
+    const worldSeeds = parseSeedArray<SeedWorld>(worldsData, 'worlds', isSeedWorld);
+    const locationSeeds = parseSeedArray<SeedLocation>(locationsData, 'locations', isSeedLocation);
+    const itemSeeds = parseSeedArray<SeedItem>(itemsData, 'items', isSeedItem);
+    const adventureSeeds = parseSeedArray<SeedAdventure>(adventuresData, 'adventures', isSeedAdventure);
+
+    const connections = await seedConnections(connectionSeeds);
+    const { connection, models } = await resolveActiveConnection(connections, assistantSeeds);
+    await seedSamplers(samplerSeeds);
+    await seedAssistants(assistantSeeds, connection, models);
+
+    await seedAbilities(abilitySeeds);
+    await seedStatuses(statusSeeds);
+    await seedProficiencies(proficiencySeeds);
+
+    const assistants = await getAssistantsController().handle();
+    const abilities = await getAbilitiesController().handle();
+    const statuses = await getStatusesController().handle();
+    const proficiencies = await getProficienciesController().handle();
+
+    await seedCharacters(characterSeeds, assistants, abilities, proficiencies, statuses);
+
+    await seedWorldMasters(worldMasterSeeds, assistants);
+    await seedSystemPrompts(systemPromptSeeds);
+    await seedWorlds(worldSeeds);
+    await seedLocations(locationSeeds);
+    await seedItems(itemSeeds);
+
+    const characters = await getCharactersController().handle();
+    const worldMasters = await getWorldMasterController().handle();
+    const systemPrompts = await getSystemPromptsController().handle();
+    const worlds = await getWorldsController().handle();
+    const locations = await getLocationsController().handle();
+    const items = await getItemsController().handle();
+
+    await seedAdventures(
+        adventureSeeds,
+        characters,
+        worldMasters,
+        systemPrompts,
+        worlds,
+        locations,
+        items
+    );
+
+    const getAdventures = getAdventuresController();
+    const getAdventureText = getAdventureTextController();
+    const adventures = await getAdventures.handle();
+    const firstAdventure = adventures[0];
+    if (!firstAdventure) {
+        logger.warning('Migration: finished, but no adventure was found');
+        return undefined;
     }
 
-    await setAssistant(samplers[0], models.models[0]);
-    const assistants = await getAssistants();
-    console.log('assistants: >>', assistants);
-
-    await setAbility();
-    const abilities = await getAbilities();
-    console.log('abilities: >>', abilities);
-
-    await setStatus();
-    const statuses = await getStatuses();
-    console.log('statuses: >>', statuses);
-
-    await setProficiency();
-    const proficiencies = await getProficiencies();
-    console.log('proficiencies: >>', proficiencies);
-
-    const attributes = getAttributes();
-
-    await setCharacter(assistants[0], abilities, attributes, proficiencies, statuses);
-    const characters = await getCharacters();
-    console.log('characters: >>', characters);
-
-    await setWorldMaster(assistants[0]);
-    const worldMasters = await getWorldMasters();
-    console.log('worldMasters: >>', worldMasters);
-
-    await setSystemPrompt();
-    const systemPrompts = await getSystemPrompts();
-    console.log('systemPrompts: >>', systemPrompts);
-
-    await setWorld();
-    const worlds = await getWorlds();
-    console.log('worlds: >>', worlds);
-
-    await setLocation();
-    const locations = await getLocations();
-    console.log('locations: >>', locations);
-
-    await setItem();
-    const items = await getItems();
-    console.log('items: >>', items);
-
-    await setAdventure(worlds, locations, characters, items, worldMasters[0], systemPrompts);
-    const adventures = await getAdventures();
-    console.log('adventures: >>', adventures);
-    console.log('adventures.json', JSON.stringify(adventures));
-
-    if (adventures.length > 0) {
-        // const appended = await appendChatAdventure(adventures[0]);
-        // console.log('appendChatAdventure result: >>', appended);
-        const prompt = await getAdventureText(adventures[0]);
-        return prompt.prompt;
+    const promptResponse = await getAdventureText.handle({ adventure: firstAdventure });
+    if (!promptResponse.success || !promptResponse.prompt) {
+        logger.warning(`Migration: failed to build adventure prompt: ${promptResponse.error}`);
+        return undefined;
     }
 
-    return undefined;
+    logger.info('Migration: seed finished');
+    return promptResponse.prompt;
 }

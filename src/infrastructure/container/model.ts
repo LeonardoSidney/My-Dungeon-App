@@ -1,5 +1,5 @@
 import { GetModelsFromProviderController } from '@adapters/controllers';
-import { GetModelsFromProviderUseCase } from '../../application/use-cases';
+import { GetModelsFromProviderUseCase } from '@application/use-cases';
 import { IGetModelsFromProviderController } from '@domain/controllers';
 import { logger, getStreamProvider } from './shared';
 import { LlamaCppOAGateway } from '../http/llama-cpp';

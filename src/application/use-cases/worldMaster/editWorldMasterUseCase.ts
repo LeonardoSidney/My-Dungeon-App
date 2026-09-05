@@ -3,7 +3,7 @@ import {
     IAssistantRepository,
     IWorldMasterRepository,
 } from '@domain/repository';
-import { IEditWorldMasterService } from '@domain/services';
+import { IEditWorldMasterService, WorldMasterEditParams } from '@domain/services';
 import { EditWorldMasterParams, EditWorldMasterReturn, IEditWorldMasterUseCase } from '@domain/use-cases';
 import { checkReferencedId } from '@application/shared/validateReferencedIds';
 
@@ -25,7 +25,16 @@ export class EditWorldMasterUseCase implements IEditWorldMasterUseCase {
                 error: validationError
             };
         }
-        const missingIdError = await this.validateReferencedIds(params);
+        const { id, editParams } = params;
+        const worldMaster = await this.worldMasterRepository.getWorldMasterById(id);
+        if (!worldMaster) {
+            return {
+                success: false,
+                worldMaster: undefined,
+                error: `World master with id ${id} not found`
+            };
+        }
+        const missingIdError = await this.validateReferencedIds(editParams);
         if (missingIdError) {
             return {
                 success: false,
@@ -34,10 +43,8 @@ export class EditWorldMasterUseCase implements IEditWorldMasterUseCase {
             };
         }
 
-        const { id, name, activationWord, prompt, observation, assistantId, createdAt } = params;
-
-        this.logger.debug('Calling EditWorldMasterService', { id, name, activationWord, prompt, observation, assistantId, createdAt });
-        const response = this.service.editWorldMaster({ id, name, activationWord, prompt, observation, assistantId, createdAt });
+        this.logger.debug('Calling EditWorldMasterService', { id, editParams });
+        const response = this.service.editWorldMaster({ worldMaster, editParams });
         this.logger.debug('EditWorldMasterService executed successfully', response);
 
         if (!response.success) {
@@ -91,25 +98,25 @@ export class EditWorldMasterUseCase implements IEditWorldMasterUseCase {
             return 'An id is required to edit a world master';
         }
 
-        if (!params.name?.trim()) {
+        if (!params.editParams.name?.trim()) {
             return 'A name is required to edit a world master';
         }
 
-        if (!params.activationWord?.trim()) {
+        if (!params.editParams.activationWord?.trim()) {
             return 'An activation word is required to edit a world master';
         }
 
-        if (!params.prompt?.trim()) {
+        if (!params.editParams.prompt?.trim()) {
             return 'A prompt is required to edit a world master';
         }
 
         return null;
     }
 
-    private async validateReferencedIds (params: EditWorldMasterParams): Promise<string | null> {
+    private async validateReferencedIds (editParams: WorldMasterEditParams): Promise<string | null> {
         return checkReferencedId(
             (id) => this.assistantRepository.getAssistantById(id),
-            params.assistantId,
+            editParams.assistantId,
             'Assistant'
         );
     }

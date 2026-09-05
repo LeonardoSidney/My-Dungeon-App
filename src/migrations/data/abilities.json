@@ -1,0 +1,26 @@
+[
+    {
+        "name": "Fireball",
+        "activationWord": "fireball;fire magic;ignite",
+        "prompt": "Fireball is a powerful evocation spell: the caster hurls a blazing sphere of fire toward a chosen point, and when it arrives, an expanding sphere of flame radiates outward to a 15-foot radius. Every creature in that radius must make a Dexterity saving throw, taking 8d6 fire damage on a failed save or half as much on a success. The fire spreads around corners but stops at solid cover — a creature or object fully behind a wall or closed door is unaffected. Nonmagical objects in the area that are not being worn or carried catch fire and can ignite the surroundings, so the ability can be used to burn obstacles, barricades or flammable terrain as well as enemies. When narrating, this ability is a loud, bright, high-impact spell: describe the roar of the blast, the searing heat, the smell of smoke, and the afterglow of singed debris.",
+        "observation": "I came up with this idea watching a wizard cast magical spells"
+    },
+    {
+        "name": "Lightning Wall",
+        "activationWord": "lightning wall;lightning;electric",
+        "prompt": "Lightning Wall is a conjuration spell that erects a shimmering, vertical plane of crackling electricity, up to 100 feet long and 20 feet high, lasting until the caster dismisses it. It is a zone-control spell, not a single strike: any creature that enters the plane, or ends its turn inside it, takes 10d6 lightning damage and must make a Dexterity saving throw — on a failed save the creature is stunned until the end of its next turn. The wall is a barrier as much as a weapon: it blocks line of sight and movement across it, so it can seal a corridor, split the battlefield, or herd fleeing enemies into a kill zone. The electricity arcs and hisses constantly; metal weapons or armor worn by creatures touching the wall feel a tingling shock that can be described as a creeping paralysis. When narrating, lean into the visual: a blue-white sheet of branching lightning, the ozone smell, the constant crackle, and the way the light strobes across the faces of everyone nearby.",
+        "observation": "Some generic observation"
+    },
+    {
+        "name": "Blizzard",
+        "activationWord": "blizzard;ice storm;freeze",
+        "prompt": "Blizzard is a conjuration spell that summons a raging ice storm over a 20-foot radius for the duration: the air fills with driving snow, biting sleet, and tumbling hailstones, dropping the temperature until the area feels like deep winter. Every creature in the area must make a Constitution saving throw, taking 2d8 bludgeoning damage from hailstones plus 4d6 cold damage on a failed save, or half as much on a success. The storm is an environment, not just damage: visibility drops to near zero, the ground becomes slick with ice and makes every movement hazardous, and any flammable objects or open flames in the area are smothered and extinguished. Sustained blizzards gradually weaken creatures that linger — describe chattering teeth, slowing limbs, breath turning to frost, and the growing weight of snow on armor and cloaks. This ability is excellent for breaking charges, isolating enemies in whiteout, or punishing anyone caught in the open. When narrating, emphasize the howling wind, the stinging hail, the muffled silence of snowfall, and the blue-white gloom that swallows the surroundings.",
+        "observation": "This string is useless"
+    },
+    {
+        "name": "Thunderwave",
+        "activationWord": "thunderwave;thunder;sonic",
+        "prompt": "Thunderwave is an evocation spell that erupts from the caster in a roaring, concussive wall of sound and force expanding 15 feet in every direction. Each creature in that area must make a Constitution saving throw, taking 2d6 thunder damage and being pushed 10 feet away from the caster on a failed save, or half damage with no push on a success. The wave is a disruption tool as much as a weapon: it knocks shields out of alignment, staggers ranged attackers mid-draw, breaks line of sight by scattering light debris, and can shove enemies off ledges, into pits, or back through doors it rattles in their frames. The thunderclap is deafening and directional — describe the instant pressure in the ears, the shock of a sound you feel in the chest more than hear, the way the air itself seems to thicken for a heartbeat, and the lingering ring in the silence that follows. Objects too heavy to be moved (boulders, anchored furniture) stop the wave from pushing through them.",
+        "observation": "But helps me to remember when i create it"
+    }
+]

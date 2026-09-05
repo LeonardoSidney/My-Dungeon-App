@@ -1,5 +1,5 @@
 import {
-    EditConnectionControllerRequest,
+    EditConnectionControllerParams,
     EditConnectionControllerResponse,
     IEditConnectionController
 } from '@domain/controllers';
@@ -12,17 +12,9 @@ export class EditConnectionController implements IEditConnectionController {
         private readonly useCase: IEditConnectionUseCase
     ) { }
 
-    async handle (request: EditConnectionControllerRequest): Promise<EditConnectionControllerResponse> {
+    async handle (params: EditConnectionControllerParams): Promise<EditConnectionControllerResponse> {
         this.logger.info('Executing EditConnectionController::handle');
-        const { id, name, ip, port, auth, createdAt } = request;
-        const response = await this.useCase.execute({
-            id,
-            name,
-            ip,
-            port,
-            auth,
-            createdAt
-        });
+        const response = await this.useCase.execute(params);
 
         return {
             success: response.success,

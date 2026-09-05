@@ -1,23 +1,23 @@
-import { Dispatch, SetStateAction } from 'react';
 import { Assistant } from '@domain/entities';
-import { loadAssistants } from './loadAssistants';
-import { onSubmit } from './assistantForm/onSubmit';
+import { ICreateAssistantController, IEditAssistantController, IGetAssistantsController } from '@domain/controllers';
 import { AssistantFormData, setInitialAssistantState } from './constants';
+import { Dispatch, SetStateAction } from 'react';
+import { onSubmitAssistant } from './onSubmitAssistant';
+import { loadAssistants } from './loadAssistants';
 
 export async function onSaveAssistant (
     assistantStateFormData: AssistantFormData,
+    createAssistant: ICreateAssistantController,
+    editAssistant: IEditAssistantController,
+    getAssistants: IGetAssistantsController,
     setAssistantFormData: Dispatch<SetStateAction<AssistantFormData>>,
     setShowForm: Dispatch<SetStateAction<boolean>>,
     setAssistants: Dispatch<SetStateAction<Assistant[]>>
 ) {
-    if (!assistantStateFormData.name.trim()) return;
-    if (!assistantStateFormData.model) return;
-    if (!assistantStateFormData.sampler) return;
-
-    const response = await onSubmit(assistantStateFormData);
+    const response = await onSubmitAssistant(assistantStateFormData, createAssistant, editAssistant);
     if (!response || !response.success) return;
 
     setAssistantFormData(setInitialAssistantState());
     setShowForm(false);
-    await loadAssistants(setAssistants);
+    await loadAssistants(getAssistants, setAssistants);
 }

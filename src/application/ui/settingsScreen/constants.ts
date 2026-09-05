@@ -10,8 +10,6 @@ export type ConnectionFormData = {
     port: string;
     auth: string;
     id?: string;
-    createdAt?: Date;
-    updatedAt?: Date;
 };
 
 export function setInitialConnectionState (): ConnectionFormData {

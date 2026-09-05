@@ -7,7 +7,5 @@ export function setInitialProficiencyState (): ProficiencyFormData {
         activationWord: '',
         prompt: '',
         observation: '',
-        createdAt: undefined,
-        updatedAt: undefined,
     };
 }

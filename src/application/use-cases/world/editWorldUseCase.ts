@@ -21,10 +21,18 @@ export class EditWorldUseCase implements IEditWorldUseCase {
             };
         }
 
-        const { id, name, activationWord, prompt, observation, createdAt } = params;
+        const { id, editParams } = params;
+        const world = await this.worldRepository.getWorldById(id);
+        if (!world) {
+            return {
+                success: false,
+                world: undefined,
+                error: `World with id ${id} not found`
+            };
+        }
 
-        this.logger.debug('Calling EditWorldService', { id, name, activationWord, prompt, observation, createdAt });
-        const response = this.service.editWorld({ id, name, activationWord, prompt, observation, createdAt });
+        this.logger.debug('Calling EditWorldService', { id, editParams });
+        const response = this.service.editWorld({ world, editParams });
         this.logger.debug('EditWorldService executed successfully', response);
 
         if (!response.success) {
@@ -78,15 +86,15 @@ export class EditWorldUseCase implements IEditWorldUseCase {
             return 'An id is required to edit a world';
         }
 
-        if (!params.name?.trim()) {
+        if (!params.editParams.name?.trim()) {
             return 'A name is required to edit a world';
         }
 
-        if (!params.activationWord?.trim()) {
+        if (!params.editParams.activationWord?.trim()) {
             return 'An activation word is required to edit a world';
         }
 
-        if (!params.prompt?.trim()) {
+        if (!params.editParams.prompt?.trim()) {
             return 'A prompt is required to edit a world';
         }
 

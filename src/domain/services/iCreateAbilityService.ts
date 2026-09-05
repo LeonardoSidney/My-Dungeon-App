@@ -6,7 +6,7 @@ export interface ICreateAbilityService {
 
 export type CreateAbilityServiceParams = {
     name: string;
-    activationWorld: string;
+    activationWord: string;
     prompt: string;
     observation?: string;
 };

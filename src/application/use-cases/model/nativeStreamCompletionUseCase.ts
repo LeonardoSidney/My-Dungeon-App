@@ -1,18 +1,21 @@
 import { IModelProviderGateway } from '@domain/gateways';
 import { ILogger } from '@domain/logger';
 import { IConnectionRepository, ISamplerRepository } from '@domain/repository';
+import { IGetSamplersService } from '@domain/services';
 import {
     INativeStreamCompletionUseCase,
     NativeStreamCompletionUseCaseParams,
     NativeStreamCompletionUseCaseResponse,
 } from '@domain/use-cases';
+import { createSamplerResolver } from '@application/shared/resolveSampler';
 
 export class NativeStreamCompletionUseCase implements INativeStreamCompletionUseCase {
     constructor (
         private readonly logger: ILogger,
         private readonly gateway: IModelProviderGateway,
         private readonly connectionRepository: IConnectionRepository,
-        private readonly samplerRepository: ISamplerRepository
+        private readonly samplerRepository: ISamplerRepository,
+        private readonly getSamplersService: IGetSamplersService
     ) { }
 
     async execute (params: NativeStreamCompletionUseCaseParams): Promise<NativeStreamCompletionUseCaseResponse> {
@@ -30,7 +33,8 @@ export class NativeStreamCompletionUseCase implements INativeStreamCompletionUse
                 };
             }
 
-            const sampler = await this.samplerRepository.getSamplerById(params.samplerId);
+            const resolveSampler = createSamplerResolver(this.samplerRepository, this.getSamplersService);
+            const sampler = await resolveSampler(params.samplerId);
 
             if (!sampler) {
                 return {

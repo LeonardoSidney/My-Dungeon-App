@@ -5,7 +5,7 @@ export class AbilityDTO {
     constructor (
         private readonly id: string,
         private readonly name: string,
-        private readonly activationWorld: string,
+        private readonly activationWord: string,
         private readonly prompt: string,
         private readonly observation: string | undefined,
         private readonly createdAt: Date,
@@ -16,7 +16,7 @@ export class AbilityDTO {
         return {
             id: this.id,
             name: this.name,
-            activationWorld: this.activationWorld,
+            activationWord: this.activationWord,
             prompt: this.prompt,
             observation: this.observation,
             createdAt: this.createdAt,
@@ -35,7 +35,7 @@ export class AbilityDTO {
         if (
             typeof data.id !== 'string' ||
             typeof data.name !== 'string' ||
-            typeof data.activationWorld !== 'string' ||
+            typeof data.activationWord !== 'string' ||
             typeof data.prompt !== 'string' ||
             (data.observation !== undefined && typeof data.observation !== 'string') ||
             !createdAt ||
@@ -47,7 +47,7 @@ export class AbilityDTO {
         return new AbilityDTO(
             data.id,
             data.name,
-            data.activationWorld,
+            data.activationWord,
             data.prompt,
             data.observation,
             createdAt,

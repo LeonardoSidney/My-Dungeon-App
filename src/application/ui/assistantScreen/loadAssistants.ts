@@ -1,13 +1,13 @@
-import { getAssistantsController } from '@infra/container';
-import { Dispatch } from 'react';
+import { IGetAssistantsController } from '@domain/controllers';
 import { Assistant } from '@domain/entities';
+import { Dispatch, SetStateAction } from 'react';
 
 export async function loadAssistants (
-    setAssistants: Dispatch<React.SetStateAction<Assistant[]>>
+    getAssistants: IGetAssistantsController,
+    setAssistants: Dispatch<SetStateAction<Assistant[]>>
 ) {
     try {
-        const ctrl = getAssistantsController();
-        const result = await ctrl.handle();
+        const result = await getAssistants.handle();
         setAssistants(result);
     } catch (error) {
         console.error('Failed to load assistants:', error);

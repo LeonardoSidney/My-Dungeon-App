@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { SidebarPanel, type SidebarRoute } from '@application/ui';
+import { ControllersProvider } from '@adapters/ui/ControllersProvider';
+import { buildControllers } from '@composition/controllers';
 import {
   TextAreaStream,
   SettingsScreen,
@@ -13,6 +15,8 @@ import {
   ProficiencyScreen,
   AbilitiesScreen,
   StatusesScreen,
+  ItemScreen,
+  LocationScreen,
   SystemPromptsScreen,
   AdventuresScreen,
   sidebarMenuItems
@@ -23,6 +27,7 @@ function App () {
   const [prompt, setPrompt] = useState<string>('Seélokomeu');
   const [activeRoute, setActiveRoute] = useState<SidebarRoute>('home');
   const [isChatVisible, setIsChatVisible] = useState(false);
+  const controllers = useMemo(() => buildControllers(), []);
 
   useEffect(() => {
     runSeed().catch(console.error).then((textPrompt) => {
@@ -34,52 +39,58 @@ function App () {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.safeArea}>
-        <SidebarPanel
-          menuItems={sidebarMenuItems}
-          activeRoute={activeRoute}
-          onRouteChange={setActiveRoute}
-          isFullScreen={isChatVisible}
-        >
-          <KeyboardAvoidingView
-            enabled={!isChatVisible}
-            behavior={Platform.OS !== 'web' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-            style={styles.scrollView}
+      <ControllersProvider controllers={controllers}>
+        <SafeAreaView style={styles.safeArea}>
+          <SidebarPanel
+            menuItems={sidebarMenuItems}
+            activeRoute={activeRoute}
+            onRouteChange={setActiveRoute}
+            isFullScreen={isChatVisible}
           >
-            {activeRoute === 'settings' ? (
-              <SettingsScreen />
-            ) : activeRoute === 'worlds' ? (
-              <WorldScreen />
-            ) : activeRoute === 'worldMasters' ? (
-              <WorldMasterScreen />
-            ) : activeRoute === 'samplers' ? (
-              <SamplerScreen />
-            ) : activeRoute === 'assistants' ? (
-              <AssistantScreen />
-            ) : activeRoute === 'characters' ? (
-              <CharacterScreen />
-            ) : activeRoute === 'proficiencies' ? (
-              <ProficiencyScreen />
-            ) : activeRoute === 'abilities' ? (
-              <AbilitiesScreen />
-            ) : activeRoute === 'adventures' ? (
-              <AdventuresScreen onChatVisibleChange={setIsChatVisible} />
-            ) : activeRoute === 'statuses' ? (
-              <StatusesScreen />
-            ) : activeRoute === 'systemPrompts' ? (
-              <SystemPromptsScreen />
-            ) : (
-              <View style={styles.app}>
-                <TextAreaStream
-                  prompt={prompt}
-                  setPrompt={setPrompt}
-                />
-              </View>
-            )}
-          </KeyboardAvoidingView>
-        </SidebarPanel>
-      </SafeAreaView>
+            <KeyboardAvoidingView
+              enabled={!isChatVisible}
+              behavior={Platform.OS !== 'web' ? 'padding' : 'height'}
+              keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+              style={styles.scrollView}
+            >
+              {activeRoute === 'settings' ? (
+                <SettingsScreen />
+              ) : activeRoute === 'worlds' ? (
+                <WorldScreen />
+              ) : activeRoute === 'worldMasters' ? (
+                <WorldMasterScreen />
+              ) : activeRoute === 'samplers' ? (
+                <SamplerScreen />
+              ) : activeRoute === 'assistants' ? (
+                <AssistantScreen />
+              ) : activeRoute === 'characters' ? (
+                <CharacterScreen />
+              ) : activeRoute === 'proficiencies' ? (
+                <ProficiencyScreen />
+              ) : activeRoute === 'abilities' ? (
+                <AbilitiesScreen />
+              ) : activeRoute === 'adventures' ? (
+                <AdventuresScreen onChatVisibleChange={setIsChatVisible} />
+              ) : activeRoute === 'statuses' ? (
+                <StatusesScreen />
+              ) : activeRoute === 'items' ? (
+                <ItemScreen />
+              ) : activeRoute === 'locations' ? (
+                <LocationScreen />
+              ) : activeRoute === 'systemPrompts' ? (
+                <SystemPromptsScreen />
+              ) : (
+                <View style={styles.app}>
+                  <TextAreaStream
+                    prompt={prompt}
+                    setPrompt={setPrompt}
+                  />
+                </View>
+              )}
+            </KeyboardAvoidingView>
+          </SidebarPanel>
+        </SafeAreaView>
+      </ControllersProvider>
     </SafeAreaProvider>
   );
 }

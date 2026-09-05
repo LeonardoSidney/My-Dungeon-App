@@ -65,6 +65,12 @@ export class AdventureRepository implements IAdventureRepository {
         }
     }
 
+    async getAdventureById (adventureId: string): Promise<Adventure | undefined> {
+        this.logger.info('Executing AdventureRepository::getAdventureById');
+        const adventures = await this.getAdventures();
+        return adventures.find((a) => a.id === adventureId);
+    }
+
     async getAdventures (): Promise<Adventure[]> {
         this.logger.info('Executing AdventureRepository::getAdventures');
         try {

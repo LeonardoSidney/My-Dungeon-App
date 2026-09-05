@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
-import { Text, ScrollView, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import { Status } from '@domain/entities';
 import { styles } from './styles';
-import { StatusPanel } from './statusPanel';
-import { StatusForm } from './statusForm';
-import { useStatusesScreenLogic } from './useStatusesScreenLogic';
-import { StatusFormData, FormErrors } from './constants';
+import { ActivationPromptForm, CrudEntityList, useEntityScreenLoad } from '@application/ui/components';
+import { useControllers } from '@adapters/ui/ControllersProvider';
+import { loadStatuses } from './loadStatuses';
 import { setInitialStatusState } from './setInitialStatusState';
 import { handleStatusFormChange } from './handleStatusFormChange';
 import { onAddNewStatus } from './onAddNewStatus';
@@ -13,14 +12,18 @@ import { onCancelForm } from './onCancelForm';
 import { onEditForm } from './onEditForm';
 import { onEraseStatus } from './onEraseStatus';
 import { onSaveStatus } from './onSaveStatus';
+import { FormErrors, StatusFormData, statusFormConfig } from './constants';
 
 export function StatusesScreen () {
+  const { getStatuses, createStatus, editStatus, eraseStatus } = useControllers();
   const [statuses, setStatuses] = useState<Status[]>([]);
   const [statusStateFormData, setStatusFormData] = useState<StatusFormData>(setInitialStatusState());
   const [showForm, setShowForm] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
 
-  useStatusesScreenLogic(setStatuses);
+  const loadEntities = useCallback(() => loadStatuses(getStatuses, setStatuses), [getStatuses, setStatuses]);
+
+  useEntityScreenLoad(loadEntities);
 
   const handleFormSave = async () => {
     const errors: FormErrors = {};
@@ -34,10 +37,10 @@ export function StatusesScreen () {
     }
     setFormErrors({});
 
-    await onSaveStatus(statusStateFormData, setStatusFormData, setShowForm, setStatuses);
+    await onSaveStatus(statusStateFormData, createStatus, editStatus, getStatuses, setStatusFormData, setShowForm, setStatuses);
   };
 
-  const handleFormChange = (field: keyof StatusFormData, value: string | Date) => {
+  const handleFormChange = (field: keyof StatusFormData, value: string) => {
     setFormErrors(prev => {
       const next = { ...prev };
       const errorField = field as keyof FormErrors;
@@ -66,10 +69,12 @@ export function StatusesScreen () {
           <Text style={styles.title}>Statuses</Text>
         </View>
 
-        <StatusPanel
-          statuses={statuses}
+        <CrudEntityList
+          items={statuses}
+          emptyText="No statuses found."
+          getDetailText={(status) => status.activationWord}
           onEdit={handleEditStatus}
-          onDelete={(status) => onEraseStatus(status, setStatuses)}
+          onDelete={(status) => onEraseStatus(status, eraseStatus, getStatuses, setStatuses)}
         />
 
         <TouchableOpacity
@@ -79,9 +84,10 @@ export function StatusesScreen () {
           <Text style={styles.addButtonText}>Add Status</Text>
         </TouchableOpacity>
 
-        <StatusForm
+        <ActivationPromptForm
           showForm={showForm}
-          statusStateFormData={statusStateFormData}
+          formData={statusStateFormData}
+          config={statusFormConfig}
           onChange={handleFormChange}
           onCancel={() => onCancelForm(setShowForm, setStatusFormData)}
           onSave={handleFormSave}

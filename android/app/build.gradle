@@ -77,9 +77,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.my_dungeon_ai"
+    namespace "com.my_dungeon_app"
     defaultConfig {
-        applicationId "com.my_dungeon_ai"
+        applicationId "com.my_dungeon_app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

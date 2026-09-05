@@ -2,8 +2,7 @@ import { CreateCharacterController } from '@adapters/controllers';
 import { CreateCharacterControllerPrams, CreateCharacterControllerResponse } from '@domain/controllers';
 import { ICreateCharacterUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
-import { createCharacterHelper } from '../../../../__helpers__/createCharacterHelper';
-import { createAttributeHelper } from '../../../../__helpers__/createAttributeHelper';
+import { createAttributeHelper, createCharacterHelper } from '@test/helpers';
 
 // Mock das dependências
 const mockLogger = {

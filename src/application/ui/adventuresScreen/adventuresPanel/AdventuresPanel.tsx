@@ -8,8 +8,8 @@ export function AdventuresPanel (params: AdventuresPanelProps) {
   return (
     <>
       {adventures.length === 0 && <Text style={styles.emptyText}>No adventures found.</Text>}
-      {adventures.map((adventure, index) => (
-        <View key={index} style={styles.adventureItem}>
+      {adventures.map((adventure) => (
+        <View key={adventure.id} style={styles.adventureItem}>
           <View style={styles.adventureInfo}>
             <Text style={styles.adventureName}>{adventure.name}</Text>
             <Text style={styles.adventureDetails}>Created: {adventure.createdAt.toLocaleDateString()}</Text>

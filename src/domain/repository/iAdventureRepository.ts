@@ -3,6 +3,7 @@ import { Adventure } from '../entities';
 export interface IAdventureRepository {
     saveAdventure (params: SaveAdventureParams): Promise<boolean>;
     updateAdventure (params: UpdateAdventureParams): Promise<UpdateAdventureReturn>;
+    getAdventureById (adventureId: string): Promise<Adventure | undefined>;
     getAdventures (): Promise<Adventure[]>;
     eraseAdventures (): Promise<void>;
     eraseAdventure (adventureId: string): Promise<EraseAdventureReturn>;

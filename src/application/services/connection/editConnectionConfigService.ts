@@ -1,3 +1,4 @@
+import { Connection } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { EditConnectionConfigServiceParams, EditConnectionConfigServiceReturn, IEditConnectionConfigService } from '@domain/services';
 
@@ -8,21 +9,17 @@ export class EditConnectionConfigService implements IEditConnectionConfigService
 
     editConnectionConfig (params: EditConnectionConfigServiceParams): EditConnectionConfigServiceReturn {
         this.logger.info('Executing EditConnectionConfigService::editConnectionConfig');
-        const { id, name, ip, port, auth, createdAt } = params;
+        const { connection, editParams } = params;
 
-        const connection = {
-            id,
-            name,
-            ip,
-            port,
-            auth,
-            createdAt: createdAt,
+        const editedConnection: Connection = {
+            ...connection,
+            ...editParams,
             updatedAt: new Date()
         };
 
         return {
             success: true,
-            connection
+            connection: editedConnection
         };
     }
 }

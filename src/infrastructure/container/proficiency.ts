@@ -10,7 +10,7 @@ import {
     GetProficienciesUseCase,
     EditProficiencyUseCase,
     EraseProficiencyUseCase,
-} from '../../application/use-cases';
+} from '@application/use-cases';
 import {
     ICreateProficiencyController,
     IGetProficienciesController,

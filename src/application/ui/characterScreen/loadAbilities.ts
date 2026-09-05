@@ -1,13 +1,13 @@
-import { getAbilitiesController } from '@infra/container';
-import { Dispatch } from 'react';
+import { IGetAbilitiesController } from '@domain/controllers';
+import { Dispatch, SetStateAction } from 'react';
 import { Ability } from '@domain/entities';
 
 export async function loadAbilities (
-    setAbilities: Dispatch<React.SetStateAction<Ability[]>>
+    getAbilities: IGetAbilitiesController,
+    setAbilities: Dispatch<SetStateAction<Ability[]>>
 ) {
     try {
-        const ctrl = getAbilitiesController();
-        const result = await ctrl.handle();
+        const result = await getAbilities.handle();
         setAbilities(result);
     } catch (error) {
         console.error('Failed to load abilities:', error);

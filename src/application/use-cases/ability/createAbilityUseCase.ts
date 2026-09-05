@@ -64,8 +64,8 @@ export class CreateAbilityUseCase implements ICreateAbilityUseCase {
             return 'name is required to create an ability';
         }
 
-        if (!params.activationWorld?.trim()) {
-            return 'activationWorld is required to create an ability';
+        if (!params.activationWord?.trim()) {
+            return 'activationWord is required to create an ability';
         }
 
         if (!params.prompt?.trim()) {

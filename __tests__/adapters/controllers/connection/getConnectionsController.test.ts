@@ -2,7 +2,7 @@ import { GetConnectionsController } from '@adapters/controllers';
 import { IGetConnectionsUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { Connection } from '@domain/entities';
-import { createConnectionHelper } from '../../../../__helpers__/createConnectionHelper';
+import { createConnectionHelper } from '@test/helpers';
 
 // Mock das dependências
 const mockLogger = {

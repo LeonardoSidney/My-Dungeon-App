@@ -6,7 +6,7 @@ export interface ICreateAbilityUseCase {
 
 export type CreateAbilityUseCaseParams = {
     name: string;
-    activationWorld: string;
+    activationWord: string;
     prompt: string;
     observation?: string;
 };

@@ -1,13 +1,14 @@
 import { ILogger } from '@domain/logger';
 import { ISamplerRepository } from '@domain/repository';
-import { ICreateSamplerService } from '@domain/services';
+import { ICreateSamplerService, IGetSamplersService } from '@domain/services';
 import { CreateSamplerUseCaseParams, CreateSamplerUseCaseResponse, ICreateSamplerUseCase } from '@domain/use-cases';
 
 export class CreateSamplerUseCase implements ICreateSamplerUseCase {
     constructor (
         private readonly logger: ILogger,
         private readonly samplerRepository: ISamplerRepository,
-        private readonly service: ICreateSamplerService
+        private readonly service: ICreateSamplerService,
+        private readonly getSamplersService: IGetSamplersService
     ) { }
     async execute (params: CreateSamplerUseCaseParams): Promise<CreateSamplerUseCaseResponse> {
         this.logger.info('Executing CreateSamplerUseCase::execute');
@@ -18,6 +19,15 @@ export class CreateSamplerUseCase implements ICreateSamplerUseCase {
                 error: validationError
             };
         }
+
+        const reservedNameError = this.getReservedNameError(params.name);
+        if (reservedNameError) {
+            return {
+                success: false,
+                error: reservedNameError
+            };
+        }
+
         this.logger.debug('CreateSamplerUseCase::execute - params', params);
         const response = this.service.createSampler(params);
         this.logger.debug('CreateSamplerUseCase::execute - sampler created', response);
@@ -69,5 +79,15 @@ export class CreateSamplerUseCase implements ICreateSamplerUseCase {
         }
 
         return null;
+    }
+
+    private getReservedNameError (name: string): string | null {
+        const defaultNames = this.getSamplersService.getSystemDefaultSamplers()
+            .map(defaultSampler => defaultSampler.name);
+        const isReserved = defaultNames.includes(name);
+        if (!isReserved) {
+            return null;
+        }
+        return `Sampler name "${name}" is reserved for a system default sampler`;
     }
 }

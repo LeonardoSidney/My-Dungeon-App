@@ -16,7 +16,5 @@ export function onEditForm (
         activationWord: status.activationWord,
         prompt: status.prompt,
         observation: status.observation ?? '',
-        createdAt: status.createdAt,
-        updatedAt: status.updatedAt,
     });
 }

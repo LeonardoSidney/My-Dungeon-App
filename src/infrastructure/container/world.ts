@@ -5,7 +5,7 @@ import {
     EditWorldController,
 } from '@adapters/controllers';
 import { CreateWorldService, EditWorldService } from '@application/services';
-import { CreateWorldUseCase, GetWorldsUseCase, EraseWorldUseCase, EditWorldUseCase } from '../../application/use-cases';
+import { CreateWorldUseCase, GetWorldsUseCase, EraseWorldUseCase, EditWorldUseCase } from '@application/use-cases';
 import {
     ICreateWorldController,
     IGetWorldsController,

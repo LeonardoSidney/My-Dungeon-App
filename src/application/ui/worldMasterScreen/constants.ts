@@ -1,7 +1,16 @@
+import { ActivationPromptFormConfig } from '@application/ui/components';
 import { Assistant } from '@domain/entities';
 
+export const worldMasterFormConfig: ActivationPromptFormConfig = {
+    entityName: 'World Master',
+    activationLabel: 'Activation Word',
+    namePlaceholder: 'e.g., Dungeon Master',
+    activationPlaceholder: 'e.g., Dungeon',
+    promptPlaceholder: 'Enter the world master prompt...',
+};
+
 export type WorldMasterFormData = {
-    id?: string;
+    id: string;
     name: string;
     activationWord: string;
     prompt: string;
@@ -16,19 +25,9 @@ export type FormErrors = {
     prompt?: string;
 };
 
-export type WorldMasterFormProps = {
-    showForm: boolean;
-    worldMasterStateFormData: WorldMasterFormData;
-    onChange: (field: keyof WorldMasterFormData, value: WorldMasterFormData[keyof WorldMasterFormData]) => void;
-    onCancel: () => void;
-    onSave: () => void;
-    assistants: Assistant[];
-    formErrors: FormErrors;
-};
-
 export function setInitialWorldMasterState (): WorldMasterFormData {
     return {
-        id: undefined,
+        id: '',
         name: '',
         activationWord: '',
         prompt: '',

@@ -1,4 +1,5 @@
 export * from './textAreaStream';
+export * from './components';
 export { SidebarPanel } from './sidebarPanel';
 export type { SidebarPanelProps, SidebarMenuItem, SidebarRoute } from './sidebarPanel';
 export { SettingsScreen } from './settingsScreen';
@@ -10,6 +11,8 @@ export { CharacterScreen } from './characterScreen';
 export { ProficiencyScreen } from './proficiencyScreen';
 export { AbilitiesScreen } from './abilitiesScreen';
 export { StatusesScreen } from './statusesScreen';
+export { ItemScreen } from './itemScreen';
+export { LocationScreen } from './locationScreen';
 export { SystemPromptsScreen } from './systemPromptsScreen';
 export { AdventuresScreen } from './adventuresScreen';
 export { sidebarMenuItems } from './constants';

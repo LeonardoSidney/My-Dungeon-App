@@ -1,4 +1,5 @@
 import { World } from '../entities';
+import { WorldEditParams } from '../services';
 
 export interface IEditWorldUseCase {
     execute (request: EditWorldParams): Promise<EditWorldReturn>;
@@ -6,11 +7,7 @@ export interface IEditWorldUseCase {
 
 export type EditWorldParams = {
     id: string;
-    name: string;
-    activationWord: string;
-    prompt: string;
-    observation?: string;
-    createdAt: Date;
+    editParams: WorldEditParams;
 };
 
 export type EditWorldReturn = {

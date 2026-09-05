@@ -1,0 +1,38 @@
+[
+    {
+        "name": "Iron Sword",
+        "activationWord": "sword;tool;weapon",
+        "prompt": "An iron sword is a standard one-handed bladed weapon, dealing 1d8 slashing damage on a hit. It is honest, common and sturdy: unadorned iron rather than fine steel, a plain crossguard and a leather-wrapped grip. It is dependable but unremarkable — it does not glow, hum or whisper, and it rusts if left wet. In combat it is a solid choice for a warrior who has not yet found something better, and narratively it should feel weighty and practical: the clang on a shield, the ring when drawn from a scabbard, the dull gray gleam under torchlight. A character carrying an iron sword is probably a humble fighter, a survivor, or someone who simply needed a weapon and took what they could find.",
+        "observation": "I think iron swords is so cool"
+    },
+    {
+        "name": "Dagger",
+        "activationWord": "dagger;knife;throw",
+        "prompt": "A dagger is a small one-handed piercing weapon, dealing 1d4 piercing damage on a hit. It has the thrown property: the wielder can hurl it as a ranged attack within 20 feet, or use it in melee with either a Strength or Dexterity attack, since it is a finesse weapon. Its size makes it the tool of choice for stealth — quiet to draw, easy to hide in a boot or at the belt, and short enough to use in cramped spaces where a sword would not fit. In D&D tradition the dagger is the signature weapon of rogues and spies: the blade that works while nobody is watching. When narrating, keep it small and intimate: the soft scrape of blade on leather, the quiet point of leverage between ribs, the casual way a thief rolls it between his fingers while negotiating a price.",
+        "observation": "I wanted a quiet, stealthy weapon — the kind that says the character is more than they seem"
+    },
+    {
+        "name": "Oak Shield",
+        "activationWord": "shield;oak;block",
+        "prompt": "An oak shield is a defensive item, not a weapon: it deals no damage on its own, but when raised it grants the bearer armor protection, equivalent to +1 to Armor Class, and can be actively used to block, parry or deflect incoming blows. A sturdy oak shield is light enough to carry for long days and tough enough to take a few solid hits, though a direct blow from a warhammer or a spell blast will crack or shatter it — a broken shield is a dramatic, story-worthy moment. Beyond damage prevention, a raised shield blocks the line of sight of anyone directly behind it and can shield allies or fragile objects from fire and arrows. When narrating, emphasize the dull thud of a blade on oak, the ring of a clean parry, the white knuckles gripping the rim, and the way a character braces behind it like a wall made of wood.",
+        "observation": "I wanted a defensive option and the satisfying moment of a sword clang against a shield"
+    },
+    {
+        "name": "Healing Potion",
+        "activationWord": "healing potion;potion;heal",
+        "prompt": "A healing potion is a small vial of red or pink liquid that, when drunk, restores 2d4+2 hit points. It is a one-use consumable — the vial empties and becomes worthless glass. The effect is not instantaneous magic: the drinker feels warmth spread through the chest, wounds knit, broken bones set and exhaustion lift over a minute or two, but a character drinking mid-combat still has to survive the few seconds it takes to uncork, swallow and feel the effect. The healing potion is the most common magic item in D&D: bought in apothecaries, hoarded by adventurers, and its scarcity during a long dungeon crawl is itself a tension point — a character who still has one left is always choosing whether to save it or drink it now. When narrating, describe the faint sweetness and the warmth, the sting of old wounds closing, and the small ritual of a party rationing the last vial.",
+        "observation": "Every party needs at least one of these — I love the tension of deciding when to drink it"
+    },
+    {
+        "name": "Leather Armor",
+        "activationWord": "leather armor;armor;hide",
+        "prompt": "Leather armor is light body protection made of hardened or treated hide: it gives solid protection against blades, claws and arrows without restricting movement much, and it can be worn quietly under a cloak. It is the default armor of rogues, rangers and any adventurer who values mobility over heavy plating — a knight in plate is a moving fortress, but a ranger in leather is fast, silent and hard to hit. Leather is quiet where plate clanks: it creaks softly, it does not ring when struck, and it takes a heavy blow by denting and cracking rather than booming. When narrating, keep it practical and close to the skin: the smell of tanned hide, the soft creak as a character ducks or draws, and the way arrows thunk and lodge in the thickened shoulder instead of piercing through.",
+        "observation": "I wanted light, fast armor — the kind a rogue would actually wear"
+    },
+    {
+        "name": "Lockpicks",
+        "activationWord": "lockpicks;lock;pick",
+        "prompt": "Lockpicks are a small set of thin steel tools used to open locked doors, chests and cages without the key: with them, a character can attempt to open a lock as a skill check, and a good set is to a thief what a weapon is to a soldier. A cheap set bends under pressure; a fine set lasts for years. Lockpicks do not open doors on their own — they are the tool that lets a character try, and the result depends on skill. They are also a story object: finding a locked door and deciding whether to pick it, force it, or look for another way is a fundamental D&D moment. When narrating, focus on the small, tense mechanics: the click of a pin dropping, the held breath, the faint scratch of steel on the lock's tumbler.",
+        "observation": "The locked door is the best moment of any adventure — I wanted a tool that makes it real"
+    }
+]

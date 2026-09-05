@@ -139,6 +139,7 @@ export const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#444',
         borderRadius: 8,
+        overflow: 'hidden',
     },
     selectListScrollable: {
         maxHeight: 170,

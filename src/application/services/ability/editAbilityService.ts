@@ -1,3 +1,4 @@
+import { Ability } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { EditAbilityServiceParams, EditAbilityServiceReturn, IEditAbilityService } from '@domain/services';
 
@@ -7,17 +8,18 @@ export class EditAbilityService implements IEditAbilityService {
     ) { }
 
     editAbility (params: EditAbilityServiceParams): EditAbilityServiceReturn {
-        this.logger.info('EditAbilityService::editAbility');
+        this.logger.info('Executing EditAbilityService::editAbility');
+        const { ability, editParams } = params;
 
-        const { ability } = params;
-        const updatedAt = new Date();
+        const editedAbility: Ability = {
+            ...ability,
+            ...editParams,
+            updatedAt: new Date()
+        };
 
         return {
             success: true,
-            ability: {
-                ...ability,
-                updatedAt
-            }
+            ability: editedAbility
         };
     }
 }

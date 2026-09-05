@@ -1,10 +1,11 @@
-import { getConnectionsController } from '@infra/container';
+import { IGetConnectionsController } from '@domain/controllers';
 import { Connection } from '@domain/entities';
 
-export async function loadConnections (): Promise<Connection[]> {
+export async function loadConnections (
+    getConnections: IGetConnectionsController
+): Promise<Connection[]> {
     try {
-        const ctrl = getConnectionsController();
-        return await ctrl.handle();
+        return await getConnections.handle();
     } catch (error) {
         console.error('Failed to load connections:', error);
         return [];

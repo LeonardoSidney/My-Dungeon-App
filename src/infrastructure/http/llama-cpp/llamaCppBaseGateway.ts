@@ -2,7 +2,9 @@ import { Chat, Connection, Model } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { IStreamProvider } from '@domain/providers';
 import { GetModelResponseDTOEntry } from './dto/getModelResponseDTO';
-import { isArrayRecord, isRecord } from '../../dto/shared';
+import { isArrayRecord, isRecord } from '@infra/dto/shared';
+
+class LlamaCppServerError extends Error { }
 
 export abstract class LlamaCppBaseGateway {
     constructor (
@@ -24,7 +26,7 @@ export abstract class LlamaCppBaseGateway {
             this.logger.debug('Executing LlamaCppBaseGateway::getModels - url: ', url);
             response = await fetch(url);
         } catch (error) {
-            throw new Error(`Error fetching models from ${url}: ${error}`);
+            throw new Error(`Error fetching models from ${url}: ${this.toErrorMessage(error)}`);
         }
 
         if (!response.ok) {
@@ -59,12 +61,15 @@ export abstract class LlamaCppBaseGateway {
                 continue;
             }
 
+            const loaded = entry.status?.value === 'loaded';
+
             models.push({
                 id: entry.id,
                 name: entry.name ?? this.fallbackName(entry.id),
                 connectionId: connection.id,
                 nCtx,
-                ownedBy: entry.owned_by
+                ownedBy: entry.owned_by,
+                loaded
             });
         }
 
@@ -102,6 +107,12 @@ export abstract class LlamaCppBaseGateway {
                 };
             }
 
+            if (isRecord(item.status) && typeof item.status.value === 'string') {
+                entry.status = {
+                    value: item.status.value
+                };
+            }
+
             entries.push(entry);
         }
 
@@ -121,25 +132,67 @@ export abstract class LlamaCppBaseGateway {
             model: modelId,
             messages: [{ role: 'system', content: systemPrompt }, ...chats],
         };
+
         try {
             this.logger.debug('Executing LlamaCppBaseGateway::applyTemplate - url: ', url);
             this.logger.debug('Executing LlamaCppBaseGateway::applyTemplate - body: ', JSON.stringify(body));
+
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body),
             });
+
             this.logger.debug('Executing LlamaCppBaseGateway::applyTemplate - response: ', response);
-            if (response.ok) {
-                const data = await response.json();
-                this.logger.debug('Executing LlamaCppBaseGateway::applyTemplate - data: ', data);
-                return data.prompt;
+
+            if (!response.ok) {
+                const message = await this.parseErrorBody(response);
+                this.logger.warning(`Executing LlamaCppBaseGateway::applyTemplate - server error ${response.status}: ${message}`);
+                throw new LlamaCppServerError(`applyTemplate failed with status ${response.status}: ${message}`);
             }
+
+            const data: unknown = await response.json();
+            this.logger.debug('Executing LlamaCppBaseGateway::applyTemplate - data: ', data);
+
+            if (!isRecord(data) || typeof data.prompt !== 'string') {
+                this.logger.warning('Executing LlamaCppBaseGateway::applyTemplate - response without prompt');
+                return null;
+            }
+
+            return data.prompt;
         } catch (error) {
-            throw new Error(`Error calling applyTemplate on ${url}: ${error}`);
+            if (error instanceof LlamaCppServerError) {
+                throw error;
+            }
+
+            throw new Error(`Error calling applyTemplate on ${url}: ${this.toErrorMessage(error)}`);
+        }
+    }
+
+    private toErrorMessage (error: unknown): string {
+        if (error instanceof Error) {
+            return error.message;
         }
 
-        return null;
+        return String(error);
+    }
+
+    protected async parseErrorBody (response: Response): Promise<string> {
+        try {
+            const body: unknown = await response.json();
+            if (!isRecord(body)) {
+                return 'no error details';
+            }
+
+            const error = body.error;
+            if (isRecord(error) && typeof error.message === 'string') {
+                return error.message;
+            }
+
+            return JSON.stringify(body);
+        } catch {
+            return 'no error details';
+        }
     }
 
     protected formatChatMessages (chat: Chat[]): { role: string; content: string; }[] {

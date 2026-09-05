@@ -16,6 +16,4 @@ export type SystemPromptFormData = {
     name: string;
     content: string;
     observation: string;
-    createdAt: Date | undefined;
-    updatedAt: Date | undefined;
 };

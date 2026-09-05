@@ -1,0 +1,11 @@
+[
+    {
+        "name": "creative-narrative",
+        "observation": "High temperature for exploratory narrative",
+        "temperature": 0.9,
+        "topP": 0.95,
+        "topK": 40,
+        "repeatLastN": 64,
+        "repeatPenalty": 1.1
+    }
+]

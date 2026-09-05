@@ -8,7 +8,7 @@ export type FormErrors = {
 export interface SystemPromptFormProps {
     showForm: boolean;
     systemPromptStateFormData: SystemPromptFormData;
-    onChange: (field: keyof SystemPromptFormData, value: string | Date) => void;
+    onChange: (field: keyof SystemPromptFormData, value: string) => void;
     onCancel: () => void;
     onSave: () => Promise<void>;
     formErrors: FormErrors;

@@ -1,15 +1,15 @@
-import { Dimensions, type ScaledSize } from 'react-native';
 import { useEffect, useState } from 'react';
+import { Dimensions } from 'react-native';
 
-export function useWindowWidth (): ScaledSize {
-    const [size, setSize] = useState(Dimensions.get('window'));
+export function useWindowWidth (): number {
+    const [windowWidth, setWindowWidth] = useState(() => Dimensions.get('window').width);
 
     useEffect(() => {
-        const subscriber = Dimensions.addEventListener('change', ({ window }) => {
-            setSize(window);
+        const subscriber = Dimensions.addEventListener('change', ({ window: nextWindow }) => {
+            setWindowWidth(nextWindow.width);
         });
         return () => subscriber?.remove();
     }, []);
 
-    return size;
+    return windowWidth;
 }

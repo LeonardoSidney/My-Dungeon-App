@@ -1,4 +1,5 @@
-import { Adventure, Chat } from '../entities';
+import { Adventure } from '../entities';
+import { AdventureEditParams } from '../services';
 
 export interface IEditAdventureUseCase {
     execute (params: EditAdventureParams): Promise<EditAdventureReturn>;
@@ -6,17 +7,7 @@ export interface IEditAdventureUseCase {
 
 export type EditAdventureParams = {
     id: string;
-    name: string;
-    systemPromptIds: string[];
-    characterIds: string[];
-    worldMasterId?: string;
-    characterAsWorldMasterId?: string;
-    charactersControlledByAi: string[];
-    worldIds: string[];
-    locationIds: string[];
-    itemIds: string[];
-    chat: Chat[];
-    createdAt?: Date;
+    editParams: AdventureEditParams;
 };
 
 export type EditAdventureReturn = {

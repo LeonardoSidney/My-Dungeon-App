@@ -25,11 +25,9 @@ export type AdventureFormData = {
     worldMaster?: WorldMaster;
     characterAsWorldMasterId?: string;
     charactersControlledByAi: string[];
-    avaliableCharacters: Character[];
+    availableCharacters: Character[];
     worlds?: World[];
     locations?: Location[];
     items?: Item[];
     chat: Chat[];
-    createdAt?: Date;
-    updatedAt?: Date;
 };

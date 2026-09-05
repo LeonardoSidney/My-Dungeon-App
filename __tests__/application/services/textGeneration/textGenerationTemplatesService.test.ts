@@ -41,18 +41,18 @@ describe('TextGenerationTemplatesService', () => {
         run: () => { success: boolean; template?: string; error?: string; };
         expected: string;
     }> = [
-            { name: 'getRootTemplate', run: () => service.getRootTemplate(), expected: DEFAULT_TEXT_ADVENTURE_TEMPLATE },
-            { name: 'getSystemPromptTemplate', run: () => service.getSystemPromptTemplate(), expected: DEFAULT_TEXT_ADVENTURE_SYSTEM_PROMPT_TEMPLATE },
-            { name: 'getWorldMasterTemplate', run: () => service.getWorldMasterTemplate(), expected: DEFAULT_TEXT_ADVENTURE_WORLD_MASTER_TEMPLATE },
-            { name: 'getIaControlledCharacterTemplate', run: () => service.getIaControlledCharacterTemplate(), expected: DEFAULT_TEXT_ADVENTURE_IA_CONTROLLED_CHARACTER_TEMPLATE },
-            { name: 'getWorldsTemplate', run: () => service.getWorldsTemplate(), expected: DEFAULT_TEXT_ADVENTURE_WORLDS_TEMPLATE },
-            { name: 'getLocationsTemplate', run: () => service.getLocationsTemplate(), expected: DEFAULT_TEXT_ADVENTURE_LOCATIONS_TEMPLATE },
-            { name: 'getItemsTemplate', run: () => service.getItemsTemplate(), expected: DEFAULT_TEXT_ADVENTURE_ITEMS_TEMPLATE },
-            { name: 'getAbilitiesTemplate', run: () => service.getAbilitiesTemplate(), expected: DEFAULT_TEXT_ADVENTURE_ABILITIES_TEMPLATE },
-            { name: 'getProficienciesTemplate', run: () => service.getProficienciesTemplate(), expected: DEFAULT_TEXT_ADVENTURE_PROFICIENCIES_TEMPLATE },
-            { name: 'getStatusesTemplate', run: () => service.getStatusesTemplate(), expected: DEFAULT_TEXT_ADVENTURE_STATUSES_TEMPLATE },
-            { name: 'getCharactersTemplate', run: () => service.getCharactersTemplate(), expected: DEFAULT_TEXT_ADVENTURE_CHARACTERS_TEMPLATE }
-        ];
+        { name: 'getRootTemplate', run: () => service.getRootTemplate(), expected: DEFAULT_TEXT_ADVENTURE_TEMPLATE },
+        { name: 'getSystemPromptTemplate', run: () => service.getSystemPromptTemplate(), expected: DEFAULT_TEXT_ADVENTURE_SYSTEM_PROMPT_TEMPLATE },
+        { name: 'getWorldMasterTemplate', run: () => service.getWorldMasterTemplate(), expected: DEFAULT_TEXT_ADVENTURE_WORLD_MASTER_TEMPLATE },
+        { name: 'getIaControlledCharacterTemplate', run: () => service.getIaControlledCharacterTemplate(), expected: DEFAULT_TEXT_ADVENTURE_IA_CONTROLLED_CHARACTER_TEMPLATE },
+        { name: 'getWorldsTemplate', run: () => service.getWorldsTemplate(), expected: DEFAULT_TEXT_ADVENTURE_WORLDS_TEMPLATE },
+        { name: 'getLocationsTemplate', run: () => service.getLocationsTemplate(), expected: DEFAULT_TEXT_ADVENTURE_LOCATIONS_TEMPLATE },
+        { name: 'getItemsTemplate', run: () => service.getItemsTemplate(), expected: DEFAULT_TEXT_ADVENTURE_ITEMS_TEMPLATE },
+        { name: 'getAbilitiesTemplate', run: () => service.getAbilitiesTemplate(), expected: DEFAULT_TEXT_ADVENTURE_ABILITIES_TEMPLATE },
+        { name: 'getProficienciesTemplate', run: () => service.getProficienciesTemplate(), expected: DEFAULT_TEXT_ADVENTURE_PROFICIENCIES_TEMPLATE },
+        { name: 'getStatusesTemplate', run: () => service.getStatusesTemplate(), expected: DEFAULT_TEXT_ADVENTURE_STATUSES_TEMPLATE },
+        { name: 'getCharactersTemplate', run: () => service.getCharactersTemplate(), expected: DEFAULT_TEXT_ADVENTURE_CHARACTERS_TEMPLATE }
+    ];
 
     it.each(defaultTemplates)('should return the default template from $name', ({ run, expected }) => {
         const result = run();

@@ -1,3 +1,4 @@
+import { WorldMaster } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { EditWorldMasterServiceParams, EditWorldMasterServiceReturn, IEditWorldMasterService } from '@domain/services';
 
@@ -8,22 +9,17 @@ export class EditWorldMasterService implements IEditWorldMasterService {
 
     editWorldMaster (params: EditWorldMasterServiceParams): EditWorldMasterServiceReturn {
         this.logger.info('Executing EditWorldMasterService::editWorldMaster');
-        const { id, name, activationWord, prompt, observation, assistantId, createdAt } = params;
+        const { worldMaster, editParams } = params;
 
-        const worldMaster = {
-            id,
-            name,
-            activationWord,
-            prompt,
-            observation,
-            assistantId,
-            createdAt: createdAt,
+        const editedWorldMaster: WorldMaster = {
+            ...worldMaster,
+            ...editParams,
             updatedAt: new Date()
         };
 
         return {
             success: true,
-            worldMaster
+            worldMaster: editedWorldMaster
         };
     }
 }

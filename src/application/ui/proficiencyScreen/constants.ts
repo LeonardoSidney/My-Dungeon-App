@@ -1,23 +1,16 @@
-import { Proficiency } from '@domain/entities';
+import {
+    ActivationPromptFormData,
+    ActivationPromptFormConfig,
+    ActivationPromptFormErrors,
+} from '@application/ui/components';
 
-export type FormErrors = {
-    name?: string;
-    activationWord?: string;
-    prompt?: string;
+export const proficiencyFormConfig: ActivationPromptFormConfig = {
+    entityName: 'Proficiency',
+    activationLabel: 'Activation Word',
+    namePlaceholder: 'e.g., Combat Mastery',
+    activationPlaceholder: 'e.g., Combat',
+    promptPlaceholder: 'Enter the proficiency prompt...',
 };
 
-export interface ProficiencyPanelProps {
-    proficiencies: Proficiency[];
-    onEdit: (proficiency: Proficiency) => void;
-    onDelete: (proficiency: Proficiency) => Promise<void>;
-}
-
-export type ProficiencyFormData = {
-    id: string;
-    name: string;
-    activationWord: string;
-    prompt: string;
-    observation: string;
-    createdAt: Date | undefined;
-    updatedAt: Date | undefined;
-};
+export type ProficiencyFormData = ActivationPromptFormData;
+export type FormErrors = ActivationPromptFormErrors;

@@ -21,10 +21,18 @@ export class EditSystemPromptUseCase implements IEditSystemPromptUseCase {
             };
         }
 
-        const { systemPrompt } = params;
+        const { id, editParams } = params;
+        const systemPrompt = await this.systemPromptRepository.getSystemPromptById(id);
+        if (!systemPrompt) {
+            return {
+                success: false,
+                systemPrompt: undefined,
+                error: `System prompt with id ${id} not found`
+            };
+        }
 
-        this.logger.debug('Calling EditSystemPromptService', systemPrompt);
-        const response = this.service.editSystemPrompt({ systemPrompt });
+        this.logger.debug('Calling EditSystemPromptService', { id, editParams });
+        const response = this.service.editSystemPrompt({ systemPrompt, editParams });
         this.logger.debug('EditSystemPromptService executed successfully', response);
 
         if (!response.success) {
@@ -75,17 +83,15 @@ export class EditSystemPromptUseCase implements IEditSystemPromptUseCase {
     }
 
     private validate (params: EditSystemPromptParams): string | null {
-        const { systemPrompt } = params;
-
-        if (!systemPrompt.id) {
+        if (!params.id) {
             return 'System prompt id is required';
         }
 
-        if (!systemPrompt.name?.trim()) {
+        if (!params.editParams.name?.trim()) {
             return 'System prompt name is required';
         }
 
-        if (!systemPrompt.content?.trim()) {
+        if (!params.editParams.content?.trim()) {
             return 'System prompt content is required';
         }
 

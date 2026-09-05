@@ -1,7 +1,8 @@
 import { NativeStreamCompletionController } from '@adapters/controllers';
 import { StreamCompletionController } from '@adapters/controllers';
-import { NativeStreamCompletionUseCase } from '../../application/use-cases';
-import { StreamCompletionUseCase } from '../../application/use-cases';
+import { GetSamplersService } from '@application/services';
+import { NativeStreamCompletionUseCase } from '@application/use-cases';
+import { StreamCompletionUseCase } from '@application/use-cases';
 import { INativeStreamCompletionController } from '@domain/controllers';
 import { IStreamCompletionController } from '@domain/controllers';
 import { logger, getStreamProvider, storage } from './shared';
@@ -12,7 +13,8 @@ export function getStreamCompletionController (): IStreamCompletionController {
     const llamaCppOAGateway = new LlamaCppOAGateway(logger, getStreamProvider());
     const connectionRepository = createConnectionRepository(storage, logger);
     const samplerRepository = createSamplerRepository(storage, logger);
-    const useCase = new StreamCompletionUseCase(logger, llamaCppOAGateway, connectionRepository, samplerRepository);
+    const getSamplersService = new GetSamplersService(logger);
+    const useCase = new StreamCompletionUseCase(logger, llamaCppOAGateway, connectionRepository, samplerRepository, getSamplersService);
     return new StreamCompletionController(logger, useCase);
 }
 
@@ -20,6 +22,7 @@ export function getNativeStreamCompletionController (): INativeStreamCompletionC
     const llamaCppNativeGateway = new LlamaCppNativeGateway(logger, getStreamProvider());
     const connectionRepository = createConnectionRepository(storage, logger);
     const samplerRepository = createSamplerRepository(storage, logger);
-    const useCase = new NativeStreamCompletionUseCase(logger, llamaCppNativeGateway, connectionRepository, samplerRepository);
+    const getSamplersService = new GetSamplersService(logger);
+    const useCase = new NativeStreamCompletionUseCase(logger, llamaCppNativeGateway, connectionRepository, samplerRepository, getSamplersService);
     return new NativeStreamCompletionController(logger, useCase);
 }

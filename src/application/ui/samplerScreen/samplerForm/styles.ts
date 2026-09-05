@@ -111,22 +111,4 @@ export const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#3498db',
     },
-    dropdown: {
-        backgroundColor: '#2a2a2a',
-        borderWidth: 1,
-        borderColor: '#444',
-        borderRadius: 8,
-        maxHeight: 150,
-        overflow: 'hidden',
-    },
-    dropdownOption: {
-        padding: 12,
-    },
-    dropdownOptionSelected: {
-        backgroundColor: '#3a3a3a',
-    },
-    dropdownOptionText: {
-        fontSize: 16,
-        color: '#fff',
-    },
 });

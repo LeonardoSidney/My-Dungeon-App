@@ -1,7 +1,9 @@
 import { Character } from '../entities';
+import { CharacterEditParams } from '../services';
 
-export type EditCharacterControllerRequest = {
-    character: Character;
+export type EditCharacterControllerParams = {
+    id: string;
+    editParams: CharacterEditParams;
 };
 
 export type EditCharacterControllerResponse = {
@@ -11,5 +13,5 @@ export type EditCharacterControllerResponse = {
 };
 
 export interface IEditCharacterController {
-    handle (request: EditCharacterControllerRequest): Promise<EditCharacterControllerResponse>;
+    handle (request: EditCharacterControllerParams): Promise<EditCharacterControllerResponse>;
 }

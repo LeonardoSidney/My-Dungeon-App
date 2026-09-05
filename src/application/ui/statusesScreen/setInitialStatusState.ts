@@ -7,7 +7,5 @@ export function setInitialStatusState (): StatusFormData {
         activationWord: '',
         prompt: '',
         observation: '',
-        createdAt: undefined,
-        updatedAt: undefined,
     };
 }

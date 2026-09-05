@@ -1,19 +1,19 @@
 import { SystemPromptFormData } from '../constants';
-import { SystemPrompt } from '@domain/entities';
+import { EditSystemPromptControllerParams } from '@domain/controllers';
 import { editSystemPromptController } from '@infra/container';
 
 export async function onEdit (
     formData: SystemPromptFormData
 ) {
     const controller = editSystemPromptController();
-    const systemPrompt: SystemPrompt = {
-        id: formData.id,
-        name: formData.name,
-        content: formData.content,
-        observation: formData.observation || undefined,
-        createdAt: formData.createdAt ?? new Date(),
-        updatedAt: formData.updatedAt ?? new Date(),
+    const request: EditSystemPromptControllerParams = {
+        id: formData.id!,
+        editParams: {
+            name: formData.name,
+            content: formData.content,
+            observation: formData.observation || undefined,
+        },
     };
 
-    return controller.handle({ systemPrompt });
+    return controller.handle(request);
 }

@@ -15,11 +15,11 @@ export function onEditForm (
     setAssistantFormData({
         id: assistant.id,
         name: assistant.name,
+        activationWord: '',
+        prompt: '',
         observation: assistant.observation || '',
         model: currentModel,
         sampler: currentSampler,
-        createdAt: assistant.createdAt,
-        updatedAt: assistant.updatedAt,
     });
     setShowForm(true);
 }

@@ -10,7 +10,7 @@ import {
     GetSystemPromptsUseCase,
     EditSystemPromptUseCase,
     EraseSystemPromptUseCase,
-} from '../../application/use-cases';
+} from '@application/use-cases';
 import {
     ICreateSystemPromptController,
     IGetSystemPromptsController,

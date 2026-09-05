@@ -1,12 +1,9 @@
 import { Connection } from '../entities';
+import { ConnectionEditParams } from '../services';
 
-export type EditConnectionControllerRequest = {
+export type EditConnectionControllerParams = {
     id: string;
-    name: string;
-    ip: string;
-    port?: number;
-    auth?: string;
-    createdAt: Date;
+    editParams: ConnectionEditParams;
 };
 
 export type EditConnectionControllerResponse = {
@@ -16,5 +13,5 @@ export type EditConnectionControllerResponse = {
 };
 
 export interface IEditConnectionController {
-    handle(request: EditConnectionControllerRequest): Promise<EditConnectionControllerResponse>;
+    handle(request: EditConnectionControllerParams): Promise<EditConnectionControllerResponse>;
 }

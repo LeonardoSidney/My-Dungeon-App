@@ -1,13 +1,13 @@
-import { getProficienciesController } from '@infra/container';
+import { IGetProficienciesController } from '@domain/controllers';
 import { Dispatch } from 'react';
 import { Proficiency } from '@domain/entities';
 
 export async function loadProficiencies (
+    getProficiencies: IGetProficienciesController,
     setProficiencies: Dispatch<React.SetStateAction<Proficiency[]>>
 ) {
     try {
-        const ctrl = getProficienciesController();
-        const result = await ctrl.handle();
+        const result = await getProficiencies.handle();
         setProficiencies(result);
     } catch (error) {
         console.error('Failed to load proficiencies:', error);

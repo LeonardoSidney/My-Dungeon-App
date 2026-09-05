@@ -1,1 +1,0 @@
-export { WorldPanel } from './WorldPanel';

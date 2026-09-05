@@ -14,55 +14,6 @@ export const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#fff',
     },
-    loadingText: {
-        color: '#aaa',
-        fontSize: 14,
-        textAlign: 'center',
-        marginTop: 20,
-    },
-    emptyText: {
-        color: '#888',
-        fontSize: 14,
-        fontStyle: 'italic',
-        textAlign: 'center',
-        marginTop: 20,
-    },
-    statusItem: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        backgroundColor: '#2a2a2a',
-        borderRadius: 8,
-        marginBottom: 8,
-    },
-    statusInfo: {
-        flex: 1,
-    },
-    statusName: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#fff',
-    },
-    statusDetails: {
-        fontSize: 13,
-        color: '#aaa',
-        marginTop: 4,
-    },
-    statusActions: {
-        flexDirection: 'row',
-        gap: 8,
-        marginLeft: 12,
-    },
-    actionButton: {
-        padding: 8,
-        backgroundColor: '#3a3a3a',
-        borderRadius: 6,
-    },
-    actionButtonText: {
-        fontSize: 16,
-    },
     addButton: {
         paddingVertical: 10,
         paddingHorizontal: 12,

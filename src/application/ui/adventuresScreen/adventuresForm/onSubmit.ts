@@ -12,7 +12,7 @@ export async function onSubmit (formData: AdventureFormData) {
         characterIdSet.add(formData.characterAsWorldMasterId);
     }
 
-    const availableById = new Map(formData.avaliableCharacters.map(c => [c.id, c]));
+    const availableById = new Map(formData.availableCharacters.map(c => [c.id, c]));
     const allCharacters = [...characterIdSet]
         .map(id => availableById.get(id))
         .filter(c => c !== undefined);

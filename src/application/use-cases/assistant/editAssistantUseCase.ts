@@ -4,7 +4,7 @@ import {
     IConnectionRepository,
     ISamplerRepository,
 } from '@domain/repository';
-import { IEditAssistantService, IGetSamplersService } from '@domain/services';
+import { AssistantEditParams, IEditAssistantService, IGetSamplersService } from '@domain/services';
 import { EditAssistantParams, EditAssistantReturn, IEditAssistantUseCase } from '@domain/use-cases';
 import { createSamplerResolver } from '@application/shared/resolveSampler';
 import { checkReferencedId } from '@application/shared/validateReferencedIds';
@@ -29,7 +29,7 @@ export class EditAssistantUseCase implements IEditAssistantUseCase {
                 error: validationError
             };
         }
-        const missingIdError = await this.validateReferencedIds(params);
+        const missingIdError = await this.validateReferencedIds(params.editParams);
         if (missingIdError) {
             return {
                 success: false,
@@ -38,10 +38,18 @@ export class EditAssistantUseCase implements IEditAssistantUseCase {
             };
         }
 
-        const { id, name, observation, modelId, samplerId, connectionId, createdAt } = params;
+        const { id, editParams } = params;
+        const assistant = await this.assistantRepository.getAssistantById(id);
+        if (!assistant) {
+            return {
+                success: false,
+                assistant: undefined,
+                error: `Assistant with id ${id} not found`
+            };
+        }
 
-        this.logger.debug('Calling EditAssistantService', { id, name, observation, modelId, samplerId, connectionId, createdAt });
-        const response = this.service.editAssistant({ id, name, observation, modelId, samplerId, connectionId, createdAt });
+        this.logger.debug('Calling EditAssistantService', { id, editParams });
+        const response = this.service.editAssistant({ assistant, editParams });
         this.logger.debug('EditAssistantService executed successfully', response);
 
         if (!response.success) {
@@ -95,18 +103,18 @@ export class EditAssistantUseCase implements IEditAssistantUseCase {
             return 'An id is required to edit an assistant';
         }
 
-        if (!params.name?.trim()) {
+        if (!params.editParams.name?.trim()) {
             return 'A name is required to edit an assistant';
         }
 
         return null;
     }
 
-    private async validateReferencedIds (params: EditAssistantParams): Promise<string | null> {
+    private async validateReferencedIds (editParams: AssistantEditParams): Promise<string | null> {
         const resolveSampler = createSamplerResolver(this.samplerRepository, this.getSamplersService);
         const samplerError = await checkReferencedId(
             (id) => resolveSampler(id),
-            params.samplerId,
+            editParams.samplerId,
             'Sampler'
         );
         if (samplerError) {
@@ -114,7 +122,7 @@ export class EditAssistantUseCase implements IEditAssistantUseCase {
         }
         return checkReferencedId(
             (id) => this.connectionRepository.getConnectionById(id),
-            params.connectionId,
+            editParams.connectionId,
             'Connection'
         );
     }

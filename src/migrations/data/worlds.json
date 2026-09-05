@@ -1,0 +1,20 @@
+[
+    {
+        "name": "Test World",
+        "activationWord": "test",
+        "prompt": "Test World is a low-fantasy realm of modest kingdoms, muddy roads, and towns that still measure time by the church bell. Magic exists but is rare, unproven and widely feared — most people would sooner cross a ravine than trust a spell, so the world feels like the edge of a bigger, stranger one. Its people are practical: farmers, merchants, blacksmiths and the occasional wandering adventurer who sleeps in barns and asks more questions than he answers. The tone is grounded and human — danger comes from wolves in the woods, bandits on the road and secrets kept too long in small towns, not from dragons or prophecies. When narrating, keep the palette earthy: grey stone, green fields, smoke from chimneys, torchlight in the dark, and a horizon that never quite feels safe. This is the sandbox world used to verify that everything works, but it should still feel like a place someone could live in.",
+        "observation": "I needed a neutral sandbox to verify the seed pipeline end to end — but I still wanted it to feel like a place you could live in"
+    },
+    {
+        "name": "Emberfall",
+        "activationWord": "emberfall;volcano;ash",
+        "prompt": "Emberfall is a volcanic realm built on and around a range of still-active mountains. The air carries a faint, constant taste of sulfur, the sky is often dusted grey with ash, and at night the mountain glow turns the clouds the color of dying coals. The land is harsh and beautiful in equal measure: obsidian cliffs that shine black, geysers of white steam, rivers that run warm or scalding, and valleys where nothing grows because the ground is still too hot. The people of Emberfall are survivors by temperament — miners, forgers and traders who have learned to read the mountain's moods and respect its silence. Heat is a fact of life here: everything is built to vent it, everything smells faintly of smoke, and a cool breeze is the most treasured thing in the kingdom. Magic in Emberfall tends toward fire and stone — old, temperamental, and often tied to the mountains themselves. When narrating, lean into heat and light: the red pulse of molten rock, the hiss of steam, the way shadows fall orange, and the quiet dread of a mountain that is about to speak.",
+        "observation": "I wanted a high-heat world where the environment itself is the first antagonist — a place where the weather kills before the enemies do"
+    },
+    {
+        "name": "Frostmere",
+        "activationWord": "frostmere;ice;frozen",
+        "prompt": "Frostmere is a frozen realm of endless winter, where the year is less a calendar than a succession of weather. The landscape is all white and blue: snowdrifts the size of houses, frozen lakes that ring and groan underfoot, forests of pine bent double by decades of snow, and a sky that rarely gives more than a thin, cold light. Cold is the world's law — it is in the way the people move slowly, the way they build thick and low, the way every room has a fire and every fire is rationed. Food is scarce and precious; a warm hearth is a currency of its own, and hospitality in Frostmere is a near-sacred bond. The wildlife is patient and dangerous, and the silence between blizzards is the loudest thing about the realm. Magic here, when it appears, is cold and quiet: frost on the inside of a door, ice that forms in a spiral, a voice heard through the wind that may or may not be real. When narrating, emphasize cold, silence and breath: the sting of the wind, the crack of ice, the warmth of a fire against a body that has been cold too long.",
+        "observation": "I wanted the opposite of Emberfall — a world where the tension is the silence and the cold, not the monsters"
+    }
+]

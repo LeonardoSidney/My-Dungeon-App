@@ -9,6 +9,7 @@ export * from './createSamplerHelper';
 export * from './createModelHelper';
 export * from './createLocationHelper';
 export * from './createItemHelper';
+export * from './createItemServiceResponseHelper';
 export * from './createConnectionHelper';
 export * from './createCharacterHelper';
 export * from './createAssistantHelper';

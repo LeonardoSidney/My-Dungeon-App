@@ -14,42 +14,6 @@ export const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#fff',
     },
-    assistantItem: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        backgroundColor: '#2a2a2a',
-        borderRadius: 8,
-        marginBottom: 8,
-    },
-    assistantInfo: {
-        flex: 1,
-    },
-    assistantName: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#fff',
-    },
-    assistantDetails: {
-        fontSize: 13,
-        color: '#aaa',
-        marginTop: 4,
-    },
-    assistantActions: {
-        flexDirection: 'row',
-        gap: 8,
-        marginLeft: 12,
-    },
-    actionButton: {
-        padding: 8,
-        backgroundColor: '#3a3a3a',
-        borderRadius: 6,
-    },
-    actionButtonText: {
-        fontSize: 16,
-    },
     addButton: {
         paddingVertical: 10,
         paddingHorizontal: 12,

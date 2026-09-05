@@ -31,7 +31,5 @@ export function setInitialSamplerState (): SamplerFormData {
         adaptativeDecay: '',
         adaptativeTarget: '',
         ignoreEOS: '',
-        createdAt: undefined,
-        updatedAt: undefined,
     };
 }

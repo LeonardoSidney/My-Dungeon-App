@@ -10,7 +10,7 @@ import {
     EditAbilityUseCase,
     EraseAbilityUseCase,
     GetAbilitiesUseCase,
-} from '../../application/use-cases';
+} from '@application/use-cases';
 import {
     ICreateAbilityController,
     IEditAbilityController,

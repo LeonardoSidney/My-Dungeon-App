@@ -1,7 +1,7 @@
 export type Ability = {
     id: string;
     name: string;
-    activationWorld: string;
+    activationWord: string;
     prompt: string;
     observation?: string;
     createdAt: Date;

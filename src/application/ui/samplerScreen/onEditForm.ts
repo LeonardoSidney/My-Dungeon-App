@@ -39,7 +39,5 @@ export function onEditForm (
         adaptativeDecay: sampler.adaptativeDecay?.toString() || '',
         adaptativeTarget: sampler.adaptativeTarget?.toString() || '',
         ignoreEOS: sampler.ignoreEOS ? 'true' : '',
-        createdAt: sampler.createdAt,
-        updatedAt: sampler.updatedAt,
     });
 }

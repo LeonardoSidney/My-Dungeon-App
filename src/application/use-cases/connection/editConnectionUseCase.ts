@@ -21,10 +21,18 @@ export class EditConnectionUseCase implements IEditConnectionUseCase {
             };
         }
 
-        const { id, name, ip, port, auth, createdAt } = params;
+        const { id, editParams } = params;
+        const connection = await this.connectionRepository.getConnectionById(id);
+        if (!connection) {
+            return {
+                success: false,
+                connection: undefined,
+                error: `Connection with id ${id} not found`
+            };
+        }
 
-        this.logger.debug('Calling EditConnectionConfigService', { id, name, ip, port, auth, createdAt });
-        const response = this.service.editConnectionConfig({ id, name, ip, port, auth, createdAt });
+        this.logger.debug('Calling EditConnectionConfigService', { id, editParams });
+        const response = this.service.editConnectionConfig({ connection, editParams });
         this.logger.debug('EditConnectionConfigService executed successfully', response);
 
         if (!response.success) {
@@ -72,19 +80,19 @@ export class EditConnectionUseCase implements IEditConnectionUseCase {
     }
 
     private validate (params: EditConnectionParams): string | null {
-        if (!params.id) {
+        if (!params.id?.trim()) {
             return 'An id is required to edit a connection config';
         }
 
-        if (!params.name?.trim()) {
+        if (!params.editParams.name?.trim()) {
             return 'A name is required to edit a connection config';
         }
 
-        if (!params.ip?.trim()) {
+        if (!params.editParams.ip?.trim()) {
             return 'An IP is required to edit a connection config';
         }
 
-        if (params.port && params.port <= 0) {
+        if (params.editParams.port && params.editParams.port <= 0) {
             return 'A valid port is required to edit a connection config';
         }
 

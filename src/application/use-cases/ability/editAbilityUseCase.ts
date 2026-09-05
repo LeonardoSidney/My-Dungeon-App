@@ -21,10 +21,18 @@ export class EditAbilityUseCase implements IEditAbilityUseCase {
             };
         }
 
-        const { ability } = params;
+        const { id, editParams } = params;
+        const ability = await this.abilityRepository.getAbilityById(id);
+        if (!ability) {
+            return {
+                success: false,
+                ability: undefined,
+                error: `Ability with id ${id} not found`
+            };
+        }
 
-        this.logger.debug('Calling EditAbilityService', ability);
-        const response = this.service.editAbility({ ability });
+        this.logger.debug('Calling EditAbilityService', { id, editParams });
+        const response = this.service.editAbility({ ability, editParams });
         this.logger.debug('EditAbilityService executed successfully', response);
 
         if (!response.success) {
@@ -74,21 +82,19 @@ export class EditAbilityUseCase implements IEditAbilityUseCase {
     }
 
     private validate (params: EditAbilityParams): string | null {
-        const { ability } = params;
-
-        if (!ability.id) {
+        if (!params.id) {
             return 'An id is required to edit an ability';
         }
 
-        if (!ability.name?.trim()) {
+        if (!params.editParams.name?.trim()) {
             return 'A name is required to edit an ability';
         }
 
-        if (!ability.activationWorld?.trim()) {
+        if (!params.editParams.activationWord?.trim()) {
             return 'An activation world is required to edit an ability';
         }
 
-        if (!ability.prompt?.trim()) {
+        if (!params.editParams.prompt?.trim()) {
             return 'A prompt is required to edit an ability';
         }
 

@@ -65,7 +65,7 @@ export function AdventuresScreen ({ onChatVisibleChange }: AdventuresScreenProps
     setFormErrors({});
 
     await onSaveAdventure(
-      { ...adventureStateFormData, avaliableCharacters: characters },
+      { ...adventureStateFormData, availableCharacters: characters },
       setAdventureFormData,
       setShowForm,
       setAdventures
@@ -107,7 +107,7 @@ export function AdventuresScreen ({ onChatVisibleChange }: AdventuresScreenProps
 
   return (
     <View style={styles.container}>
-      <ScrollView>
+      <ScrollView keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Text style={styles.title}>Adventures</Text>
         </View>

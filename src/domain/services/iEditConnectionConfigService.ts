@@ -4,13 +4,11 @@ export interface IEditConnectionConfigService {
     editConnectionConfig(request: EditConnectionConfigServiceParams): EditConnectionConfigServiceReturn;
 }
 
+export type ConnectionEditParams = Omit<Connection, 'id' | 'createdAt' | 'updatedAt'>;
+
 export type EditConnectionConfigServiceParams = {
-    id: string;
-    name: string;
-    ip: string;
-    port?: number;
-    auth?: string;
-    createdAt: Date;
+    connection: Connection;
+    editParams: ConnectionEditParams;
 };
 
 export type EditConnectionConfigServiceReturn = {

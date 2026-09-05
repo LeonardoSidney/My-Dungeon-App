@@ -1,1 +1,0 @@
-export { ProficiencyForm } from './ProficiencyForm';

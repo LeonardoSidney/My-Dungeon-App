@@ -4,8 +4,11 @@ module.exports = {
         '^@domain/(.*)$': '<rootDir>/src/domain/$1',
         '^@application/(.*)$': '<rootDir>/src/application/$1',
         '^@adapters/(.*)$': '<rootDir>/src/adapters/$1',
+        '^@composition/(.*)$': '<rootDir>/src/composition/$1',
         '^@infra/(.*)$': '<rootDir>/src/infrastructure/$1',
-        '^@src/(.*)$': '<rootDir>/src/$1'
+        '^@src/(.*)$': '<rootDir>/src/$1',
+        '^@test/helpers$': '<rootDir>/__helpers__',
+        '^@test/helpers/(.*)$': '<rootDir>/__helpers__/$1'
     },
     collectCoverage: false,
     collectCoverageFrom: [
@@ -26,3 +29,4 @@ module.exports = {
         }
     }
 };
+

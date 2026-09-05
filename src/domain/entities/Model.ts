@@ -4,4 +4,5 @@ export type Model = {
     connectionId: string;
     nCtx: number;
     ownedBy: string;
+    loaded?: boolean;
 };

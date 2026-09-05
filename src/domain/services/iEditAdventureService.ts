@@ -1,22 +1,14 @@
-import { Adventure, Chat } from '../entities';
+import { Adventure } from '../entities';
 
 export interface IEditAdventureService {
     editAdventure (params: EditAdventureServiceParams): EditAdventureServiceReturn;
 }
 
+export type AdventureEditParams = Omit<Adventure, 'id' | 'createdAt' | 'updatedAt'>;
+
 export type EditAdventureServiceParams = {
-    id: string;
-    name: string;
-    systemPromptIds: string[];
-    characterIds: string[];
-    worldMasterId?: string;
-    characterAsWorldMasterId?: string;
-    charactersControlledByAi: string[];
-    worldIds: string[];
-    locationIds: string[];
-    itemIds: string[];
-    chat: Chat[];
-    createdAt: Date;
+    adventure: Adventure;
+    editParams: AdventureEditParams;
 };
 
 export type EditAdventureServiceReturn = {
