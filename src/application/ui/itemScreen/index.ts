@@ -1,1 +1,1 @@
-export { ItemScreen } from './ItemScreen';
+export { ItemScreen } from './itemScreen';

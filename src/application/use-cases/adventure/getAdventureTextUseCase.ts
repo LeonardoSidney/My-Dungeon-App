@@ -2,12 +2,12 @@ import { ILogger } from '@domain/logger';
 import { ITextGeneration } from '@domain/providers';
 import { IModelProviderGateway } from '@domain/gateways';
 import { Connection } from '@domain/entities';
+import { IHydrateAdventureService } from '@domain/services';
 import {
     GetAdventureTextUseCaseParams,
     GetAdventureTextUseCaseResponse,
     HydratedAdventure,
     IGetAdventureTextUseCase,
-    IHydrateAdventureUseCase,
 } from '@domain/use-cases';
 
 export class GetAdventureTextUseCase implements IGetAdventureTextUseCase {
@@ -15,7 +15,7 @@ export class GetAdventureTextUseCase implements IGetAdventureTextUseCase {
         private readonly logger: ILogger,
         private readonly provider: ITextGeneration,
         private readonly gateway: IModelProviderGateway,
-        private readonly hydrateAdventureUseCase: IHydrateAdventureUseCase
+        private readonly hydrateAdventureService: IHydrateAdventureService
     ) { }
 
     async execute (params: GetAdventureTextUseCaseParams): Promise<GetAdventureTextUseCaseResponse> {
@@ -23,7 +23,7 @@ export class GetAdventureTextUseCase implements IGetAdventureTextUseCase {
         this.logger.debug('Executing GetAdventureTextUseCase::execute - params', params);
 
         try {
-            const hydrateResponse = await this.hydrateAdventureUseCase.execute({ adventure: params.adventure });
+            const hydrateResponse = await this.hydrateAdventureService.hydrate({ adventure: params.adventure });
 
             if (!hydrateResponse.success || !hydrateResponse.hydrated) {
                 this.logger.warning('GetAdventureTextUseCase::execute - failed to hydrate adventure', hydrateResponse.error);

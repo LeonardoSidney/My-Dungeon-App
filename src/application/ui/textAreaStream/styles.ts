@@ -1,19 +1,20 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '../theme';
 
 export const styles = StyleSheet.create({
     container: {
         flex: 1,
         flexDirection: 'column',
-        padding: 16,
+        paddingTop: 16,
         gap: 10,
         justifyContent: 'flex-end',
         paddingBottom: 50
     },
     textInput: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: colors.text,
         borderWidth: 1,
-        borderColor: '#ccc',
+        borderColor: colors.textSecondary,
         borderRadius: 8,
         padding: 12,
         fontSize: 16,
@@ -33,7 +34,7 @@ export const buttonStyles = StyleSheet.create({
         alignSelf: 'stretch',
     },
     text: {
-        color: '#fff',
+        color: colors.text,
         fontWeight: '600',
         fontSize: 16,
         textAlign: 'center',

@@ -1,15 +1,16 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '../../theme';
 
 export const styles = StyleSheet.create({
     container: {
         marginTop: 8,
     },
     form: {
-        backgroundColor: '#1e1e1e',
+        backgroundColor: colors.surfaceInset,
         borderRadius: 8,
         padding: 16,
         borderTopWidth: 1,
-        borderTopColor: '#333',
+        borderTopColor: colors.surfaceAlt,
     },
     formHeader: {
         flexDirection: 'row',
@@ -20,14 +21,14 @@ export const styles = StyleSheet.create({
     formTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#fff',
+        color: colors.text,
     },
     closeButton: {
         padding: 4,
     },
     closeButtonText: {
         fontSize: 18,
-        color: '#aaa',
+        color: colors.textMuted,
     },
     inputGroup: {
         marginBottom: 12,
@@ -35,45 +36,45 @@ export const styles = StyleSheet.create({
     label: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#ccc',
+        color: colors.textSecondary,
         marginBottom: 6,
     },
     input: {
-        backgroundColor: '#2a2a2a',
+        backgroundColor: colors.surface,
         borderWidth: 1,
-        borderColor: '#444',
+        borderColor: colors.border,
         borderRadius: 8,
         padding: 12,
         fontSize: 16,
-        color: '#ccc',
+        color: colors.textSecondary,
     },
     inputError: {
-        borderColor: '#e74c3c',
+        borderColor: colors.danger,
     },
     errorText: {
-        color: '#e74c3c',
+        color: colors.danger,
         fontSize: 12,
         marginTop: 4,
     },
     contentInput: {
-        backgroundColor: '#2a2a2a',
+        backgroundColor: colors.surface,
         borderWidth: 1,
-        borderColor: '#444',
+        borderColor: colors.border,
         borderRadius: 8,
         padding: 12,
         fontSize: 16,
-        color: '#ccc',
+        color: colors.textSecondary,
         minHeight: 100,
         textAlignVertical: 'top',
     },
     observationInput: {
-        backgroundColor: '#2a2a2a',
+        backgroundColor: colors.surface,
         borderWidth: 1,
-        borderColor: '#444',
+        borderColor: colors.border,
         borderRadius: 8,
         padding: 12,
         fontSize: 16,
-        color: '#ccc',
+        color: colors.textSecondary,
         minHeight: 80,
         textAlignVertical: 'top',
     },
@@ -84,28 +85,28 @@ export const styles = StyleSheet.create({
         marginTop: 16,
         paddingTop: 16,
         borderTopWidth: 1,
-        borderTopColor: '#333',
+        borderTopColor: colors.surfaceAlt,
     },
     cancelButton: {
         paddingHorizontal: 20,
         paddingVertical: 10,
         borderRadius: 8,
-        backgroundColor: '#444',
+        backgroundColor: colors.border,
     },
     cancelButtonText: {
         fontSize: 16,
-        color: '#fff',
+        color: colors.text,
         fontWeight: '600',
     },
     saveButton: {
         paddingHorizontal: 20,
         paddingVertical: 10,
         borderRadius: 8,
-        backgroundColor: '#4CAF50',
+        backgroundColor: colors.success,
     },
     saveButtonText: {
         fontSize: 16,
-        color: '#fff',
+        color: colors.text,
         fontWeight: '600',
     },
 });

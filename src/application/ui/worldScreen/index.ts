@@ -1,1 +1,1 @@
-export { WorldScreen } from './WorldScreen';
+export { WorldScreen } from './worldScreen';

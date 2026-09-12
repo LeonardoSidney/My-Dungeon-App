@@ -1,1 +1,0 @@
-export { ChatItem } from './ChatItem';

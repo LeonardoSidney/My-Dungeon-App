@@ -6,6 +6,7 @@ import {
   View
 } from 'react-native';
 import { styles } from './styles';
+import { colors } from '../../theme';
 import { ConnectionFormData } from '../constants';
 
 type ConnectionFormProps = {
@@ -52,7 +53,7 @@ export function ConnectionForm ({
             value={formData.name}
             onChangeText={(value) => onChange('name', value)}
             placeholder="e.g., My Server"
-            placeholderTextColor="#666"
+            placeholderTextColor={colors.placeholder}
           />
           {errors.name && (
             <Text style={styles.errorText}>{errors.name}</Text>
@@ -66,7 +67,7 @@ export function ConnectionForm ({
             value={formData.ip}
             onChangeText={(value) => onChange('ip', value)}
             placeholder="e.g., 192.168.1.100"
-            placeholderTextColor="#666"
+            placeholderTextColor={colors.placeholder}
             keyboardType="url"
           />
           {errors.ip && (
@@ -81,7 +82,7 @@ export function ConnectionForm ({
             value={formData.port}
             onChangeText={(value) => onChange('port', value)}
             placeholder="e.g., 8080"
-            placeholderTextColor="#666"
+            placeholderTextColor={colors.placeholder}
             keyboardType="numeric"
           />
           {errors.port && (
@@ -96,7 +97,7 @@ export function ConnectionForm ({
             value={formData.auth}
             onChangeText={(value) => onChange('auth', value)}
             placeholder="Enter auth token"
-            placeholderTextColor="#666"
+            placeholderTextColor={colors.placeholder}
           />
         </View>
       </View>

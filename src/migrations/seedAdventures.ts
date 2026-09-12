@@ -67,10 +67,10 @@ export async function seedAdventures (
             id: current.id,
             editParams: {
                 name: current.name,
-                chat: current.chat,
+                chat: [],
                 characterIds,
                 worldMasterId,
-                characterAsWorldMasterId: current.characterAsWorldMasterId,
+                characterAsWorldMasterId: undefined,
                 systemPromptIds,
                 worldIds,
                 locationIds,

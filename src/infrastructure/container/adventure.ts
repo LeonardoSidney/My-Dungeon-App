@@ -7,6 +7,7 @@ import {
     EraseAdventuresController,
     EraseAdventureController,
     GetAdventureTextController,
+    GetAdventureSystemPromptController,
     StartStreamingChatController,
     UpdateStreamingChatController,
     FinishStreamingChatController,
@@ -24,12 +25,14 @@ import {
     IsAdventureStreamingService,
     GetSamplersService,
     TextGenerationTemplatesService,
+    HydrateAdventureService,
 } from '@application/services';
 import {
     CreateAdventureUseCase,
     EditAdventureUseCase,
     GetAdventureUseCase,
     GetAdventureTextUseCase,
+    GetAdventureSystemPromptUseCase,
     AppendChatAdventureUseCase,
     CreateChatAdventureUseCase,
     EraseAdventuresUseCase,
@@ -49,6 +52,7 @@ import {
     IEraseAdventuresController,
     IEraseAdventureController,
     IGetAdventureTextController,
+    IGetAdventureSystemPromptController,
     IStartStreamingChatController,
     IUpdateStreamingChatController,
     IFinishStreamingChatController,
@@ -56,6 +60,7 @@ import {
     IHydrateAdventureController,
 } from '@domain/controllers';
 import { IHydrateAdventureUseCase } from '@domain/use-cases';
+import { IHydrateAdventureService } from '@domain/services';
 import { idGenerate, logger, storage, getStreamProvider } from './shared';
 import {
     createAbilityRepository,
@@ -75,8 +80,8 @@ import {
 import { LlamaCppOAGateway } from '../http/llama-cpp';
 import { TextGeneration } from '../providers/textGeneration';
 
-export function createHydrateAdventureUseCase (): IHydrateAdventureUseCase {
-    return new HydrateAdventureUseCase(
+export function createHydrateAdventureService (): IHydrateAdventureService {
+    return new HydrateAdventureService(
         logger,
         createCharacterRepository(storage, logger),
         createWorldMasterRepository(storage, logger),
@@ -91,6 +96,13 @@ export function createHydrateAdventureUseCase (): IHydrateAdventureUseCase {
         createAbilityRepository(storage, logger),
         createProficiencyRepository(storage, logger),
         createStatusRepository(storage, logger)
+    );
+}
+
+export function createHydrateAdventureUseCase (): IHydrateAdventureUseCase {
+    return new HydrateAdventureUseCase(
+        logger,
+        createHydrateAdventureService()
     );
 }
 
@@ -167,9 +179,17 @@ export function getAdventureTextController (): IGetAdventureTextController {
     const textGenerationTemplatesService = new TextGenerationTemplatesService(logger);
     const textGeneration = new TextGeneration(logger, textGenerationTemplatesService);
     const llamaCppOAGateway = new LlamaCppOAGateway(logger, getStreamProvider());
-    const hydrateAdventureUseCase = createHydrateAdventureUseCase();
-    const getAdventureTextUseCase = new GetAdventureTextUseCase(logger, textGeneration, llamaCppOAGateway, hydrateAdventureUseCase);
+    const hydrateAdventureService = createHydrateAdventureService();
+    const getAdventureTextUseCase = new GetAdventureTextUseCase(logger, textGeneration, llamaCppOAGateway, hydrateAdventureService);
     return new GetAdventureTextController(logger, getAdventureTextUseCase);
+}
+
+export function getAdventureSystemPromptController (): IGetAdventureSystemPromptController {
+    const textGenerationTemplatesService = new TextGenerationTemplatesService(logger);
+    const textGeneration = new TextGeneration(logger, textGenerationTemplatesService);
+    const hydrateAdventureService = createHydrateAdventureService();
+    const getAdventureSystemPromptUseCase = new GetAdventureSystemPromptUseCase(logger, textGeneration, hydrateAdventureService);
+    return new GetAdventureSystemPromptController(logger, getAdventureSystemPromptUseCase);
 }
 
 export function hydrateAdventureController (): IHydrateAdventureController {

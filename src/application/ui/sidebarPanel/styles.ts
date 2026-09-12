@@ -1,5 +1,9 @@
 import { SIDEBAR_WIDTH } from '@application/ui/sidebarPanel/constants';
 import { StyleSheet } from 'react-native';
+import { colors } from '../theme';
+import { HEADER_HEIGHT } from './screenHeader';
+
+const TOGGLE_BUTTON_SIZE = 44;
 
 export const styles = StyleSheet.create({
     container: {
@@ -44,15 +48,15 @@ export const styles = StyleSheet.create({
         fontWeight: '500',
     },
     menuItemTextActive: {
-        color: '#fff',
+        color: colors.text,
         fontWeight: '600',
     },
     toggleButton: {
         position: 'absolute',
-        top: 12,
+        top: (HEADER_HEIGHT - TOGGLE_BUTTON_SIZE) / 2,
         left: 12,
-        width: 44,
-        height: 44,
+        width: TOGGLE_BUTTON_SIZE,
+        height: TOGGLE_BUTTON_SIZE,
         borderRadius: 8,
         backgroundColor: '#1a1a2e',
         justifyContent: 'center',
@@ -68,12 +72,14 @@ export const styles = StyleSheet.create({
         backgroundColor: '#16213e',
     },
     toggleButtonText: {
-        color: '#fff',
+        color: colors.text,
         fontSize: 22,
         fontWeight: 'bold',
     },
+    contentColumn: {
+        flex: 1,
+    },
     contentArea: {
         flex: 1,
-        paddingTop: 70,
     },
 });

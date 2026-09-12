@@ -1,8 +1,4 @@
-import {
-    ActivationPromptFormData,
-    ActivationPromptFormConfig,
-    ActivationPromptFormErrors,
-} from '@application/ui/components';
+import { ActivationPromptFormConfig } from '@application/ui/components';
 
 export const abilityFormConfig: ActivationPromptFormConfig = {
     entityName: 'Ability',
@@ -11,6 +7,3 @@ export const abilityFormConfig: ActivationPromptFormConfig = {
     activationPlaceholder: 'e.g., Combat',
     promptPlaceholder: 'Enter the ability prompt...',
 };
-
-export type AbilityFormData = ActivationPromptFormData;
-export type FormErrors = ActivationPromptFormErrors;

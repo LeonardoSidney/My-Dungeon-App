@@ -1,1 +1,1 @@
-export { SystemPromptForm } from './SystemPromptForm';
+export { SystemPromptForm } from './systemPromptForm';

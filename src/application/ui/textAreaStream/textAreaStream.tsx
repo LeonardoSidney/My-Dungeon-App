@@ -2,7 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Pressable, Text, TextInput, View } from 'react-native';
 import { Model } from '@domain/entities';
 import { DEFAULT_SAMPLER } from '@domain/constants/sampler';
-import { getConnectionsController, getModelsFromProviderController, getStreamCompletionController } from '@infra/container';
+import {
+  IGetConnectionsController,
+  IGetModelsFromProviderController,
+  IStreamCompletionController,
+} from '@domain/controllers';
+import { useControllers } from '@application/ui/providers/controllersProvider';
 import { buttonStyles, styles } from './styles';
 
 interface TextAreaStreamProps {
@@ -11,24 +16,25 @@ interface TextAreaStreamProps {
 }
 
 async function bolinhaDePelo (
+  getConnections: IGetConnectionsController,
+  getModelsFromProvider: IGetModelsFromProviderController,
+  getStreamCompletion: IStreamCompletionController,
   prompt: string,
   setPrompt: React.Dispatch<React.SetStateAction<string>>,
   abortRef: { current: (() => void) | null; }
 ) {
-  const connectionsController = getConnectionsController();
-  const connections = await connectionsController.handle();
+  const connections = await getConnections.handle();
   if (connections.length === 0) {
     throw new Error('No connections found');
   }
 
-  const modelsController = getModelsFromProviderController();
   let selectedConnectionId: string | undefined;
   let selectedModelId: string | undefined;
 
   for (const connection of connections) {
     let loadedModel: Model | undefined;
     try {
-      const modelsResponse = await modelsController.handle({ connection });
+      const modelsResponse = await getModelsFromProvider.handle({ connection });
       loadedModel = modelsResponse.models?.find(model => model.loaded === true);
     } catch (error) {
       console.error(`Failed to fetch models from connection ${connection.id}:`, error);
@@ -48,8 +54,7 @@ async function bolinhaDePelo (
     throw new Error('No loaded model found on any connection');
   }
 
-  const streamCompletionController = getStreamCompletionController();
-  const result = await streamCompletionController.handle({
+  const result = await getStreamCompletion.handle({
     connectionId: selectedConnectionId,
     samplerId: DEFAULT_SAMPLER.id,
     modelId: selectedModelId,
@@ -80,6 +85,12 @@ async function bolinhaDePelo (
 }
 
 export function TextAreaStream ({ prompt, setPrompt }: TextAreaStreamProps) {
+  const controllers = useControllers();
+  const {
+    getConnections,
+    getModelsFromProvider,
+    getStreamCompletion,
+  } = controllers;
   const [isStreaming, setIsStreaming] = useState(false);
   const isRunningRef = useRef(false);
   const abortRef = useRef<(() => void) | null>(null);
@@ -104,7 +115,7 @@ export function TextAreaStream ({ prompt, setPrompt }: TextAreaStreamProps) {
     setIsStreaming(true);
 
     try {
-      await bolinhaDePelo(prompt, setPrompt, abortRef);
+      await bolinhaDePelo(getConnections, getModelsFromProvider, getStreamCompletion, prompt, setPrompt, abortRef);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to stream response';
       Alert.alert('Erro', message);

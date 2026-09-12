@@ -1,7 +1,7 @@
 import { type SidebarMenuItem } from '@application/ui';
 
 export const sidebarMenuItems: SidebarMenuItem[] = [
-    { id: 'home', label: 'Home' },
+    { id: 'home', label: 'Sandbox' },
     { id: 'adventures', label: 'Adventures' },
     { id: 'characters', label: 'Characters' },
     { id: 'abilities', label: 'Abilities' },

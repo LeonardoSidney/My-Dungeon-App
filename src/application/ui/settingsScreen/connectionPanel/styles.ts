@@ -1,4 +1,6 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '../../theme';
+import { screenStyles } from '../../components/screenStyles';
 
 export const styles = StyleSheet.create({
     container: {
@@ -10,42 +12,37 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 12,
         paddingHorizontal: 16,
-        backgroundColor: '#333',
+        backgroundColor: colors.surfaceAlt,
         borderRadius: 8,
     },
     headerTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#fff',
+        color: colors.text,
     },
-    addButton: {
-        paddingVertical: 10,
-        paddingHorizontal: 12,
-        backgroundColor: '#2a2a2a',
-        borderRadius: 6,
-        marginTop: 8,
-        alignItems: 'center',
-    },
-    addButtonText: {
-        fontSize: 14,
-        color: '#fff',
-        fontWeight: '500',
-    },
+    addButton: screenStyles.addButton,
+    addButtonText: screenStyles.addButtonText,
     expandIcon: {
         fontSize: 18,
-        color: '#fff',
+        color: colors.text,
     },
     content: {
         marginTop: 8,
         paddingHorizontal: 8,
     },
     loadingText: {
-        color: '#aaa',
+        color: colors.textMuted,
         fontSize: 14,
         paddingHorizontal: 8,
     },
+    errorText: {
+        color: colors.dangerSoft,
+        fontSize: 14,
+        textAlign: 'center',
+        paddingVertical: 12,
+    },
     emptyText: {
-        color: '#888',
+        color: colors.textSubtle,
         fontSize: 14,
         fontStyle: 'italic',
         paddingHorizontal: 8,
@@ -56,7 +53,7 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 10,
         paddingHorizontal: 12,
-        backgroundColor: '#2a2a2a',
+        backgroundColor: colors.surface,
         borderRadius: 6,
         marginBottom: 6,
     },
@@ -66,11 +63,11 @@ export const styles = StyleSheet.create({
     connectionName: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#fff',
+        color: colors.text,
     },
     connectionDetails: {
         fontSize: 13,
-        color: '#aaa',
+        color: colors.textMuted,
         marginTop: 2,
     },
     connectionActions: {
@@ -80,10 +77,7 @@ export const styles = StyleSheet.create({
     },
     actionButton: {
         padding: 8,
-        backgroundColor: '#3a3a3a',
+        backgroundColor: colors.surfaceRaised,
         borderRadius: 4,
-    },
-    actionButtonText: {
-        fontSize: 16,
     },
 });

@@ -6,3 +6,4 @@ export * from './startStreamingChatService';
 export * from './updateStreamingChatService';
 export * from './finishStreamingChatService';
 export * from './isAdventureStreamingService';
+export * from './hydrateAdventureService';

@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import { MirostatEnum } from '@domain/entities';
 import { styles } from './styles';
+import { colors } from '../../theme';
 import { SingleSelect } from '@application/ui/components';
 import { SamplerFormProps } from './constants';
 
@@ -57,7 +58,7 @@ export function SamplerForm (params: SamplerFormProps) {
           <TextInput
             style={[styles.input, formErrors.name && styles.inputError]}
             placeholder="e.g., Default Sampler"
-            placeholderTextColor="#666"
+            placeholderTextColor={colors.placeholder}
             value={samplerStateFormData.name}
             onChangeText={(value) => onChange('name', value)}
           />
@@ -71,7 +72,7 @@ export function SamplerForm (params: SamplerFormProps) {
           <TextInput
             style={styles.input}
             placeholder="Additional observations..."
-            placeholderTextColor="#666"
+            placeholderTextColor={colors.placeholder}
             value={samplerStateFormData.observation}
             onChangeText={(value) => onChange('observation', value)}
             multiline
@@ -89,7 +90,7 @@ export function SamplerForm (params: SamplerFormProps) {
             <TextInput
               style={styles.input}
               placeholder="1.0"
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.placeholder}
               value={samplerStateFormData.temperature}
               onChangeText={(value) => onChange('temperature', value)}
               keyboardType="decimal-pad"
@@ -101,7 +102,7 @@ export function SamplerForm (params: SamplerFormProps) {
             <TextInput
               style={styles.input}
               placeholder="0.95"
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.placeholder}
               value={samplerStateFormData.topP}
               onChangeText={(value) => onChange('topP', value)}
               keyboardType="decimal-pad"
@@ -115,7 +116,7 @@ export function SamplerForm (params: SamplerFormProps) {
             <TextInput
               style={styles.input}
               placeholder="40"
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.placeholder}
               value={samplerStateFormData.topK}
               onChangeText={(value) => onChange('topK', value)}
               keyboardType="number-pad"
@@ -127,7 +128,7 @@ export function SamplerForm (params: SamplerFormProps) {
             <TextInput
               style={styles.input}
               placeholder="0.1"
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.placeholder}
               value={samplerStateFormData.minP}
               onChangeText={(value) => onChange('minP', value)}
               keyboardType="decimal-pad"
@@ -141,7 +142,7 @@ export function SamplerForm (params: SamplerFormProps) {
             <TextInput
               style={styles.input}
               placeholder="-1"
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.placeholder}
               value={samplerStateFormData.repeatLastN}
               onChangeText={(value) => onChange('repeatLastN', value)}
               keyboardType="number-pad"
@@ -153,7 +154,7 @@ export function SamplerForm (params: SamplerFormProps) {
             <TextInput
               style={styles.input}
               placeholder="1.1"
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.placeholder}
               value={samplerStateFormData.repeatPenalty}
               onChangeText={(value) => onChange('repeatPenalty', value)}
               keyboardType="decimal-pad"
@@ -167,7 +168,7 @@ export function SamplerForm (params: SamplerFormProps) {
             <TextInput
               style={styles.input}
               placeholder="0.0"
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.placeholder}
               value={samplerStateFormData.frequencyPenalty}
               onChangeText={(value) => onChange('frequencyPenalty', value)}
               keyboardType="decimal-pad"
@@ -179,7 +180,7 @@ export function SamplerForm (params: SamplerFormProps) {
             <TextInput
               style={styles.input}
               placeholder="0.0"
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.placeholder}
               value={samplerStateFormData.presencePenalty}
               onChangeText={(value) => onChange('presencePenalty', value)}
               keyboardType="decimal-pad"
@@ -205,7 +206,7 @@ export function SamplerForm (params: SamplerFormProps) {
                 <TextInput
                   style={styles.input}
                   placeholder="0.1"
-                  placeholderTextColor="#666"
+                  placeholderTextColor={colors.placeholder}
                   value={samplerStateFormData.mirostatEnt}
                   onChangeText={(value) => onChange('mirostatEnt', value)}
                   keyboardType="decimal-pad"
@@ -217,7 +218,7 @@ export function SamplerForm (params: SamplerFormProps) {
                 <TextInput
                   style={styles.input}
                   placeholder="5.0"
-                  placeholderTextColor="#666"
+                  placeholderTextColor={colors.placeholder}
                   value={samplerStateFormData.mirostatLr}
                   onChangeText={(value) => onChange('mirostatLr', value)}
                   keyboardType="decimal-pad"
@@ -232,7 +233,7 @@ export function SamplerForm (params: SamplerFormProps) {
           <TextInput
             style={styles.input}
             placeholder="Random if empty"
-            placeholderTextColor="#666"
+            placeholderTextColor={colors.placeholder}
             value={samplerStateFormData.seed}
             onChangeText={(value) => onChange('seed', value)}
           />
@@ -248,7 +249,7 @@ export function SamplerForm (params: SamplerFormProps) {
             <TextInput
               style={styles.input}
               placeholder="3"
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.placeholder}
               value={samplerStateFormData.dryAllowedLenght}
               onChangeText={(value) => onChange('dryAllowedLenght', value)}
               keyboardType="number-pad"
@@ -260,7 +261,7 @@ export function SamplerForm (params: SamplerFormProps) {
             <TextInput
               style={styles.input}
               placeholder="1.7"
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.placeholder}
               value={samplerStateFormData.dryBase}
               onChangeText={(value) => onChange('dryBase', value)}
               keyboardType="decimal-pad"
@@ -274,7 +275,7 @@ export function SamplerForm (params: SamplerFormProps) {
             <TextInput
               style={styles.input}
               placeholder="0.4"
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.placeholder}
               value={samplerStateFormData.dryMultiplier}
               onChangeText={(value) => onChange('dryMultiplier', value)}
               keyboardType="decimal-pad"
@@ -286,7 +287,7 @@ export function SamplerForm (params: SamplerFormProps) {
             <TextInput
               style={styles.input}
               placeholder="1.0"
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.placeholder}
               value={samplerStateFormData.dynaTempExp}
               onChangeText={(value) => onChange('dynaTempExp', value)}
               keyboardType="decimal-pad"
@@ -300,7 +301,7 @@ export function SamplerForm (params: SamplerFormProps) {
             <TextInput
               style={styles.input}
               placeholder="0"
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.placeholder}
               value={samplerStateFormData.dynaTempRange}
               onChangeText={(value) => onChange('dynaTempRange', value)}
               keyboardType="number-pad"
@@ -312,7 +313,7 @@ export function SamplerForm (params: SamplerFormProps) {
             <TextInput
               style={styles.input}
               placeholder="0.1"
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.placeholder}
               value={samplerStateFormData.xtcProbability}
               onChangeText={(value) => onChange('xtcProbability', value)}
               keyboardType="decimal-pad"
@@ -325,7 +326,7 @@ export function SamplerForm (params: SamplerFormProps) {
           <TextInput
             style={styles.input}
             placeholder="0.5"
-            placeholderTextColor="#666"
+            placeholderTextColor={colors.placeholder}
             value={samplerStateFormData.xtcThreshould}
             onChangeText={(value) => onChange('xtcThreshould', value)}
             keyboardType="decimal-pad"
@@ -338,7 +339,7 @@ export function SamplerForm (params: SamplerFormProps) {
             <TextInput
               style={styles.input}
               placeholder="2.5"
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.placeholder}
               value={samplerStateFormData.topNSigma}
               onChangeText={(value) => onChange('topNSigma', value)}
               keyboardType="decimal-pad"
@@ -350,7 +351,7 @@ export function SamplerForm (params: SamplerFormProps) {
             <TextInput
               style={styles.input}
               placeholder="1.0"
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.placeholder}
               value={samplerStateFormData.typicalP}
               onChangeText={(value) => onChange('typicalP', value)}
               keyboardType="decimal-pad"
@@ -364,7 +365,7 @@ export function SamplerForm (params: SamplerFormProps) {
             <TextInput
               style={styles.input}
               placeholder="1.1"
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.placeholder}
               value={samplerStateFormData.adaptativeDecay}
               onChangeText={(value) => onChange('adaptativeDecay', value)}
               keyboardType="decimal-pad"
@@ -376,7 +377,7 @@ export function SamplerForm (params: SamplerFormProps) {
             <TextInput
               style={styles.input}
               placeholder="5.0"
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.placeholder}
               value={samplerStateFormData.adaptativeTarget}
               onChangeText={(value) => onChange('adaptativeTarget', value)}
               keyboardType="decimal-pad"
@@ -389,7 +390,7 @@ export function SamplerForm (params: SamplerFormProps) {
           <TextInput
             style={styles.input}
             placeholder="\\n, \\n\\n,  "
-            placeholderTextColor="#666"
+            placeholderTextColor={colors.placeholder}
             value={samplerStateFormData.drySequenceBreakers}
             onChangeText={(value) => onChange('drySequenceBreakers', value)}
           />

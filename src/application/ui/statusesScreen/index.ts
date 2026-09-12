@@ -1,1 +1,1 @@
-export { StatusesScreen } from './StatusesScreen';
+export { StatusesScreen } from './statusesScreen';

@@ -11,6 +11,7 @@ import {
     eraseAdventuresController,
     eraseAdventureController,
     getAdventureTextController,
+    getAdventureSystemPromptController,
     hydrateAdventureController,
     startStreamingChatController,
     updateStreamingChatController,
@@ -50,6 +51,7 @@ import {
     editStatusController,
     eraseStatusController,
     getStreamCompletionController,
+    getNativeStreamCompletionController,
     createSystemPromptController,
     getSystemPromptsController,
     editSystemPromptController,
@@ -63,137 +65,7 @@ import {
     editWorldMasterController,
     eraseWorldMasterController,
 } from '@infra/container';
-import {
-    ICreateAbilityController,
-    IGetAbilitiesController,
-    IEditAbilityController,
-    IEraseAbilityController,
-    ICreateAdventureController,
-    IEditAdventureController,
-    IGetAdventuresController,
-    IAppendChatAdventureController,
-    ICreateChatAdventureController,
-    IEraseAdventuresController,
-    IEraseAdventureController,
-    IGetAdventureTextController,
-    IHydrateAdventureController,
-    IStartStreamingChatController,
-    IUpdateStreamingChatController,
-    IFinishStreamingChatController,
-    IIsAdventureStreamingController,
-    ICreateAssistantController,
-    IGetAssistantsController,
-    IEditAssistantController,
-    IEraseAssistantController,
-    ICreateCharacterController,
-    IGetCharactersController,
-    IEditCharacterController,
-    IEraseCharacterController,
-    ICreateConnectionConfigController,
-    IGetConnectionsController,
-    IEraseConnectionController,
-    IEditConnectionController,
-    ICreateItemController,
-    IGetItemsController,
-    IEditItemController,
-    IEraseItemController,
-    ICreateLocationController,
-    IGetLocationsController,
-    IEditLocationController,
-    IEraseLocationController,
-    IGetModelsFromProviderController,
-    ICreateProficiencyController,
-    IGetProficienciesController,
-    IEditProficiencyController,
-    IEraseProficiencyController,
-    ICreateSamplerController,
-    IGetSamplersController,
-    IEditSamplerController,
-    IEraseSamplerController,
-    ICreateStatusController,
-    IGetStatusesController,
-    IEditStatusController,
-    IEraseStatusController,
-    IStreamCompletionController,
-    ICreateSystemPromptController,
-    IGetSystemPromptsController,
-    IEditSystemPromptController,
-    IEraseSystemPromptController,
-    ICreateWorldController,
-    IGetWorldsController,
-    IEraseWorldController,
-    IEditWorldController,
-    ICreateWorldMasterController,
-    IGetWorldMastersController,
-    IEditWorldMasterController,
-    IEraseWorldMasterController,
-} from '@domain/controllers';
-
-export type AppControllers = {
-    createAbility: ICreateAbilityController;
-    getAbilities: IGetAbilitiesController;
-    editAbility: IEditAbilityController;
-    eraseAbility: IEraseAbilityController;
-    createAdventure: ICreateAdventureController;
-    editAdventure: IEditAdventureController;
-    getAdventures: IGetAdventuresController;
-    appendChatAdventure: IAppendChatAdventureController;
-    createChatAdventure: ICreateChatAdventureController;
-    eraseAdventures: IEraseAdventuresController;
-    eraseAdventure: IEraseAdventureController;
-    getAdventureText: IGetAdventureTextController;
-    hydrateAdventure: IHydrateAdventureController;
-    startStreamingChat: IStartStreamingChatController;
-    updateStreamingChat: IUpdateStreamingChatController;
-    finishStreamingChat: IFinishStreamingChatController;
-    isAdventureStreaming: IIsAdventureStreamingController;
-    createAssistant: ICreateAssistantController;
-    getAssistants: IGetAssistantsController;
-    editAssistant: IEditAssistantController;
-    eraseAssistant: IEraseAssistantController;
-    createCharacter: ICreateCharacterController;
-    getCharacters: IGetCharactersController;
-    editCharacter: IEditCharacterController;
-    eraseCharacter: IEraseCharacterController;
-    createConnectionConfig: ICreateConnectionConfigController;
-    getConnections: IGetConnectionsController;
-    eraseConnection: IEraseConnectionController;
-    editConnection: IEditConnectionController;
-    createItem: ICreateItemController;
-    getItems: IGetItemsController;
-    editItem: IEditItemController;
-    eraseItem: IEraseItemController;
-    createLocation: ICreateLocationController;
-    getLocations: IGetLocationsController;
-    editLocation: IEditLocationController;
-    eraseLocation: IEraseLocationController;
-    getModelsFromProvider: IGetModelsFromProviderController;
-    createProficiency: ICreateProficiencyController;
-    getProficiencies: IGetProficienciesController;
-    editProficiency: IEditProficiencyController;
-    eraseProficiency: IEraseProficiencyController;
-    createSampler: ICreateSamplerController;
-    getSamplers: IGetSamplersController;
-    editSampler: IEditSamplerController;
-    eraseSampler: IEraseSamplerController;
-    createStatus: ICreateStatusController;
-    getStatuses: IGetStatusesController;
-    editStatus: IEditStatusController;
-    eraseStatus: IEraseStatusController;
-    getStreamCompletion: IStreamCompletionController;
-    createSystemPrompt: ICreateSystemPromptController;
-    getSystemPrompts: IGetSystemPromptsController;
-    editSystemPrompt: IEditSystemPromptController;
-    eraseSystemPrompt: IEraseSystemPromptController;
-    createWorld: ICreateWorldController;
-    getWorlds: IGetWorldsController;
-    eraseWorld: IEraseWorldController;
-    editWorld: IEditWorldController;
-    createWorldMaster: ICreateWorldMasterController;
-    getWorldMasters: IGetWorldMastersController;
-    editWorldMaster: IEditWorldMasterController;
-    eraseWorldMaster: IEraseWorldMasterController;
-};
+import type { AppControllers } from '@application/ui/providers/appControllers';
 
 export function buildControllers (): AppControllers {
     return {
@@ -210,6 +82,7 @@ export function buildControllers (): AppControllers {
         eraseAdventures: eraseAdventuresController(),
         eraseAdventure: eraseAdventureController(),
         getAdventureText: getAdventureTextController(),
+        getAdventureSystemPrompt: getAdventureSystemPromptController(),
         hydrateAdventure: hydrateAdventureController(),
         startStreamingChat: startStreamingChatController(),
         updateStreamingChat: updateStreamingChatController(),
@@ -249,6 +122,7 @@ export function buildControllers (): AppControllers {
         editStatus: editStatusController(),
         eraseStatus: eraseStatusController(),
         getStreamCompletion: getStreamCompletionController(),
+        getNativeStreamCompletion: getNativeStreamCompletionController(),
         createSystemPrompt: createSystemPromptController(),
         getSystemPrompts: getSystemPromptsController(),
         editSystemPrompt: editSystemPromptController(),

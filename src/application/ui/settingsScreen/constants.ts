@@ -11,12 +11,3 @@ export type ConnectionFormData = {
     auth: string;
     id?: string;
 };
-
-export function setInitialConnectionState (): ConnectionFormData {
-    return {
-        name: '',
-        ip: '',
-        port: '',
-        auth: '',
-    };
-}

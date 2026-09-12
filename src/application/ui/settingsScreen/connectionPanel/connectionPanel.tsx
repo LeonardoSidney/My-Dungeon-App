@@ -1,30 +1,34 @@
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Connection } from '@domain/entities';
+import { Pencil, Trash2 } from 'lucide-react-native';
 import { ConnectionForm } from '../connectionForm';
 import { ConnectionFormData } from '../constants';
 import { styles } from './styles';
+import { colors } from '../../theme';
 
 type ConnectionPanelProps = {
   connections: Connection[];
   loading: boolean;
+  isError?: boolean;
   expanded: boolean;
   onToggleExpand: () => void;
   onAdd: () => void;
   onEdit: (connection: Connection) => void;
-  onDelete: (connectionId: string) => void;
+  onDelete: (connection: Connection) => Promise<void>;
   formVisible: boolean;
   formData: ConnectionFormData;
   onFormChange: (field: keyof ConnectionFormData, value: string) => void;
   onFormCancel: () => void;
   onFormSave: () => void;
-  formErrors: { name?: string; port?: string; };
+  formErrors: { name?: string; ip?: string; port?: string; };
   formLoading: boolean;
 };
 
 export function ConnectionPanel ({
   connections,
   loading,
+  isError,
   expanded,
   onToggleExpand,
   onAdd,
@@ -51,10 +55,11 @@ export function ConnectionPanel ({
       {expanded && (
         <View style={styles.content}>
           {loading && <Text style={styles.loadingText}>Loading...</Text>}
-          {!loading && connections.length === 0 && (
+          {!loading && isError && <Text style={styles.errorText}>Failed to load connections.</Text>}
+          {!loading && !isError && connections.length === 0 && (
             <Text style={styles.emptyText}>No connections found.</Text>
           )}
-          {!loading &&
+          {!loading && !isError &&
             connections.map((connection) => (
               <View key={connection.id} style={styles.connectionItem}>
                 <View style={styles.connectionInfo}>
@@ -68,13 +73,13 @@ export function ConnectionPanel ({
                     style={styles.actionButton}
                     onPress={() => onEdit(connection)}
                   >
-                    <Text style={styles.actionButtonText}>✏️</Text>
+                    <Pencil size={16} color={colors.text} />
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.actionButton}
-                    onPress={() => onDelete(connection.id)}
+                    onPress={() => onDelete(connection)}
                   >
-                    <Text style={styles.actionButtonText}>🗑️</Text>
+                    <Trash2 size={16} color={colors.text} />
                   </TouchableOpacity>
                 </View>
               </View>

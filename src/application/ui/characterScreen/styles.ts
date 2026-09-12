@@ -1,68 +1,9 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '../theme';
+import { screenStyles } from '../components/screenStyles';
 
 export const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 16,
-    },
-    header: {
-        flexDirection: 'column',
-        marginBottom: 16,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#fff',
-    },
-    characterItem: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        backgroundColor: '#2a2a2a',
-        borderRadius: 8,
-        marginBottom: 8,
-    },
-    characterInfo: {
-        flex: 1,
-    },
-    characterName: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#fff',
-    },
-    characterDetails: {
-        fontSize: 13,
-        color: '#aaa',
-        marginTop: 4,
-    },
-    characterActions: {
-        flexDirection: 'row',
-        gap: 8,
-        marginLeft: 12,
-    },
-    actionButton: {
-        padding: 8,
-        backgroundColor: '#3a3a3a',
-        borderRadius: 6,
-    },
-    actionButtonText: {
-        fontSize: 16,
-    },
-    addButton: {
-        paddingVertical: 10,
-        paddingHorizontal: 12,
-        backgroundColor: '#2a2a2a',
-        borderRadius: 6,
-        marginTop: 8,
-        alignItems: 'center',
-    },
-    addButtonText: {
-        fontSize: 14,
-        color: '#fff',
-        fontWeight: '500',
-    },
+    ...screenStyles,
     attributesHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -77,7 +18,7 @@ export const styles = StyleSheet.create({
     },
     addAttributeButtonText: {
         fontSize: 14,
-        color: '#fff',
+        color: colors.text,
         fontWeight: '600',
     },
     attributeRow: {
@@ -88,13 +29,13 @@ export const styles = StyleSheet.create({
         flexWrap: 'nowrap',
     },
     attributeInput: {
-        backgroundColor: '#2a2a2a',
+        backgroundColor: colors.surface,
         borderWidth: 1,
-        borderColor: '#444',
+        borderColor: colors.border,
         borderRadius: 8,
         padding: 10,
         fontSize: 16,
-        color: '#fff',
+        color: colors.text,
     },
     attributeNameInput: {
         flex: 1,
@@ -111,11 +52,11 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 8,
-        backgroundColor: '#e74c3c',
+        backgroundColor: colors.danger,
     },
     removeAttributeButtonText: {
         fontSize: 24,
-        color: '#fff',
+        color: colors.text,
         fontWeight: 'bold',
         lineHeight: 24,
     },

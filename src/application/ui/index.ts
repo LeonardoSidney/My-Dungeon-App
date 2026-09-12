@@ -15,4 +15,7 @@ export { ItemScreen } from './itemScreen';
 export { LocationScreen } from './locationScreen';
 export { SystemPromptsScreen } from './systemPromptsScreen';
 export { AdventuresScreen } from './adventuresScreen';
+export { HomeScreen } from './homeScreen';
+export type { HomeScreenProps } from './homeScreen';
+export { colors } from './theme';
 export { sidebarMenuItems } from './constants';
