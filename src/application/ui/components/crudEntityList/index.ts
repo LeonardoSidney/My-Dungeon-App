@@ -1,2 +1,2 @@
-export { CrudEntityList } from './CrudEntityList';
+export { CrudEntityList } from './crudEntityList';
 export type { CrudEntityListProps, CrudEntityListItem } from './constants';

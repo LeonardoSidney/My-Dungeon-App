@@ -6,6 +6,7 @@ export type FormErrors = {
 
 export interface SamplerPanelProps {
     samplers: Sampler[];
+    isLoading?: boolean;
     onEdit: (sampler: Sampler) => void;
     onDelete: (sampler: Sampler) => Promise<void>;
 }

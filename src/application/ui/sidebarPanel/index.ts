@@ -1,2 +1,4 @@
-export { SidebarPanel } from './SidebarPanel';
-export type { SidebarPanelProps, SidebarMenuItem, SidebarRoute } from './SidebarPanel';
+export { SidebarPanel } from './sidebarPanel';
+export type { SidebarPanelProps, SidebarMenuItem, SidebarRoute } from './sidebarPanel';
+export { ScreenHeader } from './screenHeader';
+export type { ScreenHeaderProps } from './screenHeader';

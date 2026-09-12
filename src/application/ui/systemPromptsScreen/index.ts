@@ -1,1 +1,1 @@
-export { SystemPromptsScreen } from './SystemPromptsScreen';
+export { SystemPromptsScreen } from './systemPromptsScreen';

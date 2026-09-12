@@ -1,10 +1,30 @@
-import { Adventure, Character, Chat, SystemPrompt, WorldMaster, World, Location, Item } from '@domain/entities';
+import { Character, Chat, SystemPrompt, WorldMaster, World, Location, Item } from '@domain/entities';
+import {
+    IAppendChatAdventureController,
+    ICreateChatAdventureController,
+    IEditAdventureController,
+    IFinishStreamingChatController,
+    IGetAdventureTextController,
+    IGetAdventuresController,
+    INativeStreamCompletionController,
+    IGetWorldMastersController,
+    IHydrateAdventureController,
+    IStartStreamingChatController,
+    IUpdateStreamingChatController,
+} from '@domain/controllers';
 
-export interface AdventuresPanelProps {
-    adventures: Adventure[];
-    onEdit: (adventure: Adventure) => void;
-    onDelete: (adventure: Adventure) => Promise<void>;
-    onChat: (adventure: Adventure) => void;
+export interface AdventureChatScreenControllers {
+    getAdventures: IGetAdventuresController;
+    editAdventure: IEditAdventureController;
+    hydrateAdventure: IHydrateAdventureController;
+    createChatAdventure: ICreateChatAdventureController;
+    appendChatAdventure: IAppendChatAdventureController;
+    startStreamingChat: IStartStreamingChatController;
+    updateStreamingChat: IUpdateStreamingChatController;
+    finishStreamingChat: IFinishStreamingChatController;
+    getAdventureText: IGetAdventureTextController;
+    getNativeStreamCompletion: INativeStreamCompletionController;
+    getWorldMasters: IGetWorldMastersController;
 }
 
 export interface AdventuresScreenProps {
@@ -25,7 +45,6 @@ export type AdventureFormData = {
     worldMaster?: WorldMaster;
     characterAsWorldMasterId?: string;
     charactersControlledByAi: string[];
-    availableCharacters: Character[];
     worlds?: World[];
     locations?: Location[];
     items?: Item[];

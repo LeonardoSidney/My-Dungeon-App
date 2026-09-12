@@ -24,14 +24,3 @@ export type FormErrors = {
     assistant?: string;
     prompt?: string;
 };
-
-export function setInitialWorldMasterState (): WorldMasterFormData {
-    return {
-        id: '',
-        name: '',
-        activationWord: '',
-        prompt: '',
-        observation: '',
-        assistant: null,
-    };
-}

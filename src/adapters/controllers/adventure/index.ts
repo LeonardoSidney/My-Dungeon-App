@@ -5,6 +5,7 @@ export * from './hydrateAdventureController';
 export * from './createChatAdventureController';
 export * from './getAdventuresController';
 export * from './getAdventureTextController';
+export * from './getAdventureSystemPromptController';
 export * from './eraseAdventuresController';
 export * from './eraseAdventureController';
 export * from './startStreamingChatController';

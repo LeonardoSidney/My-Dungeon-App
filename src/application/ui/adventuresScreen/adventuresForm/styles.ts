@@ -1,15 +1,16 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '../../theme';
 
 export const styles = StyleSheet.create({
     container: {
         marginTop: 8,
     },
     form: {
-        backgroundColor: '#1e1e1e',
+        backgroundColor: colors.surfaceInset,
         borderRadius: 8,
         padding: 16,
         borderTopWidth: 1,
-        borderTopColor: '#333',
+        borderTopColor: colors.surfaceAlt,
     },
     formHeader: {
         flexDirection: 'row',
@@ -20,14 +21,14 @@ export const styles = StyleSheet.create({
     formTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#fff',
+        color: colors.text,
     },
     closeButton: {
         padding: 4,
     },
     closeButtonText: {
         fontSize: 18,
-        color: '#aaa',
+        color: colors.textMuted,
     },
     inputGroup: {
         marginBottom: 12,
@@ -35,52 +36,52 @@ export const styles = StyleSheet.create({
     label: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#ccc',
+        color: colors.textSecondary,
         marginBottom: 6,
     },
     input: {
-        backgroundColor: '#2a2a2a',
+        backgroundColor: colors.surface,
         borderWidth: 1,
-        borderColor: '#444',
+        borderColor: colors.border,
         borderRadius: 8,
         padding: 12,
         fontSize: 16,
-        color: '#ccc',
+        color: colors.textSecondary,
     },
     inputError: {
-        borderColor: '#e74c3c',
+        borderColor: colors.danger,
     },
     errorText: {
-        color: '#e74c3c',
+        color: colors.danger,
         fontSize: 12,
         marginTop: 4,
     },
     promptInput: {
-        backgroundColor: '#2a2a2a',
+        backgroundColor: colors.surface,
         borderWidth: 1,
-        borderColor: '#444',
+        borderColor: colors.border,
         borderRadius: 8,
         padding: 12,
         fontSize: 16,
-        color: '#ccc',
+        color: colors.textSecondary,
         minHeight: 100,
         textAlignVertical: 'top',
     },
     observationInput: {
-        backgroundColor: '#2a2a2a',
+        backgroundColor: colors.surface,
         borderWidth: 1,
-        borderColor: '#444',
+        borderColor: colors.border,
         borderRadius: 8,
         padding: 12,
         fontSize: 16,
-        color: '#ccc',
+        color: colors.textSecondary,
         minHeight: 80,
         textAlignVertical: 'top',
     },
     dropdown: {
-        backgroundColor: '#2a2a2a',
+        backgroundColor: colors.surface,
         borderWidth: 1,
-        borderColor: '#444',
+        borderColor: colors.border,
         borderRadius: 8,
         maxHeight: 150,
         overflow: 'hidden',
@@ -88,18 +89,18 @@ export const styles = StyleSheet.create({
     dropdownOption: {
         padding: 12,
         borderBottomWidth: 1,
-        borderBottomColor: '#333',
+        borderBottomColor: colors.surfaceAlt,
     },
     dropdownOptionSelected: {
-        backgroundColor: '#3a3a3a',
+        backgroundColor: colors.surfaceRaised,
     },
     dropdownOptionText: {
         fontSize: 16,
-        color: '#fff',
+        color: colors.text,
     },
     emptyDropdownText: {
         fontSize: 14,
-        color: '#888',
+        color: colors.textSubtle,
         padding: 12,
         textAlign: 'center',
     },
@@ -110,34 +111,34 @@ export const styles = StyleSheet.create({
         marginTop: 16,
         paddingTop: 16,
         borderTopWidth: 1,
-        borderTopColor: '#333',
+        borderTopColor: colors.surfaceAlt,
     },
     cancelButton: {
         paddingHorizontal: 20,
         paddingVertical: 10,
         borderRadius: 8,
-        backgroundColor: '#444',
+        backgroundColor: colors.border,
     },
     cancelButtonText: {
         fontSize: 16,
-        color: '#fff',
+        color: colors.text,
         fontWeight: '600',
     },
     saveButton: {
         paddingHorizontal: 20,
         paddingVertical: 10,
         borderRadius: 8,
-        backgroundColor: '#3498db',
+        backgroundColor: colors.primary,
     },
     saveButtonText: {
         fontSize: 16,
-        color: '#fff',
+        color: colors.text,
         fontWeight: '600',
     },
     selectListContainer: {
-        backgroundColor: '#2a2a2a',
+        backgroundColor: colors.surface,
         borderWidth: 1,
-        borderColor: '#444',
+        borderColor: colors.border,
         borderRadius: 8,
         overflow: 'hidden',
     },
@@ -147,17 +148,17 @@ export const styles = StyleSheet.create({
     selectOption: {
         padding: 12,
         borderBottomWidth: 1,
-        borderBottomColor: '#333',
+        borderBottomColor: colors.surfaceAlt,
     },
     selectOptionSelected: {
-        backgroundColor: '#3a3a3a',
+        backgroundColor: colors.surfaceRaised,
     },
     selectOptionText: {
         fontSize: 16,
-        color: '#fff',
+        color: colors.text,
     },
     selectOptionTextSelected: {
-        color: '#3498db',
+        color: colors.primary,
     },
     selectCheckbox: {
         marginRight: 8,
@@ -171,19 +172,19 @@ export const styles = StyleSheet.create({
     selectedTag: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#3498db',
+        backgroundColor: colors.primary,
         borderRadius: 16,
         paddingHorizontal: 12,
         paddingVertical: 4,
     },
     selectedTagText: {
         fontSize: 14,
-        color: '#fff',
+        color: colors.text,
         marginRight: 8,
     },
     selectedTagRemove: {
         fontSize: 16,
-        color: '#fff',
+        color: colors.text,
     },
     sectionContainer: {
         marginBottom: 16,
@@ -191,7 +192,7 @@ export const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#fff',
+        color: colors.text,
         marginBottom: 8,
     },
 });

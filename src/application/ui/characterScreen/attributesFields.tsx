@@ -2,6 +2,7 @@ import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Attribute } from '@domain/entities';
 import { formStyles } from '@application/ui/components';
 import { styles } from './styles';
+import { colors } from '../theme';
 
 function handleAddAttribute (attributes: Attribute[]): Attribute[] {
   return [...attributes, { name: '', value: 0 }];
@@ -45,14 +46,14 @@ export function renderAttributesField (
             value={attr.name}
             onChangeText={value => onChangeAttributes(handleAttributeNameChange(attributes, index, value))}
             placeholder="Name (e.g., Strength)"
-            placeholderTextColor="#666"
+            placeholderTextColor={colors.placeholder}
           />
           <TextInput
             style={[styles.attributeInput, styles.attributeValueInput]}
             value={attr.value.toString()}
             onChangeText={value => onChangeAttributes(handleAttributeValueChange(attributes, index, value))}
             placeholder="Value"
-            placeholderTextColor="#666"
+            placeholderTextColor={colors.placeholder}
             keyboardType="numeric"
           />
           <TouchableOpacity

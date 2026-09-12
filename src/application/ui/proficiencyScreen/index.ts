@@ -1,1 +1,1 @@
-export { ProficiencyScreen } from './ProficiencyScreen';
+export { ProficiencyScreen } from './proficiencyScreen';

@@ -1,1 +1,1 @@
-export { LocationScreen } from './LocationScreen';
+export { LocationScreen } from './locationScreen';

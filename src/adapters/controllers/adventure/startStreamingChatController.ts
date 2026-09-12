@@ -20,6 +20,7 @@ export class StartStreamingChatController implements IStartStreamingChatControll
             adventure: request.adventure,
             role: request.role,
             characterId: request.characterId,
+            chatId: request.chatId,
         });
 
         return {

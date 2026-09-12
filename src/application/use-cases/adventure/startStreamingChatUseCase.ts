@@ -27,6 +27,7 @@ export class StartStreamingChatUseCase implements IStartStreamingChatUseCase {
             adventure: params.adventure,
             role: params.role,
             characterId: params.characterId,
+            chatId: params.chatId,
         });
 
         if (!response.success) {

@@ -15,48 +15,90 @@ export function useAdventureFormLogic (
     const characterAsWorldMasterId = adventureStateFormData.characterAsWorldMasterId;
     const formDataCharactersControlledByAi = adventureStateFormData.charactersControlledByAi;
     const formSelectedCharacters = adventureStateFormData.characters;
+    const worldMaster = adventureStateFormData.worldMaster;
 
     const filteredCharacters = characters.filter(
         character =>
             character.id !== characterAsWorldMasterId && !formDataCharactersControlledByAi.includes(character.id)
     );
 
+    const removeCharacterFromBuckets = (id: string): {
+        characters: Character[];
+        aiIds: string[];
+        wmCharId?: string;
+    } => {
+        const charactersWithout = formSelectedCharacters.filter(character => character.id !== id);
+        const aiIdsWithout = formDataCharactersControlledByAi.filter(existingId => existingId !== id);
+        const wmCharId = characterAsWorldMasterId === id ? undefined : characterAsWorldMasterId;
+        return { characters: charactersWithout, aiIds: aiIdsWithout, wmCharId };
+    };
+
+    const restoreCharacterAsPlayable = (id: string, bucketCharacters: Character[]): Character[] => {
+        const character = bucketCharacters.find(entry => entry.id === id);
+        if (!character) {
+            return bucketCharacters;
+        }
+        const charactersWithout = bucketCharacters.filter(entry => entry.id !== id);
+        return [...charactersWithout, character];
+    };
+
     const handleSystemPromptToggle = (systemPrompt: SystemPrompt) => {
         onChange('systemPrompts', toggleInList(adventureStateFormData.systemPrompts, systemPrompt));
     };
 
     const handleCharacterToggle = (character: Character) => {
-        onChange('characters', toggleInList(formSelectedCharacters, character));
+        const isPlayable = formSelectedCharacters.some(entry => entry.id === character.id);
+        if (isPlayable) {
+            onChange('characters', formSelectedCharacters.filter(entry => entry.id !== character.id));
+            return;
+        }
+        const cleaned = removeCharacterFromBuckets(character.id);
+        onChange('characters', [...cleaned.characters, character]);
+        onChange('charactersControlledByAi', cleaned.aiIds);
+        onChange('characterAsWorldMasterId', cleaned.wmCharId);
     };
 
     const handleAiCharacterToggle = (character: Character) => {
-        const isCharacterSelected = formDataCharactersControlledByAi.includes(character.id);
-        const newCharactersControlledByAi = isCharacterSelected
-            ? formDataCharactersControlledByAi.filter(id => id !== character.id)
-            : [...formDataCharactersControlledByAi, character.id];
-        if (!isCharacterSelected && formSelectedCharacters.some(c => c.id === character.id)) {
-            onChange('characters', formSelectedCharacters.filter(c => c.id !== character.id));
+        const isAiControlled = formDataCharactersControlledByAi.includes(character.id);
+        if (isAiControlled) {
+            onChange('charactersControlledByAi', formDataCharactersControlledByAi.filter(id => id !== character.id));
+            return;
         }
-        onChange('charactersControlledByAi', newCharactersControlledByAi);
+        const cleaned = removeCharacterFromBuckets(character.id);
+        onChange('characters', cleaned.characters);
+        onChange('charactersControlledByAi', [...cleaned.aiIds, character.id]);
+        onChange('characterAsWorldMasterId', cleaned.wmCharId);
     };
 
     const handleWorldMasterCharacterSelect = (selectedCharacter: Character) => {
-        const newWorldMasterId = characterAsWorldMasterId === selectedCharacter.id ? undefined : selectedCharacter.id;
-        if (characterAsWorldMasterId && characterAsWorldMasterId !== newWorldMasterId) {
-            onChange('charactersControlledByAi', formDataCharactersControlledByAi.filter(id => id !== characterAsWorldMasterId));
+        const isCurrent = characterAsWorldMasterId === selectedCharacter.id;
+        if (isCurrent) {
+            onChange('characterAsWorldMasterId', undefined);
+            onChange('characters', restoreCharacterAsPlayable(selectedCharacter.id, formSelectedCharacters));
+            return;
         }
-        if (newWorldMasterId && formSelectedCharacters.some(c => c.id === newWorldMasterId)) {
-            onChange('characters', formSelectedCharacters.filter(c => c.id !== newWorldMasterId));
-        }
-        onChange('charactersControlledByAi', formDataCharactersControlledByAi.filter(id => id !== selectedCharacter.id));
-        onChange('characterAsWorldMasterId', newWorldMasterId);
+        const cleaned = removeCharacterFromBuckets(selectedCharacter.id);
+        const restoredCharacters = characterAsWorldMasterId
+            ? restoreCharacterAsPlayable(characterAsWorldMasterId, cleaned.characters)
+            : cleaned.characters;
+        onChange('characters', restoredCharacters);
+        onChange('charactersControlledByAi', cleaned.aiIds);
+        onChange('characterAsWorldMasterId', selectedCharacter.id);
+        onChange('worldMaster', undefined);
     };
 
-    const handleWorldMasterSelect = (worldMaster: WorldMaster) => {
-        const newWorldMaster = adventureStateFormData.worldMaster?.id === worldMaster.id ? undefined : worldMaster;
-        onChange('worldMaster', newWorldMaster);
-        onChange('characters', formSelectedCharacters.filter(c => c.id !== characterAsWorldMasterId));
-        onChange('characterAsWorldMasterId', undefined);
+    const handleWorldMasterSelect = (worldMasterEntity: WorldMaster) => {
+        const isCurrent = worldMaster?.id === worldMasterEntity.id;
+        if (isCurrent) {
+            onChange('worldMaster', undefined);
+            return;
+        }
+        if (characterAsWorldMasterId) {
+            const restoredCharacters = restoreCharacterAsPlayable(characterAsWorldMasterId, formSelectedCharacters);
+            onChange('characters', restoredCharacters);
+            onChange('characterAsWorldMasterId', undefined);
+        }
+        onChange('worldMaster', worldMasterEntity);
     };
 
     const handleWorldToggle = (world: World) => {

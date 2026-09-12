@@ -8,6 +8,7 @@ export type StartStreamingChatControllerRequest = {
     adventure: Adventure;
     role: Role;
     characterId: string;
+    chatId?: string;
 };
 
 export type StartStreamingChatControllerResponse = {

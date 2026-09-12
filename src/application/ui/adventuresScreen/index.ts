@@ -1,2 +1,2 @@
-export { AdventuresScreen } from './AdventuresScreen';
+export { AdventuresScreen } from './adventuresScreen';
 export { AdventuresForm } from './adventuresForm';

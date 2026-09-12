@@ -21,15 +21,3 @@ export type FormErrors = {
     model?: string;
     sampler?: string;
 };
-
-export function setInitialAssistantState (): AssistantFormData {
-    return {
-        id: '',
-        name: '',
-        activationWord: '',
-        prompt: '',
-        observation: '',
-        model: null,
-        sampler: null,
-    };
-}

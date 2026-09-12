@@ -8,6 +8,7 @@ export type StartStreamingChatUseCaseParams = {
     adventure: Adventure;
     role: Role;
     characterId: string;
+    chatId?: string;
 };
 
 export type StartStreamingChatUseCaseReturn = {

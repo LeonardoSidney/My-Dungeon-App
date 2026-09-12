@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '../../theme';
 
 export const styles = StyleSheet.create({
     container: {
@@ -16,18 +17,18 @@ export const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#fff',
+        color: colors.text,
     },
     expandIcon: {
         fontSize: 18,
-        color: '#fff',
+        color: colors.text,
     },
     content: {
         marginTop: 8,
         paddingHorizontal: 8,
     },
     warningText: {
-        color: '#ff6b6b',
+        color: colors.dangerSoft,
         fontSize: 14,
         marginBottom: 12,
         paddingHorizontal: 8,
@@ -42,7 +43,7 @@ export const styles = StyleSheet.create({
     },
     eraseButtonText: {
         fontSize: 14,
-        color: '#fff',
+        color: colors.text,
         fontWeight: '600',
     },
     eraseButtonDisabled: {

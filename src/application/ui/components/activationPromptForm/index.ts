@@ -1,4 +1,4 @@
-export { ActivationPromptForm } from './ActivationPromptForm';
+export { ActivationPromptForm } from './activationPromptForm';
 export type {
     ActivationPromptFormData,
     ActivationPromptFormErrors,
