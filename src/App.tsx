@@ -6,6 +6,7 @@ import type { NavigationHelpers, StackNavigationState } from '@react-navigation/
 import { colors } from '@application/ui/theme';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ControllersProvider } from '@application/ui/providers/controllersProvider';
+import { WebAlertProvider } from '@application/ui/providers/webAlertProvider';
 import { buildControllers } from '@composition/controllers';
 import {
   SettingsScreen,
@@ -99,32 +100,34 @@ function App () {
 
   return (
     <SafeAreaProvider>
-      <ControllersProvider controllers={controllers}>
-        <SafeAreaView style={styles.safeArea}>
-          <NavigationContainer theme={navigationTheme} documentTitle={{ enabled: false }}>
-            <Navigator
-              initialRouteName="home"
-              screenOptions={{ headerShown: false }}
-              layout={renderLayout}
-            >
-              <Screen name="home" children={renderHome} />
-              <Screen name="adventures" children={renderAdventures} />
-              <Screen name="characters" component={CharacterScreen} />
-              <Screen name="abilities" component={AbilitiesScreen} />
-              <Screen name="statuses" component={StatusesScreen} />
-              <Screen name="items" component={ItemScreen} />
-              <Screen name="locations" component={LocationScreen} />
-              <Screen name="systemPrompts" component={SystemPromptsScreen} />
-              <Screen name="proficiencies" component={ProficiencyScreen} />
-              <Screen name="assistants" component={AssistantScreen} />
-              <Screen name="samplers" component={SamplerScreen} />
-              <Screen name="worldMasters" component={WorldMasterScreen} />
-              <Screen name="worlds" component={WorldScreen} />
-              <Screen name="settings" component={SettingsScreen} />
-            </Navigator>
-          </NavigationContainer>
-        </SafeAreaView>
-      </ControllersProvider>
+      <WebAlertProvider>
+        <ControllersProvider controllers={controllers}>
+          <SafeAreaView style={styles.safeArea}>
+            <NavigationContainer theme={navigationTheme} documentTitle={{ enabled: false }}>
+              <Navigator
+                initialRouteName="home"
+                screenOptions={{ headerShown: false }}
+                layout={renderLayout}
+              >
+                <Screen name="home" children={renderHome} />
+                <Screen name="adventures" children={renderAdventures} />
+                <Screen name="characters" component={CharacterScreen} />
+                <Screen name="abilities" component={AbilitiesScreen} />
+                <Screen name="statuses" component={StatusesScreen} />
+                <Screen name="items" component={ItemScreen} />
+                <Screen name="locations" component={LocationScreen} />
+                <Screen name="systemPrompts" component={SystemPromptsScreen} />
+                <Screen name="proficiencies" component={ProficiencyScreen} />
+                <Screen name="assistants" component={AssistantScreen} />
+                <Screen name="samplers" component={SamplerScreen} />
+                <Screen name="worldMasters" component={WorldMasterScreen} />
+                <Screen name="worlds" component={WorldScreen} />
+                <Screen name="settings" component={SettingsScreen} />
+              </Navigator>
+            </NavigationContainer>
+          </SafeAreaView>
+        </ControllersProvider>
+      </WebAlertProvider>
     </SafeAreaProvider>
   );
 }
