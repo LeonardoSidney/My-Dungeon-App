@@ -8,7 +8,7 @@ import { useStopStreaming } from './hooks/useStopStreaming';
 import { UseAdventureStreamingParams } from './constants';
 
 export function useAdventureStreaming (params: UseAdventureStreamingParams) {
-    const { currentAdventure, selectedCharacter, message, setCurrentAdventure, setMessage, hydratedRef, editingChatIdRef, clearEditing, createChatAdventure, appendChatAdventure, startStreamingChat, updateStreamingChat, finishStreamingChat, getAdventureText, getNativeStreamCompletion } = params;
+    const { currentAdventure, selectedCharacter, message, setCurrentAdventure, setMessage, hydratedRef, editingChatIdRef, clearEditing, createChatAdventure, appendChatAdventure, editChatAdventure, startStreamingChat, updateStreamingChat, finishStreamingChat, deleteChatAdventure, getAdventureText, getNativeStreamCompletion, continueFromChat, regenerateFromChat, resendChat, alert } = params;
 
     const {
         isStreaming,
@@ -28,8 +28,10 @@ export function useAdventureStreaming (params: UseAdventureStreamingParams) {
         startStreamingChat,
         updateStreamingChat,
         finishStreamingChat,
+        deleteChatAdventure,
         getAdventureText,
-        getNativeStreamCompletion
+        getNativeStreamCompletion,
+        alert
     });
 
     const { handleResend } = useResend({
@@ -39,7 +41,10 @@ export function useAdventureStreaming (params: UseAdventureStreamingParams) {
         handleStreamResponse,
         editingChatIdRef,
         message,
-        clearEditing
+        clearEditing,
+        editChatAdventure,
+        resendChat,
+        alert
     });
 
     const { handleSendMessage } = useSendMessage({
@@ -51,22 +56,28 @@ export function useAdventureStreaming (params: UseAdventureStreamingParams) {
         handleStreamResponse,
         createChatAdventure,
         appendChatAdventure,
+        editChatAdventure,
         editingChatIdRef,
-        clearEditing
+        clearEditing,
+        alert
     });
 
     const { handleRegenerateFromMessage } = useRegenerateFromMessage({
         currentAdventure,
         setCurrentAdventure,
         setIsStreaming,
-        handleStreamResponse
+        handleStreamResponse,
+        regenerateFromChat,
+        alert,
     });
 
     const { handleContinueFromMessage } = useContinueFromMessage({
         currentAdventure,
         setCurrentAdventure,
         setIsStreaming,
-        handleStreamResponse
+        handleStreamResponse,
+        continueFromChat,
+        alert,
     });
 
     const { handleStopStreaming } = useStopStreaming({

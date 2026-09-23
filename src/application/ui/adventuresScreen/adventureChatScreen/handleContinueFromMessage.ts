@@ -1,4 +1,3 @@
-import { Alert } from 'react-native';
 import { HandleContinueFromMessageParams } from './constants';
 
 export async function handleContinueFromMessage ({
@@ -7,26 +6,27 @@ export async function handleContinueFromMessage ({
     setCurrentAdventure,
     setIsStreaming,
     handleStreamResponse,
+    continueFromChat,
+    alert,
 }: HandleContinueFromMessageParams): Promise<void> {
     if (!currentAdventure?.chat) {
-        Alert.alert('Erro', 'Current adventure must have chat history');
+        alert.handle({ title: 'Erro', message: 'Current adventure must have chat history' });
         return;
     }
 
-    const chatIndex = currentAdventure.chat.findIndex(c => c.id === chatId);
-    if (chatIndex === -1) {
-        Alert.alert('Erro', `Chat with id ${chatId} not found`);
+    const response = await continueFromChat.handle({ adventure: currentAdventure, chatId });
+
+    if (!response.success || !response.adventure) {
+        alert.handle({ title: 'Erro', message: response.error ?? 'Failed to continue from message' });
         return;
     }
 
-    const chatsUpToTarget = currentAdventure.chat.slice(0, chatIndex + 1);
-    const updatedAdventure = { ...currentAdventure, chat: chatsUpToTarget };
-    setCurrentAdventure(updatedAdventure);
+    setCurrentAdventure(response.adventure);
 
     setIsStreaming(true);
 
     try {
-        await handleStreamResponse(updatedAdventure, chatId);
+        await handleStreamResponse(response.adventure, chatId);
     } finally {
         setIsStreaming(false);
     }

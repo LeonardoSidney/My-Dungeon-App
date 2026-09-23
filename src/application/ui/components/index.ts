@@ -1,5 +1,5 @@
 export { SingleSelect } from './singleSelect';
-export type { SelectItem, SingleSelectProps } from './singleSelect';
+export type { SingleSelectProps } from './singleSelect';
 export { MultiSelect } from './multiSelect';
 export type { MultiSelectProps } from './multiSelect';
 export { formStyles } from './formStyles';

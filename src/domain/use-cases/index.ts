@@ -1,4 +1,9 @@
 export * from './iAppendChatAdventureUseCase';
+export * from './iDeleteChatAdventureUseCase';
+export * from './iContinueFromChatUseCase';
+export * from './iRegenerateFromChatUseCase';
+export * from './iResendChatUseCase';
+export * from './iEditChatAdventureUseCase';
 export * from './iCreateAbilityUseCase';
 export * from './iEditAbilityUseCase';
 export * from './iEraseAbilityUseCase';
@@ -63,3 +68,4 @@ export * from './iStartStreamingChatUseCase';
 export * from './iUpdateStreamingChatUseCase';
 export * from './iFinishStreamingChatUseCase';
 export * from './iIsAdventureStreamingUseCase';
+export * from './iAlertUseCase';

@@ -7,6 +7,11 @@ import {
     editAdventureController,
     getAdventuresController,
     appendChatAdventureController,
+    editChatAdventureController,
+    deleteChatAdventureController,
+    continueFromChatController,
+    regenerateFromChatController,
+    resendChatController,
     createChatAdventureController,
     eraseAdventuresController,
     eraseAdventureController,
@@ -64,6 +69,7 @@ import {
     getWorldMasterController,
     editWorldMasterController,
     eraseWorldMasterController,
+    createAlertController,
 } from '@infra/container';
 import type { AppControllers } from '@application/ui/providers/appControllers';
 
@@ -78,6 +84,11 @@ export function buildControllers (): AppControllers {
         editAdventure: editAdventureController(),
         getAdventures: getAdventuresController(),
         appendChatAdventure: appendChatAdventureController(),
+        editChatAdventure: editChatAdventureController(),
+        deleteChatAdventure: deleteChatAdventureController(),
+        continueFromChat: continueFromChatController(),
+        regenerateFromChat: regenerateFromChatController(),
+        resendChat: resendChatController(),
         createChatAdventure: createChatAdventureController(),
         eraseAdventures: eraseAdventuresController(),
         eraseAdventure: eraseAdventureController(),
@@ -135,5 +146,6 @@ export function buildControllers (): AppControllers {
         getWorldMasters: getWorldMasterController(),
         editWorldMaster: editWorldMasterController(),
         eraseWorldMaster: eraseWorldMasterController(),
+        alert: createAlertController(),
     };
 }

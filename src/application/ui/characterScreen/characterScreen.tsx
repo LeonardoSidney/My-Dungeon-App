@@ -10,7 +10,7 @@ import { renderAttributesField } from './attributesFields';
 import { toggleListItem, initialCharacterForm, submitCharacter, toCharacterFormState, validateCharacterForm } from './form';
 
 export function CharacterScreen () {
-  const { getAssistants, getAbilities, getProficiencies, getStatuses, createCharacter, editCharacter, eraseCharacter, getCharacters } = useControllers();
+  const { getAssistants, getAbilities, getProficiencies, getStatuses, createCharacter, editCharacter, eraseCharacter, getCharacters, alert } = useControllers();
 
   const assistants = useEntityList({ fetch: () => getAssistants.handle() });
   const abilities = useEntityList({ fetch: () => getAbilities.handle() });
@@ -38,6 +38,7 @@ export function CharacterScreen () {
     initialForm: initialCharacterForm,
     validate: validateCharacterForm,
     entityName: 'character',
+    alert,
   });
 
   const singleSelectError = assistants.isError ? (

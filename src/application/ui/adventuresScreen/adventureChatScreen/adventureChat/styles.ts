@@ -43,6 +43,19 @@ export const styles = StyleSheet.create({
         marginRight: 4,
         gap: 4
     },
+    navButton: {
+        paddingVertical: 2,
+        paddingHorizontal: 8
+    },
+    navButtonText: {
+        fontSize: 14
+    },
+    navButtonTextEnabled: {
+        color: '#60a5fa'
+    },
+    navButtonTextDisabled: {
+        color: colors.textSubtle
+    },
     deleteButton: {
         paddingVertical: 2,
         paddingHorizontal: 8

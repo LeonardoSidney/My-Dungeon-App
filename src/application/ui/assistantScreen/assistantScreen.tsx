@@ -10,7 +10,7 @@ import { loadModels } from './loadModels';
 import { initialAssistantForm, submitAssistant, toAssistantFormState, validateAssistantForm } from './form';
 
 export function AssistantScreen () {
-  const { getAssistants, getConnections, getModelsFromProvider, getSamplers, createAssistant, editAssistant, eraseAssistant } = useControllers();
+  const { getAssistants, getConnections, getModelsFromProvider, getSamplers, createAssistant, editAssistant, eraseAssistant, alert } = useControllers();
   const models = useEntityList({ fetch: () => loadModels(getConnections, getModelsFromProvider) });
   const samplers = useEntityList({ fetch: () => getSamplers.handle() });
   const connections = useEntityList({ fetch: () => getConnections.handle() });
@@ -38,6 +38,7 @@ export function AssistantScreen () {
     initialForm: initialAssistantForm,
     validate: validateAssistantForm,
     entityName: 'assistant',
+    alert,
   });
 
   const renderForm = () => (

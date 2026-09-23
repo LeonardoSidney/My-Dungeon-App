@@ -9,7 +9,7 @@ import { itemFormConfig } from './constants';
 import { initialItemForm, submitItem, toFormState, validateItemForm } from './form';
 
 export function ItemScreen () {
-  const { getItems, createItem, editItem, eraseItem } = useControllers();
+  const { getItems, createItem, editItem, eraseItem, alert } = useControllers();
 
   const {
     entities,
@@ -32,6 +32,7 @@ export function ItemScreen () {
     initialForm: initialItemForm,
     validate: validateItemForm,
     entityName: 'item',
+    alert,
   });
 
   const renderForm = () => (

@@ -1,2 +1,2 @@
 export { SingleSelect } from './singleSelect';
-export type { SelectItem, SingleSelectProps } from './constants';
+export type { SingleSelectProps } from './constants';

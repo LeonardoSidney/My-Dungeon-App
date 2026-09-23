@@ -7,7 +7,8 @@ export function useWorldMasterDropdown ({
     adventure,
     onWorldMasterSelect,
     getWorldMasters,
-    editAdventure
+    editAdventure,
+    alert
 }: UseWorldMasterDropdownParams) {
     const {
         showList,
@@ -30,7 +31,8 @@ export function useWorldMasterDropdown ({
         adventure,
         onWorldMasterSelect,
         closeList,
-        editAdventure
+        editAdventure,
+        alert
     });
 
     return {

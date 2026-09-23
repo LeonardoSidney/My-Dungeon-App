@@ -1,4 +1,3 @@
-import { Alert } from 'react-native';
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { useEntityScreen, type EntityFormErrors, type UseEntityScreenParams } from '@application/ui/hooks';
 
@@ -15,6 +14,7 @@ type TestForm = {
 };
 
 const LOADED: TestEntity[] = [{ id: '1', name: 'A', activationWord: 'w' }];
+const alert = { handle: jest.fn() };
 
 function buildParams (fetch: jest.Mock, submit?: jest.Mock, erase?: jest.Mock): UseEntityScreenParams<TestEntity, TestForm> {
     return {
@@ -31,6 +31,7 @@ function buildParams (fetch: jest.Mock, submit?: jest.Mock, erase?: jest.Mock): 
             return errors;
         },
         entityName: 'thing',
+        alert,
     };
 }
 
@@ -42,6 +43,10 @@ async function renderLoaded (fetch: jest.Mock, submit?: jest.Mock, erase?: jest.
 }
 
 describe('useEntityScreen', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
     it('loads entities on mount and clears the loading flag', async () => {
         const fetch = jest.fn().mockResolvedValue(LOADED);
         const { result } = await renderLoaded(fetch);
@@ -123,7 +128,6 @@ describe('useEntityScreen', () => {
     it('alerts and keeps the form open when submit fails', async () => {
         const submit = jest.fn().mockResolvedValue({ success: false, error: 'server said no' });
         const { result } = await renderLoaded(jest.fn().mockResolvedValue(LOADED), submit);
-        const alertSpy = jest.spyOn(Alert, 'alert');
 
         await act(async () => {
             result.current.openAdd();
@@ -133,9 +137,8 @@ describe('useEntityScreen', () => {
             await result.current.save();
         });
 
-        expect(alertSpy).toHaveBeenCalledWith('Erro', 'server said no');
+        expect(alert.handle).toHaveBeenCalledWith({ title: 'Erro', message: 'server said no' });
         expect(result.current.showForm).toBe(true);
-        alertSpy.mockRestore();
     });
 
     it('fills the form from the entity and opens it on edit', async () => {
@@ -168,14 +171,12 @@ describe('useEntityScreen', () => {
         const erase = jest.fn().mockResolvedValue({ success: false, error: 'denied' });
         const { result } = await renderLoaded(fetch, undefined, erase);
         const target = result.current.entities[0];
-        const alertSpy = jest.spyOn(Alert, 'alert');
 
         await act(async () => {
             await result.current.eraseEntity(target);
         });
 
-        expect(alertSpy).toHaveBeenCalledWith('Erro', 'denied');
+        expect(alert.handle).toHaveBeenCalledWith({ title: 'Erro', message: 'denied' });
         expect(fetch).toHaveBeenCalledTimes(1);
-        alertSpy.mockRestore();
     });
 });

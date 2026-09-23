@@ -9,7 +9,7 @@ import { locationFormConfig } from './constants';
 import { initialLocationForm, submitLocation, toFormState, validateLocationForm } from './form';
 
 export function LocationScreen () {
-  const { getLocations, createLocation, editLocation, eraseLocation } = useControllers();
+  const { getLocations, createLocation, editLocation, eraseLocation, alert } = useControllers();
 
   const {
     entities,
@@ -32,6 +32,7 @@ export function LocationScreen () {
     initialForm: initialLocationForm,
     validate: validateLocationForm,
     entityName: 'location',
+    alert,
   });
 
   const renderForm = () => (

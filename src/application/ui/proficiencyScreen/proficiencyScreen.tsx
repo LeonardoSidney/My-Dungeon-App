@@ -9,7 +9,7 @@ import { proficiencyFormConfig } from './constants';
 import { initialProficiencyForm, submitProficiency, toFormState, validateProficiencyForm } from './form';
 
 export function ProficiencyScreen () {
-  const { getProficiencies, createProficiency, editProficiency, eraseProficiency } = useControllers();
+  const { getProficiencies, createProficiency, editProficiency, eraseProficiency, alert } = useControllers();
 
   const {
     entities,
@@ -32,6 +32,7 @@ export function ProficiencyScreen () {
     initialForm: initialProficiencyForm,
     validate: validateProficiencyForm,
     entityName: 'proficiency',
+    alert,
   });
 
   const renderForm = () => (

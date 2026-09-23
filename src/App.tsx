@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import type { NavigationHelpers, StackNavigationState } from '@react-navigation/native';
@@ -51,6 +51,7 @@ function App () {
   const [prompt, setPrompt] = useState<string>('Seélokomeu');
   const [isChatVisible, setIsChatVisible] = useState(false);
   const controllers = useMemo(() => buildControllers(), []);
+  const alert = controllers.alert;
 
   useEffect(() => {
     runSeed()
@@ -61,9 +62,9 @@ function App () {
       })
       .catch((error: unknown) => {
         const message = error instanceof Error ? error.message : 'Failed to seed data';
-        Alert.alert('Erro', message);
+        alert.handle({ title: 'Erro', message });
       });
-  }, []);
+  }, [alert]);
 
   const renderHome = useCallback(() => (
     <HomeScreen

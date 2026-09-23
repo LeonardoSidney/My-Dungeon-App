@@ -5,7 +5,7 @@ import { ChatItem } from './chatItem';
 import { getStreamingChatFromList } from './getStreamingChatFromList';
 import { AdventureChatProps } from './constants';
 
-function AdventureChatBase ({ chats, streamingChat, characterNameById, onDeleteMessage, isMessageEditing, editingChatId, onEditMessage, onSaveEditMessage, onDiscardEdit, onContinueFromMessage, onRegenerateFromMessage }: AdventureChatProps) {
+function AdventureChatBase ({ chats, streamingChat, characterNameById, onDeleteMessage, isMessageEditing, editingChatId, onEditMessage, onSaveEditMessage, onDiscardEdit, onContinueFromMessage, onRegenerateFromMessage, onNavigateChatIndex }: AdventureChatProps) {
   const streamingChatFromList = useMemo(() => getStreamingChatFromList({ streamingChat, chats }), [streamingChat, chats]);
   const streamingChatId = streamingChatFromList?.id ?? null;
 
@@ -25,6 +25,7 @@ function AdventureChatBase ({ chats, streamingChat, characterNameById, onDeleteM
           onDiscardEdit={onDiscardEdit}
           onContinueFromMessage={onContinueFromMessage}
           onRegenerateFromMessage={onRegenerateFromMessage}
+          onNavigateChatIndex={onNavigateChatIndex}
         />
       ))}
     </View>

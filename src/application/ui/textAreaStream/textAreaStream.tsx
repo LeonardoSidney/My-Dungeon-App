@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, Pressable, Text, TextInput, View } from 'react-native';
+import { Pressable, Text, TextInput, View } from 'react-native';
 import { Model } from '@domain/entities';
 import { DEFAULT_SAMPLER } from '@domain/constants/sampler';
 import {
@@ -90,6 +90,7 @@ export function TextAreaStream ({ prompt, setPrompt }: TextAreaStreamProps) {
     getConnections,
     getModelsFromProvider,
     getStreamCompletion,
+    alert,
   } = controllers;
   const [isStreaming, setIsStreaming] = useState(false);
   const isRunningRef = useRef(false);
@@ -118,7 +119,7 @@ export function TextAreaStream ({ prompt, setPrompt }: TextAreaStreamProps) {
       await bolinhaDePelo(getConnections, getModelsFromProvider, getStreamCompletion, prompt, setPrompt, abortRef);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to stream response';
-      Alert.alert('Erro', message);
+      alert.handle({ title: 'Erro', message });
     } finally {
       abortRef.current = null;
       isRunningRef.current = false;

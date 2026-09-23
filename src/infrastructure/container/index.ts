@@ -1,4 +1,5 @@
 export * from './ability';
+export * from './alert';
 export * from './adventure';
 export * from './assistant';
 export * from './character';

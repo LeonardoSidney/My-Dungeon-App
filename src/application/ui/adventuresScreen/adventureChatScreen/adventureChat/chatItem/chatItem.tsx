@@ -6,10 +6,11 @@ import { AdventureThink } from '../adventureThink';
 import { TextMarkdown } from '../textMarkdown';
 import { ChatItemProps } from './constants';
 
-function ChatItemBase ({ chat, isStreaming, characterNameById, onDeleteMessage, isMessageEditing, editingChatId, onEditMessage, onSaveEditMessage, onDiscardEdit, onContinueFromMessage, onRegenerateFromMessage }: ChatItemProps) {
-  const think = chat.think?.[chat.index];
+function ChatItemBase ({ chat, isStreaming, characterNameById, onDeleteMessage, isMessageEditing, editingChatId, onEditMessage, onSaveEditMessage, onDiscardEdit, onContinueFromMessage, onRegenerateFromMessage, onNavigateChatIndex }: ChatItemProps) {
+  const displayIndex = Math.min(chat.index, Math.max(0, chat.content.length - 1));
+  const think = chat.think?.[displayIndex];
   const streamingThink = isStreaming ? chat.think?.[0] : undefined;
-  const content = chat.content[chat.index];
+  const content = chat.content[displayIndex] ?? '';
   const isUserMessage = chat.role === RoleEnum.USER;
   const characterName = characterNameById[chat.characterId] ?? '';
   const isEditingThisMessage = !isStreaming && isMessageEditing && editingChatId === chat.id;
@@ -28,7 +29,13 @@ function ChatItemBase ({ chat, isStreaming, characterNameById, onDeleteMessage, 
   const showDelete = isUserMessage && showOriginalActions && Boolean(onDeleteMessage);
   const showDiscard = isEditingThisMessage && Boolean(onDiscardEdit);
   const showSave = isEditingThisMessage && Boolean(onSaveEditMessage);
-  const hasActions = canEdit || showContinue || showRegenerate || showDelete || showDiscard || showSave;
+  const showNav = showOriginalActions && !isStreaming;
+  const navEnabled = chat.content.length > 1;
+  const navButtonTextClass = navEnabled ? styles.navButtonTextEnabled : styles.navButtonTextDisabled;
+  const hasActions = showNav || canEdit || showContinue || showRegenerate || showDelete || showDiscard || showSave;
+
+  const handleNavBack = () => onNavigateChatIndex?.(chat.id, -1);
+  const handleNavAdvance = () => onNavigateChatIndex?.(chat.id, 1);
 
   const thinkEnabled = Boolean(think?.enabled);
   const hasThink = thinkEnabled && Boolean(think?.content);
@@ -66,6 +73,18 @@ function ChatItemBase ({ chat, isStreaming, characterNameById, onDeleteMessage, 
       </View>
       {hasActions && (
         <View style={styles.actionsContainer}>
+          {showNav && (
+            <TouchableOpacity
+              style={styles.navButton}
+              onPress={handleNavBack}
+              disabled={!navEnabled}
+              accessibilityRole="button"
+              accessibilityLabel="Versão anterior"
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Text style={[styles.navButtonText, navButtonTextClass]}>{'<'}</Text>
+            </TouchableOpacity>
+          )}
           {showRegenerate && onRegenerateFromMessage && (
             <TouchableOpacity style={styles.regenerateButton} onPress={() => onRegenerateFromMessage(chat.id)}>
               <Text style={styles.regenerateButtonText}>↻</Text>
@@ -95,8 +114,20 @@ function ChatItemBase ({ chat, isStreaming, characterNameById, onDeleteMessage, 
             </TouchableOpacity>
           )}
           {showDelete && onDeleteMessage && (
-            <TouchableOpacity style={styles.deleteButton} onPress={() => onDeleteMessage(chat.id)}>
+            <TouchableOpacity style={styles.deleteButton} onPress={() => onDeleteMessage(chat.id, displayIndex)}>
               <Text style={styles.deleteButtonText}>🗑</Text>
+            </TouchableOpacity>
+          )}
+          {showNav && (
+            <TouchableOpacity
+              style={styles.navButton}
+              onPress={handleNavAdvance}
+              disabled={!navEnabled}
+              accessibilityRole="button"
+              accessibilityLabel="Próxima versão"
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Text style={[styles.navButtonText, navButtonTextClass]}>{'>'}</Text>
             </TouchableOpacity>
           )}
         </View>

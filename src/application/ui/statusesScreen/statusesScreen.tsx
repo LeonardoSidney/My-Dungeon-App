@@ -9,7 +9,7 @@ import { statusFormConfig } from './constants';
 import { initialStatusForm, submitStatus, toFormState, validateStatusForm } from './form';
 
 export function StatusesScreen () {
-  const { getStatuses, createStatus, editStatus, eraseStatus } = useControllers();
+  const { getStatuses, createStatus, editStatus, eraseStatus, alert } = useControllers();
 
   const {
     entities,
@@ -32,6 +32,7 @@ export function StatusesScreen () {
     initialForm: initialStatusForm,
     validate: validateStatusForm,
     entityName: 'status',
+    alert,
   });
 
   const renderForm = () => (

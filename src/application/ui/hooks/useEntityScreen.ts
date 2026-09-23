@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { Alert } from 'react-native';
+import { IAlertController } from '@domain/controllers';
 import { useEntityList } from './useEntityList';
 
 export type ControllerResponse = {
@@ -17,6 +17,7 @@ export type UseEntityScreenParams<Entity extends { id: string; }, Form> = {
     initialForm: () => Form;
     validate: (form: Form) => EntityFormErrors<Form>;
     entityName: string;
+    alert: IAlertController;
 };
 
 export type UseEntityScreenReturn<Entity extends { id: string; }, Form> = {
@@ -92,7 +93,7 @@ export function useEntityScreen<Entity extends { id: string; }, Form> (
 
         const response = await paramsRef.current.submit(form);
         if (!response.success) {
-            Alert.alert('Erro', response.error ?? `Failed to save ${paramsRef.current.entityName}`);
+            paramsRef.current.alert.handle({ title: 'Erro', message: response.error ?? `Failed to save ${paramsRef.current.entityName}` });
             return;
         }
 
@@ -104,7 +105,7 @@ export function useEntityScreen<Entity extends { id: string; }, Form> (
     const eraseEntity = useCallback(async (entity: Entity): Promise<void> => {
         const response = await paramsRef.current.erase(entity.id);
         if (!response.success) {
-            Alert.alert('Erro', response.error ?? `Failed to erase ${paramsRef.current.entityName}`);
+            paramsRef.current.alert.handle({ title: 'Erro', message: response.error ?? `Failed to erase ${paramsRef.current.entityName}` });
             return;
         }
         await reload();

@@ -3,6 +3,11 @@ import {
     EditAdventureController,
     GetAdventuresController,
     AppendChatAdventureController,
+    EditChatAdventureController,
+    DeleteChatAdventureController,
+    ContinueFromChatController,
+    RegenerateFromChatController,
+    ResendChatController,
     CreateChatAdventureController,
     EraseAdventuresController,
     EraseAdventureController,
@@ -18,6 +23,11 @@ import {
     CreateAdventureService,
     EditAdventureService,
     AppendChatAdventureService,
+    EditChatAdventureService,
+    DeleteChatAdventureService,
+    ContinueFromChatService,
+    RegenerateFromChatService,
+    ResendChatService,
     CreateChatService,
     StartStreamingChatService,
     UpdateStreamingChatService,
@@ -34,6 +44,11 @@ import {
     GetAdventureTextUseCase,
     GetAdventureSystemPromptUseCase,
     AppendChatAdventureUseCase,
+    EditChatAdventureUseCase,
+    DeleteChatAdventureUseCase,
+    ContinueFromChatUseCase,
+    RegenerateFromChatUseCase,
+    ResendChatUseCase,
     CreateChatAdventureUseCase,
     EraseAdventuresUseCase,
     EraseAdventureUseCase,
@@ -48,6 +63,11 @@ import {
     IEditAdventureController,
     IGetAdventuresController,
     IAppendChatAdventureController,
+    IEditChatAdventureController,
+    IDeleteChatAdventureController,
+    IContinueFromChatController,
+    IRegenerateFromChatController,
+    IResendChatController,
     ICreateChatAdventureController,
     IEraseAdventuresController,
     IEraseAdventureController,
@@ -155,6 +175,61 @@ export function appendChatAdventureController (): IAppendChatAdventureController
         appendChatAdventureService
     );
     return new AppendChatAdventureController(logger, appendChatAdventureUseCase);
+}
+
+export function editChatAdventureController (): IEditChatAdventureController {
+    const adventureRepository = createAdventureRepository(storage, logger);
+    const editChatAdventureService = new EditChatAdventureService(logger);
+    const editChatAdventureUseCase = new EditChatAdventureUseCase(
+        logger,
+        editChatAdventureService,
+        adventureRepository
+    );
+    return new EditChatAdventureController(logger, editChatAdventureUseCase);
+}
+
+export function deleteChatAdventureController (): IDeleteChatAdventureController {
+    const adventureRepository = createAdventureRepository(storage, logger);
+    const deleteChatAdventureService = new DeleteChatAdventureService(logger);
+    const deleteChatAdventureUseCase = new DeleteChatAdventureUseCase(
+        logger,
+        deleteChatAdventureService,
+        adventureRepository
+    );
+    return new DeleteChatAdventureController(logger, deleteChatAdventureUseCase);
+}
+
+export function continueFromChatController (): IContinueFromChatController {
+    const adventureRepository = createAdventureRepository(storage, logger);
+    const continueFromChatService = new ContinueFromChatService(logger);
+    const continueFromChatUseCase = new ContinueFromChatUseCase(
+        logger,
+        continueFromChatService,
+        adventureRepository
+    );
+    return new ContinueFromChatController(logger, continueFromChatUseCase);
+}
+
+export function regenerateFromChatController (): IRegenerateFromChatController {
+    const adventureRepository = createAdventureRepository(storage, logger);
+    const regenerateFromChatService = new RegenerateFromChatService(logger);
+    const regenerateFromChatUseCase = new RegenerateFromChatUseCase(
+        logger,
+        regenerateFromChatService,
+        adventureRepository
+    );
+    return new RegenerateFromChatController(logger, regenerateFromChatUseCase);
+}
+
+export function resendChatController (): IResendChatController {
+    const adventureRepository = createAdventureRepository(storage, logger);
+    const resendChatService = new ResendChatService(logger);
+    const resendChatUseCase = new ResendChatUseCase(
+        logger,
+        resendChatService,
+        adventureRepository
+    );
+    return new ResendChatController(logger, resendChatUseCase);
 }
 
 export function createChatAdventureController (): ICreateChatAdventureController {

@@ -1,4 +1,9 @@
 export * from './iAppendChatAdventureController';
+export * from './iDeleteChatAdventureController';
+export * from './iContinueFromChatController';
+export * from './iRegenerateFromChatController';
+export * from './iResendChatController';
+export * from './iEditChatAdventureController';
 export * from './iCreateAbilityController';
 export * from './iEditAbilityController';
 export * from './iEraseAbilityController';
@@ -63,3 +68,4 @@ export * from './iStartStreamingChatController';
 export * from './iUpdateStreamingChatController';
 export * from './iFinishStreamingChatController';
 export * from './iIsAdventureStreamingController';
+export * from './iAlertController';

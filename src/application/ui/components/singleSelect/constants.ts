@@ -1,8 +1,3 @@
-export type SelectItem = {
-  id: string;
-  name: string;
-};
-
 export type SingleSelectProps<T extends { id: string; }> = {
   items: T[];
   selectedId?: string;

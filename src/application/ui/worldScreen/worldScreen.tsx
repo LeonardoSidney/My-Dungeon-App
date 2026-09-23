@@ -9,7 +9,7 @@ import { worldFormConfig } from './constants';
 import { initialWorldForm, submitWorld, toFormState, validateWorldForm } from './form';
 
 export function WorldScreen () {
-  const { getWorlds, createWorld, editWorld, eraseWorld } = useControllers();
+  const { getWorlds, createWorld, editWorld, eraseWorld, alert } = useControllers();
 
   const {
     entities,
@@ -32,6 +32,7 @@ export function WorldScreen () {
     initialForm: initialWorldForm,
     validate: validateWorldForm,
     entityName: 'world',
+    alert,
   });
 
   const renderForm = () => (
