@@ -11,8 +11,10 @@ export function useSendMessage ({
     handleStreamResponse,
     createChatAdventure,
     appendChatAdventure,
+    editChatAdventure,
     editingChatIdRef,
-    clearEditing
+    clearEditing,
+    alert
 }: UseSendMessageParams) {
     const handleSendMessage = useCallback(async () => {
         await onSendMessage({
@@ -24,10 +26,12 @@ export function useSendMessage ({
             handleStreamResponse,
             createChatAdventure,
             appendChatAdventure,
+            editChatAdventure,
             editingChatIdRef,
             clearEditing,
+            alert,
         });
-    }, [message, selectedCharacter, currentAdventure, setCurrentAdventure, setMessage, handleStreamResponse, createChatAdventure, appendChatAdventure, editingChatIdRef, clearEditing]);
+    }, [message, selectedCharacter, currentAdventure, setCurrentAdventure, setMessage, handleStreamResponse, createChatAdventure, appendChatAdventure, editChatAdventure, editingChatIdRef, clearEditing, alert]);
 
     return { handleSendMessage };
 }

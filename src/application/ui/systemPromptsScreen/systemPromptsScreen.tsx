@@ -8,7 +8,7 @@ import { useControllers } from '@application/ui/providers/controllersProvider';
 import { initialSystemPromptForm, submitSystemPrompt, toSystemPromptFormState, validateSystemPromptForm } from './form';
 
 export function SystemPromptsScreen () {
-  const { getSystemPrompts, createSystemPrompt, editSystemPrompt, eraseSystemPrompt } = useControllers();
+  const { getSystemPrompts, createSystemPrompt, editSystemPrompt, eraseSystemPrompt, alert } = useControllers();
 
   const {
     entities,
@@ -31,6 +31,7 @@ export function SystemPromptsScreen () {
     initialForm: initialSystemPromptForm,
     validate: validateSystemPromptForm,
     entityName: 'system prompt',
+    alert,
   });
 
   const renderForm = () => (

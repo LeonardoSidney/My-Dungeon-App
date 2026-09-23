@@ -8,7 +8,7 @@ import { useControllers } from '@application/ui/providers/controllersProvider';
 import { initialSamplerForm, submitSampler, toSamplerFormState, validateSamplerForm } from './form';
 
 export function SamplerScreen () {
-  const { getSamplers, createSampler, editSampler, eraseSampler } = useControllers();
+  const { getSamplers, createSampler, editSampler, eraseSampler, alert } = useControllers();
 
   const {
     entities,
@@ -31,6 +31,7 @@ export function SamplerScreen () {
     initialForm: initialSamplerForm,
     validate: validateSamplerForm,
     entityName: 'sampler',
+    alert,
   });
 
   return (

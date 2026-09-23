@@ -10,10 +10,16 @@ export class NativeStreamCompletionController implements INativeStreamCompletion
     constructor (
         private readonly logger: ILogger,
         private readonly useCase: INativeStreamCompletionUseCase
-    ) {}
+    ) { }
 
     async handle (request: NativeStreamCompletionControllerRequest): Promise<NativeStreamCompletionControllerResponse> {
         this.logger.info('Executing NativeStreamCompletionController::handle');
+        this.logger.debug('NativeStreamCompletionController::handle - request', {
+            adventureId: request.adventureId,
+            connectionId: request.connectionId,
+            samplerId: request.samplerId,
+            modelId: request.modelId,
+        });
 
         const result = await this.useCase.execute(request);
 

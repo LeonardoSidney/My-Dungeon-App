@@ -2,6 +2,11 @@ import { Character, Chat, SystemPrompt, WorldMaster, World, Location, Item } fro
 import {
     IAppendChatAdventureController,
     ICreateChatAdventureController,
+    IEditChatAdventureController,
+    IDeleteChatAdventureController,
+    IContinueFromChatController,
+    IRegenerateFromChatController,
+    IResendChatController,
     IEditAdventureController,
     IFinishStreamingChatController,
     IGetAdventureTextController,
@@ -11,6 +16,7 @@ import {
     IHydrateAdventureController,
     IStartStreamingChatController,
     IUpdateStreamingChatController,
+    IAlertController,
 } from '@domain/controllers';
 
 export interface AdventureChatScreenControllers {
@@ -19,12 +25,18 @@ export interface AdventureChatScreenControllers {
     hydrateAdventure: IHydrateAdventureController;
     createChatAdventure: ICreateChatAdventureController;
     appendChatAdventure: IAppendChatAdventureController;
+    editChatAdventure: IEditChatAdventureController;
+    deleteChatAdventure: IDeleteChatAdventureController;
+    continueFromChat: IContinueFromChatController;
+    regenerateFromChat: IRegenerateFromChatController;
+    resendChat: IResendChatController;
     startStreamingChat: IStartStreamingChatController;
     updateStreamingChat: IUpdateStreamingChatController;
     finishStreamingChat: IFinishStreamingChatController;
     getAdventureText: IGetAdventureTextController;
     getNativeStreamCompletion: INativeStreamCompletionController;
     getWorldMasters: IGetWorldMastersController;
+    alert: IAlertController;
 }
 
 export interface AdventuresScreenProps {

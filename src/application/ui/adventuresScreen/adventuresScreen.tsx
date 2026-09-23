@@ -53,6 +53,7 @@ export function AdventuresScreen ({ onChatVisibleChange }: AdventuresScreenProps
     initialForm: initialAdventureForm,
     validate: validateAdventureForm,
     entityName: 'adventure',
+    alert: controllers.alert,
   });
 
   const handleChat = (adventure: Adventure) => {
@@ -75,12 +76,18 @@ export function AdventuresScreen ({ onChatVisibleChange }: AdventuresScreenProps
     hydrateAdventure: controllers.hydrateAdventure,
     createChatAdventure: controllers.createChatAdventure,
     appendChatAdventure: controllers.appendChatAdventure,
+    editChatAdventure: controllers.editChatAdventure,
+    deleteChatAdventure: controllers.deleteChatAdventure,
+    continueFromChat: controllers.continueFromChat,
+    regenerateFromChat: controllers.regenerateFromChat,
+    resendChat: controllers.resendChat,
     startStreamingChat: controllers.startStreamingChat,
     updateStreamingChat: controllers.updateStreamingChat,
     finishStreamingChat: controllers.finishStreamingChat,
     getAdventureText: controllers.getAdventureText,
     getNativeStreamCompletion: controllers.getNativeStreamCompletion,
     getWorldMasters: controllers.getWorldMasters,
+    alert: controllers.alert,
   };
 
   const handleBackFromChat = () => {

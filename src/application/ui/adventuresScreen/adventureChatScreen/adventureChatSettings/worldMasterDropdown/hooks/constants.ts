@@ -1,11 +1,12 @@
 import { Adventure, WorldMaster } from '@domain/entities';
-import { IEditAdventureController, IGetWorldMastersController } from '@domain/controllers';
+import { IAlertController, IEditAdventureController, IGetWorldMastersController } from '@domain/controllers';
 
 export interface UseWorldMasterDropdownParams {
     adventure: Adventure;
     onWorldMasterSelect: (adventure: Adventure) => void;
     getWorldMasters: IGetWorldMastersController;
     editAdventure: IEditAdventureController;
+    alert: IAlertController;
 }
 
 export interface UseAddWorldMasterParams {
@@ -20,4 +21,5 @@ export interface UseSelectWorldMasterParams {
     onWorldMasterSelect: (adventure: Adventure) => void;
     closeList: () => void;
     editAdventure: IEditAdventureController;
+    alert: IAlertController;
 }

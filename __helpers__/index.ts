@@ -12,6 +12,8 @@ export * from './createItemHelper';
 export * from './createItemServiceResponseHelper';
 export * from './createConnectionHelper';
 export * from './createCharacterHelper';
+export * from './createChatHelper';
 export * from './createAssistantHelper';
 export * from './createAdventureRequestHelper';
 export * from './createAdventureHelper';
+export * from './createHydratedAdventureHelper';

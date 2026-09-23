@@ -13,7 +13,7 @@ interface WorldMasterDropdownProps {
 
 export function WorldMasterDropdown (params: WorldMasterDropdownProps) {
   const { adventure, onWorldMasterSelect, controllers } = params;
-  const { getWorldMasters, editAdventure } = controllers;
+  const { getWorldMasters, editAdventure, alert } = controllers;
 
   const { items: worldMasters } = useEntityList({ fetch: () => getWorldMasters.handle() });
 
@@ -28,7 +28,8 @@ export function WorldMasterDropdown (params: WorldMasterDropdownProps) {
     adventure,
     onWorldMasterSelect,
     getWorldMasters,
-    editAdventure
+    editAdventure,
+    alert
   });
 
   function renderWorldMasterListItem (item: WorldMaster) {

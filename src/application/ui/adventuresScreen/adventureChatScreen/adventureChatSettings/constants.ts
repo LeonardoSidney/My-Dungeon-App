@@ -1,9 +1,10 @@
 import { Adventure } from '@domain/entities';
-import { IEditAdventureController, IGetWorldMastersController } from '@domain/controllers';
+import { IAlertController, IEditAdventureController, IGetWorldMastersController } from '@domain/controllers';
 
 export interface WorldMasterDropdownControllers {
     getWorldMasters: IGetWorldMastersController;
     editAdventure: IEditAdventureController;
+    alert: IAlertController;
 }
 
 export interface AdventureChatSettingsProps {

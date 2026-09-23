@@ -1,6 +1,4 @@
-import { Alert } from 'react-native';
 import { RoleEnum } from '@domain/entities';
-import { buildEditedAdventure } from './handleEditMessage';
 import { OnSendMessageParams } from './constants';
 
 export async function onSendMessage ({
@@ -12,18 +10,44 @@ export async function onSendMessage ({
     handleStreamResponse,
     createChatAdventure,
     appendChatAdventure,
+    editChatAdventure,
     editingChatIdRef,
     clearEditing,
+    alert,
 }: OnSendMessageParams) {
-    if (!message.trim()) return;
-
     if (editingChatIdRef.current) {
-        const updatedAdventure = buildEditedAdventure(currentAdventure, editingChatIdRef.current, message);
-        setCurrentAdventure(updatedAdventure);
+        const chat = currentAdventure.chat.find(c => c.id === editingChatIdRef.current);
+        if (!chat) {
+            clearEditing();
+            return;
+        }
+
+        if (!message.trim()) {
+            setMessage('');
+            clearEditing();
+            return;
+        }
+
+        const response = await editChatAdventure.handle({
+            adventure: currentAdventure,
+            chatId: chat.id,
+            content: message,
+            role: chat.role,
+            characterId: chat.characterId,
+        });
+
+        if (!response.success || !response.adventure) {
+            alert.handle({ title: 'Erro', message: response.error ?? 'Failed to save message edit' });
+            return;
+        }
+
+        setCurrentAdventure(response.adventure);
         setMessage('');
         clearEditing();
         return;
     }
+
+    if (!message.trim()) return;
 
     const chatResponse = await createChatAdventure.handle({
         content: message,
@@ -32,7 +56,7 @@ export async function onSendMessage ({
     });
 
     if (!chatResponse.success || !chatResponse.chat) {
-        Alert.alert('Erro', chatResponse.error ?? 'Failed to create chat message');
+        alert.handle({ title: 'Erro', message: chatResponse.error ?? 'Failed to create chat message' });
         return;
     }
 
@@ -42,7 +66,7 @@ export async function onSendMessage ({
     });
 
     if (!appendResponse.success || !appendResponse.adventure) {
-        Alert.alert('Erro', appendResponse.error ?? 'Failed to append chat to adventure');
+        alert.handle({ title: 'Erro', message: appendResponse.error ?? 'Failed to append chat to adventure' });
         return;
     }
 

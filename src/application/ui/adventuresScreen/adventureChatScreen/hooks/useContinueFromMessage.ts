@@ -6,7 +6,9 @@ export function useContinueFromMessage ({
     currentAdventure,
     setCurrentAdventure,
     setIsStreaming,
-    handleStreamResponse
+    handleStreamResponse,
+    continueFromChat,
+    alert,
 }: UseContinueFromMessageParams) {
     const handleContinueFromMessage = useCallback(async (chatId: string) => {
         await handleContinueFromMessageUseCase({
@@ -15,8 +17,10 @@ export function useContinueFromMessage ({
             setCurrentAdventure,
             setIsStreaming,
             handleStreamResponse,
+            continueFromChat,
+            alert,
         });
-    }, [currentAdventure, setCurrentAdventure, setIsStreaming, handleStreamResponse]);
+    }, [currentAdventure, setCurrentAdventure, setIsStreaming, handleStreamResponse, continueFromChat, alert]);
 
     return { handleContinueFromMessage };
 }

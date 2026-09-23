@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, View, ScrollView } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { styles } from './styles';
 import { ConnectionPanel } from './connectionPanel';
 import { DangerZone } from './dangerZone/dangerZone';
@@ -15,6 +15,7 @@ export function SettingsScreen () {
     eraseAdventures,
     eraseConnection,
     getConnections,
+    alert,
   } = controllers;
   const [expandedConnection, setExpandedConnection] = useState(false);
   const [expandedDanger, setExpandedDanger] = useState(false);
@@ -41,6 +42,7 @@ export function SettingsScreen () {
     initialForm: initialConnectionForm,
     validate: validateConnectionForm,
     entityName: 'connection',
+    alert,
   });
 
   const handleDangerErase = async () => {
@@ -49,7 +51,7 @@ export function SettingsScreen () {
       await eraseAdventures.handle();
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to erase adventures';
-      Alert.alert('Erro', message);
+      alert.handle({ title: 'Erro', message });
     } finally {
       setErasing(false);
     }

@@ -198,7 +198,7 @@ export abstract class LlamaCppBaseGateway {
     protected formatChatMessages (chat: Chat[]): { role: string; content: string; }[] {
         return chat.map(c => ({
             role: c.role,
-            content: c.content[c.index],
+            content: c.content[c.index] ?? '',
         }));
     }
 }

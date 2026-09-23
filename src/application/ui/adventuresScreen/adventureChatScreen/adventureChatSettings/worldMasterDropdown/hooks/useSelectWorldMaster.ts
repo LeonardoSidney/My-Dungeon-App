@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import { Alert } from 'react-native';
 import { WorldMaster } from '@domain/entities';
 import { UseSelectWorldMasterParams } from './constants';
 
@@ -7,7 +6,8 @@ export function useSelectWorldMaster ({
     adventure,
     onWorldMasterSelect,
     closeList,
-    editAdventure
+    editAdventure,
+    alert
 }: UseSelectWorldMasterParams) {
     const handleWorldMasterSelect = useCallback(async (worldMaster: WorldMaster) => {
         const response = await editAdventure.handle({
@@ -27,7 +27,7 @@ export function useSelectWorldMaster ({
         });
 
         if (!response.success) {
-            Alert.alert('Erro', response.error ?? 'Failed to update world master');
+            alert.handle({ title: 'Erro', message: response.error ?? 'Failed to update world master' });
             return;
         }
 
@@ -35,7 +35,7 @@ export function useSelectWorldMaster ({
             onWorldMasterSelect(response.adventure);
         }
         closeList();
-    }, [adventure, onWorldMasterSelect, closeList, editAdventure]);
+    }, [adventure, onWorldMasterSelect, closeList, editAdventure, alert]);
 
     return { handleWorldMasterSelect };
 }

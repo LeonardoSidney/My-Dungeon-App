@@ -9,7 +9,10 @@ export function useResend ({
     handleStreamResponse,
     editingChatIdRef,
     message,
-    clearEditing
+    clearEditing,
+    editChatAdventure,
+    resendChat,
+    alert,
 }: UseResendParams) {
     const handleResend = useCallback(async () => {
         await onResend({
@@ -20,8 +23,11 @@ export function useResend ({
             editingChatIdRef,
             message,
             clearEditing,
+            editChatAdventure,
+            resendChat,
+            alert,
         });
-    }, [currentAdventure, setCurrentAdventure, setMessage, handleStreamResponse, editingChatIdRef, message, clearEditing]);
+    }, [currentAdventure, setCurrentAdventure, setMessage, handleStreamResponse, editingChatIdRef, message, clearEditing, editChatAdventure, resendChat, alert]);
 
     return { handleResend };
 }

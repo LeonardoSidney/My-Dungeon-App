@@ -9,7 +9,7 @@ import { abilityFormConfig } from './constants';
 import { initialAbilityForm, submitAbility, toFormState, validateAbilityForm } from './form';
 
 export function AbilitiesScreen () {
-  const { getAbilities, createAbility, editAbility, eraseAbility } = useControllers();
+  const { getAbilities, createAbility, editAbility, eraseAbility, alert } = useControllers();
 
   const {
     entities,
@@ -32,6 +32,7 @@ export function AbilitiesScreen () {
     initialForm: initialAbilityForm,
     validate: validateAbilityForm,
     entityName: 'ability',
+    alert,
   });
 
   const renderForm = () => (

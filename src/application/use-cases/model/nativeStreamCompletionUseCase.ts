@@ -20,6 +20,13 @@ export class NativeStreamCompletionUseCase implements INativeStreamCompletionUse
 
     async execute (params: NativeStreamCompletionUseCaseParams): Promise<NativeStreamCompletionUseCaseResponse> {
         this.logger.info('Executing NativeStreamCompletionUseCase::execute');
+        this.logger.debug('NativeStreamCompletionUseCase::execute - params', {
+            adventureId: params.adventureId,
+            connectionId: params.connectionId,
+            samplerId: params.samplerId,
+            modelId: params.modelId,
+            hasHydrated: Boolean(params.hydrated),
+        });
 
         try {
             this.validate(params);

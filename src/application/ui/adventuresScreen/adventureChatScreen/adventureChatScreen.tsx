@@ -1,5 +1,6 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Adventure } from '@domain/entities';
 import { styles } from './styles';
 import { AdventureChat } from './adventureChat';
 import { AdventureChatSettings } from './adventureChatSettings/adventureChatSettings';
@@ -8,18 +9,18 @@ import { useAdventureChatState } from './hooks/useAdventureChatState';
 import { useHydratedAdventure } from './hooks/useHydratedAdventure';
 import { useSettingsActions } from './hooks/useSettingsActions';
 import { useMessageActions } from './hooks/useMessageActions';
+import { useNavChatIndex } from './hooks/useNavChatIndex';
 import { useMessageEditing } from './hooks/useMessageEditing';
 import { useSelectionActions } from './hooks/useSelectionActions';
 import { useKeyboardLift } from './hooks/useKeyboardLift';
 import { useAdventureStreaming } from './useAdventureStreaming';
 import { useAdventureChatScreenLogic } from './useAdventureChatScreenLogic';
-import { buildEditedAdventure } from './handleEditMessage';
 import { AdventureChatContentProps, AdventureChatScreenProps } from './constants';
 import { colors } from '../../theme';
 
-function AdventureChatContent ({ adventure, hydrated, hydratedRef, onBack, controllers }: AdventureChatContentProps) {
+function AdventureChatContent ({ currentAdventure, setCurrentAdventure, hydrated, hydratedRef, onBack, controllers }: AdventureChatContentProps) {
   const hydratedCharacters = hydrated.characters;
-  const { createChatAdventure, appendChatAdventure, startStreamingChat, updateStreamingChat, finishStreamingChat, getAdventureText, getNativeStreamCompletion } = controllers;
+  const { createChatAdventure, appendChatAdventure, editChatAdventure, deleteChatAdventure, continueFromChat, regenerateFromChat, resendChat, startStreamingChat, updateStreamingChat, finishStreamingChat, getAdventureText, getNativeStreamCompletion, alert } = controllers;
   const keyboardHeight = useKeyboardLift();
 
   const characterNameById = useMemo(() => {
@@ -31,15 +32,13 @@ function AdventureChatContent ({ adventure, hydrated, hydratedRef, onBack, contr
   }, [hydratedCharacters]);
 
   const {
-    currentAdventure,
     message,
     selectedCharacter,
     showSettings,
-    setCurrentAdventure,
     setMessage,
     setSelectedCharacter,
     setShowSettings
-  } = useAdventureChatState({ adventure, hydratedCharacters });
+  } = useAdventureChatState({ hydratedCharacters });
 
   const { editingChatIdRef, isEditing, onStartEdit, clearEditing } = useMessageEditing();
 
@@ -61,22 +60,43 @@ function AdventureChatContent ({ adventure, hydrated, hydratedRef, onBack, contr
     clearEditing,
     createChatAdventure,
     appendChatAdventure,
+    editChatAdventure,
     startStreamingChat,
     updateStreamingChat,
     finishStreamingChat,
+    deleteChatAdventure,
     getAdventureText,
-    getNativeStreamCompletion
+    getNativeStreamCompletion,
+    continueFromChat,
+    regenerateFromChat,
+    resendChat,
+    alert
   });
 
   const handleSaveEdit = useCallback(
-    (chatId: string, content: string) => {
+    async (chatId: string, content: string) => {
       if (!editingChatIdRef.current || !content.trim()) return;
-      const updatedAdventure = buildEditedAdventure(currentAdventure, chatId, content);
-      setCurrentAdventure(updatedAdventure);
+      const chat = currentAdventure.chat.find(c => c.id === chatId);
+      if (!chat) return;
+
+      const response = await editChatAdventure.handle({
+        adventure: currentAdventure,
+        chatId,
+        content,
+        role: chat.role,
+        characterId: chat.characterId,
+      });
+
+      if (!response.success || !response.adventure) {
+        alert.handle({ title: 'Erro', message: response.error ?? 'Failed to save message edit' });
+        return;
+      }
+
+      setCurrentAdventure(response.adventure);
       clearEditing();
       setMessage('');
     },
-    [editingChatIdRef, currentAdventure, setCurrentAdventure, clearEditing, setMessage]
+    [editingChatIdRef, currentAdventure, setCurrentAdventure, clearEditing, setMessage, editChatAdventure, alert]
   );
 
   const { scrollViewRef, showScrollToBottom, handleScroll, handleScrollToBottom } = useAdventureChatScreenLogic(
@@ -96,9 +116,16 @@ function AdventureChatContent ({ adventure, hydrated, hydratedRef, onBack, contr
   } = useMessageActions({
     currentAdventure,
     setCurrentAdventure,
+    deleteChatAdventure,
     setMessage,
     message,
-    handleSendMessage
+    handleSendMessage,
+    alert
+  });
+
+  const onNavigateChatIndex = useNavChatIndex({
+    currentAdventure,
+    setCurrentAdventure
   });
 
   const {
@@ -157,6 +184,7 @@ function AdventureChatContent ({ adventure, hydrated, hydratedRef, onBack, contr
             onDiscardEdit={clearEditing}
             onContinueFromMessage={handleContinueFromMessage}
             onRegenerateFromMessage={handleRegenerateFromMessage}
+            onNavigateChatIndex={onNavigateChatIndex}
           />
         </ScrollView>
         {shouldShowScrollButton && (
@@ -184,12 +212,14 @@ function AdventureChatContent ({ adventure, hydrated, hydratedRef, onBack, contr
 export function AdventureChatScreen (params: AdventureChatScreenProps) {
   const { adventure, onBack, controllers } = params;
   const { hydrateAdventure } = controllers;
-  const { hydrated, hydratedRef, hydratedError } = useHydratedAdventure({ adventure, hydrateAdventure });
+  const [currentAdventure, setCurrentAdventure] = useState<Adventure>(adventure);
+  const { hydrated, hydratedRef, hydratedError } = useHydratedAdventure({ adventure: currentAdventure, hydrateAdventure });
 
   if (hydrated) {
     return (
       <AdventureChatContent
-        adventure={adventure}
+        currentAdventure={currentAdventure}
+        setCurrentAdventure={setCurrentAdventure}
         hydrated={hydrated}
         hydratedRef={hydratedRef}
         onBack={onBack}

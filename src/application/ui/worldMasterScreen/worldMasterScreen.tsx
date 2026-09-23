@@ -9,7 +9,7 @@ import { WorldMasterFormData, worldMasterFormConfig } from './constants';
 import { initialWorldMasterForm, submitWorldMaster, toWorldMasterFormState, validateWorldMasterForm } from './form';
 
 export function WorldMasterScreen () {
-  const { getWorldMasters, getAssistants, createWorldMaster, editWorldMaster, eraseWorldMaster } = useControllers();
+  const { getWorldMasters, getAssistants, createWorldMaster, editWorldMaster, eraseWorldMaster, alert } = useControllers();
   const assistants = useEntityList({ fetch: () => getAssistants.handle() });
 
   const {
@@ -33,6 +33,7 @@ export function WorldMasterScreen () {
     initialForm: initialWorldMasterForm,
     validate: validateWorldMasterForm,
     entityName: 'world master',
+    alert,
   });
 
   const renderForm = () => (

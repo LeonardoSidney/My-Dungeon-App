@@ -6,7 +6,9 @@ export function useRegenerateFromMessage ({
     currentAdventure,
     setCurrentAdventure,
     setIsStreaming,
-    handleStreamResponse
+    handleStreamResponse,
+    regenerateFromChat,
+    alert,
 }: UseRegenerateFromMessageParams) {
     const handleRegenerateFromMessage = useCallback(async (chatId: string) => {
         await handleRegenerateFromMessageUseCase({
@@ -15,8 +17,10 @@ export function useRegenerateFromMessage ({
             setCurrentAdventure,
             setIsStreaming,
             handleStreamResponse,
+            regenerateFromChat,
+            alert,
         });
-    }, [currentAdventure, setCurrentAdventure, setIsStreaming, handleStreamResponse]);
+    }, [currentAdventure, setCurrentAdventure, setIsStreaming, handleStreamResponse, regenerateFromChat, alert]);
 
     return { handleRegenerateFromMessage };
 }

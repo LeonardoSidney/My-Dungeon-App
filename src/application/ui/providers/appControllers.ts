@@ -7,6 +7,11 @@ import {
     IEditAdventureController,
     IGetAdventuresController,
     IAppendChatAdventureController,
+    IEditChatAdventureController,
+    IDeleteChatAdventureController,
+    IContinueFromChatController,
+    IRegenerateFromChatController,
+    IResendChatController,
     ICreateChatAdventureController,
     IEraseAdventuresController,
     IEraseAdventureController,
@@ -64,6 +69,7 @@ import {
     IEditWorldMasterController,
     IEraseWorldMasterController,
     IGetModelsFromProviderController,
+    IAlertController,
 } from '@domain/controllers';
 
 export type AppControllers = {
@@ -75,6 +81,11 @@ export type AppControllers = {
     editAdventure: IEditAdventureController;
     getAdventures: IGetAdventuresController;
     appendChatAdventure: IAppendChatAdventureController;
+    editChatAdventure: IEditChatAdventureController;
+    deleteChatAdventure: IDeleteChatAdventureController;
+    continueFromChat: IContinueFromChatController;
+    regenerateFromChat: IRegenerateFromChatController;
+    resendChat: IResendChatController;
     createChatAdventure: ICreateChatAdventureController;
     eraseAdventures: IEraseAdventuresController;
     eraseAdventure: IEraseAdventureController;
@@ -132,4 +143,5 @@ export type AppControllers = {
     getWorldMasters: IGetWorldMastersController;
     editWorldMaster: IEditWorldMasterController;
     eraseWorldMaster: IEraseWorldMasterController;
+    alert: IAlertController;
 };

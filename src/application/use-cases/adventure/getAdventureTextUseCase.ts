@@ -23,17 +23,15 @@ export class GetAdventureTextUseCase implements IGetAdventureTextUseCase {
         this.logger.debug('Executing GetAdventureTextUseCase::execute - params', params);
 
         try {
-            const hydrateResponse = await this.hydrateAdventureService.hydrate({ adventure: params.adventure });
+            const hydrated = await this.resolveHydrated(params);
 
-            if (!hydrateResponse.success || !hydrateResponse.hydrated) {
-                this.logger.warning('GetAdventureTextUseCase::execute - failed to hydrate adventure', hydrateResponse.error);
+            if (!hydrated) {
                 return {
                     success: false,
-                    error: hydrateResponse.error ?? 'Failed to hydrate adventure',
+                    error: 'Failed to hydrate adventure',
                 };
             }
 
-            const hydrated = hydrateResponse.hydrated;
             const systemPrompt = this.provider.buildAdventureTextSystemPrompt(hydrated);
             this.logger.debug('Executing GetAdventureTextUseCase:execute - systemPrompt', systemPrompt);
 
@@ -75,6 +73,21 @@ export class GetAdventureTextUseCase implements IGetAdventureTextUseCase {
                 error: 'Get adventure text failed',
             };
         }
+    }
+
+    private async resolveHydrated (params: GetAdventureTextUseCaseParams): Promise<HydratedAdventure | null> {
+        if (params.hydrated) {
+            return params.hydrated;
+        }
+
+        const hydrateResponse = await this.hydrateAdventureService.hydrate({ adventure: params.adventure });
+
+        if (!hydrateResponse.success || !hydrateResponse.hydrated) {
+            this.logger.warning('GetAdventureTextUseCase::resolveHydrated - failed to hydrate adventure', hydrateResponse.error);
+            return null;
+        }
+
+        return hydrateResponse.hydrated;
     }
 
     private getWorldMasterRuntime (hydrated: HydratedAdventure): { connection: Connection; modelId: string; } {
