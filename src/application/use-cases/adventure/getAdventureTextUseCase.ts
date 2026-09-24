@@ -38,12 +38,12 @@ export class GetAdventureTextUseCase implements IGetAdventureTextUseCase {
             const { connection, modelId } = this.getWorldMasterRuntime(hydrated);
 
             this.logger.debug('Executing GetAdventureTextUseCase::execute - calling applyTemplate');
-            const prompt = await this.gateway.applyTemplate(
+            const prompt = await this.gateway.applyTemplate({
                 connection,
                 modelId,
                 systemPrompt,
-                params.adventure.chat
-            );
+                chat: params.adventure.chat
+            });
 
             this.logger.debug('Executing GetAdventureTextUseCase:execute - prompt', prompt);
 

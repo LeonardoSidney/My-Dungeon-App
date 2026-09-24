@@ -12,3 +12,4 @@ export const LOCATION_STORAGE_NAMESPACE = 'location';
 export const ITEM_STORAGE_NAMESPACE = 'item';
 export const SYSTEM_PROMPT_STORAGE_NAMESPACE = 'system_prompt';
 export const ADVENTURE_STORAGE_NAMESPACE = 'adventure';
+export const MODEL_TEMPLATE_STORAGE_NAMESPACE = 'model_template';

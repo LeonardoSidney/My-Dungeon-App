@@ -1,4 +1,5 @@
 import { Chat, Connection, Model } from '@domain/entities';
+import type { ModelProviderGateway } from '@domain/gateways';
 import { ILogger } from '@domain/logger';
 import { IStreamProvider } from '@domain/providers';
 import { GetModelResponseDTOEntry } from './dto/getModelResponseDTO';
@@ -50,6 +51,49 @@ export abstract class LlamaCppBaseGateway {
 
         this.logger.debug('Executing LlamaCppBaseGateway::getModels - entries: ', entries);
         return this.toModels(entries, connection);
+    }
+
+    async getProps (params: ModelProviderGateway.GetPropsParams): Promise<ModelProviderGateway.ModelProps | null> {
+        this.logger.info('Executing LlamaCppBaseGateway::getProps');
+        const { connection, modelId } = params;
+        const autoload = params.autoload ?? false;
+        const endpoint = `/props?model=${encodeURIComponent(modelId)}&autoload=${autoload}`;
+        const url = this.buildUrl(connection, endpoint);
+
+        try {
+            this.logger.debug('Executing LlamaCppBaseGateway::getProps - url: ', url);
+            const response = await fetch(url);
+
+            if (!response.ok) {
+                const message = await this.parseErrorBody(response);
+                this.logger.warning(`Executing LlamaCppBaseGateway::getProps - server error ${response.status}: ${message}`);
+                throw new LlamaCppServerError(`getProps failed with status ${response.status}: ${message}`);
+            }
+
+            const data: unknown = await response.json();
+            this.logger.debug('Executing LlamaCppBaseGateway::getProps - data: ', data);
+
+            if (!isRecord(data) || Array.isArray(data)) {
+                this.logger.warning('Executing LlamaCppBaseGateway::getProps - response is not a record');
+                return null;
+            }
+
+            const chatTemplate = typeof data.chat_template === 'string' ? data.chat_template : null;
+            const modelAlias = typeof data.model_alias === 'string' ? data.model_alias : null;
+            const isSleeping = typeof data.is_sleeping === 'boolean' ? data.is_sleeping : false;
+
+            return {
+                chatTemplate,
+                modelAlias,
+                isSleeping
+            };
+        } catch (error) {
+            if (error instanceof LlamaCppServerError) {
+                throw error;
+            }
+
+            throw new Error(`Error calling getProps on ${url}: ${this.toErrorMessage(error)}`);
+        }
     }
 
     protected toModels (entries: GetModelResponseDTOEntry[], connection: Connection): Model[] {
@@ -119,13 +163,9 @@ export abstract class LlamaCppBaseGateway {
         return entries;
     }
 
-    async applyTemplate (
-        connection: Connection,
-        modelId: string,
-        systemPrompt: string,
-        chat: Chat[]
-    ): Promise<string | null> {
+    async applyTemplate (params: ModelProviderGateway.ApplyTemplateParams): Promise<string | null> {
         this.logger.info('Executing LlamaCppBaseGateway::applyTemplate');
+        const { connection, modelId, systemPrompt, chat } = params;
         const url = this.buildUrl(connection, '/apply-template');
         const chats = this.formatChatMessages(chat);
         const body = {

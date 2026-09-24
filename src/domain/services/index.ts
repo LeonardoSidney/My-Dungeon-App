@@ -39,3 +39,4 @@ export * from './iFinishStreamingChatService';
 export * from './iIsAdventureStreamingService';
 export * from './iTextGenerationTemplatesService';
 export * from './iHydrateAdventureService';
+export * from './iGetModelTemplateService';

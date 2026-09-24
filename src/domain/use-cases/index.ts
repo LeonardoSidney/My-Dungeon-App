@@ -69,3 +69,4 @@ export * from './iUpdateStreamingChatUseCase';
 export * from './iFinishStreamingChatUseCase';
 export * from './iIsAdventureStreamingUseCase';
 export * from './iAlertUseCase';
+export * from './iGetModelTemplateUseCase';

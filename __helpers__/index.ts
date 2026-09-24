@@ -7,6 +7,7 @@ export * from './createWorldHelper';
 export * from './createSystemPromptHelper';
 export * from './createSamplerHelper';
 export * from './createModelHelper';
+export * from './createModelTemplateHelper';
 export * from './createLocationHelper';
 export * from './createItemHelper';
 export * from './createItemServiceResponseHelper';

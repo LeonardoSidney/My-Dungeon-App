@@ -69,6 +69,7 @@ import {
     IEditWorldMasterController,
     IEraseWorldMasterController,
     IGetModelsFromProviderController,
+    IGetModelTemplateController,
     IAlertController,
 } from '@domain/controllers';
 
@@ -117,6 +118,7 @@ export type AppControllers = {
     editLocation: IEditLocationController;
     eraseLocation: IEraseLocationController;
     getModelsFromProvider: IGetModelsFromProviderController;
+    getModelTemplate: IGetModelTemplateController;
     createProficiency: ICreateProficiencyController;
     getProficiencies: IGetProficienciesController;
     editProficiency: IEditProficiencyController;

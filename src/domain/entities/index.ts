@@ -7,6 +7,7 @@ export * from './Connection';
 export * from './Item';
 export * from './Location';
 export * from './Model';
+export * from './ModelTemplate';
 export * from './Role';
 export * from './Sampler';
 export * from './SystemPrompt';

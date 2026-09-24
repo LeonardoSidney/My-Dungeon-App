@@ -50,12 +50,12 @@ export class NativeStreamCompletionUseCase implements INativeStreamCompletionUse
                 };
             }
 
-            const { stream, abort } = this.gateway.streamCompletion(
+            const { stream, abort } = this.gateway.streamCompletion({
                 connection,
                 sampler,
-                params.modelId,
-                params.prompt
-            );
+                modelId: params.modelId,
+                prompt: params.prompt
+            });
 
             return {
                 success: true,
