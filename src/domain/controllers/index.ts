@@ -69,3 +69,4 @@ export * from './iUpdateStreamingChatController';
 export * from './iFinishStreamingChatController';
 export * from './iIsAdventureStreamingController';
 export * from './iAlertController';
+export * from './iGetModelTemplateController';

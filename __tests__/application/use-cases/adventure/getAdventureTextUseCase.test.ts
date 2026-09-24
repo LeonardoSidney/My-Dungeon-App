@@ -28,9 +28,9 @@ const mockGateway = {
 function buildUseCase (): GetAdventureTextUseCase {
     return new GetAdventureTextUseCase(
         mockLogger,
-    mockTextGeneration as unknown as ITextGeneration,
-    mockGateway as unknown as IModelProviderGateway,
-    mockHydrateAdventureService as unknown as IHydrateAdventureService
+        mockTextGeneration as unknown as ITextGeneration,
+        mockGateway as unknown as IModelProviderGateway,
+        mockHydrateAdventureService as unknown as IHydrateAdventureService
     );
 }
 
@@ -51,12 +51,12 @@ describe('GetAdventureTextUseCase', () => {
         expect(response).toEqual({ success: true, prompt: 'final prompt' });
         expect(mockHydrateAdventureService.hydrate).not.toHaveBeenCalled();
         expect(mockTextGeneration.buildAdventureTextSystemPrompt).toHaveBeenCalledWith(hydrated);
-        expect(mockGateway.applyTemplate).toHaveBeenCalledWith(
-            expect.objectContaining({ id: '1' }),
-            '1',
-            'system prompt',
-            adventure.chat
-        );
+        expect(mockGateway.applyTemplate).toHaveBeenCalledWith({
+            connection: expect.objectContaining({ id: '1' }),
+            modelId: '1',
+            systemPrompt: 'system prompt',
+            chat: adventure.chat
+        });
     });
 
     it('hydrates the adventure when no hydrated adventure is provided', async () => {

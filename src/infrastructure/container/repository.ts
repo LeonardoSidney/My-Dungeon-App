@@ -10,11 +10,13 @@ import {
     SamplerRepository,
     StatusRepository,
     SystemPromptRepository,
+    ModelTemplateRepository,
     WorldRepository,
     WorldMasterRepository,
 } from '../repository';
 import {
     IAbilityRepository,
+    IModelTemplateRepository,
     IAdventureRepository,
     IAssistantRepository,
     ICharacterRepository,
@@ -73,6 +75,10 @@ export function createStatusRepository (storage: IStorage, logger: ILogger): ISt
 
 export function createSystemPromptRepository (storage: IStorage, logger: ILogger): ISystemPromptRepository {
     return new SystemPromptRepository(logger, storage);
+}
+
+export function createModelTemplateRepository (storage: IStorage, logger: ILogger): IModelTemplateRepository {
+    return new ModelTemplateRepository(logger, storage);
 }
 
 export function createWorldRepository (storage: IStorage, logger: ILogger): IWorldRepository {

@@ -14,3 +14,4 @@ export * from './adventureDTO';
 export * from './chatDTO';
 export * from './thinkDTO';
 export * from './ModelDTO';
+export * from './modelTemplateDTO';

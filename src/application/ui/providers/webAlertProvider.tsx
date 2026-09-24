@@ -9,48 +9,48 @@ export type WebAlertProviderProps = {
 };
 
 export function WebAlertProvider (params: WebAlertProviderProps) {
-    const { children } = params;
-    const [queue, setQueue] = useState<AlertUseCaseParams[]>([]);
-    const currentAlert = queue[0];
+  const { children } = params;
+  const [queue, setQueue] = useState<AlertUseCaseParams[]>([]);
+  const currentAlert = queue[0];
 
-    const removeCurrentAlert = useCallback(() => {
-        setQueue((previous) => previous.slice(1));
-    }, []);
+  const removeCurrentAlert = useCallback(() => {
+    setQueue((previous) => previous.slice(1));
+  }, []);
 
-    useEffect(() => {
-        if (currentAlert === undefined) {
-            return;
-        }
+  useEffect(() => {
+    if (currentAlert === undefined) {
+      return;
+    }
 
-        const onKeyDown = (event: KeyboardEvent) => {
-            if (event.key === 'Escape') {
-                removeCurrentAlert();
-            }
-        };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        removeCurrentAlert();
+      }
+    };
 
-        window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keydown', onKeyDown);
 
-        return () => {
-            window.removeEventListener('keydown', onKeyDown);
-        };
-    }, [currentAlert, removeCurrentAlert]);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [currentAlert, removeCurrentAlert]);
 
-    useEffect(() => {
-        return alertBus.subscribe((alertParams) => {
-            setQueue((previous) => [...previous, alertParams]);
-        });
-    }, []);
+  useEffect(() => {
+    return alertBus.subscribe((alertParams) => {
+      setQueue((previous) => [...previous, alertParams]);
+    });
+  }, []);
 
-    return (
-        <>
-            {children}
-            {currentAlert !== undefined && (
-                <WebAlertModal
-                    title={currentAlert.title}
-                    message={currentAlert.message}
-                    onConfirm={removeCurrentAlert}
-                />
-            )}
-        </>
-    );
+  return (
+    <>
+      {children}
+      {currentAlert !== undefined && (
+        <WebAlertModal
+          title={currentAlert.title}
+          message={currentAlert.message}
+          onConfirm={removeCurrentAlert}
+        />
+      )}
+    </>
+  );
 }

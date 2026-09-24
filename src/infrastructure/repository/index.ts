@@ -11,3 +11,4 @@ export * from './worldRepository';
 export * from './locationRepository';
 export * from './itemRepository';
 export * from './systemPromptRepository';
+export * from './modelTemplateRepository';

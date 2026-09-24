@@ -74,7 +74,7 @@ describe('LlamaCppBaseGateway', () => {
         it('should return prompt from successful response', async () => {
             globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ prompt: 'templated prompt' }));
 
-            const prompt = await createGateway().applyTemplate(connection, 'model-a', 'system', []);
+            const prompt = await createGateway().applyTemplate({ connection, modelId: 'model-a', systemPrompt: 'system', chat: [] });
 
             expect(prompt).toBe('templated prompt');
             expect(globalThis.fetch).toHaveBeenCalledWith(
@@ -93,7 +93,7 @@ describe('LlamaCppBaseGateway', () => {
             const gateway = createGateway();
 
             await expect(
-                gateway.applyTemplate(connection, 'model-a', 'system', [])
+                gateway.applyTemplate({ connection, modelId: 'model-a', systemPrompt: 'system', chat: [] })
             ).rejects.toThrow('applyTemplate failed with status 400: model is not loaded');
         });
 
@@ -107,7 +107,7 @@ describe('LlamaCppBaseGateway', () => {
             const gateway = createGateway();
 
             await expect(
-                gateway.applyTemplate(connection, 'model-a', 'system', [])
+                gateway.applyTemplate({ connection, modelId: 'model-a', systemPrompt: 'system', chat: [] })
             ).rejects.toThrow('applyTemplate failed with status 500: no error details');
         });
 
@@ -117,14 +117,14 @@ describe('LlamaCppBaseGateway', () => {
             const gateway = createGateway();
 
             await expect(
-                gateway.applyTemplate(connection, 'model-a', 'system', [])
+                gateway.applyTemplate({ connection, modelId: 'model-a', systemPrompt: 'system', chat: [] })
             ).rejects.toThrow('Error calling applyTemplate on http://192.168.0.1:8080/apply-template: ECONNREFUSED');
         });
 
         it('should return null when response has no prompt', async () => {
             globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ something: 'else' }));
 
-            const prompt = await createGateway().applyTemplate(connection, 'model-a', 'system', []);
+            const prompt = await createGateway().applyTemplate({ connection, modelId: 'model-a', systemPrompt: 'system', chat: [] });
 
             expect(prompt).toBeNull();
         });
@@ -139,8 +139,74 @@ describe('LlamaCppBaseGateway', () => {
             const gateway = createGateway();
 
             await expect(
-                gateway.applyTemplate(connection, 'model-a', 'system', [])
+                gateway.applyTemplate({ connection, modelId: 'model-a', systemPrompt: 'system', chat: [] })
             ).rejects.toThrow('Error calling applyTemplate on http://192.168.0.1:8080/apply-template: not json');
+        });
+    });
+
+    describe('getProps', () => {
+        const connection = createConnectionHelper({ ip: '192.168.0.1', port: 8080 });
+
+        it('should map chat_template and model_alias from the response', async () => {
+            globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({
+                chat_template: 'jinja {{ messages }}',
+                model_alias: 'model-a',
+                is_sleeping: true,
+                model_path: '/models/model-a.gguf'
+            }));
+
+            const props = await createGateway().getProps({ connection, modelId: 'model-a' });
+
+            expect(props).toEqual({ chatTemplate: 'jinja {{ messages }}', modelAlias: 'model-a', isSleeping: true });
+            expect(globalThis.fetch).toHaveBeenCalledWith('http://192.168.0.1:8080/props?model=model-a&autoload=false');
+        });
+
+        it('should return null for missing optional fields', async () => {
+            globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ model_path: '/models/dummy.gguf' }));
+
+            const props = await createGateway().getProps({ connection, modelId: 'model-a' });
+
+            expect(props).toEqual({ chatTemplate: null, modelAlias: null, isSleeping: false });
+        });
+
+        it('should encode the modelId in the url', async () => {
+            globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ chat_template: 't' }));
+
+            await createGateway().getProps({ connection, modelId: 'my/model name' });
+
+            expect(globalThis.fetch).toHaveBeenCalledWith('http://192.168.0.1:8080/props?model=my%2Fmodel%20name&autoload=false');
+        });
+
+        it('should throw with the server error message on non-ok response', async () => {
+            globalThis.fetch = jest.fn().mockResolvedValue(mockResponse(
+                { error: { code: 400, message: 'model is not loaded', type: 'invalid_request_error' } },
+                false,
+                400
+            ));
+
+            const gateway = createGateway();
+
+            await expect(
+                gateway.getProps({ connection, modelId: 'model-a' })
+            ).rejects.toThrow('getProps failed with status 400: model is not loaded');
+        });
+
+        it('should wrap fetch network errors', async () => {
+            globalThis.fetch = jest.fn().mockRejectedValue(new Error('ECONNREFUSED'));
+
+            const gateway = createGateway();
+
+            await expect(
+                gateway.getProps({ connection, modelId: 'model-a' })
+            ).rejects.toThrow('Error calling getProps on http://192.168.0.1:8080/props?model=model-a&autoload=false: ECONNREFUSED');
+        });
+
+        it('should return null when the response body is not a record', async () => {
+            globalThis.fetch = jest.fn().mockResolvedValue(mockResponse([1, 2, 3]));
+
+            const props = await createGateway().getProps({ connection, modelId: 'model-a' });
+
+            expect(props).toBeNull();
         });
     });
 });

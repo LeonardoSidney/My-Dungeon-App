@@ -1,4 +1,3 @@
-import { Connection, Sampler } from '@domain/entities';
 import { IModelProviderGateway, ModelProviderGateway } from '@domain/gateways';
 import { ILogger } from '@domain/logger';
 import { IStreamProvider } from '@domain/providers';
@@ -10,13 +9,9 @@ export class LlamaCppOAGateway extends LlamaCppBaseGateway implements IModelProv
         super(logger, streamProvider);
     }
 
-    streamCompletion (
-        connection: Connection,
-        sampler: Sampler,
-        modelId: string,
-        prompt: string
-    ): ModelProviderGateway.StreamResult {
+    streamCompletion (params: ModelProviderGateway.StreamCompletionParams): ModelProviderGateway.StreamResult {
         this.logger.info('Executing LlamaCppOAGateway::streamCompletion');
+        const { connection, sampler, modelId, prompt } = params;
 
         const url = this.buildUrl(connection, '/v1/completions');
 
