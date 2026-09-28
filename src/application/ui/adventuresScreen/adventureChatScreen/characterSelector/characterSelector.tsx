@@ -24,7 +24,7 @@ export function CharacterSelector ({ characters, onCharacterSelect, selectedChar
 
       {isListVisible && (
         <View style={styles.dropdownList}>
-          <ScrollView keyboardShouldPersistTaps="handled">
+          <ScrollView keyboardShouldPersistTaps="handled" nestedScrollEnabled>
             {characters.map((character, index) => {
               const totalCharacters = characters.length;
               const itemStyle = [

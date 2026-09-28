@@ -6,5 +6,8 @@
   },
   "js/ts.preferences.importModuleSpecifier": "non-relative",
   "js/ts.preferences.quoteStyle": "single",
-  "editor.formatOnPaste": false
+  "editor.formatOnPaste": false,
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

@@ -1,5 +1,8 @@
 module.exports = {
     preset: '@react-native/jest-preset',
+    transformIgnorePatterns: [
+        'node_modules/(?!((jest-)?react-native|@react-native(-community)?|@react-navigation)/)'
+    ],
     moduleNameMapper: {
         '^@domain/(.*)$': '<rootDir>/src/domain/$1',
         '^@application/(.*)$': '<rootDir>/src/application/$1',

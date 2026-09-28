@@ -14,7 +14,7 @@ export function AdventureChatSettings (params: AdventureChatSettingsProps) {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{adventure.name} Settings</Text>
       </View>
-      <ScrollView style={styles.content}>
+      <ScrollView nestedScrollEnabled style={styles.content}>
         <WorldMasterDropdown adventure={adventure} onWorldMasterSelect={onWorldMasterSelect} controllers={controllers} />
       </ScrollView>
     </View>

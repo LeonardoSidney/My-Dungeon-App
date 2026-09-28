@@ -1,5 +1,7 @@
+import * as React from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { useEntityList } from '@application/ui/hooks';
+import { createTestNavigation, TestNavigationProvider } from '@test/helpers';
 
 type TestEntity = {
     id: string;
@@ -11,6 +13,15 @@ const LOADED: TestEntity[] = [
     { id: '2', name: 'B' },
 ];
 
+async function renderList (fetch: jest.Mock) {
+    const navigation = createTestNavigation();
+    const view = await renderHook(
+        () => useEntityList<TestEntity>({ fetch }),
+        { wrapper: (props) => React.createElement(TestNavigationProvider, { navigation: navigation.navigation }, props.children) }
+    );
+    return { view, navigation };
+}
+
 describe('useEntityList', () => {
     it('loads items on mount and clears the loading flag', async () => {
         let resolveFetch: (value: TestEntity[]) => void = () => {
@@ -21,7 +32,7 @@ describe('useEntityList', () => {
                 resolveFetch = resolve;
             })
         );
-        const view = await renderHook(() => useEntityList<TestEntity>({ fetch }));
+        const { view } = await renderList(fetch);
 
         expect(view.result.current.isLoading).toBe(true);
 
@@ -39,7 +50,7 @@ describe('useEntityList', () => {
         const fetch = jest.fn()
             .mockRejectedValueOnce(new Error('boom'))
             .mockResolvedValue(LOADED);
-        const view = await renderHook(() => useEntityList<TestEntity>({ fetch }));
+        const { view } = await renderList(fetch);
 
         await waitFor(() => expect(view.result.current.isError).toBe(true));
         expect(view.result.current.isLoading).toBe(false);
@@ -57,12 +68,29 @@ describe('useEntityList', () => {
         const fetch = jest.fn()
             .mockResolvedValueOnce(LOADED)
             .mockResolvedValueOnce(LOADED.slice(0, 1));
-        const view = await renderHook(() => useEntityList<TestEntity>({ fetch }));
+        const { view } = await renderList(fetch);
         await waitFor(() => expect(view.result.current.isLoading).toBe(false));
 
         await act(async () => {
             await view.result.current.reload();
         });
+        await waitFor(() => expect(view.result.current.items).toHaveLength(1));
+        expect(view.result.current.items).toEqual(LOADED.slice(0, 1));
+        expect(fetch).toHaveBeenCalledTimes(2);
+    });
+
+    it('refetches the latest items when the screen regains focus', async () => {
+        const fetch = jest.fn()
+            .mockResolvedValueOnce(LOADED)
+            .mockResolvedValueOnce(LOADED.slice(0, 1));
+        const { view, navigation } = await renderList(fetch);
+        await waitFor(() => expect(view.result.current.isLoading).toBe(false));
+
+        await act(async () => {
+            navigation.emit('blur');
+            navigation.emit('focus');
+        });
+
         await waitFor(() => expect(view.result.current.items).toHaveLength(1));
         expect(view.result.current.items).toEqual(LOADED.slice(0, 1));
         expect(fetch).toHaveBeenCalledTimes(2);
