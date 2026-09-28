@@ -1,16 +1,18 @@
+import * as React from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { useEntityScreen, type EntityFormErrors, type UseEntityScreenParams } from '@application/ui/hooks';
+import { createTestNavigation, TestNavigationProvider } from '@test/helpers';
 
 type TestEntity = {
-  id: string;
-  name: string;
-  activationWord: string;
+    id: string;
+    name: string;
+    activationWord: string;
 };
 
 type TestForm = {
-  id: string;
-  name: string;
-  activationWord: string;
+    id: string;
+    name: string;
+    activationWord: string;
 };
 
 const LOADED: TestEntity[] = [{ id: '1', name: 'A', activationWord: 'w' }];
@@ -37,7 +39,11 @@ function buildParams (fetch: jest.Mock, submit?: jest.Mock, erase?: jest.Mock): 
 
 async function renderLoaded (fetch: jest.Mock, submit?: jest.Mock, erase?: jest.Mock) {
     const params = buildParams(fetch, submit, erase);
-    const view = await renderHook(() => useEntityScreen<TestEntity, TestForm>(params));
+    const navigation = createTestNavigation();
+    const view = await renderHook(
+        () => useEntityScreen<TestEntity, TestForm>(params),
+        { wrapper: (props) => React.createElement(TestNavigationProvider, { navigation: navigation.navigation }, props.children) }
+    );
     await waitFor(() => expect(view.result.current.isLoading).toBe(false));
     return view;
 }

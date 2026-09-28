@@ -39,7 +39,7 @@ export function SystemPromptViewer (params: SystemPromptViewerProps) {
           <Text style={styles.noteText}>Includes the current chat and the model template tokens.</Text>
         )}
         {activePrompt ? (
-          <ScrollView>
+          <ScrollView nestedScrollEnabled>
             <Text style={styles.promptText}>{activePrompt}</Text>
           </ScrollView>
         ) : !activePromptError ? (

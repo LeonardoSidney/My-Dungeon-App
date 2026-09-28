@@ -21,7 +21,7 @@ export function SelectList<T extends SelectItemBase> ({ items, selectedItems, on
   return (
     <View style={styles.selectListContainer}>
       {shouldScroll ? (
-        <ScrollView style={styles.selectListScrollable}>
+        <ScrollView nestedScrollEnabled style={styles.selectListScrollable}>
           {renderItems}
         </ScrollView>
       ) : (

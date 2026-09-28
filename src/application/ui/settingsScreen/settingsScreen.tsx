@@ -59,7 +59,7 @@ export function SettingsScreen () {
 
   return (
     <View style={styles.container}>
-      <ScrollView keyboardShouldPersistTaps="handled">
+      <ScrollView keyboardShouldPersistTaps="handled" nestedScrollEnabled>
         <ConnectionPanel
           connections={entities}
           loading={isLoading}

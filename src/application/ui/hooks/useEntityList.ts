@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 
 export type UseEntityListParams<T> = {
     fetch: () => Promise<T[]>;
@@ -31,9 +32,11 @@ export function useEntityList<T> (params: UseEntityListParams<T>): UseEntityList
         }
     }, []);
 
-    useEffect(() => {
-        reload();
-    }, [reload]);
+    useFocusEffect(
+        useCallback(() => {
+            reload();
+        }, [reload])
+    );
 
     return {
         items,

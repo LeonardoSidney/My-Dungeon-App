@@ -36,7 +36,7 @@ export function SamplerScreen () {
 
   return (
     <View style={styles.container}>
-      <ScrollView keyboardShouldPersistTaps="handled">
+      <ScrollView keyboardShouldPersistTaps="handled" nestedScrollEnabled>
         {isError ? (
           <Text style={styles.errorText}>Failed to load samplers.</Text>
         ) : (

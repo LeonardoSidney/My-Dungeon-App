@@ -28,8 +28,11 @@ function AdventureChatContent ({ currentAdventure, setCurrentAdventure, hydrated
     for (const character of hydratedCharacters) {
       map[character.id] = character.name;
     }
+    if (hydrated.worldMaster) {
+      map[hydrated.worldMaster.id] = hydrated.worldMaster.name;
+    }
     return map;
-  }, [hydratedCharacters]);
+  }, [hydratedCharacters, hydrated.worldMaster]);
 
   const {
     message,
@@ -167,6 +170,7 @@ function AdventureChatContent ({ currentAdventure, setCurrentAdventure, hydrated
       <View style={styles.messagesContainer}>
         <ScrollView
           style={styles.messagesContainer}
+          nestedScrollEnabled
           ref={scrollViewRef}
           onScroll={handleScroll}
           scrollEventThrottle={16}

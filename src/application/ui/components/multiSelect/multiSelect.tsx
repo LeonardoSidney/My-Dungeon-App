@@ -46,7 +46,7 @@ export function MultiSelect<T extends { id: string; name: string; }> ({
         {isEmpty ? (
           <Text style={styles.emptyText}>{emptyMessage ?? 'No items available'}</Text>
         ) : shouldScroll ? (
-          <ScrollView style={styles.scrollable}>
+          <ScrollView nestedScrollEnabled style={styles.scrollable}>
             {renderItems}
           </ScrollView>
         ) : (

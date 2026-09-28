@@ -93,6 +93,7 @@ export function CrudEntityList<T extends CrudEntityListItem> (params: CrudEntity
       <FlatList
         ref={flatListRef}
         style={styles.list}
+        nestedScrollEnabled
         data={emptyItems}
         renderItem={renderPlaceholder}
         ListEmptyComponent={<Text style={styles.loadingText}>Loading...</Text>}
@@ -108,6 +109,7 @@ export function CrudEntityList<T extends CrudEntityListItem> (params: CrudEntity
       <FlatList
         ref={flatListRef}
         style={styles.list}
+        nestedScrollEnabled
         data={emptyItems}
         renderItem={renderPlaceholder}
         ListEmptyComponent={<EntityListError message={errorMessageText} />}
@@ -121,6 +123,7 @@ export function CrudEntityList<T extends CrudEntityListItem> (params: CrudEntity
     <FlatList
       ref={flatListRef}
       style={styles.list}
+      nestedScrollEnabled
       data={items}
       keyExtractor={(item) => item.id}
       renderItem={renderItem}

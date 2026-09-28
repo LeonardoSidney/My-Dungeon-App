@@ -15,6 +15,7 @@ export * from './createConnectionHelper';
 export * from './createCharacterHelper';
 export * from './createChatHelper';
 export * from './createAssistantHelper';
+export * from './createTestNavigationHelper';
 export * from './createAdventureRequestHelper';
 export * from './createAdventureHelper';
 export * from './createHydratedAdventureHelper';

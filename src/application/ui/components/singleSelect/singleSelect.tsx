@@ -28,7 +28,7 @@ export function SingleSelect<T extends { id: string; }> ({
 
   return (
     <View style={[styles.dropdown, hasError && styles.inputError]}>
-      <ScrollView keyboardShouldPersistTaps="handled" style={styles.scrollable}>
+      <ScrollView keyboardShouldPersistTaps="handled" nestedScrollEnabled style={styles.scrollable}>
         {renderItems}
       </ScrollView>
       {isEmpty && <Text style={styles.emptyText}>{emptyMessage ?? 'No items available'}</Text>}
