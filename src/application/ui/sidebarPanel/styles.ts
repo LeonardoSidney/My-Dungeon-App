@@ -23,12 +23,17 @@ export const styles = StyleSheet.create({
         zIndex: 999,
     },
     panelTitle: {
+        height: HEADER_HEIGHT,
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingLeft: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: '#0f3460',
+    },
+    panelTitleText: {
         fontSize: 22,
         fontWeight: 'bold',
         color: '#e94560',
-        padding: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#0f3460',
     },
     menu: {
         paddingVertical: 8,

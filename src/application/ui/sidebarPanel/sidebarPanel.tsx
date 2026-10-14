@@ -66,7 +66,9 @@ export function SidebarPanel ({
           { transform: [{ translateX: panelTranslateX }] },
         ]}
       >
-        <Text style={styles.panelTitle}>Menu</Text>
+        <View style={styles.panelTitle}>
+          <Text style={styles.panelTitleText}>Menu</Text>
+        </View>
         <View style={styles.menu}>
           {menuItems.map((item) => (
             <Pressable
