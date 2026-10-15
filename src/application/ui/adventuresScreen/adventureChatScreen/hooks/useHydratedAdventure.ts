@@ -1,5 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { Adventure } from '@domain/entities';
+import { HydrateAdventureControllerResponse } from '@domain/controllers';
 import { HydratedAdventure } from '@domain/use-cases';
 import { UseHydratedAdventureParams } from './constants';
 
@@ -17,6 +19,8 @@ function getHydrationKey (adventure: Adventure): string {
     });
 }
 
+const DEFAULT_HYDRATION_ERROR = 'Falha ao carregar a aventura';
+
 export function useHydratedAdventure ({ adventure, hydrateAdventure }: UseHydratedAdventureParams) {
     const [hydrated, setHydrated] = useState<HydratedAdventure | null>(null);
     const [hydratedError, setHydratedError] = useState<string | null>(null);
@@ -24,39 +28,56 @@ export function useHydratedAdventure ({ adventure, hydrateAdventure }: UseHydrat
     const hydrationKey = getHydrationKey(adventure);
     const structuralAdventureRef = useRef(adventure);
     const previousHydrationKeyRef = useRef(hydrationKey);
+    const sequenceRef = useRef(0);
 
     if (previousHydrationKeyRef.current !== hydrationKey) {
         previousHydrationKeyRef.current = hydrationKey;
         structuralAdventureRef.current = adventure;
     }
 
-    useEffect(() => {
-        let cancelled = false;
-        const structuralAdventure = structuralAdventureRef.current;
+    const applyHydration = useCallback((sequence: number, response: HydrateAdventureControllerResponse): void => {
+        if (sequence !== sequenceRef.current) {
+            return;
+        }
 
-        setHydrated(null);
-        setHydratedError(null);
-        hydratedRef.current = null;
-
-        const hydrate = async () => {
-            const response = await hydrateAdventure.handle({ adventure: structuralAdventure });
-            if (cancelled) return;
-            if (response.success && response.hydrated) {
-                hydratedRef.current = response.hydrated;
-                setHydrated(response.hydrated);
-                return;
-            }
+        if (!response.success || !response.hydrated) {
             hydratedRef.current = null;
             setHydrated(null);
-            setHydratedError(response.error ?? 'Falha ao carregar a aventura');
-        };
+            setHydratedError(response.error ?? DEFAULT_HYDRATION_ERROR);
+            return;
+        }
 
-        hydrate();
+        hydratedRef.current = response.hydrated;
+        setHydrated(response.hydrated);
+    }, []);
 
-        return () => {
-            cancelled = true;
-        };
-    }, [hydrationKey, hydrateAdventure]);
+    const hydrate = useCallback(async (reset: boolean): Promise<void> => {
+        if (reset) {
+            setHydrated(null);
+            setHydratedError(null);
+            hydratedRef.current = null;
+        }
+
+        sequenceRef.current += 1;
+        const sequence = sequenceRef.current;
+        const structuralAdventure = structuralAdventureRef.current;
+        const response = await hydrateAdventure.handle({ adventure: structuralAdventure });
+        applyHydration(sequence, response);
+    }, [hydrateAdventure, applyHydration]);
+
+    useEffect(() => {
+        hydrate(true);
+    }, [hydrate, hydrationKey]);
+
+    useFocusEffect(
+        useCallback(() => {
+            if (hydratedRef.current === null) {
+                return;
+            }
+
+            hydrate(false);
+        }, [hydrate])
+    );
 
     return { hydrated, hydratedRef, hydratedError };
 }
