@@ -8,8 +8,9 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start --reset-cache",
-    "test": "jest --passWithNoTests",
-    "test:coverage": "jest --coverage",
+    "test": "jest __tests__/unit --passWithNoTests",
+    "test:api": "jest __tests__/api",
+    "test:coverage": "jest __tests__/unit --coverage",
     "web": "webpack serve --config webpack.config.js",
     "build:web": "webpack --config webpack.config.js"
   },

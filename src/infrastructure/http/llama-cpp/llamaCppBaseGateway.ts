@@ -1,8 +1,9 @@
-import { Chat, Connection, Model } from '@domain/entities';
+import { Connection, Model } from '@domain/entities';
 import type { ModelProviderGateway } from '@domain/gateways';
 import { ILogger } from '@domain/logger';
 import { IStreamProvider } from '@domain/providers';
 import { GetModelResponseDTOEntry } from './dto/getModelResponseDTO';
+import { mapToApplyTemplateRequest } from './dto/applyTemplateRequestDTO';
 import { isArrayRecord, isRecord } from '@infra/dto/shared';
 
 class LlamaCppServerError extends Error { }
@@ -167,11 +168,7 @@ export abstract class LlamaCppBaseGateway {
         this.logger.info('Executing LlamaCppBaseGateway::applyTemplate');
         const { connection, modelId, systemPrompt, chat } = params;
         const url = this.buildUrl(connection, '/apply-template');
-        const chats = this.formatChatMessages(chat);
-        const body = {
-            model: modelId,
-            messages: [{ role: 'system', content: systemPrompt }, ...chats],
-        };
+        const body = mapToApplyTemplateRequest({ modelId, systemPrompt, chat });
 
         try {
             this.logger.debug('Executing LlamaCppBaseGateway::applyTemplate - url: ', url);
@@ -233,12 +230,5 @@ export abstract class LlamaCppBaseGateway {
         } catch {
             return 'no error details';
         }
-    }
-
-    protected formatChatMessages (chat: Chat[]): { role: string; content: string; }[] {
-        return chat.map(c => ({
-            role: c.role,
-            content: c.content[c.index] ?? '',
-        }));
     }
 }

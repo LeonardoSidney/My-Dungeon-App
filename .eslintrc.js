@@ -12,6 +12,12 @@ module.exports = {
             rules: {
                 indent: ['error', 2, { SwitchCase: 1 }]
             }
+        },
+        {
+            files: ['__tests__/api/**/*'],
+            rules: {
+                'jest/no-disabled-tests': 'off'
+            }
         }
     ]
 };

@@ -1,7 +1,8 @@
+import { RoleEnum } from '@domain/entities';
 import { LlamaCppBaseGateway } from '@infra/http/llama-cpp/llamaCppBaseGateway';
 import { ILogger } from '@domain/logger';
 import { IStreamProvider } from '@domain/providers';
-import { createConnectionHelper } from '@test/helpers';
+import { createChatHelper, createConnectionHelper } from '@test/helpers';
 
 const mockLogger = {
     info: jest.fn(),
@@ -141,6 +142,158 @@ describe('LlamaCppBaseGateway', () => {
             await expect(
                 gateway.applyTemplate({ connection, modelId: 'model-a', systemPrompt: 'system', chat: [] })
             ).rejects.toThrow('Error calling applyTemplate on http://192.168.0.1:8080/apply-template: not json');
+        });
+
+        describe('reasoning_content', () => {
+            function getLastRequestBody (): { model: string; messages: { role: string; content: string; reasoning_content?: string; }[]; } {
+                const fetchMock = globalThis.fetch as jest.Mock;
+                return JSON.parse(fetchMock.mock.calls[0][1].body);
+            }
+
+            it('should send reasoning_content for an assistant chat with enabled think', async () => {
+                globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ prompt: 'templated prompt' }));
+
+                await createGateway().applyTemplate({
+                    connection,
+                    modelId: 'model-a',
+                    systemPrompt: 'system',
+                    chat: [
+                        createChatHelper({ id: 'chat-1', role: RoleEnum.USER, content: ['hello'] }),
+                        createChatHelper({
+                            id: 'chat-2',
+                            role: RoleEnum.ASSISTANT,
+                            content: ['partial answer'],
+                            think: [{ id: 'think-1', content: 'deep reasoning', enabled: true }],
+                        }),
+                    ],
+                });
+
+                expect(getLastRequestBody().messages).toEqual([
+                    { role: 'system', content: 'system' },
+                    { role: 'user', content: 'hello' },
+                    { role: 'assistant', content: 'partial answer', reasoning_content: 'deep reasoning' },
+                ]);
+            });
+
+            it('should send reasoning_content for an earlier assistant chat with enabled think', async () => {
+                globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ prompt: 'templated prompt' }));
+
+                await createGateway().applyTemplate({
+                    connection,
+                    modelId: 'model-a',
+                    systemPrompt: 'system',
+                    chat: [
+                        createChatHelper({
+                            id: 'chat-1',
+                            role: RoleEnum.ASSISTANT,
+                            content: ['answer'],
+                            think: [{ id: 'think-1', content: 'deep reasoning', enabled: true }],
+                        }),
+                        createChatHelper({ id: 'chat-2', role: RoleEnum.USER, content: ['hello'] }),
+                    ],
+                });
+
+                expect(getLastRequestBody().messages).toEqual([
+                    { role: 'system', content: 'system' },
+                    { role: 'assistant', content: 'answer', reasoning_content: 'deep reasoning' },
+                    { role: 'user', content: 'hello' },
+                ]);
+            });
+
+            it('should omit reasoning_content when think is disabled', async () => {
+                globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ prompt: 'templated prompt' }));
+
+                await createGateway().applyTemplate({
+                    connection,
+                    modelId: 'model-a',
+                    systemPrompt: 'system',
+                    chat: [
+                        createChatHelper({
+                            id: 'chat-1',
+                            role: RoleEnum.ASSISTANT,
+                            content: ['partial answer'],
+                            think: [{ id: 'think-1', content: 'deep reasoning', enabled: false }],
+                        }),
+                    ],
+                });
+
+                expect(getLastRequestBody().messages).toEqual([
+                    { role: 'system', content: 'system' },
+                    { role: 'assistant', content: 'partial answer' },
+                ]);
+            });
+
+            it('should omit reasoning_content when think content is blank', async () => {
+                globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ prompt: 'templated prompt' }));
+
+                await createGateway().applyTemplate({
+                    connection,
+                    modelId: 'model-a',
+                    systemPrompt: 'system',
+                    chat: [
+                        createChatHelper({
+                            id: 'chat-1',
+                            role: RoleEnum.ASSISTANT,
+                            content: ['partial answer'],
+                            think: [{ id: 'think-1', content: '   ', enabled: true }],
+                        }),
+                    ],
+                });
+
+                expect(getLastRequestBody().messages).toEqual([
+                    { role: 'system', content: 'system' },
+                    { role: 'assistant', content: 'partial answer' },
+                ]);
+            });
+
+            it('should omit reasoning_content when an assistant chat has no think', async () => {
+                globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ prompt: 'templated prompt' }));
+
+                await createGateway().applyTemplate({
+                    connection,
+                    modelId: 'model-a',
+                    systemPrompt: 'system',
+                    chat: [
+                        createChatHelper({ id: 'chat-1', role: RoleEnum.USER, content: ['hello'] }),
+                        createChatHelper({ id: 'chat-2', role: RoleEnum.ASSISTANT, content: ['partial answer'] }),
+                    ],
+                });
+
+                expect(getLastRequestBody().messages).toEqual([
+                    { role: 'system', content: 'system' },
+                    { role: 'user', content: 'hello' },
+                    { role: 'assistant', content: 'partial answer' },
+                ]);
+            });
+
+            it('should send reasoning_content from the think at the chat index', async () => {
+                globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ prompt: 'templated prompt' }));
+
+                await createGateway().applyTemplate({
+                    connection,
+                    modelId: 'model-a',
+                    systemPrompt: 'system',
+                    chat: [
+                        createChatHelper({ id: 'chat-1', role: RoleEnum.USER, content: ['hello'] }),
+                        createChatHelper({
+                            id: 'chat-2',
+                            role: RoleEnum.ASSISTANT,
+                            index: 1,
+                            content: ['old answer', 'new answer'],
+                            think: [
+                                { id: 'think-0', content: 'old reasoning', enabled: true },
+                                { id: 'think-1', content: 'new reasoning', enabled: true },
+                            ],
+                        }),
+                    ],
+                });
+
+                expect(getLastRequestBody().messages).toEqual([
+                    { role: 'system', content: 'system' },
+                    { role: 'user', content: 'hello' },
+                    { role: 'assistant', content: 'new answer', reasoning_content: 'new reasoning' },
+                ]);
+            });
         });
     });
 

@@ -13,6 +13,9 @@ module.exports = {
         '^@test/helpers$': '<rootDir>/__helpers__',
         '^@test/helpers/(.*)$': '<rootDir>/__helpers__/$1'
     },
+    testMatch: [
+        '<rootDir>/__tests__/**/*.test.{ts,tsx}'
+    ],
     collectCoverage: false,
     collectCoverageFrom: [
         'src/**/*.{ts,tsx}',
