@@ -7,6 +7,7 @@ export function createChatHelper (overrides?: Partial<Chat>): Chat {
         id: 'chat-1',
         role: RoleEnum.USER,
         index: 0,
+        thinkIndex: 0,
         content: ['original message'],
         characterId: 'character-1',
         createdAt: now,

@@ -7,6 +7,7 @@ export class ChatDTO {
         private readonly id: string,
         private readonly role: Role,
         private readonly index: number,
+        private readonly thinkIndex: number,
         private readonly content: string[],
         private readonly think: Think[] | undefined,
         private readonly characterId: string,
@@ -19,6 +20,7 @@ export class ChatDTO {
             id: this.id,
             role: this.role,
             index: this.index,
+            thinkIndex: this.thinkIndex,
             content: this.content,
             think: this.think,
             characterId: this.characterId,
@@ -50,7 +52,9 @@ export class ChatDTO {
             return null;
         }
 
-        return new ChatDTO(data.id, role, data.index, content, think, data.characterId, createdAt, updatedAt);
+        const thinkIndex = typeof data.thinkIndex === 'number' ? data.thinkIndex : data.index;
+
+        return new ChatDTO(data.id, role, data.index, thinkIndex, content, think, data.characterId, createdAt, updatedAt);
     }
 
     private static toRole (role: unknown): Role | undefined {

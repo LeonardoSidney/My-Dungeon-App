@@ -8,7 +8,8 @@ import { ChatItemProps } from './constants';
 
 function ChatItemBase ({ chat, isStreaming, characterNameById, onDeleteMessage, isMessageEditing, editingChatId, onEditMessage, onSaveEditMessage, onDiscardEdit, onContinueFromMessage, onRegenerateFromMessage, onNavigateChatIndex }: ChatItemProps) {
   const displayIndex = Math.min(chat.index, Math.max(0, chat.content.length - 1));
-  const think = chat.think?.[displayIndex];
+  const thinkDisplayIndex = Math.min(chat.thinkIndex, Math.max(0, chat.content.length - 1));
+  const think = chat.think?.[thinkDisplayIndex];
   const streamingThink = isStreaming ? chat.think?.[0] : undefined;
   const content = chat.content[displayIndex] ?? '';
   const isUserMessage = chat.role === RoleEnum.USER;

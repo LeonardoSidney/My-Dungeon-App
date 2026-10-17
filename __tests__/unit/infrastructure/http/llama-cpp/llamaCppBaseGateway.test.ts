@@ -279,6 +279,7 @@ describe('LlamaCppBaseGateway', () => {
                             id: 'chat-2',
                             role: RoleEnum.ASSISTANT,
                             index: 1,
+                            thinkIndex: 1,
                             content: ['old answer', 'new answer'],
                             think: [
                                 { id: 'think-0', content: 'old reasoning', enabled: true },
@@ -292,6 +293,36 @@ describe('LlamaCppBaseGateway', () => {
                     { role: 'system', content: 'system' },
                     { role: 'user', content: 'hello' },
                     { role: 'assistant', content: 'new answer', reasoning_content: 'new reasoning' },
+                ]);
+            });
+
+            it('should send reasoning_content from the think at the think index', async () => {
+                globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ prompt: 'templated prompt' }));
+
+                await createGateway().applyTemplate({
+                    connection,
+                    modelId: 'model-a',
+                    systemPrompt: 'system',
+                    chat: [
+                        createChatHelper({ id: 'chat-1', role: RoleEnum.USER, content: ['hello'] }),
+                        createChatHelper({
+                            id: 'chat-2',
+                            role: RoleEnum.ASSISTANT,
+                            index: 0,
+                            thinkIndex: 1,
+                            content: ['old answer', 'new answer'],
+                            think: [
+                                { id: 'think-0', content: 'old reasoning', enabled: true },
+                                { id: 'think-1', content: 'new reasoning', enabled: true },
+                            ],
+                        }),
+                    ],
+                });
+
+                expect(getLastRequestBody().messages).toEqual([
+                    { role: 'system', content: 'system' },
+                    { role: 'user', content: 'hello' },
+                    { role: 'assistant', content: 'old answer', reasoning_content: 'new reasoning' },
                 ]);
             });
         });

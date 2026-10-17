@@ -13,6 +13,7 @@ function createChat () {
         id: 'chat-1',
         role: RoleEnum.ASSISTANT,
         index: 1,
+        thinkIndex: 1,
         content: [],
         characterId: '1',
         createdAt: now,

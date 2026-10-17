@@ -37,7 +37,7 @@ function mapToApplyTemplateChatMessage (chat: Chat): ApplyTemplateChatMessage {
         return message;
     }
 
-    const think = chat.think?.[chat.index];
+    const think = chat.think?.[chat.thinkIndex];
 
     if (!think || !think.enabled) {
         return message;

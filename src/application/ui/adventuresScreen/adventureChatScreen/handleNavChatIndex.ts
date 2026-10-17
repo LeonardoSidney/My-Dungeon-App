@@ -15,7 +15,7 @@ export const handleNavChatIndex = ({
         const nextIndex = Math.min(Math.max(targetChat.index + direction, 0), maxIndex);
         if (nextIndex === targetChat.index) return;
 
-        const updatedChat = { ...targetChat, index: nextIndex, updatedAt: new Date() };
+        const updatedChat = { ...targetChat, index: nextIndex, thinkIndex: nextIndex, updatedAt: new Date() };
         const updatedChats = currentAdventure.chat.map((c, i) => (i === chatIndex ? updatedChat : c));
         setCurrentAdventure({ ...currentAdventure, chat: updatedChats, updatedAt: new Date() });
     };

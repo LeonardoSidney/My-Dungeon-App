@@ -65,6 +65,7 @@ describe('useHydratedAdventure', () => {
                 id: 'chat-1',
                 role: RoleEnum.USER,
                 index: 0,
+                thinkIndex: 0,
                 content: ['hello'],
                 characterId: '1',
                 createdAt: now,

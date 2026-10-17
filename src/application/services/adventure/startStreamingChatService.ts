@@ -30,6 +30,7 @@ export class StartStreamingChatService implements IStartStreamingChatService {
             id: chatId,
             role,
             index: 0,
+            thinkIndex: 0,
             content: [''],
             think: undefined,
             characterId,

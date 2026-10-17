@@ -24,6 +24,7 @@ export class CreateChatService implements ICreateChatService {
             id: this.idGenerator.generate(),
             role,
             index: 0,
+            thinkIndex: 0,
             content: [params.content],
             think: params.think ? [params.think] : undefined,
             characterId: params.characterId,

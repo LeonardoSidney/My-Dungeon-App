@@ -5,6 +5,7 @@ export type Chat = {
     id: string;
     role: Role;
     index: number;
+    thinkIndex: number;
     content: string[];
     think?: Think[];
     characterId: string;

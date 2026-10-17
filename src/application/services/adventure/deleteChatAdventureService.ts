@@ -49,6 +49,7 @@ export class DeleteChatAdventureService implements IDeleteChatAdventureService {
             ...existingChat,
             content: updatedContent,
             index: nextIndex,
+            thinkIndex: nextIndex,
             updatedAt: new Date(),
         };
 

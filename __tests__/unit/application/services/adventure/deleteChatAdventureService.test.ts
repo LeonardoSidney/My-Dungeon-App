@@ -42,6 +42,7 @@ describe('DeleteChatAdventureService', () => {
         expect(result.success).toBe(true);
         expect(result.chat?.content).toEqual(['M0', 'M1', 'M2', 'M4']);
         expect(result.chat?.index).toBe(2);
+        expect(result.chat?.thinkIndex).toBe(2);
         expect(result.adventure?.chat[0].content).toEqual(['M0', 'M1', 'M2', 'M4']);
     });
 

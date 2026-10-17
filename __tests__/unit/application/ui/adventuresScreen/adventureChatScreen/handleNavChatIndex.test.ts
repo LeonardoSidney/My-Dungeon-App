@@ -23,7 +23,7 @@ describe('handleNavChatIndex', () => {
 
         expect(setCurrentAdventure).toHaveBeenCalledWith(
             expect.objectContaining({
-                chat: expect.arrayContaining([expect.objectContaining({ id: 'multi', index: 1 })])
+                chat: expect.arrayContaining([expect.objectContaining({ id: 'multi', index: 1, thinkIndex: 1 })])
             })
         );
     });
@@ -38,7 +38,7 @@ describe('handleNavChatIndex', () => {
 
         expect(setCurrentAdventure).toHaveBeenCalledWith(
             expect.objectContaining({
-                chat: expect.arrayContaining([expect.objectContaining({ id: 'multi', index: 1 })])
+                chat: expect.arrayContaining([expect.objectContaining({ id: 'multi', index: 1, thinkIndex: 1 })])
             })
         );
     });

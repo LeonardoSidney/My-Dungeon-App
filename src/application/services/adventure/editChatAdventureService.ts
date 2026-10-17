@@ -31,6 +31,7 @@ export class EditChatAdventureService implements IEditChatAdventureService {
             ...existingChat,
             content: [...existingChat.content, params.content],
             index: existingChat.content.length,
+            thinkIndex: existingChat.content.length,
             isStreaming: false,
             updatedAt: now,
         };

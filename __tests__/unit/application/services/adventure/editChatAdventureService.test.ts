@@ -45,6 +45,7 @@ describe('EditChatAdventureService', () => {
         expect(result.success).toBe(true);
         expect(result.chat?.content).toEqual(['v0', 'v1', 'v2']);
         expect(result.chat?.index).toBe(2);
+        expect(result.chat?.thinkIndex).toBe(2);
         expect(result.adventure?.chat[0].content).toEqual(['v0', 'v1', 'v2']);
     });
 
@@ -58,6 +59,7 @@ describe('EditChatAdventureService', () => {
         expect(result.success).toBe(true);
         expect(result.chat?.content).toEqual(['only', 'second']);
         expect(result.chat?.index).toBe(1);
+        expect(result.chat?.thinkIndex).toBe(1);
     });
 
     it('keeps the same chat id across versions', () => {
