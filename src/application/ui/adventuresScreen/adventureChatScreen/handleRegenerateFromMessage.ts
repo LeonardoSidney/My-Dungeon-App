@@ -26,7 +26,7 @@ export async function handleRegenerateFromMessage ({
     setIsStreaming(true);
 
     try {
-        await handleStreamResponse(response.adventure);
+        await handleStreamResponse(response.adventure, response.chat?.id);
     } finally {
         setIsStreaming(false);
     }

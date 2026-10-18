@@ -4,6 +4,8 @@ export * from './continueFromChatController';
 export * from './regenerateFromChatController';
 export * from './resendChatController';
 export * from './editChatAdventureController';
+export * from './editThinkAdventureController';
+export * from './deleteThinkAdventureController';
 export * from './createAdventureController';
 export * from './editAdventureController';
 export * from './hydrateAdventureController';

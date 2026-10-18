@@ -1,4 +1,4 @@
-import { Adventure, RoleEnum } from '@domain/entities';
+import { Adventure, Chat, RoleEnum } from '@domain/entities';
 import { HydratedAdventure } from '@domain/use-cases';
 import { handleStreamResponse, HandleStreamResponseParams } from '@application/ui/adventuresScreen/adventureChatScreen/handleStreamResponse';
 import {
@@ -7,13 +7,13 @@ import {
     createHydratedAdventureHelper
 } from '@test/helpers';
 
-function createChat () {
+function createChat (): Chat {
     const now = new Date();
     return {
         id: 'chat-1',
         role: RoleEnum.ASSISTANT,
         index: 1,
-        thinkIndex: 1,
+        thinkIndex: 0,
         content: [],
         characterId: '1',
         createdAt: now,
@@ -249,5 +249,65 @@ describe('handleStreamResponse', () => {
         expect(result).toBeNull();
         expect(params.alert.handle).toHaveBeenCalledWith({ title: 'Erro', message: 'prompt failed' });
         expect(params.getNativeStreamCompletion.handle).not.toHaveBeenCalled();
+    });
+
+    it('attaches the parsed think with a session-scoped id to the final update', async () => {
+        const adventure = createAdventureHelper({ worldMasterId: '1' });
+        const hydrated = createHydratedAdventureHelper({ adventure });
+        const mocks = buildMocks(['pondering the clue', '</think>', 'The clue leads north']);
+        const params = buildParams(adventure, hydrated, mocks);
+
+        const result = await handleStreamResponse(params);
+
+        expect(params.updateStreamingChat.handle).toHaveBeenLastCalledWith(expect.objectContaining({
+            chatId: 'chat-1',
+            content: 'The clue leads north',
+            think: { id: expect.any(String), content: 'pondering the clue', enabled: true }
+        }));
+        expect(result).toBe(mocks.finalAdventure);
+    });
+
+    it('reuses the current empty think slot id when streaming into an existing chat', async () => {
+        const adventure = createAdventureHelper({ worldMasterId: '1' });
+        const hydrated = createHydratedAdventureHelper({ adventure });
+        const mocks = buildMocks(['pondering the clue', '</think>', 'The clue leads north']);
+        mocks.streamingChat.think = [{ id: 'think-existing', content: undefined, enabled: false }];
+        mocks.streamingChat.thinkIndex = 0;
+        const params = {
+            ...buildParams(adventure, hydrated, mocks),
+            existingChatId: 'chat-1'
+        };
+
+        const result = await handleStreamResponse(params);
+
+        expect(params.startStreamingChat.handle).toHaveBeenCalledWith(expect.objectContaining({ chatId: 'chat-1' }));
+        expect(params.updateStreamingChat.handle).toHaveBeenLastCalledWith(expect.objectContaining({
+            chatId: 'chat-1',
+            content: 'The clue leads north',
+            think: { id: 'think-existing', content: 'pondering the clue', enabled: true }
+        }));
+        expect(result).toBe(mocks.finalAdventure);
+    });
+
+    it('keeps the preserved think untouched when the stream emits another thought tag', async () => {
+        const adventure = createAdventureHelper({ worldMasterId: '1' });
+        const hydrated = createHydratedAdventureHelper({ adventure });
+        const mocks = buildMocks(['fresh reasoning', '</think>', 'New content']);
+        mocks.streamingChat.think = [{ id: 'think-existing', content: 'preserved reasoning', enabled: true }];
+        mocks.streamingChat.thinkIndex = 0;
+        const params = {
+            ...buildParams(adventure, hydrated, mocks),
+            existingChatId: 'chat-1'
+        };
+
+        const result = await handleStreamResponse(params);
+
+        expect(params.updateStreamingChat.handle).toHaveBeenLastCalledWith(expect.objectContaining({
+            chatId: 'chat-1',
+            content: 'New content',
+            think: undefined
+        }));
+        expect(params.updateStreamingChat.handle).not.toHaveBeenCalledWith(expect.objectContaining({ think: expect.anything() }));
+        expect(result).toBe(mocks.finalAdventure);
     });
 });

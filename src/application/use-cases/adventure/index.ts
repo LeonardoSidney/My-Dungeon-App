@@ -10,6 +10,8 @@ export * from './continueFromChatUseCase';
 export * from './regenerateFromChatUseCase';
 export * from './resendChatUseCase';
 export * from './editChatAdventureUseCase';
+export * from './editThinkAdventureUseCase';
+export * from './deleteThinkAdventureUseCase';
 export * from './createChatAdventureUseCase';
 export * from './eraseAdventuresUseCase';
 export * from './eraseAdventureUseCase';

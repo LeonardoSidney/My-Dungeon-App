@@ -1,3 +1,4 @@
+import { Chat, Think } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import {
     UpdateStreamingChatServiceParams,
@@ -30,7 +31,9 @@ export class UpdateStreamingChatService implements IUpdateStreamingChatService {
         };
 
         if (think !== undefined) {
-            updatedChat.think = [think];
+            const thinkUpdate = this.applyThinkUpdate(chat, think);
+            updatedChat.think = thinkUpdate.think;
+            updatedChat.thinkIndex = thinkUpdate.thinkIndex;
         }
 
         updatedChat.updatedAt = new Date();
@@ -47,5 +50,18 @@ export class UpdateStreamingChatService implements IUpdateStreamingChatService {
             chat: updatedChat,
             adventure: updatedAdventure,
         };
+    }
+
+    private applyThinkUpdate (chat: Chat, incomingThink: Think): { think: Think[]; thinkIndex: number; } {
+        const existingThink = chat.think ?? [];
+        const versionIndex = existingThink.findIndex(t => t.id === incomingThink.id);
+
+        if (versionIndex !== -1) {
+            const updatedThink = existingThink.map((t, i) => (i === versionIndex ? incomingThink : t));
+            return { think: updatedThink, thinkIndex: versionIndex };
+        }
+
+        const appendedThink = [...existingThink, incomingThink];
+        return { think: appendedThink, thinkIndex: appendedThink.length - 1 };
     }
 }

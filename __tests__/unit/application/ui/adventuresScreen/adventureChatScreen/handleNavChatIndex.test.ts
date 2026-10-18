@@ -15,7 +15,7 @@ function buildNavigator (adventure: Adventure) {
 describe('handleNavChatIndex', () => {
     it('advances to the next version', () => {
         const adventure = createAdventureHelper({
-            chat: [createChatHelper({ id: 'multi', content: ['v0', 'v1', 'v2'], index: 0 })]
+            chat: [createChatHelper({ id: 'multi', content: ['v0', 'v1', 'v2'], index: 0, thinkIndex: 2 })]
         });
         const { setCurrentAdventure, navigate } = buildNavigator(adventure);
 
@@ -23,14 +23,14 @@ describe('handleNavChatIndex', () => {
 
         expect(setCurrentAdventure).toHaveBeenCalledWith(
             expect.objectContaining({
-                chat: expect.arrayContaining([expect.objectContaining({ id: 'multi', index: 1, thinkIndex: 1 })])
+                chat: expect.arrayContaining([expect.objectContaining({ id: 'multi', index: 1, thinkIndex: 2 })])
             })
         );
     });
 
     it('goes back to the previous version', () => {
         const adventure = createAdventureHelper({
-            chat: [createChatHelper({ id: 'multi', content: ['v0', 'v1', 'v2'], index: 2 })]
+            chat: [createChatHelper({ id: 'multi', content: ['v0', 'v1', 'v2'], index: 2, thinkIndex: 2 })]
         });
         const { setCurrentAdventure, navigate } = buildNavigator(adventure);
 
@@ -38,7 +38,7 @@ describe('handleNavChatIndex', () => {
 
         expect(setCurrentAdventure).toHaveBeenCalledWith(
             expect.objectContaining({
-                chat: expect.arrayContaining([expect.objectContaining({ id: 'multi', index: 1, thinkIndex: 1 })])
+                chat: expect.arrayContaining([expect.objectContaining({ id: 'multi', index: 1, thinkIndex: 2 })])
             })
         );
     });

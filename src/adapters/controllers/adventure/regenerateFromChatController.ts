@@ -22,6 +22,7 @@ export class RegenerateFromChatController implements IRegenerateFromChatControll
 
         return {
             success: response.success,
+            chat: response.chat,
             adventure: response.adventure,
             error: response.error,
         };

@@ -5,6 +5,8 @@ import {
     AppendChatAdventureController,
     EditChatAdventureController,
     DeleteChatAdventureController,
+    EditThinkAdventureController,
+    DeleteThinkAdventureController,
     ContinueFromChatController,
     RegenerateFromChatController,
     ResendChatController,
@@ -25,6 +27,8 @@ import {
     AppendChatAdventureService,
     EditChatAdventureService,
     DeleteChatAdventureService,
+    EditThinkAdventureService,
+    DeleteThinkAdventureService,
     ContinueFromChatService,
     RegenerateFromChatService,
     ResendChatService,
@@ -46,6 +50,8 @@ import {
     AppendChatAdventureUseCase,
     EditChatAdventureUseCase,
     DeleteChatAdventureUseCase,
+    EditThinkAdventureUseCase,
+    DeleteThinkAdventureUseCase,
     ContinueFromChatUseCase,
     RegenerateFromChatUseCase,
     ResendChatUseCase,
@@ -65,6 +71,8 @@ import {
     IAppendChatAdventureController,
     IEditChatAdventureController,
     IDeleteChatAdventureController,
+    IEditThinkAdventureController,
+    IDeleteThinkAdventureController,
     IContinueFromChatController,
     IRegenerateFromChatController,
     IResendChatController,
@@ -188,6 +196,17 @@ export function editChatAdventureController (): IEditChatAdventureController {
     return new EditChatAdventureController(logger, editChatAdventureUseCase);
 }
 
+export function editThinkAdventureController (): IEditThinkAdventureController {
+    const adventureRepository = createAdventureRepository(storage, logger);
+    const editThinkAdventureService = new EditThinkAdventureService(logger, idGenerate);
+    const editThinkAdventureUseCase = new EditThinkAdventureUseCase(
+        logger,
+        editThinkAdventureService,
+        adventureRepository
+    );
+    return new EditThinkAdventureController(logger, editThinkAdventureUseCase);
+}
+
 export function deleteChatAdventureController (): IDeleteChatAdventureController {
     const adventureRepository = createAdventureRepository(storage, logger);
     const deleteChatAdventureService = new DeleteChatAdventureService(logger);
@@ -197,6 +216,17 @@ export function deleteChatAdventureController (): IDeleteChatAdventureController
         adventureRepository
     );
     return new DeleteChatAdventureController(logger, deleteChatAdventureUseCase);
+}
+
+export function deleteThinkAdventureController (): IDeleteThinkAdventureController {
+    const adventureRepository = createAdventureRepository(storage, logger);
+    const deleteThinkAdventureService = new DeleteThinkAdventureService(logger);
+    const deleteThinkAdventureUseCase = new DeleteThinkAdventureUseCase(
+        logger,
+        deleteThinkAdventureService,
+        adventureRepository
+    );
+    return new DeleteThinkAdventureController(logger, deleteThinkAdventureUseCase);
 }
 
 export function continueFromChatController (): IContinueFromChatController {
@@ -212,7 +242,7 @@ export function continueFromChatController (): IContinueFromChatController {
 
 export function regenerateFromChatController (): IRegenerateFromChatController {
     const adventureRepository = createAdventureRepository(storage, logger);
-    const regenerateFromChatService = new RegenerateFromChatService(logger);
+    const regenerateFromChatService = new RegenerateFromChatService(logger, idGenerate);
     const regenerateFromChatUseCase = new RegenerateFromChatUseCase(
         logger,
         regenerateFromChatService,

@@ -18,37 +18,40 @@ export function mapToApplyTemplateRequest (params: {
 }): ApplyTemplateRequest {
     const { modelId, systemPrompt, chat } = params;
 
+    const messages = chat
+        .map(c => mapToApplyTemplateChatMessage(c))
+        .filter((m): m is ApplyTemplateChatMessage => m !== null);
+
     return {
         model: modelId,
         messages: [
             { role: 'system', content: systemPrompt },
-            ...chat.map(c => mapToApplyTemplateChatMessage(c)),
+            ...messages,
         ],
     };
 }
 
-function mapToApplyTemplateChatMessage (chat: Chat): ApplyTemplateChatMessage {
-    const message: ApplyTemplateChatMessage = {
-        role: chat.role,
-        content: chat.content[chat.index] ?? '',
-    };
+function mapToApplyTemplateChatMessage (chat: Chat): ApplyTemplateChatMessage | null {
+    const content = chat.content[chat.index] ?? '';
 
     if (chat.role !== RoleEnum.ASSISTANT) {
-        return message;
+        return { role: chat.role, content };
     }
 
     const think = chat.think?.[chat.thinkIndex];
 
-    if (!think || !think.enabled) {
-        return message;
-    }
+    if (think === undefined || !think.enabled || !think.content || think.content.trim() === '') {
+        const hasContent = content.trim() !== '';
+        if (!hasContent) {
+            return null;
+        }
 
-    if (!think.content?.trim()) {
-        return message;
+        return { role: chat.role, content };
     }
 
     return {
-        ...message,
+        role: chat.role,
+        content,
         reasoning_content: think.content,
     };
 }

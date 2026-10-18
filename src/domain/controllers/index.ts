@@ -4,6 +4,8 @@ export * from './iContinueFromChatController';
 export * from './iRegenerateFromChatController';
 export * from './iResendChatController';
 export * from './iEditChatAdventureController';
+export * from './iEditThinkAdventureController';
+export * from './iDeleteThinkAdventureController';
 export * from './iCreateAbilityController';
 export * from './iEditAbilityController';
 export * from './iEraseAbilityController';

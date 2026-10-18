@@ -4,6 +4,8 @@ import {
     ICreateChatAdventureController,
     IEditChatAdventureController,
     IDeleteChatAdventureController,
+    IEditThinkAdventureController,
+    IDeleteThinkAdventureController,
     IContinueFromChatController,
     IRegenerateFromChatController,
     IResendChatController,
@@ -27,6 +29,8 @@ export interface AdventureChatScreenControllers {
     appendChatAdventure: IAppendChatAdventureController;
     editChatAdventure: IEditChatAdventureController;
     deleteChatAdventure: IDeleteChatAdventureController;
+    editThinkAdventure: IEditThinkAdventureController;
+    deleteThinkAdventure: IDeleteThinkAdventureController;
     continueFromChat: IContinueFromChatController;
     regenerateFromChat: IRegenerateFromChatController;
     resendChat: IResendChatController;

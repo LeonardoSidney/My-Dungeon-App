@@ -4,6 +4,8 @@ export * from './continueFromChatService';
 export * from './regenerateFromChatService';
 export * from './resendChatService';
 export * from './editChatAdventureService';
+export * from './editThinkAdventureService';
+export * from './deleteThinkAdventureService';
 export * from './createAdventureService';
 export * from './editAdventureService';
 export * from './createChatService';

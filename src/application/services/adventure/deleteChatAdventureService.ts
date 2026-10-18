@@ -1,4 +1,4 @@
-import { Adventure, Chat } from '@domain/entities';
+import { Adventure, Chat, RoleEnum } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import {
     IDeleteChatAdventureService,
@@ -30,13 +30,14 @@ export class DeleteChatAdventureService implements IDeleteChatAdventureService {
         const updatedContent = existingChat.content.filter((_, i) => i !== index);
 
         if (updatedContent.length === 0) {
+            const removedChatIds = this.resolveRemovedChatIds(params.adventure, chatIndex, existingChat);
             const updatedAdventure: Adventure = {
                 ...params.adventure,
-                chat: params.adventure.chat.filter(c => c.id !== params.chatId),
+                chat: params.adventure.chat.filter(c => !removedChatIds.includes(c.id)),
                 updatedAt: new Date(),
             };
 
-            this.logger.debug('DeleteChatAdventureService::deleteChat - chat removed', { chatId: params.chatId });
+            this.logger.debug('DeleteChatAdventureService::deleteChat - chat removed', { chatId: params.chatId, removedChatIds });
 
             return {
                 success: true,
@@ -49,7 +50,6 @@ export class DeleteChatAdventureService implements IDeleteChatAdventureService {
             ...existingChat,
             content: updatedContent,
             index: nextIndex,
-            thinkIndex: nextIndex,
             updatedAt: new Date(),
         };
 
@@ -66,5 +66,18 @@ export class DeleteChatAdventureService implements IDeleteChatAdventureService {
             chat,
             adventure: updatedAdventure,
         };
+    }
+
+    private resolveRemovedChatIds (adventure: Adventure, chatIndex: number, existingChat: Chat): string[] {
+        if (existingChat.role !== RoleEnum.USER) {
+            return [existingChat.id];
+        }
+
+        const nextChat = adventure.chat[chatIndex + 1];
+        if (nextChat?.role !== RoleEnum.ASSISTANT) {
+            return [existingChat.id];
+        }
+
+        return [existingChat.id, nextChat.id];
     }
 }

@@ -4,6 +4,8 @@ export * from './iContinueFromChatService';
 export * from './iRegenerateFromChatService';
 export * from './iResendChatService';
 export * from './iEditChatAdventureService';
+export * from './iEditThinkAdventureService';
+export * from './iDeleteThinkAdventureService';
 export * from './iCreateAbilityService';
 export * from './iEditAbilityService';
 export * from './iCreateChatService';

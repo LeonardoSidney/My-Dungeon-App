@@ -10,7 +10,10 @@ import { useHydratedAdventure } from './hooks/useHydratedAdventure';
 import { useSettingsActions } from './hooks/useSettingsActions';
 import { useMessageActions } from './hooks/useMessageActions';
 import { useNavChatIndex } from './hooks/useNavChatIndex';
+import { useNavThinkIndex } from './hooks/useNavThinkIndex';
 import { useMessageEditing } from './hooks/useMessageEditing';
+import { useThinkEditing } from './hooks/useThinkEditing';
+import { useThinkActions } from './hooks/useThinkActions';
 import { useSelectionActions } from './hooks/useSelectionActions';
 import { useKeyboardLift } from './hooks/useKeyboardLift';
 import { useAdventureStreaming } from './useAdventureStreaming';
@@ -20,7 +23,7 @@ import { colors } from '../../theme';
 
 function AdventureChatContent ({ currentAdventure, setCurrentAdventure, hydrated, hydratedRef, onBack, controllers }: AdventureChatContentProps) {
   const hydratedCharacters = hydrated.characters;
-  const { createChatAdventure, appendChatAdventure, editChatAdventure, deleteChatAdventure, continueFromChat, regenerateFromChat, resendChat, startStreamingChat, updateStreamingChat, finishStreamingChat, getAdventureText, getNativeStreamCompletion, alert } = controllers;
+  const { createChatAdventure, appendChatAdventure, editChatAdventure, deleteChatAdventure, continueFromChat, regenerateFromChat, resendChat, startStreamingChat, updateStreamingChat, finishStreamingChat, getAdventureText, getNativeStreamCompletion, alert, editThinkAdventure, deleteThinkAdventure } = controllers;
   const keyboardHeight = useKeyboardLift();
 
   const characterNameById = useMemo(() => {
@@ -45,11 +48,15 @@ function AdventureChatContent ({ currentAdventure, setCurrentAdventure, hydrated
 
   const { editingChatIdRef, isEditing, onStartEdit, clearEditing } = useMessageEditing();
 
+  const { editingThinkChatIdRef, isThinkEditing, onStartThinkEdit, clearThinkEditing } = useThinkEditing();
+
   const {
     isStreaming,
     handleResend,
     handleSendMessage,
     handleRegenerateFromMessage,
+    handleRegenerateFromThink,
+    handleRegenerateContent,
     handleContinueFromMessage,
     handleStopStreaming
   } = useAdventureStreaming({
@@ -101,6 +108,41 @@ function AdventureChatContent ({ currentAdventure, setCurrentAdventure, hydrated
     },
     [editingChatIdRef, currentAdventure, setCurrentAdventure, clearEditing, setMessage, editChatAdventure, alert]
   );
+
+  const handleSaveThinkEdit = useCallback(
+    async (chatId: string, content: string) => {
+      if (!editingThinkChatIdRef.current || !content.trim()) return;
+
+      const response = await editThinkAdventure.handle({
+        adventure: currentAdventure,
+        chatId,
+        content
+      });
+
+      if (!response.success || !response.adventure) {
+        alert.handle({ title: 'Erro', message: response.error ?? 'Failed to save think edit' });
+        return;
+      }
+
+      setCurrentAdventure(response.adventure);
+      clearThinkEditing();
+    },
+    [editingThinkChatIdRef, currentAdventure, setCurrentAdventure, clearThinkEditing, editThinkAdventure, alert]
+  );
+
+  const {
+    onDeleteThink
+  } = useThinkActions({
+    currentAdventure,
+    setCurrentAdventure,
+    deleteThinkAdventure,
+    alert
+  });
+
+  const onNavigateThinkIndex = useNavThinkIndex({
+    currentAdventure,
+    setCurrentAdventure
+  });
 
   const { scrollViewRef, showScrollToBottom, handleScroll, handleScrollToBottom } = useAdventureChatScreenLogic(
     currentAdventure
@@ -188,7 +230,16 @@ function AdventureChatContent ({ currentAdventure, setCurrentAdventure, hydrated
             onDiscardEdit={clearEditing}
             onContinueFromMessage={handleContinueFromMessage}
             onRegenerateFromMessage={handleRegenerateFromMessage}
+            onRegenerateContent={handleRegenerateContent}
             onNavigateChatIndex={onNavigateChatIndex}
+            onNavigateThinkIndex={onNavigateThinkIndex}
+            onRegenerateFromThink={handleRegenerateFromThink}
+            onEditThink={onStartThinkEdit}
+            onSaveThinkEdit={handleSaveThinkEdit}
+            onDiscardThinkEdit={clearThinkEditing}
+            onDeleteThink={onDeleteThink}
+            isThinkEditing={isThinkEditing}
+            editingThinkChatId={editingThinkChatIdRef.current}
           />
         </ScrollView>
         {shouldShowScrollButton && (

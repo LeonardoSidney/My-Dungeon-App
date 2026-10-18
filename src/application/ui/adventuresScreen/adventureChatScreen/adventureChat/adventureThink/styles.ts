@@ -17,5 +17,17 @@ export const styles = StyleSheet.create({
         fontSize: 13,
         fontStyle: 'italic',
         color: colors.textSubtle
+    },
+    thinkEditInput: {
+        backgroundColor: colors.background,
+        borderColor: colors.primary,
+        borderWidth: 1,
+        borderRadius: 8,
+        padding: 12,
+        color: colors.text,
+        fontSize: 13,
+        fontStyle: 'italic',
+        minHeight: 64,
+        maxHeight: 240
     }
 });

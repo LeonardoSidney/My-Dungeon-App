@@ -9,6 +9,7 @@ import {
     IEditChatAdventureController,
     IFinishStreamingChatController,
     IDeleteChatAdventureController,
+    IDeleteThinkAdventureController,
     IContinueFromChatController,
     IRegenerateFromChatController,
     IResendChatController,
@@ -94,7 +95,32 @@ export interface UseResendParams {
     alert: IAlertController;
 }
 
+export interface UseThinkActionsParams {
+    currentAdventure: Adventure;
+    setCurrentAdventure: Dispatch<SetStateAction<Adventure>>;
+    deleteThinkAdventure: IDeleteThinkAdventureController;
+    alert: IAlertController;
+}
+
 export interface UseRegenerateFromMessageParams {
+    currentAdventure: Adventure;
+    setCurrentAdventure: Dispatch<SetStateAction<Adventure>>;
+    setIsStreaming: Dispatch<SetStateAction<boolean>>;
+    handleStreamResponse: (adventure: Adventure, existingChatId?: string) => Promise<void>;
+    regenerateFromChat: IRegenerateFromChatController;
+    alert: IAlertController;
+}
+
+export interface UseRegenerateFromThinkParams {
+    currentAdventure: Adventure;
+    setCurrentAdventure: Dispatch<SetStateAction<Adventure>>;
+    setIsStreaming: Dispatch<SetStateAction<boolean>>;
+    handleStreamResponse: (adventure: Adventure, existingChatId?: string) => Promise<void>;
+    regenerateFromChat: IRegenerateFromChatController;
+    alert: IAlertController;
+}
+
+export interface UseRegenerateContentParams {
     currentAdventure: Adventure;
     setCurrentAdventure: Dispatch<SetStateAction<Adventure>>;
     setIsStreaming: Dispatch<SetStateAction<boolean>>;

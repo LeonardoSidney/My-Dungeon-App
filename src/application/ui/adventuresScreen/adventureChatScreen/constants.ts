@@ -63,6 +63,26 @@ export interface HandleRegenerateFromMessageParams {
     alert: IAlertController;
 }
 
+export interface HandleRegenerateFromThinkParams {
+    currentAdventure: Adventure;
+    chatId: string;
+    setCurrentAdventure: Dispatch<SetStateAction<Adventure>>;
+    setIsStreaming: Dispatch<SetStateAction<boolean>>;
+    handleStreamResponse: (adventure: Adventure, existingChatId?: string) => Promise<void>;
+    regenerateFromChat: IRegenerateFromChatController;
+    alert: IAlertController;
+}
+
+export interface HandleRegenerateContentParams {
+    currentAdventure: Adventure;
+    chatId: string;
+    setCurrentAdventure: Dispatch<SetStateAction<Adventure>>;
+    setIsStreaming: Dispatch<SetStateAction<boolean>>;
+    handleStreamResponse: (adventure: Adventure, existingChatId?: string) => Promise<void>;
+    regenerateFromChat: IRegenerateFromChatController;
+    alert: IAlertController;
+}
+
 export interface HandleContinueFromMessageParams {
     currentAdventure: Adventure;
     chatId: string;
@@ -108,6 +128,11 @@ export interface OnSendMessageParams {
 }
 
 export interface HandleNavChatIndexParams {
+    currentAdventure: Adventure;
+    setCurrentAdventure: Dispatch<SetStateAction<Adventure>>;
+}
+
+export interface HandleNavThinkIndexParams {
     currentAdventure: Adventure;
     setCurrentAdventure: Dispatch<SetStateAction<Adventure>>;
 }

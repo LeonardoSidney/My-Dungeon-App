@@ -1,4 +1,4 @@
-import { Adventure, RoleEnum } from '@domain/entities';
+import { Adventure, RoleEnum, Think } from '@domain/entities';
 import { HydratedAdventure } from '@domain/use-cases';
 import {
     IAlertController,
@@ -98,6 +98,20 @@ export async function handleStreamResponse ({
 
     const streamingChat = startResponse.chat;
     const continuationBase = existingChatId ? streamingChat.content[streamingChat.index] ?? '' : '';
+    const sessionThinkId = existingChatId
+        ? streamingChat.think?.[streamingChat.thinkIndex]?.id ?? Date.now().toString()
+        : Date.now().toString();
+    const hasPreservedThink = Boolean(streamingChat.think?.[streamingChat.thinkIndex]?.content);
+    const applyStreamParse = (text: string): { content: string; think?: Think; } => {
+        const { think, content } = parseThinkContent(text);
+
+        if (think === undefined || hasPreservedThink) {
+            return { content };
+        }
+
+        const sessionThink: Think = { id: sessionThinkId, content: think.content, enabled: true };
+        return { content, think: sessionThink };
+    };
     let currentText = continuationBase;
     let lastUpdateTime = Date.now();
     const throttleInterval = 100;
@@ -109,7 +123,7 @@ export async function handleStreamResponse ({
 
         const now = Date.now();
         if (now - lastUpdateTime >= throttleInterval) {
-            const { think, content } = parseThinkContent(currentText);
+            const { think, content } = applyStreamParse(currentText);
             const updateResponse = await updateStreamingChat.handle({
                 adventure: lastUpdatedAdventure,
                 chatId: streamingChat.id,
@@ -145,7 +159,7 @@ export async function handleStreamResponse ({
         return lastUpdatedAdventure;
     }
 
-    const { think: finalThink, content: finalContent } = parseThinkContent(currentText);
+    const { think: finalThink, content: finalContent } = applyStreamParse(currentText);
 
     const updateResponse = await updateStreamingChat.handle({
         adventure: lastUpdatedAdventure,

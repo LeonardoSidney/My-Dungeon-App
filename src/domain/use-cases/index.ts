@@ -4,6 +4,8 @@ export * from './iContinueFromChatUseCase';
 export * from './iRegenerateFromChatUseCase';
 export * from './iResendChatUseCase';
 export * from './iEditChatAdventureUseCase';
+export * from './iEditThinkAdventureUseCase';
+export * from './iDeleteThinkAdventureUseCase';
 export * from './iCreateAbilityUseCase';
 export * from './iEditAbilityUseCase';
 export * from './iEraseAbilityUseCase';

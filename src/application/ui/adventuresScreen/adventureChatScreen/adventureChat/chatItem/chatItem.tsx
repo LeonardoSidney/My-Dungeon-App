@@ -6,11 +6,11 @@ import { AdventureThink } from '../adventureThink';
 import { TextMarkdown } from '../textMarkdown';
 import { ChatItemProps } from './constants';
 
-function ChatItemBase ({ chat, isStreaming, characterNameById, onDeleteMessage, isMessageEditing, editingChatId, onEditMessage, onSaveEditMessage, onDiscardEdit, onContinueFromMessage, onRegenerateFromMessage, onNavigateChatIndex }: ChatItemProps) {
+function ChatItemBase ({ chat, isStreaming, characterNameById, onDeleteMessage, isMessageEditing, editingChatId, onEditMessage, onSaveEditMessage, onDiscardEdit, onContinueFromMessage, onRegenerateFromMessage, onRegenerateContent, onNavigateChatIndex, onNavigateThinkIndex, onRegenerateFromThink, onEditThink, onSaveThinkEdit, onDiscardThinkEdit, onDeleteThink, isThinkEditing, editingThinkChatId }: ChatItemProps) {
   const displayIndex = Math.min(chat.index, Math.max(0, chat.content.length - 1));
-  const thinkDisplayIndex = Math.min(chat.thinkIndex, Math.max(0, chat.content.length - 1));
+  const thinkLength = chat.think?.length ?? 0;
+  const thinkDisplayIndex = Math.min(chat.thinkIndex, Math.max(0, thinkLength - 1));
   const think = chat.think?.[thinkDisplayIndex];
-  const streamingThink = isStreaming ? chat.think?.[0] : undefined;
   const content = chat.content[displayIndex] ?? '';
   const isUserMessage = chat.role === RoleEnum.USER;
   const characterName = characterNameById[chat.characterId] ?? '';
@@ -27,22 +27,19 @@ function ChatItemBase ({ chat, isStreaming, characterNameById, onDeleteMessage, 
   const canEdit = showOriginalActions && !isStreaming && Boolean(onEditMessage);
   const showContinue = !isUserMessage && showOriginalActions && !isStreaming && Boolean(onContinueFromMessage);
   const showRegenerate = isUserMessage && showOriginalActions && Boolean(onRegenerateFromMessage);
+  const showRegenerateContent = !isUserMessage && showOriginalActions && !isStreaming && Boolean(onRegenerateContent);
   const showDelete = isUserMessage && showOriginalActions && Boolean(onDeleteMessage);
   const showDiscard = isEditingThisMessage && Boolean(onDiscardEdit);
   const showSave = isEditingThisMessage && Boolean(onSaveEditMessage);
   const showNav = showOriginalActions && !isStreaming;
   const navEnabled = chat.content.length > 1;
   const navButtonTextClass = navEnabled ? styles.navButtonTextEnabled : styles.navButtonTextDisabled;
-  const hasActions = showNav || canEdit || showContinue || showRegenerate || showDelete || showDiscard || showSave;
+  const hasActions = showNav || canEdit || showContinue || showRegenerate || showRegenerateContent || showDelete || showDiscard || showSave;
 
   const handleNavBack = () => onNavigateChatIndex?.(chat.id, -1);
   const handleNavAdvance = () => onNavigateChatIndex?.(chat.id, 1);
 
-  const thinkEnabled = Boolean(think?.enabled);
-  const hasThink = thinkEnabled && Boolean(think?.content);
-
-  const streamingThinkEnabled = Boolean(streamingThink?.enabled);
-  const hasStreamingThink = streamingThinkEnabled && Boolean(streamingThink?.content);
+  const hasThink = (chat.think ?? []).some(entry => Boolean(entry.content));
 
   const chatItemStyle = hasThink ? styles.chatItemWithThink : styles.chatItem;
   const streamingContent = (
@@ -66,7 +63,21 @@ function ChatItemBase ({ chat, isStreaming, characterNameById, onDeleteMessage, 
   return (
     <View style={styles.chatWrapper}>
       {hasThink && (
-        <AdventureThink think={think} streamingThink={hasStreamingThink ? streamingThink : undefined} />
+        <AdventureThink
+          chatId={chat.id}
+          think={think}
+          isStreaming={isStreaming}
+          thinkLength={thinkLength}
+          thinkIndex={thinkDisplayIndex}
+          onNavigateThinkIndex={onNavigateThinkIndex}
+          onRegenerateFromThink={onRegenerateFromThink}
+          onEditThink={onEditThink}
+          onSaveThinkEdit={onSaveThinkEdit}
+          onDiscardThinkEdit={onDiscardThinkEdit}
+          onDeleteThink={onDeleteThink}
+          isThinkEditing={isThinkEditing}
+          editingThinkChatId={editingThinkChatId}
+        />
       )}
       <View style={chatItemStyle}>
         <Text style={styles.characterName}>{characterName}</Text>
@@ -89,6 +100,17 @@ function ChatItemBase ({ chat, isStreaming, characterNameById, onDeleteMessage, 
           {showRegenerate && onRegenerateFromMessage && (
             <TouchableOpacity style={styles.regenerateButton} onPress={() => onRegenerateFromMessage(chat.id)}>
               <Text style={styles.regenerateButtonText}>↻</Text>
+            </TouchableOpacity>
+          )}
+          {showRegenerateContent && onRegenerateContent && (
+            <TouchableOpacity
+              style={styles.regenerateButton}
+              onPress={() => onRegenerateContent(chat.id)}
+              accessibilityRole="button"
+              accessibilityLabel="Regenerar conteúdo"
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Text style={styles.regenerateButtonText}>⟳</Text>
             </TouchableOpacity>
           )}
           {canEdit && onEditMessage && (

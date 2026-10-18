@@ -3,6 +3,8 @@ import { useStreamResponse } from './hooks/useStreamResponse';
 import { useResend } from './hooks/useResend';
 import { useSendMessage } from './hooks/useSendMessage';
 import { useRegenerateFromMessage } from './hooks/useRegenerateFromMessage';
+import { useRegenerateFromThink } from './hooks/useRegenerateFromThink';
+import { useRegenerateContent } from './hooks/useRegenerateContent';
 import { useContinueFromMessage } from './hooks/useContinueFromMessage';
 import { useStopStreaming } from './hooks/useStopStreaming';
 import { UseAdventureStreamingParams } from './constants';
@@ -71,6 +73,24 @@ export function useAdventureStreaming (params: UseAdventureStreamingParams) {
         alert,
     });
 
+    const { handleRegenerateFromThink } = useRegenerateFromThink({
+        currentAdventure,
+        setCurrentAdventure,
+        setIsStreaming,
+        handleStreamResponse,
+        regenerateFromChat,
+        alert,
+    });
+
+    const { handleRegenerateContent } = useRegenerateContent({
+        currentAdventure,
+        setCurrentAdventure,
+        setIsStreaming,
+        handleStreamResponse,
+        regenerateFromChat,
+        alert,
+    });
+
     const { handleContinueFromMessage } = useContinueFromMessage({
         currentAdventure,
         setCurrentAdventure,
@@ -92,6 +112,8 @@ export function useAdventureStreaming (params: UseAdventureStreamingParams) {
         handleResend,
         handleSendMessage,
         handleRegenerateFromMessage,
+        handleRegenerateFromThink,
+        handleRegenerateContent,
         handleContinueFromMessage,
         handleStopStreaming
     };

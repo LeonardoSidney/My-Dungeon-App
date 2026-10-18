@@ -3,6 +3,7 @@ import {
     DeleteChatAdventureServiceParams,
     DeleteChatAdventureServiceReturn
 } from '@domain/services';
+import { RoleEnum } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { createAdventureHelper, createChatHelper } from '@test/helpers';
 
@@ -42,7 +43,7 @@ describe('DeleteChatAdventureService', () => {
         expect(result.success).toBe(true);
         expect(result.chat?.content).toEqual(['M0', 'M1', 'M2', 'M4']);
         expect(result.chat?.index).toBe(2);
-        expect(result.chat?.thinkIndex).toBe(2);
+        expect(result.chat?.thinkIndex).toBe(0);
         expect(result.adventure?.chat[0].content).toEqual(['M0', 'M1', 'M2', 'M4']);
     });
 
@@ -92,6 +93,65 @@ describe('DeleteChatAdventureService', () => {
 
         expect(result.success).toBe(true);
         expect(result.chat?.content).toEqual(['v0']);
+        expect(result.chat?.index).toBe(0);
+    });
+
+    it('deleting the last version of a user chat also removes the following assistant chat', () => {
+        const adventure = createAdventureHelper({
+            chat: [
+                createChatHelper({ id: 'user-1', role: RoleEnum.USER, content: ['v0'] }),
+                createChatHelper({ id: 'assistant-1', role: RoleEnum.ASSISTANT, content: ['answer'] })
+            ]
+        });
+
+        const result: DeleteChatAdventureServiceReturn = service.deleteChat(buildParams({ adventure, chatId: 'user-1' }));
+
+        expect(result.success).toBe(true);
+        expect(result.chat).toBeUndefined();
+        expect(result.adventure?.chat).toEqual([]);
+    });
+
+    it('keeps the following chat when it is not an assistant chat', () => {
+        const adventure = createAdventureHelper({
+            chat: [
+                createChatHelper({ id: 'user-1', role: RoleEnum.USER, content: ['v0'] }),
+                createChatHelper({ id: 'user-2', role: RoleEnum.USER, content: ['v0'] })
+            ]
+        });
+
+        const result: DeleteChatAdventureServiceReturn = service.deleteChat(buildParams({ adventure, chatId: 'user-1' }));
+
+        expect(result.success).toBe(true);
+        expect(result.adventure?.chat.map(c => c.id)).toEqual(['user-2']);
+    });
+
+    it('does not cascade when deleting an assistant chat', () => {
+        const adventure = createAdventureHelper({
+            chat: [
+                createChatHelper({ id: 'user-1', role: RoleEnum.USER, content: ['v0'] }),
+                createChatHelper({ id: 'assistant-1', role: RoleEnum.ASSISTANT, content: ['answer'] })
+            ]
+        });
+
+        const result: DeleteChatAdventureServiceReturn = service.deleteChat(buildParams({ adventure, chatId: 'assistant-1' }));
+
+        expect(result.success).toBe(true);
+        expect(result.adventure?.chat.map(c => c.id)).toEqual(['user-1']);
+    });
+
+    it('keeps the following assistant chat when only a version of the user chat is deleted', () => {
+        const adventure = createAdventureHelper({
+            chat: [
+                createChatHelper({ id: 'user-1', role: RoleEnum.USER, content: ['v0', 'v1'], index: 0 }),
+                createChatHelper({ id: 'assistant-1', role: RoleEnum.ASSISTANT, content: ['answer'] })
+            ]
+        });
+
+        const result: DeleteChatAdventureServiceReturn = service.deleteChat(buildParams({ adventure, chatId: 'user-1' }));
+
+        expect(result.success).toBe(true);
+        expect(result.adventure?.chat.map(c => c.id)).toEqual(['user-1', 'assistant-1']);
+        expect(result.chat?.content).toEqual(['v1']);
         expect(result.chat?.index).toBe(0);
     });
 

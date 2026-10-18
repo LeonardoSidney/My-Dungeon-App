@@ -45,6 +45,7 @@ export class RegenerateFromChatUseCase implements IRegenerateFromChatUseCase {
 
             return {
                 success: true,
+                chat: response.chat,
                 adventure: response.adventure,
             };
         } catch (error) {

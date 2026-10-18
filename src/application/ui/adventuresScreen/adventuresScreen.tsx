@@ -78,6 +78,8 @@ export function AdventuresScreen ({ onChatVisibleChange }: AdventuresScreenProps
     appendChatAdventure: controllers.appendChatAdventure,
     editChatAdventure: controllers.editChatAdventure,
     deleteChatAdventure: controllers.deleteChatAdventure,
+    editThinkAdventure: controllers.editThinkAdventure,
+    deleteThinkAdventure: controllers.deleteThinkAdventure,
     continueFromChat: controllers.continueFromChat,
     regenerateFromChat: controllers.regenerateFromChat,
     resendChat: controllers.resendChat,
