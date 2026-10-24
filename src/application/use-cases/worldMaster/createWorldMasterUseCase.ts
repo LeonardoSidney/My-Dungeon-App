@@ -5,6 +5,7 @@ import {
 } from '@domain/repository';
 import { ICreateWorldMasterService } from '@domain/services';
 import { CreateWorldMasterUseCaseParams, CreateWorldMasterUseCaseResponse, ICreateWorldMasterUseCase } from '@domain/use-cases';
+import { REFERENCED_ENTITIES } from '@domain/constants/referencedEntities';
 import { checkReferencedId } from '@application/shared/validateReferencedIds';
 
 export class CreateWorldMasterUseCase implements ICreateWorldMasterUseCase {
@@ -52,7 +53,13 @@ export class CreateWorldMasterUseCase implements ICreateWorldMasterUseCase {
             };
         }
 
-        const worldMasters = await this.worldMasterRepository.getWorldMasters();
+        const worldMastersResponse = await this.worldMasterRepository.getWorldMasters();
+        if (!worldMastersResponse.success || !worldMastersResponse.worldMasters) {
+            this.logger.warning('CreateWorldMasterUseCase::execute - failed to load world masters', worldMastersResponse.error);
+            return { success: false, error: worldMastersResponse.error };
+        }
+
+        const worldMasters = worldMastersResponse.worldMasters;
         this.logger.debug('WorldMasterRepository executed successfully', worldMasters);
         const alreadyExists = worldMasters.find((wm) => wm.name === response.worldMaster?.name);
 
@@ -64,11 +71,15 @@ export class CreateWorldMasterUseCase implements ICreateWorldMasterUseCase {
             };
         }
 
-        await this.worldMasterRepository.saveWorldMaster({ worldMaster: response.worldMaster });
+        const saveResult = await this.worldMasterRepository.saveWorldMaster({ worldMaster: response.worldMaster });
+        if (!saveResult.success) {
+            this.logger.warning('CreateWorldMasterUseCase::execute - failed to save world master', saveResult.error);
+            return { success: false, error: saveResult.error };
+        }
 
         return {
             success: true,
-            worldMaster: response.worldMaster
+            id: response.worldMaster.id
         };
     }
 
@@ -90,9 +101,9 @@ export class CreateWorldMasterUseCase implements ICreateWorldMasterUseCase {
 
     private async validateReferencedIds (params: CreateWorldMasterUseCaseParams): Promise<string | null> {
         return checkReferencedId(
-            (id) => this.assistantRepository.getAssistantById(id),
-            params.assistantId,
-            'Assistant'
+            (id: string) => this.assistantRepository.getAssistantById(id),
+            REFERENCED_ENTITIES.ASSISTANT,
+            params.assistantId
         );
     }
 }

@@ -1,4 +1,3 @@
-import { World } from '../entities';
 
 export interface ICreateWorldUseCase {
     execute(request: CreateWorldUseCaseParams): Promise<CreateWorldUseCaseResponse>;
@@ -13,6 +12,6 @@ export type CreateWorldUseCaseParams = {
 
 export type CreateWorldUseCaseResponse = {
     success: boolean;
-    world?: World;
+    id?: string;
     error?: string;
 };

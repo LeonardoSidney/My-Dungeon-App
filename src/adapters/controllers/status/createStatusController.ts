@@ -9,6 +9,7 @@ export class CreateStatusController implements ICreateStatusController {
     ) { }
     async handle (params: CreateStatusControllerParams): Promise<CreateStatusControllerResponse> {
         this.logger.info('Executing CreateStatusController::handle');
+        this.logger.debug('CreateStatusController::handle - params', params);
         const { name, prompt, activationWord, observation } = params;
         const response = await this.useCase.execute({
             name,
@@ -17,6 +18,10 @@ export class CreateStatusController implements ICreateStatusController {
             observation
         });
 
-        return response;
+        return {
+            success: response.success,
+            id: response.id,
+            error: response.error,
+        };
     }
 }

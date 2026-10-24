@@ -1,7 +1,16 @@
 import { ITEM_STORAGE_NAMESPACE, STORAGE_NAMESPACE } from '@domain/constants/general';
 import { Item } from '@domain/entities';
 import { ILogger } from '@domain/logger';
-import { IItemRepository, SaveItemParams, EditItemParams, EditItemReturn, EraseItemReturn } from '@domain/repository';
+import {
+    IItemRepository,
+    SaveItemParams,
+    SaveItemRepositoryReturn,
+    GetItemsRepositoryReturn,
+    GetItemByIdRepositoryReturn,
+    EditItemParams,
+    EditItemReturn,
+    EraseItemReturn,
+} from '@domain/repository';
 import { IStorage } from '@domain/storage';
 import { ItemDTO } from '@infra/dto';
 
@@ -11,119 +20,126 @@ export class ItemRepository implements IItemRepository {
         private readonly storage: IStorage
     ) { }
 
-    private async findItemIndex (items: Item[], itemId: string): Promise<number> {
-        return items.findIndex((i) => i.id === itemId);
+    private get storageKey (): string {
+        return `${STORAGE_NAMESPACE}/${ITEM_STORAGE_NAMESPACE}`;
     }
 
-    private replaceAt (items: Item[], index: number, newItem: Item): Item[] {
-        items[index] = newItem;
-        return items;
-    }
-
-    private removeAt (items: Item[], index: number): Item[] {
-        items.splice(index, 1);
-        return items;
-    }
-
-    async saveItem (params: SaveItemParams): Promise<boolean> {
+    async saveItem (params: SaveItemParams): Promise<SaveItemRepositoryReturn> {
         this.logger.info('Executing ItemRepository::saveItem');
         this.logger.debug('Executing ItemRepository::saveItem - params: ', params);
 
-        try {
-            const { item } = params;
-            const existingData = await this.storage.load<Item[]>(`${STORAGE_NAMESPACE}/${ITEM_STORAGE_NAMESPACE}`);
-            const items: Item[] = existingData ? [...existingData, item] : [item];
-            await this.storage.save(`${STORAGE_NAMESPACE}/${ITEM_STORAGE_NAMESPACE}`, items);
-        } catch (error) {
-            this.logger.error('Error on ItemRepository::saveItem', error);
-            throw error;
+        const loaded = await this.storage.load<Item[]>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('ItemRepository::saveItem - failed to load items', loaded.error);
+            return { success: false, error: 'Failed to save item' };
         }
 
-        return true;
+        const items = [...(loaded.data ?? []), params.item];
+        const saved = await this.storage.save(this.storageKey, items);
+        if (!saved.success) {
+            this.logger.warning('ItemRepository::saveItem - failed to persist items', saved.error);
+            return { success: false, error: 'Failed to save item' };
+        }
+
+        return { success: true };
     }
 
-    async getItemById (itemId: string): Promise<Item | undefined> {
+    async getItemById (itemId: string): Promise<GetItemByIdRepositoryReturn> {
         this.logger.info('Executing ItemRepository::getItemById');
-        const items = await this.getItems();
-        return items.find((i) => i.id === itemId);
+
+        const response = await this.getItems();
+        if (!response.success || !response.items) {
+            return { success: false, error: response.error };
+        }
+
+        return { success: true, item: response.items.find((i) => i.id === itemId) };
     }
 
-    async getItems (): Promise<Item[]> {
+    async getItems (): Promise<GetItemsRepositoryReturn> {
         this.logger.info('Executing ItemRepository::getItems');
-        try {
-            const items: Item[] = [];
-            const rawData = await this.storage.load<unknown[]>(`${STORAGE_NAMESPACE}/${ITEM_STORAGE_NAMESPACE}`);
-            this.logger.debug('Executing ItemRepository::getItems - rawData: ', rawData);
 
-            if (rawData) {
-                const itemsDTO: ItemDTO[] = [];
-                for (const itemUnknown of rawData) {
-                    const item = ItemDTO.fromStorage(itemUnknown);
-                    if (item) {
-                        itemsDTO.push(item);
-                    }
-                }
-
-                items.push(...itemsDTO.map((dto) => dto.toEntity()));
-
-                if (rawData.length !== items.length) {
-                    this.logger.warning('Some items were not converted to entity');
-                }
-            }
-
-            this.logger.debug('Executing ItemRepository::getItems - items: ', items);
-
-            return items;
-        } catch (error) {
-            this.logger.error('Error on ItemRepository getItems', error);
-            throw error;
+        const loaded = await this.storage.load<unknown>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('ItemRepository::getItems - failed to load items', loaded.error);
+            return { success: false, error: 'Failed to load items' };
         }
+
+        const rawData = loaded.data ?? [];
+        this.logger.debug('Executing ItemRepository::getItems - rawData: ', rawData);
+
+        if (!Array.isArray(rawData)) {
+            this.logger.warning('ItemRepository::getItems - stored items are not a list');
+            return { success: false, error: 'Failed to load items' };
+        }
+
+        const items: Item[] = [];
+        for (const itemUnknown of rawData) {
+            const dto = ItemDTO.fromStorage(itemUnknown);
+            if (dto) {
+                items.push(dto.toEntity());
+            }
+        }
+
+        if (rawData.length !== items.length) {
+            this.logger.warning('Some items were not converted to entity');
+        }
+
+        this.logger.debug('Executing ItemRepository::getItems - items: ', items);
+        return { success: true, items };
     }
 
     async editItem (params: EditItemParams): Promise<EditItemReturn> {
         this.logger.info('Executing ItemRepository::editItem');
         this.logger.debug('Executing ItemRepository::editItem - params: ', params);
 
-        try {
-            const { item } = params;
-            const existingData = await this.storage.load<Item[]>(`${STORAGE_NAMESPACE}/${ITEM_STORAGE_NAMESPACE}`);
-            const items = existingData || [];
-            const index = await this.findItemIndex(items, item.id);
-
-            if (index === -1) {
-                this.logger.warning(`Item with id ${item.id} not found`);
-                return { success: false, error: `Item with id ${item.id} does not exist` };
-            }
-
-            const updatedItems = this.replaceAt(items, index, item);
-            await this.storage.save(`${STORAGE_NAMESPACE}/${ITEM_STORAGE_NAMESPACE}`, updatedItems);
-            return { success: true };
-        } catch (error) {
-            this.logger.error('Error on ItemRepository::editItem', error);
+        const { item } = params;
+        const loaded = await this.storage.load<Item[]>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('ItemRepository::editItem - failed to load items', loaded.error);
             return { success: false, error: 'Failed to edit item' };
         }
+
+        const items = loaded.data ?? [];
+        const index = items.findIndex((i) => i.id === item.id);
+        if (index === -1) {
+            this.logger.warning(`Item with id ${item.id} not found`);
+            return { success: false, error: `Item with id ${item.id} does not exist` };
+        }
+
+        items[index] = item;
+        const saved = await this.storage.save(this.storageKey, items);
+        if (!saved.success) {
+            this.logger.warning('ItemRepository::editItem - failed to persist items', saved.error);
+            return { success: false, error: 'Failed to edit item' };
+        }
+
+        return { success: true };
     }
 
     async eraseItem (itemId: string): Promise<EraseItemReturn> {
         this.logger.info('Executing ItemRepository::eraseItem');
         this.logger.debug('Executing ItemRepository::eraseItem - itemId: ', itemId);
 
-        try {
-            const existingData = await this.storage.load<Item[]>(`${STORAGE_NAMESPACE}/${ITEM_STORAGE_NAMESPACE}`);
-            const items = existingData || [];
-            const index = await this.findItemIndex(items, itemId);
-
-            if (index === -1) {
-                this.logger.warning(`Item with id ${itemId} not found`);
-                return { success: false, error: `Item with id ${itemId} does not exist` };
-            }
-
-            const filteredItems = this.removeAt(items, index);
-            await this.storage.save(`${STORAGE_NAMESPACE}/${ITEM_STORAGE_NAMESPACE}`, filteredItems);
-            return { success: true };
-        } catch (error) {
-            this.logger.error('Error on ItemRepository::eraseItem', error);
+        const loaded = await this.storage.load<Item[]>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('ItemRepository::eraseItem - failed to load items', loaded.error);
             return { success: false, error: 'Failed to erase item' };
         }
+
+        const items = loaded.data ?? [];
+        const index = items.findIndex((i) => i.id === itemId);
+        if (index === -1) {
+            this.logger.warning(`Item with id ${itemId} not found`);
+            return { success: false, error: `Item with id ${itemId} does not exist` };
+        }
+
+        items.splice(index, 1);
+        const saved = await this.storage.save(this.storageKey, items);
+        if (!saved.success) {
+            this.logger.warning('ItemRepository::eraseItem - failed to persist items', saved.error);
+            return { success: false, error: 'Failed to erase item' };
+        }
+
+        return { success: true };
     }
 }

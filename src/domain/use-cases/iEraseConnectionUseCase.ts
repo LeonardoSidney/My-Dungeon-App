@@ -4,5 +4,9 @@ export type EraseConnectionUseCaseReturn = {
 };
 
 export interface IEraseConnectionUseCase {
-    execute(connectionId: string): Promise<EraseConnectionUseCaseReturn>;
+    execute (params: EraseConnectionUseCaseParams): Promise<EraseConnectionUseCaseReturn>;
 }
+
+export type EraseConnectionUseCaseParams = {
+    id: string;
+};

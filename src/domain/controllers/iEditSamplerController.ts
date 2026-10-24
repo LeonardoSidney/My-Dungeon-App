@@ -1,4 +1,3 @@
-import { Sampler } from '../entities';
 import { SamplerEditParams } from '../services';
 
 export interface IEditSamplerController {
@@ -11,7 +10,7 @@ export type EditSamplerControllerParams = {
 };
 
 export type EditSamplerControllerResponse = {
-    sampler?: Sampler;
+    id?: string;
     success: boolean;
     error?: string;
 };

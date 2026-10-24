@@ -3,19 +3,26 @@ import {
     GetAssistantsController,
     EditAssistantController,
     EraseAssistantController,
+    GetAssistantController,
 } from '@adapters/controllers';
+import {
+    GetAssistantPresenter,
+    GetAssistantsPresenter,
+} from '@adapters/presenters';
 import { CreateAssistantService, EditAssistantService, GetSamplersService } from '@application/services';
 import {
     CreateAssistantUseCase,
     GetAssistantsUseCase,
     EditAssistantUseCase,
     EraseAssistantUseCase,
+    GetAssistantByIdUseCase,
 } from '@application/use-cases';
 import {
     ICreateAssistantController,
     IGetAssistantsController,
     IEditAssistantController,
     IEraseAssistantController,
+    IGetAssistantController,
 } from '@domain/controllers';
 import { idGenerate, logger, storage } from './shared';
 import {
@@ -42,7 +49,7 @@ export function createAssistantController (): ICreateAssistantController {
 export function getAssistantsController (): IGetAssistantsController {
     const assistantRepository = createAssistantRepository(storage, logger);
     const getAssistantsUseCase = new GetAssistantsUseCase(logger, assistantRepository);
-    return new GetAssistantsController(logger, getAssistantsUseCase);
+    return new GetAssistantsController(logger, getAssistantsUseCase, new GetAssistantsPresenter());
 }
 
 export function editAssistantController (): IEditAssistantController {
@@ -64,4 +71,9 @@ export function eraseAssistantController (): IEraseAssistantController {
     const assistantRepository = createAssistantRepository(storage, logger);
     const eraseAssistantUseCase = new EraseAssistantUseCase(logger, assistantRepository);
     return new EraseAssistantController(logger, eraseAssistantUseCase);
+}
+
+export function getAssistantController (): IGetAssistantController {
+    const useCase = new GetAssistantByIdUseCase(logger, createAssistantRepository(storage, logger));
+    return new GetAssistantController(logger, useCase, new GetAssistantPresenter());
 }

@@ -13,12 +13,13 @@ export class EditAbilityController implements IEditAbilityController {
     ) { }
     async handle (params: EditAbilityControllerParams): Promise<EditAbilityControllerResponse> {
         this.logger.info('Executing EditAbilityController::handle');
+        this.logger.debug('EditAbilityController::handle - params', params);
         const response = await this.useCase.execute(params);
 
         return {
             success: response.success,
-            ability: response.ability,
-            error: response.error
+            id: response.id,
+            error: response.error,
         };
     }
 }

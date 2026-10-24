@@ -1,4 +1,3 @@
-import { Status } from '../entities';
 
 export interface ICreateStatusController {
     handle(params: CreateStatusControllerParams): Promise<CreateStatusControllerResponse>;
@@ -13,6 +12,6 @@ export type CreateStatusControllerParams = {
 
 export type CreateStatusControllerResponse = {
     success: boolean;
-    status?: Status;
+    id?: string;
     error?: string;
 };

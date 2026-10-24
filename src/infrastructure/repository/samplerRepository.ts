@@ -1,10 +1,18 @@
 import { SAMPLER_STORAGE_NAMESPACE, STORAGE_NAMESPACE } from '@domain/constants/general';
 import { Sampler } from '@domain/entities';
 import { ILogger } from '@domain/logger';
-import { ISamplerRepository, SaveSamplerParams, EditSamplerParams, EditSamplerRepositoryReturn, EraseSamplerRepositoryReturn } from '@domain/repository';
+import {
+    ISamplerRepository,
+    SaveSamplerParams,
+    SaveSamplerRepositoryReturn,
+    GetSamplersRepositoryReturn,
+    GetSamplerByIdRepositoryReturn,
+    EditSamplerParams,
+    EditSamplerRepositoryReturn,
+    EraseSamplerRepositoryReturn,
+} from '@domain/repository';
 import { IStorage } from '@domain/storage';
 import { SamplerDTO } from '@infra/dto';
-
 
 export class SamplerRepository implements ISamplerRepository {
     constructor (
@@ -12,119 +20,126 @@ export class SamplerRepository implements ISamplerRepository {
         private readonly storage: IStorage
     ) { }
 
-    private async findSamplerIndex (samplers: Sampler[], samplerId: string): Promise<number> {
-        return samplers.findIndex((s) => s.id === samplerId);
+    private get storageKey (): string {
+        return `${STORAGE_NAMESPACE}/${SAMPLER_STORAGE_NAMESPACE}`;
     }
 
-    private removeAt (samplers: Sampler[], index: number): Sampler[] {
-        samplers.splice(index, 1);
-        return samplers;
-    }
-
-    private replaceAt (samplers: Sampler[], index: number, newItem: Sampler): Sampler[] {
-        samplers[index] = newItem;
-        return samplers;
-    }
-
-    async getSamplerById (samplerId: string): Promise<Sampler | undefined> {
-        this.logger.info('Executing SamplerRepository::getSamplerById');
-        const samplers = await this.getSamplers();
-        return samplers.find((s) => s.id === samplerId);
-    }
-
-    async getSamplers (): Promise<Sampler[]> {
-        this.logger.info('Executing SamplerRepository::getSamplers');
-
-        try {
-            const samplers: Sampler[] = [];
-            const rawData = await this.storage.load<unknown[]>(`${STORAGE_NAMESPACE}/${SAMPLER_STORAGE_NAMESPACE}`);
-            this.logger.debug('Executing SamplerRepository::getSamplers - rawData: ', rawData);
-
-            if (rawData) {
-                const samplersDTO: SamplerDTO[] = [];
-                for (const samplerUnknown of rawData) {
-                    const sampler = SamplerDTO.fromStorage(samplerUnknown);
-                    if (sampler) {
-                        samplersDTO.push(sampler);
-                    }
-                }
-
-                samplers.push(...samplersDTO.map(dto => dto.toEntity()));
-
-                if (rawData.length !== samplers.length) {
-                    this.logger.warning('Some samplers were not converted to entity');
-                }
-            }
-
-            this.logger.debug('Executing SamplerRepository::getSamplers - samplers: ', samplers);
-            return samplers || [];
-        } catch (error) {
-            this.logger.error('Error on SamplerRepository::getSamplers', error);
-            throw error;
-        }
-    }
-
-    async saveSampler (params: SaveSamplerParams): Promise<boolean> {
+    async saveSampler (params: SaveSamplerParams): Promise<SaveSamplerRepositoryReturn> {
         this.logger.info('Executing SamplerRepository::saveSampler');
         this.logger.debug('Executing SamplerRepository::saveSampler - params: ', params);
 
-        try {
-            const { sampler } = params;
-            const existingData = await this.storage.load<Sampler[]>(`${STORAGE_NAMESPACE}/${SAMPLER_STORAGE_NAMESPACE}`);
-            const samplers: Sampler[] = existingData ? [...existingData, sampler] : [sampler];
-            await this.storage.save(`${STORAGE_NAMESPACE}/${SAMPLER_STORAGE_NAMESPACE}`, samplers);
-        } catch (error) {
-            this.logger.error('Error on SamplerRepository::saveSampler', error);
-            throw error;
+        const loaded = await this.storage.load<Sampler[]>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('SamplerRepository::saveSampler - failed to load samplers', loaded.error);
+            return { success: false, error: 'Failed to save sampler' };
         }
 
-        return true;
+        const samplers = [...(loaded.data ?? []), params.sampler];
+        const saved = await this.storage.save(this.storageKey, samplers);
+        if (!saved.success) {
+            this.logger.warning('SamplerRepository::saveSampler - failed to persist samplers', saved.error);
+            return { success: false, error: 'Failed to save sampler' };
+        }
+
+        return { success: true };
+    }
+
+    async getSamplerById (samplerId: string): Promise<GetSamplerByIdRepositoryReturn> {
+        this.logger.info('Executing SamplerRepository::getSamplerById');
+
+        const response = await this.getSamplers();
+        if (!response.success || !response.samplers) {
+            return { success: false, error: response.error };
+        }
+
+        return { success: true, sampler: response.samplers.find((s) => s.id === samplerId) };
+    }
+
+    async getSamplers (): Promise<GetSamplersRepositoryReturn> {
+        this.logger.info('Executing SamplerRepository::getSamplers');
+
+        const loaded = await this.storage.load<unknown>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('SamplerRepository::getSamplers - failed to load samplers', loaded.error);
+            return { success: false, error: 'Failed to load samplers' };
+        }
+
+        const rawData = loaded.data ?? [];
+        this.logger.debug('Executing SamplerRepository::getSamplers - rawData: ', rawData);
+
+        if (!Array.isArray(rawData)) {
+            this.logger.warning('SamplerRepository::getSamplers - stored samplers are not a list');
+            return { success: false, error: 'Failed to load samplers' };
+        }
+
+        const samplers: Sampler[] = [];
+        for (const samplerUnknown of rawData) {
+            const dto = SamplerDTO.fromStorage(samplerUnknown);
+            if (dto) {
+                samplers.push(dto.toEntity());
+            }
+        }
+
+        if (rawData.length !== samplers.length) {
+            this.logger.warning('Some samplers were not converted to entity');
+        }
+
+        this.logger.debug('Executing SamplerRepository::getSamplers - samplers: ', samplers);
+        return { success: true, samplers };
     }
 
     async editSampler (params: EditSamplerParams): Promise<EditSamplerRepositoryReturn> {
         this.logger.info('Executing SamplerRepository::editSampler');
         this.logger.debug('Executing SamplerRepository::editSampler - params: ', params);
 
-        try {
-            const { sampler } = params;
-            const existingData = await this.storage.load<Sampler[]>(`${STORAGE_NAMESPACE}/${SAMPLER_STORAGE_NAMESPACE}`);
-            const samplers = existingData || [];
-            const index = await this.findSamplerIndex(samplers, sampler.id);
-
-            if (index === -1) {
-                this.logger.warning(`Sampler with id ${sampler.id} not found`);
-                return { success: false, error: `Sampler with id ${sampler.id} does not exist` };
-            }
-
-            const updatedSamplers = this.replaceAt(samplers, index, sampler);
-            await this.storage.save(`${STORAGE_NAMESPACE}/${SAMPLER_STORAGE_NAMESPACE}`, updatedSamplers);
-            return { success: true };
-        } catch (error) {
-            this.logger.error('Error on SamplerRepository::editSampler', error);
+        const { sampler } = params;
+        const loaded = await this.storage.load<Sampler[]>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('SamplerRepository::editSampler - failed to load samplers', loaded.error);
             return { success: false, error: 'Failed to edit sampler' };
         }
+
+        const samplers = loaded.data ?? [];
+        const index = samplers.findIndex((s) => s.id === sampler.id);
+        if (index === -1) {
+            this.logger.warning(`Sampler with id ${sampler.id} not found`);
+            return { success: false, error: `Sampler with id ${sampler.id} does not exist` };
+        }
+
+        samplers[index] = sampler;
+        const saved = await this.storage.save(this.storageKey, samplers);
+        if (!saved.success) {
+            this.logger.warning('SamplerRepository::editSampler - failed to persist samplers', saved.error);
+            return { success: false, error: 'Failed to edit sampler' };
+        }
+
+        return { success: true };
     }
 
     async eraseSampler (samplerId: string): Promise<EraseSamplerRepositoryReturn> {
         this.logger.info('Executing SamplerRepository::eraseSampler');
         this.logger.debug('Executing SamplerRepository::eraseSampler - samplerId: ', samplerId);
 
-        try {
-            const existingData = await this.storage.load<Sampler[]>(`${STORAGE_NAMESPACE}/${SAMPLER_STORAGE_NAMESPACE}`);
-            const samplers = existingData || [];
-            const index = await this.findSamplerIndex(samplers, samplerId);
-
-            if (index === -1) {
-                this.logger.warning(`Sampler with id ${samplerId} not found`);
-                return { success: false, error: `Sampler with id ${samplerId} does not exist` };
-            }
-
-            const filteredSamplers = this.removeAt(samplers, index);
-            await this.storage.save(`${STORAGE_NAMESPACE}/${SAMPLER_STORAGE_NAMESPACE}`, filteredSamplers);
-            return { success: true };
-        } catch (error) {
-            this.logger.error('Error on SamplerRepository::eraseSampler', error);
+        const loaded = await this.storage.load<Sampler[]>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('SamplerRepository::eraseSampler - failed to load samplers', loaded.error);
             return { success: false, error: 'Failed to erase sampler' };
         }
+
+        const samplers = loaded.data ?? [];
+        const index = samplers.findIndex((s) => s.id === samplerId);
+        if (index === -1) {
+            this.logger.warning(`Sampler with id ${samplerId} not found`);
+            return { success: false, error: `Sampler with id ${samplerId} does not exist` };
+        }
+
+        samplers.splice(index, 1);
+        const saved = await this.storage.save(this.storageKey, samplers);
+        if (!saved.success) {
+            this.logger.warning('SamplerRepository::eraseSampler - failed to persist samplers', saved.error);
+            return { success: false, error: 'Failed to erase sampler' };
+        }
+
+        return { success: true };
     }
 }

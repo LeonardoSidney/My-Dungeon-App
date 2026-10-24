@@ -1,6 +1,6 @@
 import { ILogger } from '@domain/logger';
 import { IConnectionRepository } from '@domain/repository';
-import { IEraseConnectionUseCase, EraseConnectionUseCaseReturn } from '@domain/use-cases';
+import { IEraseConnectionUseCase, EraseConnectionUseCaseReturn, EraseConnectionUseCaseParams } from '@domain/use-cases';
 
 export class EraseConnectionUseCase implements IEraseConnectionUseCase {
     constructor (
@@ -8,17 +8,26 @@ export class EraseConnectionUseCase implements IEraseConnectionUseCase {
         private readonly connectionRepository: IConnectionRepository
     ) { }
 
-    async execute (connectionId: string): Promise<EraseConnectionUseCaseReturn> {
+    async execute (params: EraseConnectionUseCaseParams): Promise<EraseConnectionUseCaseReturn> {
         this.logger.info('Executing EraseConnectionUseCase::execute');
 
-        if (!connectionId) {
-            return { success: false, error: 'A connection id is required to erase a connection' };
+        const validationError = this.validate(params);
+        if (validationError) {
+            return { success: false, error: validationError };
         }
 
-        const result = await this.connectionRepository.eraseConnection(connectionId);
+        const result = await this.connectionRepository.eraseConnection(params.id);
         if (!result.success) {
             return { success: false, error: result.error || 'Failed to erase connection' };
         }
         return { success: true };
+    }
+
+    private validate (params: EraseConnectionUseCaseParams): string | null {
+        if (!params.id) {
+            return 'A connection id is required to erase a connection';
+        }
+
+        return null;
     }
 }

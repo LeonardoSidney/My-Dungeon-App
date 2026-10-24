@@ -7,24 +7,15 @@ export class CreateAdventureController implements ICreateAdventureController {
         private readonly logger: ILogger,
         private readonly useCase: ICreateAdventureUseCase
     ) { }
+
     async handle (request: CreateAdventureRequest): Promise<CreateAdventureResponse> {
         this.logger.info('Executing CreateAdventureController::handle');
-        const { systemPromptIds, characterIds, worldMasterId, characterAsWorldMasterId, charactersControlledByAi, worldIds, locationIds, itemIds, name } = request;
-        const response = await this.useCase.execute({
-            name,
-            systemPromptIds,
-            characterIds,
-            worldMasterId,
-            characterAsWorldMasterId,
-            charactersControlledByAi,
-            worldIds,
-            locationIds,
-            itemIds
-        });
+        this.logger.debug('CreateAdventureController::handle - params', request);
+        const response = await this.useCase.execute(request);
 
         return {
             success: response.success,
-            adventure: response.adventure,
+            id: response.id,
             error: response.error
         };
     }

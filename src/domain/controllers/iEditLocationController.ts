@@ -1,4 +1,3 @@
-import { Location } from '../entities';
 import { LocationEditParams } from '../services';
 
 export interface IEditLocationController {
@@ -11,7 +10,7 @@ export type EditLocationControllerParams = {
 };
 
 export type EditLocationControllerResponse = {
-    location?: Location;
+    id?: string;
     success: boolean;
     error?: string;
 };

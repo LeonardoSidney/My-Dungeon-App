@@ -1,8 +1,12 @@
 export interface IEraseSystemPromptController {
-    handle (systemPromptId: string): Promise<EraseSystemPromptControllerResponse>;
+    handle (request: EraseSystemPromptControllerRequest): Promise<EraseSystemPromptControllerResponse>;
 }
 
 export type EraseSystemPromptControllerResponse = {
     success: boolean;
     error?: string;
+};
+
+export type EraseSystemPromptControllerRequest = {
+    id: string;
 };

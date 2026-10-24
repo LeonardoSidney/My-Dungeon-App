@@ -12,3 +12,4 @@ export * from './iLocationRepository';
 export * from './iItemRepository';
 export * from './iSystemPromptRepository';
 export * from './iModelTemplateRepository';
+export * from './iDraftRepository';

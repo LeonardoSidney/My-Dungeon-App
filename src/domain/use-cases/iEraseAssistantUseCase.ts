@@ -4,5 +4,9 @@ export type EraseAssistantUseCaseReturn = {
 };
 
 export interface IEraseAssistantUseCase {
-    execute (assistantId: string): Promise<EraseAssistantUseCaseReturn>;
+    execute (params: EraseAssistantUseCaseParams): Promise<EraseAssistantUseCaseReturn>;
 }
+
+export type EraseAssistantUseCaseParams = {
+    id: string;
+};

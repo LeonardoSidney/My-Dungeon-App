@@ -23,8 +23,19 @@ export class StartStreamingChatUseCase implements IStartStreamingChatUseCase {
             return validation;
         }
 
+        const adventureResponse = await this.adventureRepository.getAdventureById(params.adventureId);
+        if (!adventureResponse.success) {
+            this.logger.warning('StartStreamingChatUseCase::execute - failed to load adventure', adventureResponse.error);
+            return { success: false, error: adventureResponse.error };
+        }
+
+        const adventure = adventureResponse.adventure;
+        if (!adventure) {
+            return { success: false, error: `Adventure with id ${params.adventureId} not found` };
+        }
+
         const response = this.startStreamingChatService.startStreamingChat({
-            adventure: params.adventure,
+            adventure,
             role: params.role,
             characterId: params.characterId,
             chatId: params.chatId,
@@ -64,6 +75,13 @@ export class StartStreamingChatUseCase implements IStartStreamingChatUseCase {
     }
 
     private validate (params: StartStreamingChatUseCaseParams): StartStreamingChatUseCaseReturn {
+        if (!params.adventureId?.trim()) {
+            return {
+                success: false,
+                error: 'Adventure id is required',
+            };
+        }
+
         if (!params.characterId?.trim()) {
             this.logger.warning('StartStreamingChatUseCase::validate - characterId is required');
             return {

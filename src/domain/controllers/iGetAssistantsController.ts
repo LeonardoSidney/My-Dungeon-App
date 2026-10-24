@@ -1,5 +1,7 @@
-import { Assistant } from '../entities';
+import { ListControllerResponse, EntityOption } from './iCrudControllerResponses';
 
 export interface IGetAssistantsController {
-    handle(): Promise<Assistant[]>;
+    handle (): Promise<GetAssistantsControllerResponse>;
 }
+
+export type GetAssistantsControllerResponse = ListControllerResponse<EntityOption>;

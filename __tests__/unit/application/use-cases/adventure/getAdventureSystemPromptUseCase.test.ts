@@ -1,8 +1,9 @@
 import { GetAdventureSystemPromptUseCase } from '@application/use-cases';
 import { ITextGeneration } from '@domain/providers';
 import { IHydrateAdventureService } from '@domain/services';
+import { IAdventureRepository } from '@domain/repository';
 import { ILogger } from '@domain/logger';
-import { createAdventureHelper, createWorldMasterHelper } from '@test/helpers';
+import { createAdventureHelper, createHydratedAdventureHelper } from '@test/helpers';
 
 const mockLogger: ILogger = {
     debug: jest.fn(),
@@ -20,166 +21,106 @@ const mockTextGeneration = {
     buildAdventureTextSystemPrompt: jest.fn()
 };
 
+const mockAdventureRepository = {
+    getAdventureById: jest.fn()
+};
+
+const adventure = createAdventureHelper();
+
 function buildUseCase (): GetAdventureSystemPromptUseCase {
     return new GetAdventureSystemPromptUseCase(
         mockLogger,
         mockTextGeneration as unknown as ITextGeneration,
-        mockHydrateAdventureService as unknown as IHydrateAdventureService
+        mockHydrateAdventureService as unknown as IHydrateAdventureService,
+        mockAdventureRepository as unknown as IAdventureRepository
     );
 }
 
 describe('GetAdventureSystemPromptUseCase', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        mockAdventureRepository.getAdventureById.mockResolvedValue({ success: true, adventure });
+        mockHydrateAdventureService.hydrate.mockResolvedValue({ success: true, hydrated: createHydratedAdventureHelper({ adventure }) });
     });
 
-    it('should return the composed system prompt when hydration succeeds', async () => {
-        const adventure = createAdventureHelper();
-        const worldMaster = createWorldMasterHelper();
+    it('should return the system prompt composed from the adventure loaded by id', async () => {
+        mockTextGeneration.buildAdventureTextSystemPrompt.mockReturnValue({ success: true, systemPrompt: '# WORLD MASTER\nprompt here' });
 
-        mockHydrateAdventureService.hydrate.mockResolvedValue({
-            success: true,
-            hydrated: {
-                adventure,
-                characters: [],
-                worldMaster,
-                assistants: {},
-                samplers: [],
-                connections: [],
-                worlds: [],
-                locations: [],
-                items: [],
-                systemPrompts: [],
-                abilities: [],
-                proficiencies: [],
-                statuses: []
-            }
-        });
-        mockTextGeneration.buildAdventureTextSystemPrompt.mockReturnValue('# WORLD MASTER\nprompt here');
+        const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
 
-        const response = await buildUseCase().execute({ adventure });
-
-        expect(response.success).toBe(true);
-        expect(response.systemPrompt).toBe('# WORLD MASTER\nprompt here');
+        expect(response).toEqual({ success: true, systemPrompt: '# WORLD MASTER\nprompt here' });
+        expect(mockAdventureRepository.getAdventureById).toHaveBeenCalledWith('adventure-1');
         expect(mockHydrateAdventureService.hydrate).toHaveBeenCalledWith({ adventure });
         expect(mockTextGeneration.buildAdventureTextSystemPrompt).toHaveBeenCalledTimes(1);
     });
 
+    it('should fail when the adventure id is blank', async () => {
+        const response = await buildUseCase().execute({ adventureId: '  ' });
+
+        expect(response).toEqual({ success: false, error: 'Adventure id is required' });
+        expect(mockAdventureRepository.getAdventureById).not.toHaveBeenCalled();
+    });
+
+    it('should return the repository error when loading fails', async () => {
+        mockAdventureRepository.getAdventureById.mockResolvedValue({ success: false, error: 'Database error' });
+
+        const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
+
+        expect(response).toEqual({ success: false, error: 'Database error' });
+        expect(mockHydrateAdventureService.hydrate).not.toHaveBeenCalled();
+    });
+
+    it('should fail when the repository does not find the adventure', async () => {
+        mockAdventureRepository.getAdventureById.mockResolvedValue({ success: true, adventure: undefined });
+
+        const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
+
+        expect(response).toEqual({ success: false, error: 'Adventure with id adventure-1 not found' });
+        expect(mockHydrateAdventureService.hydrate).not.toHaveBeenCalled();
+    });
+
     it('should fail when hydration fails', async () => {
-        const adventure = createAdventureHelper();
+        mockHydrateAdventureService.hydrate.mockResolvedValue({ success: false, error: 'Some characters were not found' });
 
-        mockHydrateAdventureService.hydrate.mockResolvedValue({
-            success: false,
-            error: 'Some characters were not found'
-        });
+        const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
 
-        const response = await buildUseCase().execute({ adventure });
-
-        expect(response.success).toBe(false);
-        expect(response.error).toBe('Some characters were not found');
+        expect(response).toEqual({ success: false, error: 'Some characters were not found' });
         expect(mockTextGeneration.buildAdventureTextSystemPrompt).not.toHaveBeenCalled();
     });
 
-    it('should fail when hydration fails without an error message', async () => {
-        const adventure = createAdventureHelper();
+    it.each([
+        [{ success: false }],
+        [{ success: true }]
+    ])('should fail with a generic error when hydration answers %j', async (hydrateResponse) => {
+        mockHydrateAdventureService.hydrate.mockResolvedValue(hydrateResponse);
 
-        mockHydrateAdventureService.hydrate.mockResolvedValue({ success: false });
+        const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
 
-        const response = await buildUseCase().execute({ adventure });
+        expect(response).toEqual({ success: false, error: 'Failed to hydrate adventure' });
+    });
+
+    it('should fail with the provider error when the system prompt cannot be built', async () => {
+        mockTextGeneration.buildAdventureTextSystemPrompt.mockReturnValue({ success: false, error: 'Template failure' });
+
+        const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
+
+        expect(response).toEqual({ success: false, error: 'Template failure' });
+        expect(mockLogger.warning).toHaveBeenCalled();
+    });
+
+    it('should fail when the provider succeeds without a system prompt', async () => {
+        mockTextGeneration.buildAdventureTextSystemPrompt.mockReturnValue({ success: true });
+
+        const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
 
         expect(response.success).toBe(false);
-        expect(response.error).toBe('Failed to hydrate adventure');
     });
 
     it('should fail when the composed system prompt is empty', async () => {
-        const adventure = createAdventureHelper();
+        mockTextGeneration.buildAdventureTextSystemPrompt.mockReturnValue({ success: true, systemPrompt: '   ' });
 
-        mockHydrateAdventureService.hydrate.mockResolvedValue({
-            success: true,
-            hydrated: {
-                adventure,
-                characters: [],
-                worldMaster: undefined,
-                assistants: {},
-                samplers: [],
-                connections: [],
-                worlds: [],
-                locations: [],
-                items: [],
-                systemPrompts: [],
-                abilities: [],
-                proficiencies: [],
-                statuses: []
-            }
-        });
-        mockTextGeneration.buildAdventureTextSystemPrompt.mockReturnValue('   ');
+        const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
 
-        const response = await buildUseCase().execute({ adventure });
-
-        expect(response.success).toBe(false);
-        expect(response.error).toBe('System prompt is empty');
-    });
-
-    it('should fail with the error message when the provider throws', async () => {
-        const adventure = createAdventureHelper();
-
-        mockHydrateAdventureService.hydrate.mockResolvedValue({
-            success: true,
-            hydrated: {
-                adventure,
-                characters: [],
-                worldMaster: undefined,
-                assistants: {},
-                samplers: [],
-                connections: [],
-                worlds: [],
-                locations: [],
-                items: [],
-                systemPrompts: [],
-                abilities: [],
-                proficiencies: [],
-                statuses: []
-            }
-        });
-        mockTextGeneration.buildAdventureTextSystemPrompt.mockImplementation(() => {
-            throw new Error('Template failure');
-        });
-
-        const response = await buildUseCase().execute({ adventure });
-
-        expect(response.success).toBe(false);
-        expect(response.error).toBe('Template failure');
-        expect(mockLogger.error).toHaveBeenCalled();
-    });
-
-    it('should fail with a generic error when the provider throws a non-Error value', async () => {
-        const adventure = createAdventureHelper();
-
-        mockHydrateAdventureService.hydrate.mockResolvedValue({
-            success: true,
-            hydrated: {
-                adventure,
-                characters: [],
-                worldMaster: undefined,
-                assistants: {},
-                samplers: [],
-                connections: [],
-                worlds: [],
-                locations: [],
-                items: [],
-                systemPrompts: [],
-                abilities: [],
-                proficiencies: [],
-                statuses: []
-            }
-        });
-        mockTextGeneration.buildAdventureTextSystemPrompt.mockImplementation(() => {
-            throw 'non-error';
-        });
-
-        const response = await buildUseCase().execute({ adventure });
-
-        expect(response.success).toBe(false);
-        expect(response.error).toBe('Get adventure system prompt failed');
+        expect(response).toEqual({ success: false, error: 'System prompt is empty' });
     });
 });

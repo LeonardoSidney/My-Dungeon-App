@@ -4,5 +4,9 @@ export type EraseProficiencyUseCaseReturn = {
 };
 
 export interface IEraseProficiencyUseCase {
-  execute (proficiencyId: string): Promise<EraseProficiencyUseCaseReturn>;
+  execute (params: EraseProficiencyUseCaseParams): Promise<EraseProficiencyUseCaseReturn>;
 }
+
+export type EraseProficiencyUseCaseParams = {
+    id: string;
+};

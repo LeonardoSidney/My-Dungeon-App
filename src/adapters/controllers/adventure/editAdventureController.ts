@@ -14,11 +14,12 @@ export class EditAdventureController implements IEditAdventureController {
 
     async handle (params: EditAdventureControllerParams): Promise<EditAdventureControllerResponse> {
         this.logger.info('Executing EditAdventureController::handle');
+        this.logger.debug('EditAdventureController::handle - params', params);
         const response = await this.useCase.execute(params);
 
         return {
             success: response.success,
-            adventure: response.adventure,
+            id: response.id,
             error: response.error
         };
     }

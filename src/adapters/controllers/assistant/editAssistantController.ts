@@ -14,12 +14,13 @@ export class EditAssistantController implements IEditAssistantController {
 
     async handle (params: EditAssistantControllerParams): Promise<EditAssistantControllerResponse> {
         this.logger.info('Executing EditAssistantController::handle');
+        this.logger.debug('EditAssistantController::handle - params', params);
         const response = await this.useCase.execute(params);
 
         return {
             success: response.success,
-            assistant: response.assistant,
-            error: response.error
+            id: response.id,
+            error: response.error,
         };
     }
 }

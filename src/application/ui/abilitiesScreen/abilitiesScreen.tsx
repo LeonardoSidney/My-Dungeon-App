@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Ability } from '@domain/entities';
+import { ActivationPromptDetails, ActivationPromptListItem } from '@domain/controllers';
 import { styles } from './styles';
 import { ActivationPromptForm, CrudEntityList, type ActivationPromptFormData } from '@application/ui/components';
 import { useEntityScreen } from '@application/ui/hooks';
@@ -9,7 +9,7 @@ import { abilityFormConfig } from './constants';
 import { initialAbilityForm, submitAbility, toFormState, validateAbilityForm } from './form';
 
 export function AbilitiesScreen () {
-  const { getAbilities, createAbility, editAbility, eraseAbility, alert } = useControllers();
+  const { getAbilities, getAbility, createAbility, editAbility, eraseAbility, alert } = useControllers();
 
   const {
     entities,
@@ -24,10 +24,11 @@ export function AbilitiesScreen () {
     formErrors,
     save,
     eraseEntity,
-  } = useEntityScreen<Ability, ActivationPromptFormData>({
+  } = useEntityScreen<ActivationPromptListItem, ActivationPromptFormData, ActivationPromptDetails>({
     fetch: () => getAbilities.handle(),
+    load: (id) => getAbility.handle({ id }),
     submit: (abilityForm) => submitAbility(abilityForm, createAbility, editAbility),
-    erase: (id) => eraseAbility.handle(id),
+    erase: (id) => eraseAbility.handle({ id }),
     toFormState,
     initialForm: initialAbilityForm,
     validate: validateAbilityForm,

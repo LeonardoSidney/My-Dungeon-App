@@ -4,5 +4,9 @@ export type EraseWorldUseCaseReturn = {
 };
 
 export interface IEraseWorldUseCase {
-    execute (worldId: string): Promise<EraseWorldUseCaseReturn>;
+    execute (params: EraseWorldUseCaseParams): Promise<EraseWorldUseCaseReturn>;
 }
+
+export type EraseWorldUseCaseParams = {
+    id: string;
+};

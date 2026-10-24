@@ -3,19 +3,26 @@ import {
     GetLocationsController,
     EditLocationController,
     EraseLocationController,
+    GetLocationController,
 } from '@adapters/controllers';
+import {
+    GetLocationPresenter,
+    GetLocationsPresenter,
+} from '@adapters/presenters';
 import { CreateLocationService, EditLocationService } from '@application/services';
 import {
     CreateLocationUseCase,
     GetLocationsUseCase,
     EditLocationUseCase,
     EraseLocationUseCase,
+    GetLocationByIdUseCase,
 } from '@application/use-cases';
 import {
     ICreateLocationController,
     IGetLocationsController,
     IEditLocationController,
     IEraseLocationController,
+    IGetLocationController,
 } from '@domain/controllers';
 import { idGenerate, logger, storage } from './shared';
 import { createLocationRepository } from './repository';
@@ -30,7 +37,7 @@ export function createLocationController (): ICreateLocationController {
 export function getLocationsController (): IGetLocationsController {
     const locationRepository = createLocationRepository(storage, logger);
     const getLocationsUseCase = new GetLocationsUseCase(logger, locationRepository);
-    return new GetLocationsController(logger, getLocationsUseCase);
+    return new GetLocationsController(logger, getLocationsUseCase, new GetLocationsPresenter());
 }
 
 export function editLocationController (): IEditLocationController {
@@ -44,4 +51,9 @@ export function eraseLocationController (): IEraseLocationController {
     const locationRepository = createLocationRepository(storage, logger);
     const eraseLocationUseCase = new EraseLocationUseCase(logger, locationRepository);
     return new EraseLocationController(logger, eraseLocationUseCase);
+}
+
+export function getLocationController (): IGetLocationController {
+    const useCase = new GetLocationByIdUseCase(logger, createLocationRepository(storage, logger));
+    return new GetLocationController(logger, useCase, new GetLocationPresenter());
 }

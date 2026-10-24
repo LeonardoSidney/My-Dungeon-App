@@ -1,11 +1,9 @@
-import { Adventure } from '../entities';
-
 export interface IGetAdventureSystemPromptUseCase {
     execute (params: GetAdventureSystemPromptUseCaseParams): Promise<GetAdventureSystemPromptUseCaseResponse>;
 }
 
 export type GetAdventureSystemPromptUseCaseParams = {
-    adventure: Adventure;
+    adventureId: string;
 };
 
 export type GetAdventureSystemPromptUseCaseResponse = {

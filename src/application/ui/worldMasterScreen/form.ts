@@ -1,5 +1,6 @@
-import { Assistant, WorldMaster } from '@domain/entities';
 import {
+    EntityOption,
+    WorldMasterDetails,
     CreateWorldMasterControllerParams,
     EditWorldMasterControllerParams,
     ICreateWorldMasterController,
@@ -8,7 +9,7 @@ import {
 import { ControllerResponse } from '@application/ui/hooks';
 import { FormErrors, WorldMasterFormData } from './constants';
 
-export function toWorldMasterFormState (worldMaster: WorldMaster, assistants: Assistant[]): WorldMasterFormData {
+export function toWorldMasterFormState (worldMaster: WorldMasterDetails, assistants: EntityOption[]): WorldMasterFormData {
     return {
         id: worldMaster.id,
         name: worldMaster.name,

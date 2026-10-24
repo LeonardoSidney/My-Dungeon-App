@@ -1,7 +1,6 @@
-import { Connection } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { IConnectionRepository } from '@domain/repository';
-import { IGetConnectionsUseCase } from '@domain/use-cases';
+import { GetConnectionsUseCaseReturn, IGetConnectionsUseCase } from '@domain/use-cases';
 
 export class GetConnectionsUseCase implements IGetConnectionsUseCase {
     constructor (
@@ -9,8 +8,15 @@ export class GetConnectionsUseCase implements IGetConnectionsUseCase {
         private readonly connectionRepository: IConnectionRepository
     ) { }
 
-    async execute (): Promise<Connection[]> {
+    async execute (): Promise<GetConnectionsUseCaseReturn> {
         this.logger.info('Executing GetConnectionsUseCase::execute');
-        return this.connectionRepository.getConnections();
+
+        const response = await this.connectionRepository.getConnections();
+        if (!response.success || !response.connections) {
+            this.logger.warning('GetConnectionsUseCase::execute - failed to load connections', response.error);
+            return { success: false, error: response.error };
+        }
+
+        return { success: true, connections: response.connections };
     }
 }

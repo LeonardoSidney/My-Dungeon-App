@@ -1,5 +1,5 @@
 import { ActivationPromptFormConfig } from '@application/ui/components';
-import { Model, Sampler } from '@domain/entities';
+import { EntityOption, ModelOption } from '@domain/controllers';
 
 export const assistantFormConfig: ActivationPromptFormConfig = {
     entityName: 'Assistant',
@@ -12,8 +12,8 @@ export type AssistantFormData = {
     activationWord: string;
     prompt: string;
     observation: string;
-    model: Model | null;
-    sampler: Sampler | null;
+    model: ModelOption | null;
+    sampler: EntityOption | null;
 };
 
 export type FormErrors = {

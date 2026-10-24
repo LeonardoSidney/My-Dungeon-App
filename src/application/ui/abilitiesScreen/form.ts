@@ -1,5 +1,5 @@
-import { Ability } from '@domain/entities';
 import {
+    ActivationPromptDetails,
     CreateAbilityControllerParams,
     EditAbilityControllerParams,
     ICreateAbilityController,
@@ -11,7 +11,7 @@ import {
 } from '@application/ui/components';
 import { ControllerResponse } from '@application/ui/hooks';
 
-export function toFormState (ability: Ability): ActivationPromptFormData {
+export function toFormState (ability: ActivationPromptDetails): ActivationPromptFormData {
     return {
         id: ability.id,
         name: ability.name,

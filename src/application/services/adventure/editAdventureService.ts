@@ -1,7 +1,7 @@
 import { Adventure } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { EditAdventureServiceParams, EditAdventureServiceReturn, IEditAdventureService } from '@domain/services';
-import { validateAdventureCharacterSelection } from '@application/shared/adventureCharacterRules';
+import { buildAdventureCharacterIds, validateAdventureCharacterSelection } from '@application/shared/adventureCharacterRules';
 
 export class EditAdventureService implements IEditAdventureService {
     constructor (
@@ -11,14 +11,32 @@ export class EditAdventureService implements IEditAdventureService {
     editAdventure (params: EditAdventureServiceParams): EditAdventureServiceReturn {
         this.logger.info('Executing EditAdventureService::editAdventure');
         const { adventure, editParams } = params;
-        const validationError = validateAdventureCharacterSelection(editParams, editParams.systemPromptIds.length);
+
+        const characterIds = buildAdventureCharacterIds({
+            playableCharacterIds: editParams.playableCharacterIds,
+            characterAsWorldMasterId: editParams.characterAsWorldMasterId,
+            charactersControlledByAi: editParams.aiControlledCharacterIds,
+        });
+        const roster = {
+            characterIds,
+            worldMasterId: editParams.worldMasterId,
+            characterAsWorldMasterId: editParams.characterAsWorldMasterId,
+            charactersControlledByAi: editParams.aiControlledCharacterIds,
+        };
+
+        const validationError = validateAdventureCharacterSelection(roster, editParams.systemPromptIds.length);
         if (validationError) {
             return { success: false, error: validationError };
         }
 
         const editedAdventure: Adventure = {
             ...adventure,
-            ...editParams,
+            name: editParams.name,
+            systemPromptIds: editParams.systemPromptIds,
+            ...roster,
+            worldIds: editParams.worldIds,
+            locationIds: editParams.locationIds,
+            itemIds: editParams.itemIds,
             updatedAt: new Date()
         };
 

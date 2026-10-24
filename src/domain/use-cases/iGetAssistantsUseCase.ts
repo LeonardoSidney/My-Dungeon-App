@@ -1,5 +1,11 @@
 import { Assistant } from '../entities';
 
 export interface IGetAssistantsUseCase {
-    execute(): Promise<Assistant[]>;
+    execute (): Promise<GetAssistantsUseCaseReturn>;
 }
+
+export type GetAssistantsUseCaseReturn = {
+    success: boolean;
+    assistants?: Assistant[];
+    error?: string;
+};

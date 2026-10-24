@@ -1,4 +1,4 @@
-import { EraseSamplerControllerResponse, IEraseSamplerController } from '@domain/controllers';
+import { EraseSamplerControllerResponse, IEraseSamplerController, EraseSamplerControllerRequest } from '@domain/controllers';
 import { ILogger } from '@domain/logger';
 import { EraseSamplerUseCaseReturn, IEraseSamplerUseCase } from '@domain/use-cases';
 
@@ -8,9 +8,10 @@ export class EraseSamplerController implements IEraseSamplerController {
         private useCase: IEraseSamplerUseCase
     ) { }
 
-    async handle (samplerId: string): Promise<EraseSamplerControllerResponse> {
+    async handle (request: EraseSamplerControllerRequest): Promise<EraseSamplerControllerResponse> {
         this.logger.info('Executing EraseSamplerController::handle');
-        const result: EraseSamplerUseCaseReturn = await this.useCase.execute(samplerId);
+        this.logger.debug('EraseSamplerController::handle - params', request);
+        const result: EraseSamplerUseCaseReturn = await this.useCase.execute(request);
         return { success: result.success, error: result.error };
     }
 }

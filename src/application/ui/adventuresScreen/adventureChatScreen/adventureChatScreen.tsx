@@ -1,19 +1,19 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { Adventure } from '@domain/entities';
+import { ChatMessageView } from '@domain/controllers';
 import { styles } from './styles';
 import { AdventureChat } from './adventureChat';
 import { AdventureChatSettings } from './adventureChatSettings/adventureChatSettings';
 import { MessageInput } from './messageInput';
 import { useAdventureChatState } from './hooks/useAdventureChatState';
-import { useHydratedAdventure } from './hooks/useHydratedAdventure';
+import { useAdventureCharacters, useAdventureSummary, useAdventureWorldMaster, useChatMessages } from './hooks/useAdventureChatQueries';
 import { useSettingsActions } from './hooks/useSettingsActions';
 import { useMessageActions } from './hooks/useMessageActions';
-import { useNavChatIndex } from './hooks/useNavChatIndex';
-import { useNavThinkIndex } from './hooks/useNavThinkIndex';
+import { useNavVersionIndex } from './hooks/useNavVersionIndex';
 import { useMessageEditing } from './hooks/useMessageEditing';
 import { useThinkEditing } from './hooks/useThinkEditing';
 import { useThinkActions } from './hooks/useThinkActions';
+import { useReloadMessages } from './hooks/useReloadMessages';
 import { useSelectionActions } from './hooks/useSelectionActions';
 import { useKeyboardLift } from './hooks/useKeyboardLift';
 import { useAdventureStreaming } from './useAdventureStreaming';
@@ -21,21 +21,20 @@ import { useAdventureChatScreenLogic } from './useAdventureChatScreenLogic';
 import { AdventureChatContentProps, AdventureChatScreenProps } from './constants';
 import { colors } from '../../theme';
 
-function AdventureChatContent ({ currentAdventure, setCurrentAdventure, hydrated, hydratedRef, onBack, controllers }: AdventureChatContentProps) {
-  const hydratedCharacters = hydrated.characters;
-  const { createChatAdventure, appendChatAdventure, editChatAdventure, deleteChatAdventure, continueFromChat, regenerateFromChat, resendChat, startStreamingChat, updateStreamingChat, finishStreamingChat, getAdventureText, getNativeStreamCompletion, alert, editThinkAdventure, deleteThinkAdventure } = controllers;
+function AdventureChatContent ({ adventureId, adventureName, characters, worldMaster, messages, setMessages, updateMessages, reloadWorldMaster, onBack, controllers }: AdventureChatContentProps) {
+  const { appendChatAdventure, addChatVersion, deleteChatAdventure, deleteChatVersion, continueFromChat, regenerateFromChat, resendChat, generateChatReply, getChatMessages, getChatMessage, stopChatReply, subscribeChatReply, alert, addThinkVersion, deleteThinkVersion, selectChatVersion } = controllers;
   const keyboardHeight = useKeyboardLift();
 
   const characterNameById = useMemo(() => {
     const map: Record<string, string> = {};
-    for (const character of hydratedCharacters) {
+    for (const character of characters) {
       map[character.id] = character.name;
     }
-    if (hydrated.worldMaster) {
-      map[hydrated.worldMaster.id] = hydrated.worldMaster.name;
+    if (worldMaster) {
+      map[worldMaster.id] = worldMaster.name;
     }
     return map;
-  }, [hydratedCharacters, hydrated.worldMaster]);
+  }, [characters, worldMaster]);
 
   const {
     message,
@@ -44,7 +43,9 @@ function AdventureChatContent ({ currentAdventure, setCurrentAdventure, hydrated
     setMessage,
     setSelectedCharacter,
     setShowSettings
-  } = useAdventureChatState({ hydratedCharacters });
+  } = useAdventureChatState({ characters });
+
+  const reloadMessages = useReloadMessages(adventureId, getChatMessages, setMessages);
 
   const { editingChatIdRef, isEditing, onStartEdit, clearEditing } = useMessageEditing();
 
@@ -60,93 +61,80 @@ function AdventureChatContent ({ currentAdventure, setCurrentAdventure, hydrated
     handleContinueFromMessage,
     handleStopStreaming
   } = useAdventureStreaming({
-    currentAdventure,
+    adventureId,
     selectedCharacter,
     message,
-    setCurrentAdventure,
+    setMessages,
+    updateMessages,
     setMessage,
-    hydratedRef,
     editingChatIdRef,
     clearEditing,
-    createChatAdventure,
     appendChatAdventure,
-    editChatAdventure,
-    startStreamingChat,
-    updateStreamingChat,
-    finishStreamingChat,
-    deleteChatAdventure,
-    getAdventureText,
-    getNativeStreamCompletion,
+    addChatVersion,
     continueFromChat,
     regenerateFromChat,
     resendChat,
+    generateChatReply,
+    getChatMessages,
+    getChatMessage,
+    stopChatReply,
+    subscribeChatReply,
     alert
   });
 
   const handleSaveEdit = useCallback(
     async (chatId: string, content: string) => {
       if (!editingChatIdRef.current || !content.trim()) return;
-      const chat = currentAdventure.chat.find(c => c.id === chatId);
-      if (!chat) return;
 
-      const response = await editChatAdventure.handle({
-        adventure: currentAdventure,
-        chatId,
-        content,
-        role: chat.role,
-        characterId: chat.characterId,
-      });
+      const response = await addChatVersion.handle({ adventureId, chatId, content });
 
-      if (!response.success || !response.adventure) {
+      if (!response.success) {
         alert.handle({ title: 'Erro', message: response.error ?? 'Failed to save message edit' });
         return;
       }
 
-      setCurrentAdventure(response.adventure);
       clearEditing();
       setMessage('');
+      await reloadMessages();
     },
-    [editingChatIdRef, currentAdventure, setCurrentAdventure, clearEditing, setMessage, editChatAdventure, alert]
+    [editingChatIdRef, adventureId, reloadMessages, clearEditing, setMessage, addChatVersion, alert]
   );
 
   const handleSaveThinkEdit = useCallback(
     async (chatId: string, content: string) => {
       if (!editingThinkChatIdRef.current || !content.trim()) return;
 
-      const response = await editThinkAdventure.handle({
-        adventure: currentAdventure,
-        chatId,
-        content
-      });
+      const response = await addThinkVersion.handle({ adventureId, chatId, content });
 
-      if (!response.success || !response.adventure) {
+      if (!response.success) {
         alert.handle({ title: 'Erro', message: response.error ?? 'Failed to save think edit' });
         return;
       }
 
-      setCurrentAdventure(response.adventure);
       clearThinkEditing();
+      await reloadMessages();
     },
-    [editingThinkChatIdRef, currentAdventure, setCurrentAdventure, clearThinkEditing, editThinkAdventure, alert]
+    [editingThinkChatIdRef, adventureId, reloadMessages, clearThinkEditing, addThinkVersion, alert]
   );
 
   const {
     onDeleteThink
   } = useThinkActions({
-    currentAdventure,
-    setCurrentAdventure,
-    deleteThinkAdventure,
+    adventureId,
+    messages,
+    reloadMessages,
+    deleteThinkVersion,
     alert
   });
 
-  const onNavigateThinkIndex = useNavThinkIndex({
-    currentAdventure,
-    setCurrentAdventure
+  const onNavigateThinkIndex = useNavVersionIndex({
+    adventureId,
+    kind: 'think',
+    reloadMessages,
+    selectChatVersion
   });
 
-  const { scrollViewRef, showScrollToBottom, handleScroll, handleScrollToBottom } = useAdventureChatScreenLogic(
-    currentAdventure
-  );
+  const { scrollViewRef, showScrollToBottom, handleScroll, handleScrollToBottom } = useAdventureChatScreenLogic(messages);
 
   const {
     handleSettingsClick,
@@ -159,27 +147,25 @@ function AdventureChatContent ({ currentAdventure, setCurrentAdventure, hydrated
     onDeleteMessage,
     handleKeyPress
   } = useMessageActions({
-    currentAdventure,
-    setCurrentAdventure,
+    adventureId,
+    messages,
+    reloadMessages,
     deleteChatAdventure,
+    deleteChatVersion,
     setMessage,
     message,
     handleSendMessage,
     alert
   });
 
-  const onNavigateChatIndex = useNavChatIndex({
-    currentAdventure,
-    setCurrentAdventure
+  const onNavigateChatIndex = useNavVersionIndex({
+    adventureId,
+    kind: 'content',
+    reloadMessages,
+    selectChatVersion
   });
 
-  const {
-    handleWorldMasterSelect,
-    handleCharacterSelect
-  } = useSelectionActions({
-    setCurrentAdventure,
-    setSelectedCharacter
-  });
+  const { handleCharacterSelect } = useSelectionActions({ setSelectedCharacter });
 
   const isStreamingActive = isStreaming;
   const sendButtonOnPress = isStreamingActive ? handleStopStreaming : handleSendMessage;
@@ -190,8 +176,10 @@ function AdventureChatContent ({ currentAdventure, setCurrentAdventure, hydrated
     return (
       <AdventureChatSettings
         onBack={handleBackFromSettings}
-        adventure={currentAdventure}
-        onWorldMasterSelect={handleWorldMasterSelect}
+        adventureId={adventureId}
+        adventureName={adventureName}
+        worldMaster={worldMaster ?? undefined}
+        onWorldMasterChange={reloadWorldMaster}
         controllers={controllers}
       />
     );
@@ -203,7 +191,7 @@ function AdventureChatContent ({ currentAdventure, setCurrentAdventure, hydrated
         <TouchableOpacity onPress={onBack}>
           <Text style={styles.headerText}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{currentAdventure.name}</Text>
+        <Text style={styles.headerTitle}>{adventureName}</Text>
         <TouchableOpacity onPress={handleSettingsClick}>
           <Text style={styles.headerText}>settings</Text>
         </TouchableOpacity>
@@ -219,8 +207,7 @@ function AdventureChatContent ({ currentAdventure, setCurrentAdventure, hydrated
           showsVerticalScrollIndicator={false}
         >
           <AdventureChat
-            chats={currentAdventure.chat}
-            streamingChat={null}
+            messages={messages}
             characterNameById={characterNameById}
             onDeleteMessage={onDeleteMessage}
             isMessageEditing={isEditing}
@@ -256,7 +243,7 @@ function AdventureChatContent ({ currentAdventure, setCurrentAdventure, hydrated
         isStreaming={isStreamingActive}
         onSend={sendButtonOnPress}
         onResend={handleResend}
-        characters={hydratedCharacters}
+        characters={characters}
         selectedCharacterId={selectedCharacter.id}
         onCharacterSelect={handleCharacterSelect}
       />
@@ -265,28 +252,44 @@ function AdventureChatContent ({ currentAdventure, setCurrentAdventure, hydrated
 }
 
 export function AdventureChatScreen (params: AdventureChatScreenProps) {
-  const { adventure, onBack, controllers } = params;
-  const { hydrateAdventure } = controllers;
-  const [currentAdventure, setCurrentAdventure] = useState<Adventure>(adventure);
-  const { hydrated, hydratedRef, hydratedError } = useHydratedAdventure({ adventure: currentAdventure, hydrateAdventure });
+  const { adventureId, onBack, controllers } = params;
+  const summary = useAdventureSummary(adventureId, controllers.getAdventureSummary);
+  const characters = useAdventureCharacters(adventureId, controllers.getAdventureCharacters);
+  const worldMaster = useAdventureWorldMaster(adventureId, controllers.getAdventureWorldMaster);
+  const chatMessages = useChatMessages(adventureId, controllers.getChatMessages);
+  const error = summary.error ?? characters.error ?? worldMaster.error ?? chatMessages.error;
+  const { setData: setChatMessages } = chatMessages;
 
-  if (hydrated) {
+  const setMessages = useCallback((messages: ChatMessageView[]) => {
+    setChatMessages(messages);
+  }, [setChatMessages]);
+
+  const updateMessages = useCallback((update: (messages: ChatMessageView[]) => ChatMessageView[]) => {
+    setChatMessages(current => (current ? update(current) : current));
+  }, [setChatMessages]);
+
+  const isLoaded = summary.isLoaded && characters.isLoaded && worldMaster.isLoaded && chatMessages.isLoaded;
+  if (isLoaded && summary.data && characters.data && chatMessages.data) {
     return (
       <AdventureChatContent
-        currentAdventure={currentAdventure}
-        setCurrentAdventure={setCurrentAdventure}
-        hydrated={hydrated}
-        hydratedRef={hydratedRef}
+        adventureId={adventureId}
+        adventureName={summary.data.name}
+        characters={characters.data}
+        worldMaster={worldMaster.data}
+        messages={chatMessages.data}
+        setMessages={setMessages}
+        updateMessages={updateMessages}
+        reloadWorldMaster={worldMaster.reload}
         onBack={onBack}
         controllers={controllers}
       />
     );
   }
 
-  if (hydratedError) {
+  if (error) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={styles.errorText}>{hydratedError}</Text>
+        <Text style={styles.errorText}>{error}</Text>
         <TouchableOpacity onPress={onBack}>
           <Text style={styles.headerText}>← Back</Text>
         </TouchableOpacity>

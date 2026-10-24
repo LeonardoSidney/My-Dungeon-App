@@ -1,5 +1,7 @@
-import { Ability } from '../entities';
+import { ListControllerResponse, ActivationPromptListItem } from './iCrudControllerResponses';
 
 export interface IGetAbilitiesController {
-    handle(): Promise<Ability[]>;
+    handle (): Promise<GetAbilitiesControllerResponse>;
 }
+
+export type GetAbilitiesControllerResponse = ListControllerResponse<ActivationPromptListItem>;

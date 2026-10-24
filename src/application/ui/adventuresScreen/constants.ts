@@ -1,45 +1,49 @@
-import { Character, Chat, SystemPrompt, WorldMaster, World, Location, Item } from '@domain/entities';
 import {
+    EntityOption,
     IAppendChatAdventureController,
-    ICreateChatAdventureController,
-    IEditChatAdventureController,
+    IAddChatVersionController,
     IDeleteChatAdventureController,
-    IEditThinkAdventureController,
-    IDeleteThinkAdventureController,
+    IDeleteChatVersionController,
+    IAddThinkVersionController,
+    IDeleteThinkVersionController,
     IContinueFromChatController,
     IRegenerateFromChatController,
     IResendChatController,
-    IEditAdventureController,
-    IFinishStreamingChatController,
-    IGetAdventureTextController,
-    IGetAdventuresController,
-    INativeStreamCompletionController,
+    IGenerateChatReplyController,
     IGetWorldMastersController,
-    IHydrateAdventureController,
-    IStartStreamingChatController,
-    IUpdateStreamingChatController,
     IAlertController,
+    ISelectChatVersionController,
+    ISetAdventureWorldMasterController,
+    IGetAdventureSummaryController,
+    IGetAdventureCharactersController,
+    IGetAdventureWorldMasterController,
+    IGetChatMessagesController,
+    IGetChatMessageController,
+    IStopChatReplyController,
+    ISubscribeChatReplyController,
 } from '@domain/controllers';
 
 export interface AdventureChatScreenControllers {
-    getAdventures: IGetAdventuresController;
-    editAdventure: IEditAdventureController;
-    hydrateAdventure: IHydrateAdventureController;
-    createChatAdventure: ICreateChatAdventureController;
+    getAdventureSummary: IGetAdventureSummaryController;
+    getAdventureCharacters: IGetAdventureCharactersController;
+    getAdventureWorldMaster: IGetAdventureWorldMasterController;
+    getChatMessages: IGetChatMessagesController;
+    getChatMessage: IGetChatMessageController;
+    stopChatReply: IStopChatReplyController;
+    subscribeChatReply: ISubscribeChatReplyController;
     appendChatAdventure: IAppendChatAdventureController;
-    editChatAdventure: IEditChatAdventureController;
+    addChatVersion: IAddChatVersionController;
     deleteChatAdventure: IDeleteChatAdventureController;
-    editThinkAdventure: IEditThinkAdventureController;
-    deleteThinkAdventure: IDeleteThinkAdventureController;
+    deleteChatVersion: IDeleteChatVersionController;
+    addThinkVersion: IAddThinkVersionController;
+    deleteThinkVersion: IDeleteThinkVersionController;
     continueFromChat: IContinueFromChatController;
     regenerateFromChat: IRegenerateFromChatController;
     resendChat: IResendChatController;
-    startStreamingChat: IStartStreamingChatController;
-    updateStreamingChat: IUpdateStreamingChatController;
-    finishStreamingChat: IFinishStreamingChatController;
-    getAdventureText: IGetAdventureTextController;
-    getNativeStreamCompletion: INativeStreamCompletionController;
+    generateChatReply: IGenerateChatReplyController;
+    selectChatVersion: ISelectChatVersionController;
     getWorldMasters: IGetWorldMastersController;
+    setAdventureWorldMaster: ISetAdventureWorldMasterController;
     alert: IAlertController;
 }
 
@@ -56,13 +60,12 @@ export type FormErrors = {
 export type AdventureFormData = {
     id?: string;
     name: string;
-    systemPrompts: SystemPrompt[];
-    characters: Character[];
-    worldMaster?: WorldMaster;
+    systemPrompts: EntityOption[];
+    characters: EntityOption[];
+    worldMaster?: EntityOption;
     characterAsWorldMasterId?: string;
     charactersControlledByAi: string[];
-    worlds?: World[];
-    locations?: Location[];
-    items?: Item[];
-    chat: Chat[];
+    worlds?: EntityOption[];
+    locations?: EntityOption[];
+    items?: EntityOption[];
 };

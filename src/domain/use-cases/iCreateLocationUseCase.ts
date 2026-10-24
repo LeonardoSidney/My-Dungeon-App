@@ -1,4 +1,3 @@
-import { Location } from '../entities';
 
 export interface ICreateLocationUseCase {
     execute(request: CreateLocationUseCaseParams): Promise<CreateLocationUseCaseResponse>;
@@ -13,6 +12,6 @@ export type CreateLocationUseCaseParams = {
 
 export type CreateLocationUseCaseResponse = {
     success: boolean;
-    location?: Location;
+    id?: string;
     error?: string;
 };

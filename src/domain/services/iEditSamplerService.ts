@@ -4,7 +4,7 @@ export interface IEditSamplerService {
     editSampler (request: EditSamplerServiceParams): EditSamplerServiceReturn;
 }
 
-export type SamplerEditParams = Omit<Sampler, 'id' | 'createdAt' | 'updatedAt'>;
+export type SamplerEditParams = Omit<Sampler, 'id' | 'createdAt' | 'updatedAt' | 'systemDefault'>;
 
 export type EditSamplerServiceParams = {
     sampler: Sampler;

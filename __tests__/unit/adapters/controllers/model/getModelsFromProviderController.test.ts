@@ -60,7 +60,7 @@ describe('GetModelsFromProviderController', () => {
             models: mockModels
         });
 
-        await controller.handle({ connection: mockConnection });
+        await controller.handle({ connectionId: mockConnection.id });
 
         expect(mockLogger.info).toHaveBeenCalledWith('Executing GetModelsFromProviderController::handle');
     });
@@ -91,9 +91,9 @@ describe('GetModelsFromProviderController', () => {
             models: mockModels
         });
 
-        await controller.handle({ connection: mockConnection });
+        await controller.handle({ connectionId: mockConnection.id });
 
-        expect(mockUseCase.execute).toHaveBeenCalledWith({ connection: mockConnection });
+        expect(mockUseCase.execute).toHaveBeenCalledWith({ connectionId: mockConnection.id });
     });
 
     it('should return models when use case succeeds', async () => {
@@ -129,7 +129,7 @@ describe('GetModelsFromProviderController', () => {
             models: mockModels
         });
 
-        const response = await controller.handle({ connection: mockConnection });
+        const response = await controller.handle({ connectionId: mockConnection.id });
 
         expect(response.success).toBe(true);
         expect(response.models).toEqual(mockModels);
@@ -152,7 +152,7 @@ describe('GetModelsFromProviderController', () => {
             error: 'Connection failed'
         });
 
-        const response = await controller.handle({ connection: mockConnection });
+        const response = await controller.handle({ connectionId: mockConnection.id });
 
         expect(response.success).toBe(false);
         expect(response.models).toBeUndefined();
@@ -175,9 +175,9 @@ describe('GetModelsFromProviderController', () => {
             models: []
         });
 
-        await controller.handle({ connection: mockConnection });
+        await controller.handle({ connectionId: mockConnection.id });
 
         expect(mockUseCase.execute).toHaveBeenCalledTimes(1);
-        expect(mockUseCase.execute).toHaveBeenCalledWith({ connection: mockConnection });
+        expect(mockUseCase.execute).toHaveBeenCalledWith({ connectionId: mockConnection.id });
     });
 });

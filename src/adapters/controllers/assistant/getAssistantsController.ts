@@ -1,16 +1,24 @@
-import { IGetAssistantsController } from '@domain/controllers';
-import { Assistant } from '@domain/entities';
+import { GetAssistantsControllerResponse, IGetAssistantsController } from '@domain/controllers';
 import { ILogger } from '@domain/logger';
+import { IGetAssistantsPresenter } from '@domain/presenters';
 import { IGetAssistantsUseCase } from '@domain/use-cases';
 
 export class GetAssistantsController implements IGetAssistantsController {
     constructor (
-        private logger: ILogger,
-        private useCase: IGetAssistantsUseCase
+        private readonly logger: ILogger,
+        private readonly useCase: IGetAssistantsUseCase,
+        private readonly presenter: IGetAssistantsPresenter
     ) { }
 
-    async handle (): Promise<Assistant[]> {
+    async handle (): Promise<GetAssistantsControllerResponse> {
         this.logger.info('Executing GetAssistantsController::handle');
-        return this.useCase.execute();
+
+        const response = await this.useCase.execute();
+
+        return {
+            success: response.success,
+            items: response.assistants && this.presenter.present(response.assistants),
+            error: response.error,
+        };
     }
 }

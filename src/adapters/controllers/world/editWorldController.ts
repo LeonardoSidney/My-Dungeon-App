@@ -14,12 +14,13 @@ export class EditWorldController implements IEditWorldController {
 
     async handle (params: EditWorldControllerParams): Promise<EditWorldControllerResponse> {
         this.logger.info('Executing EditWorldController::handle');
+        this.logger.debug('EditWorldController::handle - params', params);
         const response = await this.useCase.execute(params);
 
         return {
             success: response.success,
-            world: response.world,
-            error: response.error
+            id: response.id,
+            error: response.error,
         };
     }
 }

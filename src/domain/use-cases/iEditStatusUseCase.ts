@@ -1,4 +1,3 @@
-import { Status } from '../entities';
 import { StatusEditParams } from '../services';
 
 export interface IEditStatusUseCase {
@@ -11,7 +10,7 @@ export type EditStatusParams = {
 };
 
 export type EditStatusReturn = {
-    status?: Status;
+    id?: string;
     success: boolean;
     error?: string;
 };

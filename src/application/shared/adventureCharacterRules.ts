@@ -1,7 +1,6 @@
 import {
     MINIMUM_NUMBER_SYSTEM_PROMPT,
     MINIMUM_PLAYABLE_CHARACTERS,
-    MINIMUM_PLAYABLE_CHARACTERS_WITHOUT_WM,
 } from '@domain/constants/adventure';
 
 export type AdventureCharacterFields = {
@@ -93,13 +92,8 @@ export function validateAdventureCharacterSelection (
         return `You need at least ${MINIMUM_PLAYABLE_CHARACTERS} playable character`;
     }
 
-    if (!worldMasterId) {
-        if (!characterAsWorldMasterId) {
-            return 'An adventure without a world master needs a character acting as world master';
-        }
-        if (summary.nonAiCharacterCount < MINIMUM_PLAYABLE_CHARACTERS_WITHOUT_WM) {
-            return `You need at least ${MINIMUM_PLAYABLE_CHARACTERS_WITHOUT_WM} characters in an adventure without a world master`;
-        }
+    if (!worldMasterId && !characterAsWorldMasterId) {
+        return 'An adventure without a world master needs a character acting as world master';
     }
 
     return null;

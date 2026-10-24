@@ -9,12 +9,13 @@ export class CreateSamplerController implements ICreateSamplerController {
     ) { }
     async handle (params: CreateSamplerControllerParams): Promise<CreateSamplerControllerResponse> {
         this.logger.info('Executing CreateSamplerController::handle');
+        this.logger.debug('CreateSamplerController::handle - params', params);
         const response = await this.useCase.execute(params);
 
         return {
             success: response.success,
-            sampler: response.sampler,
-            error: response.error
+            id: response.id,
+            error: response.error,
         };
     }
 }

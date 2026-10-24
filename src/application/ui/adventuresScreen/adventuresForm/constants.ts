@@ -1,5 +1,5 @@
 import { AdventureFormData, FormErrors } from '../constants';
-import { Character, SystemPrompt, WorldMaster, World, Location, Item } from '@domain/entities';
+import { EntityOption } from '@domain/controllers';
 
 export type AdventuresFormOptionErrors = {
     systemPrompts?: string;
@@ -17,11 +17,11 @@ export interface AdventuresFormProps {
     onCancel: () => void;
     onSave: () => Promise<void>;
     formErrors: FormErrors;
-    characters: Character[];
-    systemPrompts: SystemPrompt[];
-    worldMasters: WorldMaster[];
-    worlds: World[];
-    locations: Location[];
-    items: Item[];
+    characters: EntityOption[];
+    systemPrompts: EntityOption[];
+    worldMasters: EntityOption[];
+    worlds: EntityOption[];
+    locations: EntityOption[];
+    items: EntityOption[];
     optionErrors: AdventuresFormOptionErrors;
 }

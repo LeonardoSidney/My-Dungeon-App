@@ -7,6 +7,7 @@ import {
 import { ICreateAssistantService, IGetSamplersService } from '@domain/services';
 import { CreateAssistantUseCaseParams, CreateAssistantUseCaseResponse, ICreateAssistantUseCase } from '@domain/use-cases';
 import { createSamplerResolver } from '@application/shared/resolveSampler';
+import { REFERENCED_ENTITIES } from '@domain/constants/referencedEntities';
 import { checkReferencedId } from '@application/shared/validateReferencedIds';
 
 export class CreateAssistantUseCase implements ICreateAssistantUseCase {
@@ -55,7 +56,13 @@ export class CreateAssistantUseCase implements ICreateAssistantUseCase {
             };
         }
 
-        const assistants = await this.assistantRepository.getAssistants();
+        const assistantsResponse = await this.assistantRepository.getAssistants();
+        if (!assistantsResponse.success || !assistantsResponse.assistants) {
+            this.logger.warning('CreateAssistantUseCase::execute - failed to load assistants', assistantsResponse.error);
+            return { success: false, error: assistantsResponse.error };
+        }
+
+        const assistants = assistantsResponse.assistants;
         this.logger.debug('Execute CreateAssistantUseCase::execute - assistants: ', assistants);
         const alreadyExists = assistants.some((assistant) => assistant.name === name);
 
@@ -67,28 +74,32 @@ export class CreateAssistantUseCase implements ICreateAssistantUseCase {
             };
         }
 
-        await this.assistantRepository.saveAssistant({ assistant: response.assistant });
+        const saveResult = await this.assistantRepository.saveAssistant({ assistant: response.assistant });
+        if (!saveResult.success) {
+            this.logger.warning('CreateAssistantUseCase::execute - failed to save assistant', saveResult.error);
+            return { success: false, error: saveResult.error };
+        }
 
         return {
             success: true,
-            assistant: response.assistant
+            id: response.assistant.id
         };
     }
 
     private async validateReferencedIds (params: CreateAssistantUseCaseParams): Promise<string | null> {
         const resolveSampler = createSamplerResolver(this.samplerRepository, this.getSamplersService);
         const samplerError = await checkReferencedId(
-            (id) => resolveSampler(id),
-            params.samplerId,
-            'Sampler'
+            (id: string) => resolveSampler(id),
+            REFERENCED_ENTITIES.SAMPLER,
+            params.samplerId
         );
         if (samplerError) {
             return samplerError;
         }
         return checkReferencedId(
-            (id) => this.connectionRepository.getConnectionById(id),
-            params.connectionId,
-            'Connection'
+            (id: string) => this.connectionRepository.getConnectionById(id),
+            REFERENCED_ENTITIES.CONNECTION,
+            params.connectionId
         );
     }
 }

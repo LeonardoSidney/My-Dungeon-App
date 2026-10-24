@@ -27,6 +27,7 @@ module.exports = {
         '!src/**/ui/**',
         '!src/**/styles.ts',
         '!src/**/constants.ts',
+        '!src/domain/constants/**',
         '!src/**/navigation/**',
         '!src/App.tsx',
         '!src/migration.ts',

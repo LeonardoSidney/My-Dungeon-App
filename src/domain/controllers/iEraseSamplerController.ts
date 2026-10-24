@@ -1,8 +1,12 @@
 export interface IEraseSamplerController {
-    handle (samplerId: string): Promise<EraseSamplerControllerResponse>;
+    handle (request: EraseSamplerControllerRequest): Promise<EraseSamplerControllerResponse>;
 }
 
 export type EraseSamplerControllerResponse = {
     success: boolean;
     error?: string;
+};
+
+export type EraseSamplerControllerRequest = {
+    id: string;
 };

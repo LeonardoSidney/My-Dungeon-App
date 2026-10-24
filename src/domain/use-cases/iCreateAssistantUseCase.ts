@@ -1,4 +1,3 @@
-import { Assistant } from '../entities';
 
 export interface ICreateAssistantUseCase {
     execute (params: CreateAssistantUseCaseParams): Promise<CreateAssistantUseCaseResponse>;
@@ -14,6 +13,6 @@ export type CreateAssistantUseCaseParams = {
 
 export type CreateAssistantUseCaseResponse = {
     success: boolean;
-    assistant?: Assistant;
+    id?: string;
     error?: string;
 };

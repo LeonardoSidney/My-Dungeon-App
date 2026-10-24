@@ -1,4 +1,4 @@
-import { EraseProficiencyControllerResponse, IEraseProficiencyController } from '@domain/controllers';
+import { EraseProficiencyControllerResponse, IEraseProficiencyController, EraseProficiencyControllerRequest } from '@domain/controllers';
 import { ILogger } from '@domain/logger';
 import { IEraseProficiencyUseCase, EraseProficiencyUseCaseReturn } from '@domain/use-cases';
 
@@ -8,9 +8,10 @@ export class EraseProficiencyController implements IEraseProficiencyController {
         private useCase: IEraseProficiencyUseCase
     ) { }
 
-    async handle (proficiencyId: string): Promise<EraseProficiencyControllerResponse> {
+    async handle (request: EraseProficiencyControllerRequest): Promise<EraseProficiencyControllerResponse> {
         this.logger.info('Executing EraseProficiencyController::handle');
-        const result: EraseProficiencyUseCaseReturn = await this.useCase.execute(proficiencyId);
+        this.logger.debug('EraseProficiencyController::handle - params', request);
+        const result: EraseProficiencyUseCaseReturn = await this.useCase.execute(request);
         return { success: result.success, error: result.error };
     }
 }

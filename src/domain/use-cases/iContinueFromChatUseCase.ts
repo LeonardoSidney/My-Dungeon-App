@@ -5,7 +5,7 @@ export interface IContinueFromChatUseCase {
 }
 
 export type ContinueFromChatUseCaseParams = {
-    adventure: Adventure;
+    adventureId: string;
     chatId: string;
 };
 

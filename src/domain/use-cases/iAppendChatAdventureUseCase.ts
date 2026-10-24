@@ -1,16 +1,15 @@
-import { Adventure, Chat } from '../entities';
-
 export interface IAppendChatAdventureUseCase {
-    execute(params: AppendChatUseCaseParams): Promise<AppendChatUseCaseReturn>;
+    execute (params: AppendChatUseCaseParams): Promise<AppendChatUseCaseReturn>;
 }
 
 export type AppendChatUseCaseParams = {
-    adventure: Adventure;
-    message: Chat;
+    adventureId: string;
+    characterId: string;
+    content: string;
 };
 
 export type AppendChatUseCaseReturn = {
     success: boolean;
-    adventure?: Adventure;
+    id?: string;
     error?: string;
 };

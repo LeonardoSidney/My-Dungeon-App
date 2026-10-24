@@ -4,10 +4,11 @@ import { useSelectWorldMaster } from './useSelectWorldMaster';
 import { UseWorldMasterDropdownParams } from './constants';
 
 export function useWorldMasterDropdown ({
-    adventure,
-    onWorldMasterSelect,
+    adventureId,
+    worldMasterId,
+    onWorldMasterChange,
     getWorldMasters,
-    editAdventure,
+    setAdventureWorldMaster,
     alert
 }: UseWorldMasterDropdownParams) {
     const {
@@ -21,17 +22,17 @@ export function useWorldMasterDropdown ({
     } = useDropdownVisibility();
 
     const { handleAddWorldMaster } = useAddWorldMaster({
-        adventureWorldMasterId: adventure.worldMasterId,
+        adventureWorldMasterId: worldMasterId,
         setWorldMasters,
         startAdding,
         getWorldMasters
     });
 
     const { handleWorldMasterSelect } = useSelectWorldMaster({
-        adventure,
-        onWorldMasterSelect,
+        adventureId,
+        onWorldMasterChange,
         closeList,
-        editAdventure,
+        setAdventureWorldMaster,
         alert
     });
 

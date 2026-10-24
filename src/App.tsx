@@ -27,6 +27,7 @@ import {
 import type { SidebarRoute } from '@application/ui/sidebarPanel';
 import { RootLayout, type RootParamList } from '@application/ui/navigation';
 import { runSeed } from './migration';
+import { HOME_DRAFT_ID } from '@domain/constants/draft';
 
 const { Navigator, Screen } = createNativeStackNavigator<RootParamList>();
 
@@ -52,20 +53,35 @@ function App () {
   const [prompt, setPrompt] = useState<string>('Seélokomeu');
   const [isChatVisible, setIsChatVisible] = useState(false);
   const controllers = useMemo(() => buildControllers(), []);
-  const alert = controllers.alert;
+  const { alert, recoverInterruptedReplies, saveDraft } = controllers;
 
   useEffect(() => {
-    runSeed()
-      .then((textPrompt) => {
-        if (textPrompt) {
-          setPrompt(textPrompt);
-        }
-      })
-      .catch((error: unknown) => {
-        const message = error instanceof Error ? error.message : 'Failed to seed data';
-        alert.handle({ title: 'Erro', message });
-      });
-  }, [alert]);
+    const seed = async () => {
+      const response = await runSeed();
+      if (!response.success) {
+        alert.handle({ title: 'Erro', message: response.error ?? 'Failed to seed data' });
+        return;
+      }
+
+      if (!response.prompt) {
+        return;
+      }
+
+      const saved = await saveDraft.handle({ draftId: HOME_DRAFT_ID, content: response.prompt, onlyIfMissing: true });
+      if (!saved.success) {
+        alert.handle({ title: 'Erro', message: saved.error ?? 'Failed to save the initial draft' });
+      }
+    };
+
+    const recoverReplies = async () => {
+      const response = await recoverInterruptedReplies.handle();
+      if (!response.success) {
+        alert.handle({ title: 'Erro', message: response.error ?? 'Failed to recover interrupted replies' });
+      }
+    };
+
+    seed().then(recoverReplies);
+  }, [alert, recoverInterruptedReplies, saveDraft]);
 
   const renderHome = useCallback(() => (
     <HomeScreen

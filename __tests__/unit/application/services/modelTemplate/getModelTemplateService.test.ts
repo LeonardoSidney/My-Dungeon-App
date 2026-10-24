@@ -12,10 +12,10 @@ const mockLogger: ILogger = {
     log: jest.fn()
 };
 
-function buildService (props: unknown): { service: GetModelTemplateService; idGenerator: IIdGenerator; hashProvider: IHashProvider; } {
+function buildService (props: unknown): { service: GetModelTemplateService; gateway: IModelProviderGateway; idGenerator: IIdGenerator; hashProvider: IHashProvider; } {
     const mockGateway: IModelProviderGateway = {
         getModels: jest.fn(),
-        getProps: jest.fn().mockResolvedValue(props),
+        getProps: jest.fn().mockResolvedValue(props === null ? { success: true } : { success: true, props }),
         applyTemplate: jest.fn(),
         streamCompletion: jest.fn()
     };
@@ -25,7 +25,7 @@ function buildService (props: unknown): { service: GetModelTemplateService; idGe
 
     const service = new GetModelTemplateService(mockLogger, mockGateway, idGenerator, hashProvider);
 
-    return { service, idGenerator, hashProvider };
+    return { service, gateway: mockGateway, idGenerator, hashProvider };
 }
 
 describe('GetModelTemplateService', () => {
@@ -56,6 +56,15 @@ describe('GetModelTemplateService', () => {
         const result = await service.fetchModelTemplate({ connection: createConnectionHelper(), modelId: 'model-a' });
 
         expect(result).toEqual({ success: false, error: 'props response was empty' });
+    });
+
+    it('fails with the gateway error when props cannot be fetched', async () => {
+        const { service, gateway } = buildService(null);
+        (gateway.getProps as jest.Mock).mockResolvedValue({ success: false, error: 'getProps failed with status 500: boom' });
+
+        const result = await service.fetchModelTemplate({ connection: createConnectionHelper(), modelId: 'model-a' });
+
+        expect(result).toEqual({ success: false, error: 'getProps failed with status 500: boom' });
     });
 
     it('fails when the model does not expose a chat template', async () => {

@@ -1,16 +1,22 @@
-import { Adventure } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { IAdventureRepository } from '@domain/repository';
-import { IGetAdventuresUseCase } from '@domain/use-cases';
+import { GetAdventuresUseCaseReturn, IGetAdventuresUseCase } from '@domain/use-cases';
 
-export class GetAdventureUseCase implements IGetAdventuresUseCase {
+export class GetAdventuresUseCase implements IGetAdventuresUseCase {
     constructor (
         private readonly logger: ILogger,
         private readonly adventureRepository: IAdventureRepository
     ) { }
 
-    async execute (): Promise<Adventure[]> {
-        this.logger.info('Executing GetAdventureUseCase::execute');
-        return this.adventureRepository.getAdventures();
+    async execute (): Promise<GetAdventuresUseCaseReturn> {
+        this.logger.info('Executing GetAdventuresUseCase::execute');
+
+        const response = await this.adventureRepository.getAdventures();
+        if (!response.success || !response.adventures) {
+            this.logger.warning('GetAdventuresUseCase::execute - failed to load adventures', response.error);
+            return { success: false, error: response.error };
+        }
+
+        return { success: true, adventures: response.adventures };
     }
 }

@@ -1,5 +1,5 @@
-import { Connection } from '@domain/entities';
 import {
+    ConnectionDetails,
     CreateConnectionConfigControllerRequest,
     EditConnectionControllerParams,
     ICreateConnectionConfigController,
@@ -8,7 +8,7 @@ import {
 import { ConnectionFormData, FormErrors } from './constants';
 import { ControllerResponse } from '@application/ui/hooks';
 
-export function toConnectionFormState (connection: Connection): ConnectionFormData {
+export function toConnectionFormState (connection: ConnectionDetails): ConnectionFormData {
     return {
         id: connection.id,
         name: connection.name,

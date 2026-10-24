@@ -1,8 +1,12 @@
 export interface IEraseItemController {
-    handle (itemId: string): Promise<EraseItemControllerResponse>;
+    handle (request: EraseItemControllerRequest): Promise<EraseItemControllerResponse>;
 }
 
 export type EraseItemControllerResponse = {
     success: boolean;
     error?: string;
+};
+
+export type EraseItemControllerRequest = {
+    id: string;
 };

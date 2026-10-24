@@ -1,4 +1,3 @@
-import { World } from '../entities';
 import { WorldEditParams } from '../services';
 
 export type EditWorldControllerParams = {
@@ -8,7 +7,7 @@ export type EditWorldControllerParams = {
 
 export type EditWorldControllerResponse = {
     success: boolean;
-    world?: World;
+    id?: string;
     error?: string;
 };
 

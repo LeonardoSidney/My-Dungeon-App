@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, View } from 'react-native';
-import { Assistant, WorldMaster } from '@domain/entities';
+import { ActivationPromptListItem, EntityOption, WorldMasterDetails } from '@domain/controllers';
 import { styles } from './styles';
 import { ActivationPromptForm, CrudEntityList, SelectField, SingleSelect } from '@application/ui/components';
 import { useEntityList, useEntityScreen } from '@application/ui/hooks';
@@ -9,7 +9,7 @@ import { WorldMasterFormData, worldMasterFormConfig } from './constants';
 import { initialWorldMasterForm, submitWorldMaster, toWorldMasterFormState, validateWorldMasterForm } from './form';
 
 export function WorldMasterScreen () {
-  const { getWorldMasters, getAssistants, createWorldMaster, editWorldMaster, eraseWorldMaster, alert } = useControllers();
+  const { getWorldMasters, getWorldMaster, getAssistants, createWorldMaster, editWorldMaster, eraseWorldMaster, alert } = useControllers();
   const assistants = useEntityList({ fetch: () => getAssistants.handle() });
 
   const {
@@ -25,10 +25,11 @@ export function WorldMasterScreen () {
     formErrors,
     save,
     eraseEntity,
-  } = useEntityScreen<WorldMaster, WorldMasterFormData>({
+  } = useEntityScreen<ActivationPromptListItem, WorldMasterFormData, WorldMasterDetails>({
     fetch: () => getWorldMasters.handle(),
+    load: (id) => getWorldMaster.handle({ id }),
     submit: (worldMasterForm) => submitWorldMaster(worldMasterForm, createWorldMaster, editWorldMaster),
-    erase: (id) => eraseWorldMaster.handle(id),
+    erase: (id) => eraseWorldMaster.handle({ id }),
     toFormState: (worldMaster) => toWorldMasterFormState(worldMaster, assistants.items),
     initialForm: initialWorldMasterForm,
     validate: validateWorldMasterForm,
@@ -51,7 +52,7 @@ export function WorldMasterScreen () {
               selectedId={form.assistant?.id}
               hasError={!!formErrors.assistant}
               emptyMessage="No assistants available"
-              onSelect={(assistant: Assistant) => updateField('assistant', assistant)}
+              onSelect={(assistant: EntityOption) => updateField('assistant', assistant)}
             />
           </SelectField>
         )

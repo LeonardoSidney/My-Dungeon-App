@@ -1,4 +1,3 @@
-import { Connection } from '../entities';
 import { ConnectionEditParams } from '../services';
 
 export type EditConnectionControllerParams = {
@@ -8,7 +7,7 @@ export type EditConnectionControllerParams = {
 
 export type EditConnectionControllerResponse = {
     success: boolean;
-    connection?: Connection;
+    id?: string;
     error?: string;
 };
 

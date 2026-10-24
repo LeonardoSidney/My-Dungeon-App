@@ -1,4 +1,3 @@
-import { Status } from '../entities';
 
 export interface ICreateStatusUseCase {
     execute(params: CreateStatusUseCaseParams): Promise<CreateStatusUseCaseResponse>;
@@ -13,6 +12,6 @@ export type CreateStatusUseCaseParams = {
 
 export type CreateStatusUseCaseResponse = {
     success: boolean;
-    status?: Status;
+    id?: string;
     error?: string;
 };

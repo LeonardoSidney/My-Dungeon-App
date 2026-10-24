@@ -1,16 +1,13 @@
-import { Adventure, Chat } from '@domain/entities';
+import { MutationControllerResponse } from './iCrudControllerResponses';
 
 export interface IAppendChatAdventureController {
-    handle(request: AppendChatControllerRequest): Promise<AppendChatControllerResponse>;
+    handle (request: AppendChatControllerRequest): Promise<AppendChatControllerResponse>;
 }
 
 export type AppendChatControllerRequest = {
-    adventure: Adventure;
-    message: Chat;
+    adventureId: string;
+    characterId: string;
+    content: string;
 };
 
-export type AppendChatControllerResponse = {
-    success: boolean;
-    adventure?: Adventure;
-    error?: string;
-};
+export type AppendChatControllerResponse = MutationControllerResponse;

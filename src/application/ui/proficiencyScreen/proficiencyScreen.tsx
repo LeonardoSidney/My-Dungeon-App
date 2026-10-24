@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Proficiency } from '@domain/entities';
+import { ActivationPromptDetails, ActivationPromptListItem } from '@domain/controllers';
 import { styles } from './styles';
 import { ActivationPromptForm, CrudEntityList, type ActivationPromptFormData } from '@application/ui/components';
 import { useEntityScreen } from '@application/ui/hooks';
@@ -9,7 +9,7 @@ import { proficiencyFormConfig } from './constants';
 import { initialProficiencyForm, submitProficiency, toFormState, validateProficiencyForm } from './form';
 
 export function ProficiencyScreen () {
-  const { getProficiencies, createProficiency, editProficiency, eraseProficiency, alert } = useControllers();
+  const { getProficiencies, getProficiency, createProficiency, editProficiency, eraseProficiency, alert } = useControllers();
 
   const {
     entities,
@@ -24,10 +24,11 @@ export function ProficiencyScreen () {
     formErrors,
     save,
     eraseEntity,
-  } = useEntityScreen<Proficiency, ActivationPromptFormData>({
+  } = useEntityScreen<ActivationPromptListItem, ActivationPromptFormData, ActivationPromptDetails>({
     fetch: () => getProficiencies.handle(),
+    load: (id) => getProficiency.handle({ id }),
     submit: (proficiencyForm) => submitProficiency(proficiencyForm, createProficiency, editProficiency),
-    erase: (id) => eraseProficiency.handle(id),
+    erase: (id) => eraseProficiency.handle({ id }),
     toFormState,
     initialForm: initialProficiencyForm,
     validate: validateProficiencyForm,

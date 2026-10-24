@@ -1,4 +1,3 @@
-import { Adventure } from '../entities';
 import type { HydratedAdventure } from '../services/iHydrateAdventureService';
 
 export type { HydratedAdventure, HydratedCharacter } from '../services/iHydrateAdventureService';
@@ -8,7 +7,7 @@ export interface IHydrateAdventureUseCase {
 }
 
 export type HydrateAdventureParams = {
-    adventure: Adventure;
+    adventureId: string;
 };
 
 export type HydrateAdventureReturn = {

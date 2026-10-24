@@ -1,8 +1,12 @@
 export interface IEraseAbilityController {
-    handle (abilityId: string): Promise<EraseAbilityControllerResponse>;
+    handle (request: EraseAbilityControllerRequest): Promise<EraseAbilityControllerResponse>;
 }
 
 export type EraseAbilityControllerResponse = {
     success: boolean;
     error?: string;
+};
+
+export type EraseAbilityControllerRequest = {
+    id: string;
 };

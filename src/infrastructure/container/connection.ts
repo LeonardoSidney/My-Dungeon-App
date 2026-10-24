@@ -3,19 +3,26 @@ import {
     GetConnectionsController,
     EraseConnectionController,
     EditConnectionController,
+    GetConnectionController,
 } from '@adapters/controllers';
+import {
+    GetConnectionPresenter,
+    GetConnectionsPresenter,
+} from '@adapters/presenters';
 import { CreateConnectionConfigService, EditConnectionConfigService } from '@application/services';
 import {
     CreateConnectionConfigUseCase,
     GetConnectionsUseCase,
     EraseConnectionUseCase,
     EditConnectionUseCase,
+    GetConnectionByIdUseCase,
 } from '@application/use-cases';
 import {
     ICreateConnectionConfigController,
     IGetConnectionsController,
     IEraseConnectionController,
     IEditConnectionController,
+    IGetConnectionController,
 } from '@domain/controllers';
 import { idGenerate, logger, storage } from './shared';
 import { createConnectionRepository } from './repository';
@@ -34,7 +41,7 @@ export function createConnectionConfigController (): ICreateConnectionConfigCont
 export function getConnectionsController (): IGetConnectionsController {
     const connectionRepository = createConnectionRepository(storage, logger);
     const getConnectionsUseCase = new GetConnectionsUseCase(logger, connectionRepository);
-    return new GetConnectionsController(logger, getConnectionsUseCase);
+    return new GetConnectionsController(logger, getConnectionsUseCase, new GetConnectionsPresenter());
 }
 
 export function eraseConnectionController (): IEraseConnectionController {
@@ -48,4 +55,9 @@ export function editConnectionController (): IEditConnectionController {
     const connectionRepository = createConnectionRepository(storage, logger);
     const editConnectionUseCase = new EditConnectionUseCase(logger, editConnectionConfigService, connectionRepository);
     return new EditConnectionController(logger, editConnectionUseCase);
+}
+
+export function getConnectionController (): IGetConnectionController {
+    const useCase = new GetConnectionByIdUseCase(logger, createConnectionRepository(storage, logger));
+    return new GetConnectionController(logger, useCase, new GetConnectionPresenter());
 }

@@ -1,4 +1,3 @@
-import { Sampler } from '../entities';
 import { SamplerEditParams } from '../services';
 
 export interface IEditSamplerUseCase {
@@ -11,7 +10,7 @@ export type EditSamplerParams = {
 };
 
 export type EditSamplerReturn = {
-    sampler?: Sampler;
+    id?: string;
     success: boolean;
     error?: string;
 };

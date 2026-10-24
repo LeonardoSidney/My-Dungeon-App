@@ -1,4 +1,3 @@
-import { Connection } from '../entities';
 import { ConnectionEditParams } from '../services';
 
 export interface IEditConnectionUseCase {
@@ -11,7 +10,7 @@ export type EditConnectionParams = {
 };
 
 export type EditConnectionReturn = {
-    connection?: Connection;
+    id?: string;
     success: boolean;
     error?: string;
 };

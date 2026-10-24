@@ -9,6 +9,7 @@ export class CreateCharacterController implements ICreateCharacterController {
     ) { }
     async handle (params: CreateCharacterControllerPrams): Promise<CreateCharacterControllerResponse> {
         this.logger.info('Executing CreateCharacterController::handle');
+        this.logger.debug('CreateCharacterController::handle - params', params);
         const { name, activationWord, prompt, observation, abilityIds, proficiencyIds, statusIds, attributes, assistantId } = params;
         const response = await this.useCase.execute({
             name,
@@ -24,8 +25,8 @@ export class CreateCharacterController implements ICreateCharacterController {
 
         return {
             success: response.success,
-            character: response.character,
-            error: response.error
+            id: response.id,
+            error: response.error,
         };
     }
 }

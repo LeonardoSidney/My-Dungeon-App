@@ -1,5 +1,5 @@
-import { SystemPrompt } from '@domain/entities';
 import {
+    SystemPromptDetails,
     CreateSystemPromptRequest,
     EditSystemPromptControllerParams,
     ICreateSystemPromptController,
@@ -8,7 +8,7 @@ import {
 import { SystemPromptFormData, FormErrors } from './constants';
 import { ControllerResponse } from '@application/ui/hooks';
 
-export function toSystemPromptFormState (systemPrompt: SystemPrompt): SystemPromptFormData {
+export function toSystemPromptFormState (systemPrompt: SystemPromptDetails): SystemPromptFormData {
     return {
         id: systemPrompt.id,
         name: systemPrompt.name,

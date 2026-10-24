@@ -1,9 +1,7 @@
 import { AppendChatAdventureController } from '@adapters/controllers';
 import { IAppendChatAdventureUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
-import { Adventure, Chat, RoleEnum } from '@domain/entities';
 
-// Mock das dependências
 const mockLogger = {
     info: jest.fn(),
     error: jest.fn(),
@@ -15,355 +13,42 @@ const mockUseCase = {
     execute: jest.fn(),
 };
 
+const REQUEST = { adventureId: 'adventure-1', characterId: 'character-1', content: 'Hello world' };
+
 describe('AppendChatAdventureController', () => {
     let controller: AppendChatAdventureController;
 
     beforeEach(() => {
+        jest.clearAllMocks();
         controller = new AppendChatAdventureController(
             mockLogger as unknown as ILogger,
             mockUseCase as unknown as IAppendChatAdventureUseCase
         );
-        jest.clearAllMocks();
     });
 
-    it('should be defined', () => {
-        expect(controller).toBeDefined();
-    });
+    it('forwards only the ids and the typed content to the use case', async () => {
+        mockUseCase.execute.mockResolvedValue({ success: true, id: 'chat-9' });
 
-    it('should call logger.info when handling a request', async () => {
-        const mockAdventure: Adventure = {
-            id: '1',
-            name: 'Test Adventure',
-            chat: [],
-            characterIds: [],
-            charactersControlledByAi: [],
-            systemPromptIds: [],
-            worldIds: [],
-            locationIds: [],
-            itemIds: [],
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        };
-
-        const mockMessage: Chat = {
-            id: 'msg-1',
-            role: RoleEnum.USER,
-            index: 0,
-            thinkIndex: 0,
-            content: ['Hello world'],
-            characterId: '1',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        };
-
-        const mockResponse = {
-            success: true,
-            adventure: { ...mockAdventure, chat: [mockMessage] },
-            error: undefined,
-        };
-
-        mockUseCase.execute.mockResolvedValue(mockResponse);
-
-        await controller.handle({
-            adventure: mockAdventure,
-            message: mockMessage,
-        });
+        await controller.handle(REQUEST);
 
         expect(mockLogger.info).toHaveBeenCalledWith('Executing AppendChatAdventureController::handle');
+        expect(mockUseCase.execute).toHaveBeenCalledWith(REQUEST);
     });
 
-    it('should execute use case with correct parameters', async () => {
-        const mockAdventure: Adventure = {
-            id: '1',
-            name: 'Test Adventure',
-            chat: [],
-            characterIds: [],
-            charactersControlledByAi: [],
-            systemPromptIds: [],
-            worldIds: [],
-            locationIds: [],
-            itemIds: [],
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        };
+    it('responds with the id of the new message only', async () => {
+        mockUseCase.execute.mockResolvedValue({ success: true, id: 'chat-9' });
 
-        const mockMessage: Chat = {
-            id: 'msg-1',
-            role: RoleEnum.USER,
-            index: 0,
-            thinkIndex: 0,
-            content: ['Test message'],
-            characterId: '1',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        };
+        const response = await controller.handle(REQUEST);
 
-        const mockResponse = {
-            success: true,
-            adventure: { ...mockAdventure, chat: [mockMessage] },
-            error: undefined,
-        };
-
-        mockUseCase.execute.mockResolvedValue(mockResponse);
-
-        await controller.handle({
-            adventure: mockAdventure,
-            message: mockMessage,
-        });
-
-        expect(mockUseCase.execute).toHaveBeenCalledWith({
-            adventure: mockAdventure,
-            message: mockMessage,
-        });
+        expect(response).toEqual({ success: true, id: 'chat-9', error: undefined });
+        expect(response).not.toHaveProperty('messages');
     });
 
-    it('should return success response when use case succeeds', async () => {
-        const mockAdventure: Adventure = {
-            id: '1',
-            name: 'Test Adventure',
-            chat: [],
-            characterIds: [],
-            charactersControlledByAi: [],
-            systemPromptIds: [],
-            worldIds: [],
-            locationIds: [],
-            itemIds: [],
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        };
+    it('returns the use case error when it fails', async () => {
+        mockUseCase.execute.mockResolvedValue({ success: false, error: 'Adventure with id adventure-1 not found' });
 
-        const mockMessage: Chat = {
-            id: 'msg-1',
-            role: RoleEnum.ASSISTANT,
-            index: 0,
-            thinkIndex: 0,
-            content: ['This is a response'],
-            characterId: '1',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        };
+        const response = await controller.handle(REQUEST);
 
-        const updatedAdventure: Adventure = {
-            ...mockAdventure,
-            chat: [mockMessage],
-            updatedAt: new Date(),
-        };
-
-        const mockResponse = {
-            success: true,
-            adventure: updatedAdventure,
-            error: undefined,
-        };
-
-        mockUseCase.execute.mockResolvedValue(mockResponse);
-
-        const result = await controller.handle({
-            adventure: mockAdventure,
-            message: mockMessage,
-        });
-
-        expect(result).toEqual({
-            success: true,
-            adventure: updatedAdventure,
-            error: undefined,
-        });
-    });
-
-    it('should return error response when use case fails', async () => {
-        const mockAdventure: Adventure = {
-            id: '1',
-            name: 'Test Adventure',
-            chat: [],
-            characterIds: [],
-            charactersControlledByAi: [],
-            systemPromptIds: [],
-            worldIds: [],
-            locationIds: [],
-            itemIds: [],
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        };
-
-        const mockMessage: Chat = {
-            id: 'msg-1',
-            role: RoleEnum.USER,
-            index: 0,
-            thinkIndex: 0,
-            content: ['Test message'],
-            characterId: '1',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        };
-
-        const mockResponse = {
-            success: false,
-            adventure: undefined,
-            error: 'Failed to append chat message',
-        };
-
-        mockUseCase.execute.mockResolvedValue(mockResponse);
-
-        const result = await controller.handle({
-            adventure: mockAdventure,
-            message: mockMessage,
-        });
-
-        expect(result).toEqual({
-            success: false,
-            adventure: undefined,
-            error: 'Failed to append chat message',
-        });
-    });
-
-    it('should handle adventure with existing chat messages', async () => {
-        const existingChat: Chat[] = [
-            {
-                id: 'msg-1',
-                role: RoleEnum.USER,
-                index: 0,
-                thinkIndex: 0,
-                content: ['First message'],
-                characterId: '1',
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            },
-            {
-                id: 'msg-2',
-                role: RoleEnum.ASSISTANT,
-                index: 1,
-                thinkIndex: 1,
-                content: ['First response'],
-                characterId: '1',
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            },
-        ];
-
-        const mockAdventure: Adventure = {
-            id: '1',
-            name: 'Test Adventure',
-            chat: existingChat,
-            characterIds: [],
-            charactersControlledByAi: [],
-            systemPromptIds: [],
-            worldIds: [],
-            locationIds: [],
-            itemIds: [],
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        };
-
-        const newMessage: Chat = {
-            id: 'msg-3',
-            role: RoleEnum.USER,
-            index: 2,
-            thinkIndex: 2,
-            content: ['Second message'],
-            characterId: '1',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        };
-
-        const updatedAdventure: Adventure = {
-            ...mockAdventure,
-            chat: [...existingChat, newMessage],
-            updatedAt: new Date(),
-        };
-
-        const mockResponse = {
-            success: true,
-            adventure: updatedAdventure,
-            error: undefined,
-        };
-
-        mockUseCase.execute.mockResolvedValue(mockResponse);
-
-        const result = await controller.handle({
-            adventure: mockAdventure,
-            message: newMessage,
-        });
-
-        expect(result.success).toBe(true);
-        expect(result.adventure?.chat.length).toBe(3);
-    });
-
-    it('should call logger.info exactly once', async () => {
-        const mockAdventure: Adventure = {
-            id: '1',
-            name: 'Test Adventure',
-            chat: [],
-            characterIds: [],
-            charactersControlledByAi: [],
-            systemPromptIds: [],
-            worldIds: [],
-            locationIds: [],
-            itemIds: [],
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        };
-
-        const mockMessage: Chat = {
-            id: 'msg-1',
-            role: RoleEnum.USER,
-            index: 0,
-            thinkIndex: 0,
-            content: ['Test'],
-            characterId: '1',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        };
-
-        mockUseCase.execute.mockResolvedValue({
-            success: true,
-            adventure: mockAdventure,
-            error: undefined,
-        });
-
-        await controller.handle({
-            adventure: mockAdventure,
-            message: mockMessage,
-        });
-
-        expect(mockLogger.info).toHaveBeenCalledTimes(1);
-    });
-
-    it('should call logger.info with the correct method and class name', async () => {
-        const mockAdventure: Adventure = {
-            id: '1',
-            name: 'Test Adventure',
-            chat: [],
-            characterIds: [],
-            charactersControlledByAi: [],
-            systemPromptIds: [],
-            worldIds: [],
-            locationIds: [],
-            itemIds: [],
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        };
-
-        const mockMessage: Chat = {
-            id: 'msg-1',
-            role: RoleEnum.USER,
-            index: 0,
-            thinkIndex: 0,
-            content: ['Test'],
-            characterId: '1',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        };
-
-        mockUseCase.execute.mockResolvedValue({
-            success: true,
-            adventure: mockAdventure,
-            error: undefined,
-        });
-
-        await controller.handle({
-            adventure: mockAdventure,
-            message: mockMessage,
-        });
-
-        expect(mockLogger.info).toHaveBeenCalledWith('Executing AppendChatAdventureController::handle');
+        expect(response).toEqual({ success: false, id: undefined, error: 'Adventure with id adventure-1 not found' });
     });
 });

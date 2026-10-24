@@ -1,5 +1,5 @@
-import { Proficiency } from '@domain/entities';
 import {
+    ActivationPromptDetails,
     CreateProficiencyControllerParams,
     EditProficiencyControllerParams,
     ICreateProficiencyController,
@@ -11,7 +11,7 @@ import {
 } from '@application/ui/components';
 import { ControllerResponse } from '@application/ui/hooks';
 
-export function toFormState (proficiency: Proficiency): ActivationPromptFormData {
+export function toFormState (proficiency: ActivationPromptDetails): ActivationPromptFormData {
     return {
         id: proficiency.id,
         name: proficiency.name,

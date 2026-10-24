@@ -39,7 +39,13 @@ export class CreateSystemPromptUseCase implements ICreateSystemPromptUseCase {
             };
         }
 
-        const systemPrompts = await this.systemPromptRepository.getSystemPrompts();
+        const systemPromptsResponse = await this.systemPromptRepository.getSystemPrompts();
+        if (!systemPromptsResponse.success || !systemPromptsResponse.systemPrompts) {
+            this.logger.warning('CreateSystemPromptUseCase::execute - failed to load system prompts', systemPromptsResponse.error);
+            return { success: false, error: systemPromptsResponse.error };
+        }
+
+        const systemPrompts = systemPromptsResponse.systemPrompts;
         this.logger.debug('SystemPromptRepository executed successfully', systemPrompts);
         const alreadyExists = systemPrompts.find((prompt) => prompt.name === response.systemPrompt?.name);
 
@@ -51,11 +57,15 @@ export class CreateSystemPromptUseCase implements ICreateSystemPromptUseCase {
             };
         }
 
-        await this.systemPromptRepository.saveSystemPrompt({ systemPrompt: response.systemPrompt });
+        const saveResult = await this.systemPromptRepository.saveSystemPrompt({ systemPrompt: response.systemPrompt });
+        if (!saveResult.success) {
+            this.logger.warning('CreateSystemPromptUseCase::execute - failed to save system prompt', saveResult.error);
+            return { success: false, error: saveResult.error };
+        }
 
         return {
             success: true,
-            systemPrompt: response.systemPrompt
+            id: response.systemPrompt.id
         };
     }
 

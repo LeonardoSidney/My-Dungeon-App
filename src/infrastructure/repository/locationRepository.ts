@@ -1,7 +1,16 @@
 import { LOCATION_STORAGE_NAMESPACE, STORAGE_NAMESPACE } from '@domain/constants/general';
 import { Location } from '@domain/entities';
 import { ILogger } from '@domain/logger';
-import { ILocationRepository, SaveLocationParams, EditLocationParams, EditLocationReturn, EraseLocationReturn } from '@domain/repository';
+import {
+    ILocationRepository,
+    SaveLocationParams,
+    SaveLocationRepositoryReturn,
+    GetLocationsRepositoryReturn,
+    GetLocationByIdRepositoryReturn,
+    EditLocationParams,
+    EditLocationReturn,
+    EraseLocationReturn,
+} from '@domain/repository';
 import { IStorage } from '@domain/storage';
 import { LocationDTO } from '@infra/dto';
 
@@ -11,119 +20,126 @@ export class LocationRepository implements ILocationRepository {
         private readonly storage: IStorage
     ) { }
 
-    private async findLocationIndex (locations: Location[], locationId: string): Promise<number> {
-        return locations.findIndex((l) => l.id === locationId);
+    private get storageKey (): string {
+        return `${STORAGE_NAMESPACE}/${LOCATION_STORAGE_NAMESPACE}`;
     }
 
-    private replaceAt (locations: Location[], index: number, newLocation: Location): Location[] {
-        locations[index] = newLocation;
-        return locations;
-    }
-
-    private removeAt (locations: Location[], index: number): Location[] {
-        locations.splice(index, 1);
-        return locations;
-    }
-
-    async saveLocation (params: SaveLocationParams): Promise<boolean> {
+    async saveLocation (params: SaveLocationParams): Promise<SaveLocationRepositoryReturn> {
         this.logger.info('Executing LocationRepository::saveLocation');
         this.logger.debug('Executing LocationRepository::saveLocation - params: ', params);
 
-        try {
-            const { location } = params;
-            const existingData = await this.storage.load<Location[]>(`${STORAGE_NAMESPACE}/${LOCATION_STORAGE_NAMESPACE}`);
-            const locations: Location[] = existingData ? [...existingData, location] : [location];
-            await this.storage.save(`${STORAGE_NAMESPACE}/${LOCATION_STORAGE_NAMESPACE}`, locations);
-        } catch (error) {
-            this.logger.error('Error on LocationRepository::saveLocation', error);
-            throw error;
+        const loaded = await this.storage.load<Location[]>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('LocationRepository::saveLocation - failed to load locations', loaded.error);
+            return { success: false, error: 'Failed to save location' };
         }
 
-        return true;
+        const locations = [...(loaded.data ?? []), params.location];
+        const saved = await this.storage.save(this.storageKey, locations);
+        if (!saved.success) {
+            this.logger.warning('LocationRepository::saveLocation - failed to persist locations', saved.error);
+            return { success: false, error: 'Failed to save location' };
+        }
+
+        return { success: true };
     }
 
-    async getLocationById (locationId: string): Promise<Location | undefined> {
+    async getLocationById (locationId: string): Promise<GetLocationByIdRepositoryReturn> {
         this.logger.info('Executing LocationRepository::getLocationById');
-        const locations = await this.getLocations();
-        return locations.find((l) => l.id === locationId);
+
+        const response = await this.getLocations();
+        if (!response.success || !response.locations) {
+            return { success: false, error: response.error };
+        }
+
+        return { success: true, location: response.locations.find((l) => l.id === locationId) };
     }
 
-    async getLocations (): Promise<Location[]> {
+    async getLocations (): Promise<GetLocationsRepositoryReturn> {
         this.logger.info('Executing LocationRepository::getLocations');
-        try {
-            const locations: Location[] = [];
-            const rawData = await this.storage.load<unknown[]>(`${STORAGE_NAMESPACE}/${LOCATION_STORAGE_NAMESPACE}`);
-            this.logger.debug('Executing LocationRepository::getLocations - rawData: ', rawData);
 
-            if (rawData) {
-                const locationsDTO: LocationDTO[] = [];
-                for (const locationUnknown of rawData) {
-                    const location = LocationDTO.fromStorage(locationUnknown);
-                    if (location) {
-                        locationsDTO.push(location);
-                    }
-                }
-
-                locations.push(...locationsDTO.map((dto) => dto.toEntity()));
-
-                if (rawData.length !== locations.length) {
-                    this.logger.warning('Some locations were not converted to entity');
-                }
-            }
-
-            this.logger.debug('Executing LocationRepository::getLocations - locations: ', locations);
-
-            return locations;
-        } catch (error) {
-            this.logger.error('Error on LocationRepository getLocations', error);
-            throw error;
+        const loaded = await this.storage.load<unknown>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('LocationRepository::getLocations - failed to load locations', loaded.error);
+            return { success: false, error: 'Failed to load locations' };
         }
+
+        const rawData = loaded.data ?? [];
+        this.logger.debug('Executing LocationRepository::getLocations - rawData: ', rawData);
+
+        if (!Array.isArray(rawData)) {
+            this.logger.warning('LocationRepository::getLocations - stored locations are not a list');
+            return { success: false, error: 'Failed to load locations' };
+        }
+
+        const locations: Location[] = [];
+        for (const locationUnknown of rawData) {
+            const dto = LocationDTO.fromStorage(locationUnknown);
+            if (dto) {
+                locations.push(dto.toEntity());
+            }
+        }
+
+        if (rawData.length !== locations.length) {
+            this.logger.warning('Some locations were not converted to entity');
+        }
+
+        this.logger.debug('Executing LocationRepository::getLocations - locations: ', locations);
+        return { success: true, locations };
     }
 
     async editLocation (params: EditLocationParams): Promise<EditLocationReturn> {
         this.logger.info('Executing LocationRepository::editLocation');
         this.logger.debug('Executing LocationRepository::editLocation - params: ', params);
 
-        try {
-            const { location } = params;
-            const existingData = await this.storage.load<Location[]>(`${STORAGE_NAMESPACE}/${LOCATION_STORAGE_NAMESPACE}`);
-            const locations = existingData || [];
-            const index = await this.findLocationIndex(locations, location.id);
-
-            if (index === -1) {
-                this.logger.warning(`Location with id ${location.id} not found`);
-                return { success: false, error: `Location with id ${location.id} does not exist` };
-            }
-
-            const updatedLocations = this.replaceAt(locations, index, location);
-            await this.storage.save(`${STORAGE_NAMESPACE}/${LOCATION_STORAGE_NAMESPACE}`, updatedLocations);
-            return { success: true };
-        } catch (error) {
-            this.logger.error('Error on LocationRepository::editLocation', error);
+        const { location } = params;
+        const loaded = await this.storage.load<Location[]>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('LocationRepository::editLocation - failed to load locations', loaded.error);
             return { success: false, error: 'Failed to edit location' };
         }
+
+        const locations = loaded.data ?? [];
+        const index = locations.findIndex((l) => l.id === location.id);
+        if (index === -1) {
+            this.logger.warning(`Location with id ${location.id} not found`);
+            return { success: false, error: `Location with id ${location.id} does not exist` };
+        }
+
+        locations[index] = location;
+        const saved = await this.storage.save(this.storageKey, locations);
+        if (!saved.success) {
+            this.logger.warning('LocationRepository::editLocation - failed to persist locations', saved.error);
+            return { success: false, error: 'Failed to edit location' };
+        }
+
+        return { success: true };
     }
 
     async eraseLocation (locationId: string): Promise<EraseLocationReturn> {
         this.logger.info('Executing LocationRepository::eraseLocation');
         this.logger.debug('Executing LocationRepository::eraseLocation - locationId: ', locationId);
 
-        try {
-            const existingData = await this.storage.load<Location[]>(`${STORAGE_NAMESPACE}/${LOCATION_STORAGE_NAMESPACE}`);
-            const locations = existingData || [];
-            const index = await this.findLocationIndex(locations, locationId);
-
-            if (index === -1) {
-                this.logger.warning(`Location with id ${locationId} not found`);
-                return { success: false, error: `Location with id ${locationId} does not exist` };
-            }
-
-            const filteredLocations = this.removeAt(locations, index);
-            await this.storage.save(`${STORAGE_NAMESPACE}/${LOCATION_STORAGE_NAMESPACE}`, filteredLocations);
-            return { success: true };
-        } catch (error) {
-            this.logger.error('Error on LocationRepository::eraseLocation', error);
+        const loaded = await this.storage.load<Location[]>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('LocationRepository::eraseLocation - failed to load locations', loaded.error);
             return { success: false, error: 'Failed to erase location' };
         }
+
+        const locations = loaded.data ?? [];
+        const index = locations.findIndex((l) => l.id === locationId);
+        if (index === -1) {
+            this.logger.warning(`Location with id ${locationId} not found`);
+            return { success: false, error: `Location with id ${locationId} does not exist` };
+        }
+
+        locations.splice(index, 1);
+        const saved = await this.storage.save(this.storageKey, locations);
+        if (!saved.success) {
+            this.logger.warning('LocationRepository::eraseLocation - failed to persist locations', saved.error);
+            return { success: false, error: 'Failed to erase location' };
+        }
+
+        return { success: true };
     }
 }

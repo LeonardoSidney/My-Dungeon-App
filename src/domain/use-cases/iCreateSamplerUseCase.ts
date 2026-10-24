@@ -1,4 +1,4 @@
-import { MirostatEnum, Sampler } from '../entities';
+import { MirostatEnum } from '../entities';
 
 export interface ICreateSamplerUseCase {
     execute(params: CreateSamplerUseCaseParams): Promise<CreateSamplerUseCaseResponse>;
@@ -36,6 +36,6 @@ export type CreateSamplerUseCaseParams = {
 
 export type CreateSamplerUseCaseResponse = {
     success: boolean;
-    sampler?: Sampler;
+    id?: string;
     error?: string;
 };

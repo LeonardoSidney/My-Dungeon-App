@@ -1,16 +1,16 @@
 import React from 'react';
 import { Text, View } from 'react-native';
-import { Assistant, Ability, Proficiency, Status } from '@domain/entities';
+import { ActivationPromptListItem, CharacterDetails, EntityOption } from '@domain/controllers';
 import { styles } from './styles';
 import { ActivationPromptForm, CrudEntityList, SelectField, SingleSelect, MultiSelect } from '@application/ui/components';
 import { useEntityList, useEntityScreen } from '@application/ui/hooks';
 import { useControllers } from '@application/ui/providers/controllersProvider';
-import { characterFormConfig } from './constants';
+import { CharacterFormData, characterFormConfig } from './constants';
 import { renderAttributesField } from './attributesFields';
 import { toggleListItem, initialCharacterForm, submitCharacter, toCharacterFormState, validateCharacterForm } from './form';
 
 export function CharacterScreen () {
-  const { getAssistants, getAbilities, getProficiencies, getStatuses, createCharacter, editCharacter, eraseCharacter, getCharacters, alert } = useControllers();
+  const { getAssistants, getAbilities, getProficiencies, getStatuses, createCharacter, editCharacter, eraseCharacter, getCharacters, getCharacter, alert } = useControllers();
 
   const assistants = useEntityList({ fetch: () => getAssistants.handle() });
   const abilities = useEntityList({ fetch: () => getAbilities.handle() });
@@ -30,10 +30,11 @@ export function CharacterScreen () {
     formErrors,
     save,
     eraseEntity,
-  } = useEntityScreen({
+  } = useEntityScreen<ActivationPromptListItem, CharacterFormData, CharacterDetails>({
     fetch: () => getCharacters.handle(),
+    load: (id) => getCharacter.handle({ id }),
     submit: (characterForm) => submitCharacter(characterForm, createCharacter, editCharacter),
-    erase: (id) => eraseCharacter.handle(id),
+    erase: (id) => eraseCharacter.handle({ id }),
     toFormState: (character) => toCharacterFormState(character, assistants.items, abilities.items, proficiencies.items, statuses.items),
     initialForm: initialCharacterForm,
     validate: validateCharacterForm,
@@ -50,7 +51,7 @@ export function CharacterScreen () {
         selectedId={form.assistant?.id}
         hasError={!!formErrors.assistant}
         emptyMessage="No assistants available"
-        onSelect={(assistant: Assistant) => updateField('assistant', assistant)}
+        onSelect={(assistant: EntityOption) => updateField('assistant', assistant)}
       />
     </SelectField>
   );
@@ -66,7 +67,7 @@ export function CharacterScreen () {
             selectedItems={form.abilities}
             emptyMessage="No abilities available"
             showTags
-            onToggle={(ability: Ability) => updateField('abilities', toggleListItem(form.abilities, ability))}
+            onToggle={(ability: EntityOption) => updateField('abilities', toggleListItem(form.abilities, ability))}
           />
         </SelectField>
       )}
@@ -79,7 +80,7 @@ export function CharacterScreen () {
             selectedItems={form.proficiencies}
             emptyMessage="No proficiencies available"
             showTags
-            onToggle={(proficiency: Proficiency) => updateField('proficiencies', toggleListItem(form.proficiencies, proficiency))}
+            onToggle={(proficiency: EntityOption) => updateField('proficiencies', toggleListItem(form.proficiencies, proficiency))}
           />
         </SelectField>
       )}
@@ -92,7 +93,7 @@ export function CharacterScreen () {
             selectedItems={form.statuses}
             emptyMessage="No statuses available"
             showTags
-            onToggle={(status: Status) => updateField('statuses', toggleListItem(form.statuses, status))}
+            onToggle={(status: EntityOption) => updateField('statuses', toggleListItem(form.statuses, status))}
           />
         </SelectField>
       )}

@@ -1,4 +1,3 @@
-import { Item } from '../entities';
 
 export interface ICreateItemUseCase {
     execute(request: CreateItemUseCaseParams): Promise<CreateItemUseCaseResponse>;
@@ -13,6 +12,6 @@ export type CreateItemUseCaseParams = {
 
 export type CreateItemUseCaseResponse = {
     success: boolean;
-    item?: Item;
+    id?: string;
     error?: string;
 };

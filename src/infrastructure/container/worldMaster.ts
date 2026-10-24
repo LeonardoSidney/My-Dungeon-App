@@ -3,19 +3,26 @@ import {
     GetWorldMastersController,
     EditWorldMasterController,
     EraseWorldMasterController,
+    GetWorldMasterController,
 } from '@adapters/controllers';
+import {
+    GetWorldMasterPresenter,
+    GetWorldMastersPresenter,
+} from '@adapters/presenters';
 import { CreateWorldMasterService, EditWorldMasterService } from '@application/services';
 import {
     CreateWorldMasterUseCase,
     GetWorldMastersUseCase,
     EditWorldMasterUseCase,
     EraseWorldMasterUseCase,
+    GetWorldMasterByIdUseCase,
 } from '@application/use-cases';
 import {
     ICreateWorldMasterController,
     IGetWorldMastersController,
     IEditWorldMasterController,
     IEraseWorldMasterController,
+    IGetWorldMasterController,
 } from '@domain/controllers';
 import { idGenerate, logger, storage } from './shared';
 import {
@@ -35,10 +42,10 @@ export function createWorldMasterController (): ICreateWorldMasterController {
     return new CreateWorldMasterController(logger, createWorldMasterUseCase);
 }
 
-export function getWorldMasterController (): IGetWorldMastersController {
+export function getWorldMastersController (): IGetWorldMastersController {
     const worldMasterRepository = createWorldMasterRepository(storage, logger);
     const getWorldMasterUseCase = new GetWorldMastersUseCase(logger, worldMasterRepository);
-    return new GetWorldMastersController(logger, getWorldMasterUseCase);
+    return new GetWorldMastersController(logger, getWorldMasterUseCase, new GetWorldMastersPresenter());
 }
 
 export function editWorldMasterController (): IEditWorldMasterController {
@@ -57,4 +64,9 @@ export function eraseWorldMasterController (): IEraseWorldMasterController {
     const worldMasterRepository = createWorldMasterRepository(storage, logger);
     const eraseWorldMasterUseCase = new EraseWorldMasterUseCase(logger, worldMasterRepository);
     return new EraseWorldMasterController(logger, eraseWorldMasterUseCase);
+}
+
+export function getWorldMasterController (): IGetWorldMasterController {
+    const useCase = new GetWorldMasterByIdUseCase(logger, createWorldMasterRepository(storage, logger));
+    return new GetWorldMasterController(logger, useCase, new GetWorldMasterPresenter());
 }

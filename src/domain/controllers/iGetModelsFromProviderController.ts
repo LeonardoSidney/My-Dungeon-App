@@ -1,11 +1,11 @@
-import { Connection, Model } from '../entities';
+import { Model } from '../entities';
 
 export interface IGetModelsFromProviderController {
     handle(request: GetModelsControllerRequest): Promise<GetModelsControllerResponse>;
 }
 
 export type GetModelsControllerRequest = {
-    connection: Connection;
+    connectionId: string;
 };
 
 export type GetModelsControllerResponse = {

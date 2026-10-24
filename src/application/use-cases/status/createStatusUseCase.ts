@@ -39,7 +39,13 @@ export class CreateStatusUseCase implements ICreateStatusUseCase {
             };
         }
 
-        const statuses = await this.statusRepository.getStatuses();
+        const statusesResponse = await this.statusRepository.getStatuses();
+        if (!statusesResponse.success || !statusesResponse.statuses) {
+            this.logger.warning('CreateStatusUseCase::execute - failed to load statuses', statusesResponse.error);
+            return { success: false, error: statusesResponse.error };
+        }
+
+        const statuses = statusesResponse.statuses;
         this.logger.debug('StatusRepository executed successfully', statuses);
         const alreadyExists = statuses.find(status => status.name === response.status?.name);
 
@@ -51,11 +57,15 @@ export class CreateStatusUseCase implements ICreateStatusUseCase {
             };
         }
 
-        await this.statusRepository.saveStatus({ status: response.status });
+        const saveResult = await this.statusRepository.saveStatus({ status: response.status });
+        if (!saveResult.success) {
+            this.logger.warning('CreateStatusUseCase::execute - failed to save status', saveResult.error);
+            return { success: false, error: saveResult.error };
+        }
 
         return {
             success: true,
-            status: response.status
+            id: response.status.id
         };
     }
 

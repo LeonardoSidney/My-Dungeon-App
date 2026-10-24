@@ -1,4 +1,5 @@
 import { ILogger } from '@domain/logger';
+import { IAdventureRepository } from '@domain/repository';
 import { IHydrateAdventureService } from '@domain/services';
 import {
     HydrateAdventureParams,
@@ -9,6 +10,7 @@ import {
 export class HydrateAdventureUseCase implements IHydrateAdventureUseCase {
     constructor (
         private readonly logger: ILogger,
+        private readonly adventureRepository: IAdventureRepository,
         private readonly hydrateAdventureService: IHydrateAdventureService
     ) { }
 
@@ -16,35 +18,46 @@ export class HydrateAdventureUseCase implements IHydrateAdventureUseCase {
         this.logger.info('Executing HydrateAdventureUseCase::execute');
         this.logger.debug('Executing HydrateAdventureUseCase::execute - params', params);
 
-        try {
-            const response = await this.hydrateAdventureService.hydrate(params);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return { success: false, error: validationError };
+        }
 
-            if (!response.success) {
-                this.logger.warning('HydrateAdventureUseCase::execute - hydration failed', response.error);
-                return {
-                    success: false,
-                    error: response.error ?? 'Failed to hydrate adventure',
-                };
-            }
+        const adventureResponse = await this.adventureRepository.getAdventureById(params.adventureId);
+        if (!adventureResponse.success) {
+            this.logger.warning('HydrateAdventureUseCase::execute - failed to load adventure', adventureResponse.error);
+            return { success: false, error: adventureResponse.error };
+        }
 
-            return {
-                success: true,
-                hydrated: response.hydrated,
-            };
-        } catch (error) {
-            if (error instanceof Error) {
-                this.logger.error('Error in HydrateAdventureUseCase::execute', error);
-                return {
-                    success: false,
-                    error: error.message,
-                };
-            }
-
-            this.logger.error('Error in HydrateAdventureUseCase::execute', error);
+        const adventure = adventureResponse.adventure;
+        if (!adventure) {
             return {
                 success: false,
-                error: 'Hydrate adventure failed',
+                error: `Adventure with id ${params.adventureId} not found`,
             };
         }
+
+        const response = await this.hydrateAdventureService.hydrate({ adventure });
+
+        if (!response.success) {
+            this.logger.warning('HydrateAdventureUseCase::execute - hydration failed', response.error);
+            return {
+                success: false,
+                error: response.error ?? 'Failed to hydrate adventure',
+            };
+        }
+
+        return {
+            success: true,
+            hydrated: response.hydrated,
+        };
+    }
+
+    private validate (params: HydrateAdventureParams): string | null {
+        if (!params.adventureId.trim()) {
+            return 'Adventure id is required';
+        }
+
+        return null;
     }
 }

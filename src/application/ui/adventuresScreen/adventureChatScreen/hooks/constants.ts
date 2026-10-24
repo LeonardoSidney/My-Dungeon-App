@@ -1,24 +1,19 @@
 import { Dispatch, RefObject, SetStateAction } from 'react';
 import { ScrollView } from 'react-native';
-import { Adventure, Character } from '@domain/entities';
-import { HydratedAdventure, HydratedCharacter } from '@domain/use-cases';
+import { AdventureChatCharacter, ChatMessageView } from '@domain/controllers';
 import {
     IAlertController,
     IAppendChatAdventureController,
-    ICreateChatAdventureController,
-    IEditChatAdventureController,
-    IFinishStreamingChatController,
-    IDeleteChatAdventureController,
-    IDeleteThinkAdventureController,
-    IContinueFromChatController,
-    IRegenerateFromChatController,
+    IAddChatVersionController,
+    IDeleteThinkVersionController,
     IResendChatController,
-    IGetAdventureTextController,
-    IHydrateAdventureController,
-    INativeStreamCompletionController,
-    IStartStreamingChatController,
-    IUpdateStreamingChatController,
+    ISelectChatVersionController,
+    IGetChatMessageController,
+    IGetChatMessagesController,
+    ISubscribeChatReplyController,
 } from '@domain/controllers';
+import { ChatVersionKind } from '@domain/controllers';
+import { SetMessages, StreamReply, UpdateMessages } from '../constants';
 
 export interface UseScrollToBottomParams {
     scrollViewRef: React.RefObject<ScrollView | null>;
@@ -36,104 +31,56 @@ export interface UseScrollHandlerParams {
 }
 
 export interface UseAdventureChatStateParams {
-    hydratedCharacters: HydratedCharacter[];
-}
-
-export interface UseHydratedAdventureParams {
-    adventure: Adventure;
-    hydrateAdventure: IHydrateAdventureController;
-}
-
-export interface UseStreamResponseParams {
-    hydratedRef: RefObject<HydratedAdventure | null>;
-    isAbortedRef: React.RefObject<boolean>;
-    setIsStreaming: Dispatch<SetStateAction<boolean>>;
-    streamRef: React.RefObject<AsyncGenerator<string, void, void> | null>;
-    abortRef: React.RefObject<(() => void) | null>;
-    setCurrentAdventure: Dispatch<SetStateAction<Adventure>>;
-    startStreamingChat: IStartStreamingChatController;
-    updateStreamingChat: IUpdateStreamingChatController;
-    finishStreamingChat: IFinishStreamingChatController;
-    deleteChatAdventure: IDeleteChatAdventureController;
-    getAdventureText: IGetAdventureTextController;
-    getNativeStreamCompletion: INativeStreamCompletionController;
-    alert: IAlertController;
-}
-
-export interface UseStopStreamingParams {
-    isAbortedRef: React.RefObject<boolean>;
-    streamRef: React.RefObject<AsyncGenerator<string, void, void> | null>;
-    abortRef: React.RefObject<(() => void) | null>;
-    setIsStreaming: Dispatch<SetStateAction<boolean>>;
+    characters: AdventureChatCharacter[];
 }
 
 export interface UseSendMessageParams {
+    adventureId: string;
     message: string;
-    selectedCharacter: Character;
-    currentAdventure: Adventure;
-    setCurrentAdventure: Dispatch<SetStateAction<Adventure>>;
+    selectedCharacter: AdventureChatCharacter;
+    reloadMessages: () => Promise<void>;
     setMessage: Dispatch<SetStateAction<string>>;
-    handleStreamResponse: (adventure: Adventure, existingChatId?: string) => Promise<void>;
-    createChatAdventure: ICreateChatAdventureController;
+    streamReply: StreamReply;
     appendChatAdventure: IAppendChatAdventureController;
-    editChatAdventure: IEditChatAdventureController;
+    addChatVersion: IAddChatVersionController;
     editingChatIdRef: RefObject<string | null>;
     clearEditing: () => void;
     alert: IAlertController;
 }
 
 export interface UseResendParams {
-    currentAdventure: Adventure;
-    setCurrentAdventure: Dispatch<SetStateAction<Adventure>>;
+    adventureId: string;
     setMessage: Dispatch<SetStateAction<string>>;
-    handleStreamResponse: (adventure: Adventure, existingChatId?: string) => Promise<void>;
+    streamReply: StreamReply;
     editingChatIdRef: RefObject<string | null>;
     message: string;
     clearEditing: () => void;
-    editChatAdventure: IEditChatAdventureController;
+    addChatVersion: IAddChatVersionController;
     resendChat: IResendChatController;
     alert: IAlertController;
 }
 
 export interface UseThinkActionsParams {
-    currentAdventure: Adventure;
-    setCurrentAdventure: Dispatch<SetStateAction<Adventure>>;
-    deleteThinkAdventure: IDeleteThinkAdventureController;
+    adventureId: string;
+    messages: ChatMessageView[];
+    reloadMessages: () => Promise<void>;
+    deleteThinkVersion: IDeleteThinkVersionController;
     alert: IAlertController;
 }
 
-export interface UseRegenerateFromMessageParams {
-    currentAdventure: Adventure;
-    setCurrentAdventure: Dispatch<SetStateAction<Adventure>>;
-    setIsStreaming: Dispatch<SetStateAction<boolean>>;
-    handleStreamResponse: (adventure: Adventure, existingChatId?: string) => Promise<void>;
-    regenerateFromChat: IRegenerateFromChatController;
-    alert: IAlertController;
+export interface UseNavVersionIndexParams {
+    adventureId: string;
+    kind: ChatVersionKind;
+    reloadMessages: () => Promise<void>;
+    selectChatVersion: ISelectChatVersionController;
 }
 
-export interface UseRegenerateFromThinkParams {
-    currentAdventure: Adventure;
-    setCurrentAdventure: Dispatch<SetStateAction<Adventure>>;
-    setIsStreaming: Dispatch<SetStateAction<boolean>>;
-    handleStreamResponse: (adventure: Adventure, existingChatId?: string) => Promise<void>;
-    regenerateFromChat: IRegenerateFromChatController;
-    alert: IAlertController;
-}
-
-export interface UseRegenerateContentParams {
-    currentAdventure: Adventure;
-    setCurrentAdventure: Dispatch<SetStateAction<Adventure>>;
-    setIsStreaming: Dispatch<SetStateAction<boolean>>;
-    handleStreamResponse: (adventure: Adventure, existingChatId?: string) => Promise<void>;
-    regenerateFromChat: IRegenerateFromChatController;
-    alert: IAlertController;
-}
-
-export interface UseContinueFromMessageParams {
-    currentAdventure: Adventure;
-    setCurrentAdventure: Dispatch<SetStateAction<Adventure>>;
-    setIsStreaming: Dispatch<SetStateAction<boolean>>;
-    handleStreamResponse: (adventure: Adventure, existingChatId?: string) => Promise<void>;
-    continueFromChat: IContinueFromChatController;
+export interface UseChatReplyUpdatesParams {
+    adventureId: string;
+    subscribeChatReply: ISubscribeChatReplyController;
+    getChatMessage: IGetChatMessageController;
+    getChatMessages: IGetChatMessagesController;
+    setMessages: SetMessages;
+    updateMessages: UpdateMessages;
     alert: IAlertController;
 }

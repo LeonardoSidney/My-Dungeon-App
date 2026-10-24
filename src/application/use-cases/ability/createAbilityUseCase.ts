@@ -39,7 +39,13 @@ export class CreateAbilityUseCase implements ICreateAbilityUseCase {
             };
         }
 
-        const abilities = await this.abilityRepository.getAbilities();
+        const abilitiesResponse = await this.abilityRepository.getAbilities();
+        if (!abilitiesResponse.success || !abilitiesResponse.abilities) {
+            this.logger.warning('CreateAbilityUseCase::execute - failed to load abilities', abilitiesResponse.error);
+            return { success: false, error: abilitiesResponse.error };
+        }
+
+        const abilities = abilitiesResponse.abilities;
         this.logger.debug('AbilityRepository executed successfully', abilities);
         const alreadyExists = abilities.find(ability => ability.name === response.ability?.name);
 
@@ -51,11 +57,15 @@ export class CreateAbilityUseCase implements ICreateAbilityUseCase {
             };
         }
 
-        await this.abilityRepository.saveAbility({ ability: response.ability });
+        const saveResult = await this.abilityRepository.saveAbility({ ability: response.ability });
+        if (!saveResult.success) {
+            this.logger.warning('CreateAbilityUseCase::execute - failed to save ability', saveResult.error);
+            return { success: false, error: saveResult.error };
+        }
 
         return {
             success: true,
-            ability: response.ability
+            id: response.ability.id
         };
     }
 

@@ -1,8 +1,12 @@
 export interface IEraseCharacterUseCase {
-    execute(characterId: string): Promise<EraseCharacterReturn>;
+    execute (params: EraseCharacterUseCaseParams): Promise<EraseCharacterReturn>;
 }
 
 export type EraseCharacterReturn = {
     success: boolean;
     error?: string;
+};
+
+export type EraseCharacterUseCaseParams = {
+    id: string;
 };

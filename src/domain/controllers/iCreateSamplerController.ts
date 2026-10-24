@@ -1,4 +1,4 @@
-import { MirostatEnum, Sampler } from '../entities';
+import { MirostatEnum } from '../entities';
 
 export interface ICreateSamplerController {
     handle(params: CreateSamplerControllerParams): Promise<CreateSamplerControllerResponse>;
@@ -36,6 +36,6 @@ export type CreateSamplerControllerParams = {
 
 export type CreateSamplerControllerResponse = {
     success: boolean;
-    sampler?: Sampler;
+    id?: string;
     error?: string;
 };

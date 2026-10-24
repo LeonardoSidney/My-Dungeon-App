@@ -1,6 +1,7 @@
 import {
     EraseAssistantControllerResponse,
-    IEraseAssistantController
+    IEraseAssistantController,
+    EraseAssistantControllerRequest,
 } from '@domain/controllers';
 import { ILogger } from '@domain/logger';
 import { IEraseAssistantUseCase } from '@domain/use-cases';
@@ -11,9 +12,10 @@ export class EraseAssistantController implements IEraseAssistantController {
         private readonly useCase: IEraseAssistantUseCase
     ) { }
 
-    async handle (assistantId: string): Promise<EraseAssistantControllerResponse> {
+    async handle (request: EraseAssistantControllerRequest): Promise<EraseAssistantControllerResponse> {
         this.logger.info('Executing EraseAssistantController::handle');
-        const response = await this.useCase.execute(assistantId);
+        this.logger.debug('EraseAssistantController::handle - params', request);
+        const response = await this.useCase.execute(request);
 
         return {
             success: response.success,

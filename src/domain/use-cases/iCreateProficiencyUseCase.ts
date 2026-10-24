@@ -1,4 +1,3 @@
-import { Proficiency } from '../entities';
 
 export interface ICreateProficiencyUseCase {
     execute(params: CreateProficiencyUseCaseParams): Promise<CreateProficiencyUseCaseResponse>;
@@ -13,6 +12,6 @@ export type CreateProficiencyUseCaseParams = {
 
 export type CreateProficiencyUseCaseResponse = {
     success: boolean;
-    proficiency?: Proficiency;
+    id?: string;
     error?: string;
 };

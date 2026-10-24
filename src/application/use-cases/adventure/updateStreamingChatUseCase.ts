@@ -23,8 +23,27 @@ export class UpdateStreamingChatUseCase implements IUpdateStreamingChatUseCase {
             return validation;
         }
 
+        const adventureResponse = await this.adventureRepository.getAdventureById(params.adventureId);
+        if (!adventureResponse.success) {
+            this.logger.warning('UpdateStreamingChatUseCase::execute - failed to load adventure', adventureResponse.error);
+            return { success: false, error: adventureResponse.error };
+        }
+
+        const adventure = adventureResponse.adventure;
+        if (!adventure) {
+            return { success: false, error: `Adventure with id ${params.adventureId} not found` };
+        }
+
+        const chat = adventure.chat.find(entry => entry.id === params.chatId);
+        if (chat && (chat.index < 0 || chat.index >= chat.content.length)) {
+            return {
+                success: false,
+                error: 'Chat index is out of bounds',
+            };
+        }
+
         const response = this.updateStreamingChatService.updateStreamingChat({
-            adventure: params.adventure,
+            adventure,
             chatId: params.chatId,
             content: params.content,
             think: params.think,
@@ -80,16 +99,11 @@ export class UpdateStreamingChatUseCase implements IUpdateStreamingChatUseCase {
             };
         }
 
-        const chat = params.adventure.chat.find(c => c.id === params.chatId);
-        if (chat && (chat.index < 0 || chat.index >= chat.content.length)) {
-            this.logger.warning('UpdateStreamingChatUseCase::validate - invalid chat index', {
-                chatId: params.chatId,
-                index: chat.index,
-                contentLength: chat.content.length,
-            });
+        if (!params.adventureId?.trim()) {
+            this.logger.warning('UpdateStreamingChatUseCase::validate - adventureId is required');
             return {
                 success: false,
-                error: 'Chat index is out of bounds',
+                error: 'Adventure id is required',
             };
         }
 

@@ -4,5 +4,9 @@ export type EraseAdventureControllerResponse = {
 };
 
 export interface IEraseAdventureController {
-    handle (adventureId: string): Promise<EraseAdventureControllerResponse>;
+    handle (request: EraseAdventureControllerRequest): Promise<EraseAdventureControllerResponse>;
 }
+
+export type EraseAdventureControllerRequest = {
+    id: string;
+};

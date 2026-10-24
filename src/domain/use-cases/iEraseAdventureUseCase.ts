@@ -4,5 +4,9 @@ export type EraseAdventureUseCaseReturn = {
 };
 
 export interface IEraseAdventureUseCase {
-    execute (adventureId: string): Promise<EraseAdventureUseCaseReturn>;
+    execute (params: EraseAdventureUseCaseParams): Promise<EraseAdventureUseCaseReturn>;
 }
+
+export type EraseAdventureUseCaseParams = {
+    id: string;
+};

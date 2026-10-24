@@ -11,6 +11,6 @@ export * from './proficiency';
 export * from './sampler';
 export * from './status';
 export * from './systemPrompt';
-export * from './stream';
+export * from './draft';
 export * from './world';
 export * from './worldMaster';

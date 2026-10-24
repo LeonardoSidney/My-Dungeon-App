@@ -6,7 +6,17 @@ import { GetModelResponseDTOEntry } from './dto/getModelResponseDTO';
 import { mapToApplyTemplateRequest } from './dto/applyTemplateRequestDTO';
 import { isArrayRecord, isRecord } from '@infra/dto/shared';
 
-class LlamaCppServerError extends Error { }
+type RequestResult = {
+    success: boolean;
+    response?: Response;
+    error?: string;
+};
+
+type ReadJsonResult = {
+    success: boolean;
+    data?: unknown;
+    error?: string;
+};
 
 export abstract class LlamaCppBaseGateway {
     constructor (
@@ -20,81 +30,81 @@ export abstract class LlamaCppBaseGateway {
         return `${ip}${port}${endpoint}`;
     }
 
-    async getModels (connection: Connection): Promise<Model[] | null> {
+    async getModels (connection: Connection): Promise<ModelProviderGateway.GetModelsResult> {
         this.logger.info('Executing LlamaCppBaseGateway::getModels');
         const url = this.buildUrl(connection, '/models');
-        let response: Response;
-        try {
-            this.logger.debug('Executing LlamaCppBaseGateway::getModels - url: ', url);
-            response = await fetch(url);
-        } catch (error) {
-            throw new Error(`Error fetching models from ${url}: ${this.toErrorMessage(error)}`);
+        this.logger.debug('Executing LlamaCppBaseGateway::getModels - url: ', url);
+
+        const response = await this.request(url);
+        if (!response.success || !response.response) {
+            return { success: false, error: `Error fetching models from ${url}: ${response.error}` };
         }
 
-        if (!response.ok) {
-            this.logger.warning(`Executing LlamaCppBaseGateway::getModels - response not ok: ${response.status}`);
-            return null;
+        if (!response.response.ok) {
+            this.logger.warning(`Executing LlamaCppBaseGateway::getModels - response not ok: ${response.response.status}`);
+            return { success: false, error: `getModels failed with status ${response.response.status}` };
         }
 
-        let body: unknown;
-        try {
-            body = await response.json();
-        } catch (error) {
-            this.logger.warning('Executing LlamaCppBaseGateway::getModels - response is not valid JSON: ', error);
-            return null;
+        const body = await this.readJson(response.response);
+        if (!body.success) {
+            this.logger.warning('Executing LlamaCppBaseGateway::getModels - response is not valid JSON: ', body.error);
+            return { success: false, error: `Error reading models from ${url}: ${body.error}` };
         }
 
-        const entries = this.parseModelsResponse(body);
+        const entries = this.parseModelsResponse(body.data);
         if (!entries) {
             this.logger.warning('Executing LlamaCppBaseGateway::getModels - response does not contain a models list');
-            return null;
+            return { success: false, error: 'Models response does not contain a models list' };
         }
 
         this.logger.debug('Executing LlamaCppBaseGateway::getModels - entries: ', entries);
-        return this.toModels(entries, connection);
+        return { success: true, models: this.toModels(entries, connection) };
     }
 
-    async getProps (params: ModelProviderGateway.GetPropsParams): Promise<ModelProviderGateway.ModelProps | null> {
+    async getProps (params: ModelProviderGateway.GetPropsParams): Promise<ModelProviderGateway.GetPropsResult> {
         this.logger.info('Executing LlamaCppBaseGateway::getProps');
         const { connection, modelId } = params;
         const autoload = params.autoload ?? false;
         const endpoint = `/props?model=${encodeURIComponent(modelId)}&autoload=${autoload}`;
         const url = this.buildUrl(connection, endpoint);
+        this.logger.debug('Executing LlamaCppBaseGateway::getProps - url: ', url);
 
-        try {
-            this.logger.debug('Executing LlamaCppBaseGateway::getProps - url: ', url);
-            const response = await fetch(url);
+        const response = await this.request(url);
+        if (!response.success || !response.response) {
+            return { success: false, error: `Error calling getProps on ${url}: ${response.error}` };
+        }
 
-            if (!response.ok) {
-                const message = await this.parseErrorBody(response);
-                this.logger.warning(`Executing LlamaCppBaseGateway::getProps - server error ${response.status}: ${message}`);
-                throw new LlamaCppServerError(`getProps failed with status ${response.status}: ${message}`);
-            }
+        if (!response.response.ok) {
+            const message = await this.parseErrorBody(response.response);
+            this.logger.warning(`Executing LlamaCppBaseGateway::getProps - server error ${response.response.status}: ${message}`);
+            return { success: false, error: `getProps failed with status ${response.response.status}: ${message}` };
+        }
 
-            const data: unknown = await response.json();
-            this.logger.debug('Executing LlamaCppBaseGateway::getProps - data: ', data);
+        const body = await this.readJson(response.response);
+        if (!body.success) {
+            return { success: false, error: `Error calling getProps on ${url}: ${body.error}` };
+        }
 
-            if (!isRecord(data) || Array.isArray(data)) {
-                this.logger.warning('Executing LlamaCppBaseGateway::getProps - response is not a record');
-                return null;
-            }
+        const data = body.data;
+        this.logger.debug('Executing LlamaCppBaseGateway::getProps - data: ', data);
 
-            const chatTemplate = typeof data.chat_template === 'string' ? data.chat_template : null;
-            const modelAlias = typeof data.model_alias === 'string' ? data.model_alias : null;
-            const isSleeping = typeof data.is_sleeping === 'boolean' ? data.is_sleeping : false;
+        if (!isRecord(data) || Array.isArray(data)) {
+            this.logger.warning('Executing LlamaCppBaseGateway::getProps - response is not a record');
+            return { success: false, error: 'getProps response is not a record' };
+        }
 
-            return {
+        const chatTemplate = typeof data.chat_template === 'string' ? data.chat_template : null;
+        const modelAlias = typeof data.model_alias === 'string' ? data.model_alias : null;
+        const isSleeping = typeof data.is_sleeping === 'boolean' ? data.is_sleeping : false;
+
+        return {
+            success: true,
+            props: {
                 chatTemplate,
                 modelAlias,
                 isSleeping
-            };
-        } catch (error) {
-            if (error instanceof LlamaCppServerError) {
-                throw error;
             }
-
-            throw new Error(`Error calling getProps on ${url}: ${this.toErrorMessage(error)}`);
-        }
+        };
     }
 
     protected toModels (entries: GetModelResponseDTOEntry[], connection: Connection): Model[] {
@@ -164,45 +174,63 @@ export abstract class LlamaCppBaseGateway {
         return entries;
     }
 
-    async applyTemplate (params: ModelProviderGateway.ApplyTemplateParams): Promise<string | null> {
+    async applyTemplate (params: ModelProviderGateway.ApplyTemplateParams): Promise<ModelProviderGateway.ApplyTemplateResult> {
         this.logger.info('Executing LlamaCppBaseGateway::applyTemplate');
         const { connection, modelId, systemPrompt, chat } = params;
         const url = this.buildUrl(connection, '/apply-template');
         const body = mapToApplyTemplateRequest({ modelId, systemPrompt, chat });
 
+        this.logger.debug('Executing LlamaCppBaseGateway::applyTemplate - url: ', url);
+        this.logger.debug('Executing LlamaCppBaseGateway::applyTemplate - body: ', JSON.stringify(body));
+
+        const response = await this.request(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+        });
+        if (!response.success || !response.response) {
+            return { success: false, error: `Error calling applyTemplate on ${url}: ${response.error}` };
+        }
+
+        this.logger.debug('Executing LlamaCppBaseGateway::applyTemplate - response: ', response.response);
+
+        if (!response.response.ok) {
+            const message = await this.parseErrorBody(response.response);
+            this.logger.warning(`Executing LlamaCppBaseGateway::applyTemplate - server error ${response.response.status}: ${message}`);
+            return { success: false, error: `applyTemplate failed with status ${response.response.status}: ${message}` };
+        }
+
+        const json = await this.readJson(response.response);
+        if (!json.success) {
+            return { success: false, error: `Error calling applyTemplate on ${url}: ${json.error}` };
+        }
+
+        const data = json.data;
+        this.logger.debug('Executing LlamaCppBaseGateway::applyTemplate - data: ', data);
+
+        if (!isRecord(data) || typeof data.prompt !== 'string') {
+            this.logger.warning('Executing LlamaCppBaseGateway::applyTemplate - response without prompt');
+            return { success: false, error: 'Model did not return a prompt' };
+        }
+
+        return { success: true, prompt: data.prompt };
+    }
+
+    private async request (url: string, init?: RequestInit): Promise<RequestResult> {
         try {
-            this.logger.debug('Executing LlamaCppBaseGateway::applyTemplate - url: ', url);
-            this.logger.debug('Executing LlamaCppBaseGateway::applyTemplate - body: ', JSON.stringify(body));
-
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body),
-            });
-
-            this.logger.debug('Executing LlamaCppBaseGateway::applyTemplate - response: ', response);
-
-            if (!response.ok) {
-                const message = await this.parseErrorBody(response);
-                this.logger.warning(`Executing LlamaCppBaseGateway::applyTemplate - server error ${response.status}: ${message}`);
-                throw new LlamaCppServerError(`applyTemplate failed with status ${response.status}: ${message}`);
-            }
-
-            const data: unknown = await response.json();
-            this.logger.debug('Executing LlamaCppBaseGateway::applyTemplate - data: ', data);
-
-            if (!isRecord(data) || typeof data.prompt !== 'string') {
-                this.logger.warning('Executing LlamaCppBaseGateway::applyTemplate - response without prompt');
-                return null;
-            }
-
-            return data.prompt;
+            return { success: true, response: await fetch(url, init) };
         } catch (error) {
-            if (error instanceof LlamaCppServerError) {
-                throw error;
-            }
+            this.logger.error(`LlamaCppBaseGateway::request - fetch failed: ${url}`, error);
+            return { success: false, error: this.toErrorMessage(error) };
+        }
+    }
 
-            throw new Error(`Error calling applyTemplate on ${url}: ${this.toErrorMessage(error)}`);
+    private async readJson (response: Response): Promise<ReadJsonResult> {
+        try {
+            return { success: true, data: await response.json() };
+        } catch (error) {
+            this.logger.error('LlamaCppBaseGateway::readJson - invalid JSON body', error);
+            return { success: false, error: this.toErrorMessage(error) };
         }
     }
 

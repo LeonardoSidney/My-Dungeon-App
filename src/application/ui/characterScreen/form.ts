@@ -1,5 +1,6 @@
-import { Character, Assistant, Ability, Proficiency, Status } from '@domain/entities';
 import {
+    CharacterDetails,
+    EntityOption,
     CreateCharacterControllerPrams,
     EditCharacterControllerParams,
     ICreateCharacterController,
@@ -10,11 +11,11 @@ import { ControllerResponse } from '@application/ui/hooks';
 import { filterAttributes } from './filterAttributes';
 
 export function toCharacterFormState (
-    character: Character,
-    assistants: Assistant[],
-    abilities: Ability[],
-    proficiencies: Proficiency[],
-    statuses: Status[]
+    character: CharacterDetails,
+    assistants: EntityOption[],
+    abilities: EntityOption[],
+    proficiencies: EntityOption[],
+    statuses: EntityOption[]
 ): CharacterFormData {
     return {
         id: character.id,
@@ -23,10 +24,10 @@ export function toCharacterFormState (
         prompt: character.prompt,
         observation: character.observation ?? '',
         assistant: assistants.find(assistant => assistant.id === character.assistantId) ?? null,
-        abilities: abilities.filter(ability => (character.abilityIds ?? []).includes(ability.id)),
-        proficiencies: proficiencies.filter(proficiency => (character.proficiencyIds ?? []).includes(proficiency.id)),
-        statuses: statuses.filter(status => (character.statusIds ?? []).includes(status.id)),
-        attributes: character.attributes ?? [],
+        abilities: abilities.filter(ability => character.abilityIds.includes(ability.id)),
+        proficiencies: proficiencies.filter(proficiency => character.proficiencyIds.includes(proficiency.id)),
+        statuses: statuses.filter(status => character.statusIds.includes(status.id)),
+        attributes: character.attributes,
     };
 }
 

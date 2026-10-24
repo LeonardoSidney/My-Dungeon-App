@@ -1,6 +1,6 @@
 import { ILogger } from '@domain/logger';
 import { IStatusRepository } from '@domain/repository';
-import { EraseStatusUseCaseReturn, IEraseStatusUseCase } from '@domain/use-cases';
+import { EraseStatusUseCaseReturn, IEraseStatusUseCase, EraseStatusUseCaseParams } from '@domain/use-cases';
 
 export class EraseStatusUseCase implements IEraseStatusUseCase {
     constructor (
@@ -8,11 +8,16 @@ export class EraseStatusUseCase implements IEraseStatusUseCase {
         private readonly statusRepository: IStatusRepository
     ) { }
 
-    async execute (statusId: string): Promise<EraseStatusUseCaseReturn> {
+    async execute (params: EraseStatusUseCaseParams): Promise<EraseStatusUseCaseReturn> {
         this.logger.info('Executing EraseStatusUseCase::execute');
-        this.logger.debug('Executing EraseStatusUseCase::execute - statusId: ', statusId);
+        this.logger.debug('Executing EraseStatusUseCase::execute - params.id: ', params.id);
 
-        const result = await this.statusRepository.eraseStatus(statusId);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return { success: false, error: validationError };
+        }
+
+        const result = await this.statusRepository.eraseStatus(params.id);
 
         if (!result.success) {
             this.logger.warning('Failed to erase status', result);
@@ -24,5 +29,13 @@ export class EraseStatusUseCase implements IEraseStatusUseCase {
 
         this.logger.info('Status erased successfully');
         return { success: true };
+    }
+
+    private validate (params: EraseStatusUseCaseParams): string | null {
+        if (!params.id) {
+            return 'A status id is required to erase a status';
+        }
+
+        return null;
     }
 }

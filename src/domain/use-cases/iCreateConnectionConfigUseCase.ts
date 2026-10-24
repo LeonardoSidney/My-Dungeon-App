@@ -1,5 +1,3 @@
-import { Connection } from '../entities';
-
 export interface ICreateConnectionConfigUseCase {
     execute(request: CreateConnectionConfigParams): Promise<CreateConnectionConfigReturn>;
 }
@@ -12,7 +10,7 @@ export type CreateConnectionConfigParams = {
 };
 
 export type CreateConnectionConfigReturn = {
-    connection?: Connection,
+    id?: string,
     success: boolean,
     error?: string;
 };

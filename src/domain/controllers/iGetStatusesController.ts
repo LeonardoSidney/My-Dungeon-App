@@ -1,5 +1,7 @@
-import { Status } from '../entities';
+import { ListControllerResponse, ActivationPromptListItem } from './iCrudControllerResponses';
 
 export interface IGetStatusesController {
-    handle(): Promise<Status[]>;
+    handle (): Promise<GetStatusesControllerResponse>;
 }
+
+export type GetStatusesControllerResponse = ListControllerResponse<ActivationPromptListItem>;

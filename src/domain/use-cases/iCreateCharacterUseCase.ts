@@ -1,4 +1,4 @@
-import { Attribute, Character } from '../entities';
+import { Attribute } from '../entities';
 
 export interface ICreateCharacterUseCase {
     execute (params: CreateCharacterUseCasePrams): Promise<CreateCharacterUseCaseResponse>;
@@ -18,6 +18,6 @@ export type CreateCharacterUseCasePrams = {
 
 export type CreateCharacterUseCaseResponse = {
     success: boolean;
-    character?: Character;
+    id?: string;
     error?: string;
 };

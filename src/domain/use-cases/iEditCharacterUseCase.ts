@@ -1,4 +1,3 @@
-import { Character } from '../entities';
 import { CharacterEditParams } from '../services';
 
 export interface IEditCharacterUseCase {
@@ -11,7 +10,7 @@ export type EditCharacterParams = {
 };
 
 export type EditCharacterReturn = {
-    character?: Character;
+    id?: string;
     success: boolean;
     error?: string;
 };

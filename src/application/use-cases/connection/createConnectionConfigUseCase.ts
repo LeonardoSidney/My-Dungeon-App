@@ -15,7 +15,6 @@ export class CreateConnectionConfigUseCase implements ICreateConnectionConfigUse
         if (validationError) {
             return {
                 success: false,
-                connection: undefined,
                 error: validationError
             };
         }
@@ -32,7 +31,6 @@ export class CreateConnectionConfigUseCase implements ICreateConnectionConfigUse
         if (!response.success) {
             return {
                 success: false,
-                connection: undefined,
                 error: response.error || 'An unknown error occurred on CreateConnectionConfigService'
             };
         }
@@ -40,12 +38,17 @@ export class CreateConnectionConfigUseCase implements ICreateConnectionConfigUse
         if (!response.connection) {
             return {
                 success: false,
-                connection: undefined,
                 error: 'Success is true but does not have an connection'
             };
         }
 
-        const connections = await this.connectionRepository.getConnections();
+        const connectionsResponse = await this.connectionRepository.getConnections();
+        if (!connectionsResponse.success || !connectionsResponse.connections) {
+            this.logger.warning('CreateConnectionConfigUseCase::execute - failed to load connections', connectionsResponse.error);
+            return { success: false, error: connectionsResponse.error };
+        }
+
+        const connections = connectionsResponse.connections;
         this.logger.debug('ConnectionRepository executed successfully', connections);
         const alreadyExists = connections.find((c) => c.name === response.connection?.name);
 
@@ -53,15 +56,18 @@ export class CreateConnectionConfigUseCase implements ICreateConnectionConfigUse
             this.logger.warning(`Connection with name ${response.connection.name} already exists`);
             return {
                 success: false,
-                connection: undefined,
                 error: `Connection with name ${response.connection.name} already exists`
             };
         }
 
-        await this.connectionRepository.saveConnection({ connection: response.connection });
+        const saveResult = await this.connectionRepository.saveConnection({ connection: response.connection });
+        if (!saveResult.success) {
+            this.logger.warning('CreateConnectionConfigUseCase::execute - failed to save connection', saveResult.error);
+            return { success: false, error: saveResult.error };
+        }
 
         return {
-            connection: response.connection,
+            id: response.connection.id,
             success: true
         };
     }

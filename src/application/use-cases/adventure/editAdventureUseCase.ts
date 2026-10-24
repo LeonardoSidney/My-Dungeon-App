@@ -8,8 +8,10 @@ import {
     IWorldRepository,
     IWorldMasterRepository,
 } from '@domain/repository';
-import { AdventureEditParams, IEditAdventureService } from '@domain/services';
+import { IEditAdventureService } from '@domain/services';
+import { Adventure } from '@domain/entities';
 import { EditAdventureParams, EditAdventureReturn, IEditAdventureUseCase } from '@domain/use-cases';
+import { REFERENCED_ENTITIES } from '@domain/constants/referencedEntities';
 import { checkReferencedId, checkReferencedIds } from '@application/shared/validateReferencedIds';
 
 export class EditAdventureUseCase implements IEditAdventureUseCase {
@@ -31,25 +33,20 @@ export class EditAdventureUseCase implements IEditAdventureUseCase {
         if (validationError) {
             return {
                 success: false,
-                adventure: undefined,
                 error: validationError
             };
         }
-        const missingIdError = await this.validateReferencedIds(params.editParams);
-        if (missingIdError) {
-            return {
-                success: false,
-                adventure: undefined,
-                error: missingIdError
-            };
+        const { id, editParams } = params;
+        const adventureResponse = await this.adventureRepository.getAdventureById(id);
+        if (!adventureResponse.success) {
+            this.logger.warning('EditAdventureUseCase::execute - failed to load adventure', adventureResponse.error);
+            return { success: false, error: adventureResponse.error };
         }
 
-        const { id, editParams } = params;
-        const adventure = await this.adventureRepository.getAdventureById(id);
+        const adventure = adventureResponse.adventure;
         if (!adventure) {
             return {
                 success: false,
-                adventure: undefined,
                 error: `Adventure with id ${id} not found`
             };
         }
@@ -61,7 +58,6 @@ export class EditAdventureUseCase implements IEditAdventureUseCase {
         if (!response.success) {
             return {
                 success: false,
-                adventure: undefined,
                 error: response.error || 'An unknown error occurred on EditAdventureService'
             };
         }
@@ -69,13 +65,26 @@ export class EditAdventureUseCase implements IEditAdventureUseCase {
         if (!response.adventure) {
             return {
                 success: false,
-                adventure: undefined,
                 error: 'Success is true but does not have an adventure'
             };
         }
 
         const editedAdventure = response.adventure;
-        const existingAdventures = await this.adventureRepository.getAdventures();
+        const missingIdError = await this.validateReferencedIds(editedAdventure);
+        if (missingIdError) {
+            return {
+                success: false,
+                error: missingIdError
+            };
+        }
+
+        const existingAdventuresResponse = await this.adventureRepository.getAdventures();
+        if (!existingAdventuresResponse.success || !existingAdventuresResponse.adventures) {
+            this.logger.warning('EditAdventureUseCase::execute - failed to load adventures', existingAdventuresResponse.error);
+            return { success: false, error: existingAdventuresResponse.error };
+        }
+
+        const existingAdventures = existingAdventuresResponse.adventures;
         const duplicateAdventure = existingAdventures.find(
             (a) => a.name === editedAdventure.name && a.id !== editedAdventure.id
         );
@@ -84,7 +93,6 @@ export class EditAdventureUseCase implements IEditAdventureUseCase {
             this.logger.warning(`Adventure with name ${editedAdventure.name} already exists`);
             return {
                 success: false,
-                adventure: undefined,
                 error: `Adventure with name ${editedAdventure.name} already exists`
             };
         }
@@ -94,14 +102,13 @@ export class EditAdventureUseCase implements IEditAdventureUseCase {
             this.logger.error('Failed to save edited adventure');
             return {
                 success: false,
-                adventure: undefined,
                 error: editResult.error || 'Failed to save edited adventure'
             };
         }
 
         return {
             success: true,
-            adventure: editedAdventure
+            id: editedAdventure.id
         };
     }
 
@@ -115,51 +122,51 @@ export class EditAdventureUseCase implements IEditAdventureUseCase {
         return null;
     }
 
-    private async validateReferencedIds (editParams: AdventureEditParams): Promise<string | null> {
+    private async validateReferencedIds (editParams: Adventure): Promise<string | null> {
         const characterError = await checkReferencedIds(
-            (id) => this.characterRepository.getCharacterById(id),
-            editParams.characterIds,
-            'Character'
+            (id: string) => this.characterRepository.getCharacterById(id),
+            REFERENCED_ENTITIES.CHARACTER,
+            editParams.characterIds
         );
         if (characterError) {
             return characterError;
         }
         const worldMasterIdError = await checkReferencedId(
-            (id) => this.worldMasterRepository.getWorldMasterById(id),
-            editParams.worldMasterId,
-            'WorldMaster'
+            (id: string) => this.worldMasterRepository.getWorldMasterById(id),
+            REFERENCED_ENTITIES.WORLD_MASTER,
+            editParams.worldMasterId
         );
         if (worldMasterIdError) {
             return worldMasterIdError;
         }
         const systemPromptError = await checkReferencedIds(
-            (id) => this.systemPromptRepository.getSystemPromptById(id),
-            editParams.systemPromptIds,
-            'SystemPrompt'
+            (id: string) => this.systemPromptRepository.getSystemPromptById(id),
+            REFERENCED_ENTITIES.SYSTEM_PROMPT,
+            editParams.systemPromptIds
         );
         if (systemPromptError) {
             return systemPromptError;
         }
         const worldError = await checkReferencedIds(
-            (id) => this.worldRepository.getWorldById(id),
-            editParams.worldIds,
-            'World'
+            (id: string) => this.worldRepository.getWorldById(id),
+            REFERENCED_ENTITIES.WORLD,
+            editParams.worldIds
         );
         if (worldError) {
             return worldError;
         }
         const locationError = await checkReferencedIds(
-            (id) => this.locationRepository.getLocationById(id),
-            editParams.locationIds,
-            'Location'
+            (id: string) => this.locationRepository.getLocationById(id),
+            REFERENCED_ENTITIES.LOCATION,
+            editParams.locationIds
         );
         if (locationError) {
             return locationError;
         }
         const itemError = await checkReferencedIds(
-            (id) => this.itemRepository.getItemById(id),
-            editParams.itemIds,
-            'Item'
+            (id: string) => this.itemRepository.getItemById(id),
+            REFERENCED_ENTITIES.ITEM,
+            editParams.itemIds
         );
         if (itemError) {
             return itemError;

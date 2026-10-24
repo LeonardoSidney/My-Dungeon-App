@@ -1,11 +1,11 @@
 import { Adventure, Chat } from '@domain/entities';
 
 export interface IFinishStreamingChatUseCase {
-    execute(params: FinishStreamingChatUseCaseParams): Promise<FinishStreamingChatUseCaseReturn>;
+    execute (params: FinishStreamingChatUseCaseParams): Promise<FinishStreamingChatUseCaseReturn>;
 }
 
 export type FinishStreamingChatUseCaseParams = {
-    adventure: Adventure;
+    adventureId: string;
     chatId: string;
 };
 

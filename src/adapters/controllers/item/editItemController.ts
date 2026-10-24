@@ -14,12 +14,13 @@ export class EditItemController implements IEditItemController {
 
     async handle (params: EditItemControllerParams): Promise<EditItemControllerResponse> {
         this.logger.info('Executing EditItemController::handle');
+        this.logger.debug('EditItemController::handle - params', params);
         const response = await this.useCase.execute(params);
 
         return {
             success: response.success,
-            item: response.item,
-            error: response.error
+            id: response.id,
+            error: response.error,
         };
     }
 }

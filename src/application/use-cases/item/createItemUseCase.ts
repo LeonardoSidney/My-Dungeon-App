@@ -39,7 +39,13 @@ export class CreateItemUseCase implements ICreateItemUseCase {
             };
         }
 
-        const items = await this.itemRepository.getItems();
+        const itemsResponse = await this.itemRepository.getItems();
+        if (!itemsResponse.success || !itemsResponse.items) {
+            this.logger.warning('CreateItemUseCase::execute - failed to load items', itemsResponse.error);
+            return { success: false, error: itemsResponse.error };
+        }
+
+        const items = itemsResponse.items;
         this.logger.debug('ItemRepository executed successfully', items);
         const alreadyExists = items.find((item) => item.name === response.item?.name);
 
@@ -51,11 +57,15 @@ export class CreateItemUseCase implements ICreateItemUseCase {
             };
         }
 
-        await this.itemRepository.saveItem({ item: response.item });
+        const saveResult = await this.itemRepository.saveItem({ item: response.item });
+        if (!saveResult.success) {
+            this.logger.warning('CreateItemUseCase::execute - failed to save item', saveResult.error);
+            return { success: false, error: saveResult.error };
+        }
 
         return {
             success: true,
-            item: response.item
+            id: response.item.id
         };
     }
 

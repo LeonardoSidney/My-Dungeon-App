@@ -4,9 +4,9 @@ export function createAdventureRequestHelper (overrides?: Partial<CreateAdventur
     return {
         name: 'Test Adventure',
         systemPromptIds: ['1'],
-        characterIds: ['1'],
+        playableCharacterIds: ['1'],
+        aiControlledCharacterIds: [],
         worldMasterId: '1',
-        charactersControlledByAi: [],
         worldIds: ['1'],
         locationIds: ['1'],
         itemIds: ['1'],

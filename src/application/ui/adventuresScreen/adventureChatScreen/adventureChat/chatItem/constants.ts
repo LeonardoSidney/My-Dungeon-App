@@ -1,10 +1,10 @@
-import { Chat } from '@domain/entities';
+import { ChatMessageView } from '@domain/controllers';
 
 export interface ChatItemProps {
-    chat: Chat;
+    message: ChatMessageView;
     isStreaming: boolean;
     characterNameById: Record<string, string>;
-    onDeleteMessage?: (chatId: string, index: number) => void;
+    onDeleteMessage?: (chatId: string) => void;
     isMessageEditing?: boolean;
     editingChatId?: string | null;
     onEditMessage?: (chatId: string) => void;

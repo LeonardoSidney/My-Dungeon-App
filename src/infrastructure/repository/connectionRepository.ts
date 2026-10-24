@@ -1,7 +1,16 @@
 import { CONNECTION_STORAGE_NAMESPACE, STORAGE_NAMESPACE } from '@domain/constants/general';
 import { Connection } from '@domain/entities';
 import { ILogger } from '@domain/logger';
-import { IConnectionRepository, SaveConnectionParams, EditConnectionParams, EraseConnectionRepositoryReturn, EditConnectionRepositoryReturn } from '@domain/repository';
+import {
+    IConnectionRepository,
+    SaveConnectionParams,
+    SaveConnectionRepositoryReturn,
+    GetConnectionsRepositoryReturn,
+    GetConnectionByIdRepositoryReturn,
+    EditConnectionParams,
+    EditConnectionRepositoryReturn,
+    EraseConnectionRepositoryReturn,
+} from '@domain/repository';
 import { IStorage } from '@domain/storage';
 import { ConnectionDTO } from '@infra/dto';
 
@@ -11,118 +20,126 @@ export class ConnectionRepository implements IConnectionRepository {
         private readonly storage: IStorage
     ) { }
 
-    private async findConnectionIndex (connections: Connection[], connectionId: string): Promise<number> {
-        return connections.findIndex((c) => c.id === connectionId);
+    private get storageKey (): string {
+        return `${STORAGE_NAMESPACE}/${CONNECTION_STORAGE_NAMESPACE}`;
     }
 
-    private removeAt (connections: Connection[], index: number): Connection[] {
-        connections.splice(index, 1);
-        return connections;
-    }
-
-    private replaceAt (connections: Connection[], index: number, newItem: Connection): Connection[] {
-        connections[index] = newItem;
-        return connections;
-    }
-
-    async saveConnection (params: SaveConnectionParams): Promise<boolean> {
+    async saveConnection (params: SaveConnectionParams): Promise<SaveConnectionRepositoryReturn> {
         this.logger.info('Executing ConnectionRepository::saveConnection');
         this.logger.debug('Executing ConnectionRepository::saveConnection - params: ', params);
 
-        try {
-            const { connection } = params;
-            const existingData = await this.storage.load<Connection[]>(`${STORAGE_NAMESPACE}/${CONNECTION_STORAGE_NAMESPACE}`);
-            const connections: Connection[] = existingData ? [...existingData, connection] : [connection];
-            await this.storage.save(`${STORAGE_NAMESPACE}/${CONNECTION_STORAGE_NAMESPACE}`, connections);
-        } catch (error) {
-            this.logger.error('Error on ConnectionRepository::saveConnection', error);
-            throw error;
+        const loaded = await this.storage.load<Connection[]>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('ConnectionRepository::saveConnection - failed to load connections', loaded.error);
+            return { success: false, error: 'Failed to save connection' };
         }
-        return true;
+
+        const connections = [...(loaded.data ?? []), params.connection];
+        const saved = await this.storage.save(this.storageKey, connections);
+        if (!saved.success) {
+            this.logger.warning('ConnectionRepository::saveConnection - failed to persist connections', saved.error);
+            return { success: false, error: 'Failed to save connection' };
+        }
+
+        return { success: true };
     }
 
-    async getConnectionById (connectionId: string): Promise<Connection | undefined> {
+    async getConnectionById (connectionId: string): Promise<GetConnectionByIdRepositoryReturn> {
         this.logger.info('Executing ConnectionRepository::getConnectionById');
-        const connections = await this.getConnections();
-        return connections.find((c) => c.id === connectionId);
+
+        const response = await this.getConnections();
+        if (!response.success || !response.connections) {
+            return { success: false, error: response.error };
+        }
+
+        return { success: true, connection: response.connections.find((c) => c.id === connectionId) };
     }
 
-    async getConnections (): Promise<Connection[]> {
+    async getConnections (): Promise<GetConnectionsRepositoryReturn> {
         this.logger.info('Executing ConnectionRepository::getConnections');
 
-        try {
-            const connections: Connection[] = [];
-            const rawData = await this.storage.load<unknown[]>(`${STORAGE_NAMESPACE}/${CONNECTION_STORAGE_NAMESPACE}`);
-            this.logger.debug('Executing ConnectionRepository::getConnections - rawData: ', rawData);
-
-            if (rawData) {
-                const connectionsDTO: ConnectionDTO[] = [];
-                for (const connectionUnknown of rawData) {
-                    const connection = ConnectionDTO.fromStorage(connectionUnknown);
-                    if (connection) {
-                        connectionsDTO.push(connection);
-                    }
-                }
-
-                connections.push(...connectionsDTO.map(dto => dto.toEntity()));
-
-                if (rawData.length !== connections.length) {
-                    this.logger.warning('Some connections were not converted to entity');
-                }
-            }
-
-            this.logger.debug('Executing ConnectionRepository::getConnections - connections: ', connections);
-            return connections;
-        } catch (error) {
-            this.logger.error('Error on ConnectionRepository::getConnections', error);
-            throw error;
+        const loaded = await this.storage.load<unknown>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('ConnectionRepository::getConnections - failed to load connections', loaded.error);
+            return { success: false, error: 'Failed to load connections' };
         }
-    }
 
-    async eraseConnection (connectionId: string): Promise<EraseConnectionRepositoryReturn> {
-        this.logger.info('Executing ConnectionRepository::eraseConnection');
-        this.logger.debug('Executing ConnectionRepository::eraseConnection - connectionId: ', connectionId);
+        const rawData = loaded.data ?? [];
+        this.logger.debug('Executing ConnectionRepository::getConnections - rawData: ', rawData);
 
-        try {
-            const existingData = await this.storage.load<Connection[]>(`${STORAGE_NAMESPACE}/${CONNECTION_STORAGE_NAMESPACE}`);
-            const connections = existingData || [];
-            const index = await this.findConnectionIndex(connections, connectionId);
-
-            if (index === -1) {
-                this.logger.warning(`Connection with id ${connectionId} not found`);
-                return { success: false, error: `Connection with id ${connectionId} does not exist` };
-            }
-
-            const filteredConnections = this.removeAt(connections, index);
-            await this.storage.save(`${STORAGE_NAMESPACE}/${CONNECTION_STORAGE_NAMESPACE}`, filteredConnections);
-            return { success: true };
-        } catch (error) {
-            this.logger.error('Error on ConnectionRepository::eraseConnection', error);
-            return { success: false, error: 'Failed to erase connection' };
+        if (!Array.isArray(rawData)) {
+            this.logger.warning('ConnectionRepository::getConnections - stored connections are not a list');
+            return { success: false, error: 'Failed to load connections' };
         }
+
+        const connections: Connection[] = [];
+        for (const connectionUnknown of rawData) {
+            const dto = ConnectionDTO.fromStorage(connectionUnknown);
+            if (dto) {
+                connections.push(dto.toEntity());
+            }
+        }
+
+        if (rawData.length !== connections.length) {
+            this.logger.warning('Some connections were not converted to entity');
+        }
+
+        this.logger.debug('Executing ConnectionRepository::getConnections - connections: ', connections);
+        return { success: true, connections };
     }
 
     async editConnection (params: EditConnectionParams): Promise<EditConnectionRepositoryReturn> {
         this.logger.info('Executing ConnectionRepository::editConnection');
         this.logger.debug('Executing ConnectionRepository::editConnection - params: ', params);
 
-        try {
-            const { connection } = params;
-            const existingData = await this.storage.load<Connection[]>(`${STORAGE_NAMESPACE}/${CONNECTION_STORAGE_NAMESPACE}`);
-            const connections = existingData || [];
-            const index = await this.findConnectionIndex(connections, connection.id);
-
-            if (index === -1) {
-                this.logger.warning(`Connection with id ${connection.id} not found`);
-                return { success: false, error: `Connection with id ${connection.id} does not exist` };
-            }
-
-            const updatedConnections = this.replaceAt(connections, index, connection);
-            await this.storage.save(`${STORAGE_NAMESPACE}/${CONNECTION_STORAGE_NAMESPACE}`, updatedConnections);
-            return { success: true };
-        } catch (error) {
-            this.logger.error('Error on ConnectionRepository::editConnection', error);
+        const { connection } = params;
+        const loaded = await this.storage.load<Connection[]>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('ConnectionRepository::editConnection - failed to load connections', loaded.error);
             return { success: false, error: 'Failed to edit connection' };
         }
+
+        const connections = loaded.data ?? [];
+        const index = connections.findIndex((c) => c.id === connection.id);
+        if (index === -1) {
+            this.logger.warning(`Connection with id ${connection.id} not found`);
+            return { success: false, error: `Connection with id ${connection.id} does not exist` };
+        }
+
+        connections[index] = connection;
+        const saved = await this.storage.save(this.storageKey, connections);
+        if (!saved.success) {
+            this.logger.warning('ConnectionRepository::editConnection - failed to persist connections', saved.error);
+            return { success: false, error: 'Failed to edit connection' };
+        }
+
+        return { success: true };
+    }
+
+    async eraseConnection (connectionId: string): Promise<EraseConnectionRepositoryReturn> {
+        this.logger.info('Executing ConnectionRepository::eraseConnection');
+        this.logger.debug('Executing ConnectionRepository::eraseConnection - connectionId: ', connectionId);
+
+        const loaded = await this.storage.load<Connection[]>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('ConnectionRepository::eraseConnection - failed to load connections', loaded.error);
+            return { success: false, error: 'Failed to erase connection' };
+        }
+
+        const connections = loaded.data ?? [];
+        const index = connections.findIndex((c) => c.id === connectionId);
+        if (index === -1) {
+            this.logger.warning(`Connection with id ${connectionId} not found`);
+            return { success: false, error: `Connection with id ${connectionId} does not exist` };
+        }
+
+        connections.splice(index, 1);
+        const saved = await this.storage.save(this.storageKey, connections);
+        if (!saved.success) {
+            this.logger.warning('ConnectionRepository::eraseConnection - failed to persist connections', saved.error);
+            return { success: false, error: 'Failed to erase connection' };
+        }
+
+        return { success: true };
     }
 }

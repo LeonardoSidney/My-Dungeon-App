@@ -1,21 +1,19 @@
 import { Text, TouchableOpacity, View } from 'react-native';
 import { styles } from './styles';
-import { Adventure, WorldMaster } from '@domain/entities';
+import { AdventureChatWorldMaster } from '@domain/controllers';
 import { WorldMasterDropdownControllers } from '../constants';
 import { useWorldMasterDropdown } from './hooks/useWorldMasterDropdown';
-import { useEntityList } from '@application/ui/hooks';
 
 interface WorldMasterDropdownProps {
-  adventure: Adventure;
-  onWorldMasterSelect: (adventure: Adventure) => void;
+  adventureId: string;
+  worldMaster?: AdventureChatWorldMaster;
+  onWorldMasterChange: () => Promise<void>;
   controllers: WorldMasterDropdownControllers;
 }
 
 export function WorldMasterDropdown (params: WorldMasterDropdownProps) {
-  const { adventure, onWorldMasterSelect, controllers } = params;
-  const { getWorldMasters, editAdventure, alert } = controllers;
-
-  const { items: worldMasters } = useEntityList({ fetch: () => getWorldMasters.handle() });
+  const { adventureId, worldMaster: selectedWorldMaster, onWorldMasterChange, controllers } = params;
+  const { getWorldMasters, setAdventureWorldMaster, alert } = controllers;
 
   const {
     showList,
@@ -25,14 +23,15 @@ export function WorldMasterDropdown (params: WorldMasterDropdownProps) {
     handleAddWorldMaster,
     handleWorldMasterSelect
   } = useWorldMasterDropdown({
-    adventure,
-    onWorldMasterSelect,
+    adventureId,
+    worldMasterId: selectedWorldMaster?.id,
+    onWorldMasterChange,
     getWorldMasters,
-    editAdventure,
+    setAdventureWorldMaster,
     alert
   });
 
-  function renderWorldMasterListItem (item: WorldMaster) {
+  function renderWorldMasterListItem (item: AdventureChatWorldMaster) {
     return (
       <View key={item.id} style={styles.worldMasterItem}>
         <Text style={styles.worldMasterItemText}>{item.name}</Text>
@@ -40,17 +39,13 @@ export function WorldMasterDropdown (params: WorldMasterDropdownProps) {
     );
   }
 
-  function renderGetWorldMasterItem (item: WorldMaster) {
+  function renderGetWorldMasterItem (item: AdventureChatWorldMaster) {
     return (
       <TouchableOpacity key={item.id} style={styles.getWorldMasterButton} onPress={() => handleWorldMasterSelect(item)}>
         <Text style={styles.getWorldMasterButtonText}>{item.name}</Text>
       </TouchableOpacity>
     );
   }
-
-  const selectedWorldMaster = adventure.worldMasterId
-    ? worldMasters.find(wm => wm.id === adventure.worldMasterId)
-    : undefined;
 
   return (
     <View style={styles.worldMasterSection}>
@@ -67,7 +62,7 @@ export function WorldMasterDropdown (params: WorldMasterDropdownProps) {
             <Text style={styles.addWorldMasterButtonText}>+ Add World Master</Text>
           </TouchableOpacity>
           {isAdding &&
-            allWorldMasters.map((worldMaster: WorldMaster) => (
+            allWorldMasters.map((worldMaster: AdventureChatWorldMaster) => (
               <View key={worldMaster.id}>{renderGetWorldMasterItem(worldMaster)}</View>
             ))}
         </View>

@@ -8,7 +8,7 @@ import { useControllers } from '@application/ui/providers/controllersProvider';
 import { initialSamplerForm, submitSampler, toSamplerFormState, validateSamplerForm } from './form';
 
 export function SamplerScreen () {
-  const { getSamplers, createSampler, editSampler, eraseSampler, alert } = useControllers();
+  const { getSamplers, getSampler, createSampler, editSampler, eraseSampler, alert } = useControllers();
 
   const {
     entities,
@@ -25,8 +25,9 @@ export function SamplerScreen () {
     eraseEntity,
   } = useEntityScreen({
     fetch: () => getSamplers.handle(),
+    load: (id) => getSampler.handle({ id }),
     submit: (samplerForm) => submitSampler(samplerForm, createSampler, editSampler),
-    erase: (id) => eraseSampler.handle(id),
+    erase: (id) => eraseSampler.handle({ id }),
     toFormState: toSamplerFormState,
     initialForm: initialSamplerForm,
     validate: validateSamplerForm,

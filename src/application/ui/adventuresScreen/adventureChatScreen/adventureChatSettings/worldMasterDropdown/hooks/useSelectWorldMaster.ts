@@ -1,29 +1,18 @@
 import { useCallback } from 'react';
-import { WorldMaster } from '@domain/entities';
+import { AdventureChatWorldMaster } from '@domain/controllers';
 import { UseSelectWorldMasterParams } from './constants';
 
 export function useSelectWorldMaster ({
-    adventure,
-    onWorldMasterSelect,
+    adventureId,
+    onWorldMasterChange,
     closeList,
-    editAdventure,
+    setAdventureWorldMaster,
     alert
 }: UseSelectWorldMasterParams) {
-    const handleWorldMasterSelect = useCallback(async (worldMaster: WorldMaster) => {
-        const response = await editAdventure.handle({
-            id: adventure.id,
-            editParams: {
-                name: adventure.name,
-                systemPromptIds: adventure.systemPromptIds,
-                characterIds: adventure.characterIds,
-                worldMasterId: worldMaster.id,
-                characterAsWorldMasterId: undefined,
-                charactersControlledByAi: adventure.charactersControlledByAi,
-                worldIds: adventure.worldIds,
-                locationIds: adventure.locationIds,
-                itemIds: adventure.itemIds,
-                chat: adventure.chat,
-            },
+    const handleWorldMasterSelect = useCallback(async (worldMaster: AdventureChatWorldMaster) => {
+        const response = await setAdventureWorldMaster.handle({
+            adventureId,
+            worldMasterId: worldMaster.id,
         });
 
         if (!response.success) {
@@ -31,11 +20,9 @@ export function useSelectWorldMaster ({
             return;
         }
 
-        if (response.adventure) {
-            onWorldMasterSelect(response.adventure);
-        }
         closeList();
-    }, [adventure, onWorldMasterSelect, closeList, editAdventure, alert]);
+        await onWorldMasterChange();
+    }, [adventureId, onWorldMasterChange, closeList, setAdventureWorldMaster, alert]);
 
     return { handleWorldMasterSelect };
 }

@@ -1,6 +1,6 @@
 import { ILogger } from '@domain/logger';
 import { IAssistantRepository } from '@domain/repository';
-import { EraseAssistantUseCaseReturn, IEraseAssistantUseCase } from '@domain/use-cases';
+import { EraseAssistantUseCaseReturn, IEraseAssistantUseCase, EraseAssistantUseCaseParams } from '@domain/use-cases';
 
 export class EraseAssistantUseCase implements IEraseAssistantUseCase {
     constructor (
@@ -8,17 +8,26 @@ export class EraseAssistantUseCase implements IEraseAssistantUseCase {
         private readonly assistantRepository: IAssistantRepository
     ) { }
 
-    async execute (assistantId: string): Promise<EraseAssistantUseCaseReturn> {
+    async execute (params: EraseAssistantUseCaseParams): Promise<EraseAssistantUseCaseReturn> {
         this.logger.info('Executing EraseAssistantUseCase::execute');
 
-        if (!assistantId) {
-            return { success: false, error: 'An assistant id is required to erase an assistant' };
+        const validationError = this.validate(params);
+        if (validationError) {
+            return { success: false, error: validationError };
         }
 
-        const result = await this.assistantRepository.eraseAssistant(assistantId);
+        const result = await this.assistantRepository.eraseAssistant(params.id);
         if (!result.success) {
             return { success: false, error: result.error || 'Failed to erase assistant' };
         }
         return { success: true };
+    }
+
+    private validate (params: EraseAssistantUseCaseParams): string | null {
+        if (!params.id) {
+            return 'An assistant id is required to erase an assistant';
+        }
+
+        return null;
     }
 }

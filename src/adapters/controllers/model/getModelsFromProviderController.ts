@@ -10,8 +10,8 @@ export class GetModelsFromProviderController implements IGetModelsFromProviderCo
 
     async handle (request: GetModelsControllerRequest): Promise<GetModelsControllerResponse> {
         this.logger.info('Executing GetModelsFromProviderController::handle');
-        const { connection } = request;
-        const response = await this.useCase.execute({ connection });
+        this.logger.debug('GetModelsFromProviderController::handle - params', request);
+        const response = await this.useCase.execute({ connectionId: request.connectionId });
         return {
             success: response.success,
             models: response.models,

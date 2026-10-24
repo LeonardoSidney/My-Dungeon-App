@@ -1,4 +1,3 @@
-import { Ability } from '../entities';
 
 export interface ICreateAbilityController {
     handle(params: CreateAbilityControllerParams): Promise<CreateAbilityControllerResponse>;
@@ -13,6 +12,6 @@ export type CreateAbilityControllerParams = {
 
 export type CreateAbilityControllerResponse = {
     success: boolean;
-    ability?: Ability;
+    id?: string;
     error?: string;
 };

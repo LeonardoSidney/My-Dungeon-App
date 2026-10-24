@@ -16,17 +16,21 @@ export class EditSystemPromptUseCase implements IEditSystemPromptUseCase {
         if (validationError) {
             return {
                 success: false,
-                systemPrompt: undefined,
                 error: validationError
             };
         }
 
         const { id, editParams } = params;
-        const systemPrompt = await this.systemPromptRepository.getSystemPromptById(id);
+        const systemPromptResponse = await this.systemPromptRepository.getSystemPromptById(id);
+        if (!systemPromptResponse.success) {
+            this.logger.warning('EditSystemPromptUseCase::execute - failed to load system prompt', systemPromptResponse.error);
+            return { success: false, error: systemPromptResponse.error };
+        }
+
+        const systemPrompt = systemPromptResponse.systemPrompt;
         if (!systemPrompt) {
             return {
                 success: false,
-                systemPrompt: undefined,
                 error: `System prompt with id ${id} not found`
             };
         }
@@ -38,7 +42,6 @@ export class EditSystemPromptUseCase implements IEditSystemPromptUseCase {
         if (!response.success) {
             return {
                 success: false,
-                systemPrompt: undefined,
                 error: response.error || 'An unknown error occurred on EditSystemPromptService'
             };
         }
@@ -46,13 +49,18 @@ export class EditSystemPromptUseCase implements IEditSystemPromptUseCase {
         if (!response.systemPrompt) {
             return {
                 success: false,
-                systemPrompt: undefined,
                 error: 'Success is true but does not have a systemPrompt'
             };
         }
 
         const editedSystemPrompt = response.systemPrompt;
-        const existingSystemPrompts = await this.systemPromptRepository.getSystemPrompts();
+        const existingSystemPromptsResponse = await this.systemPromptRepository.getSystemPrompts();
+        if (!existingSystemPromptsResponse.success || !existingSystemPromptsResponse.systemPrompts) {
+            this.logger.warning('EditSystemPromptUseCase::execute - failed to load system prompts', existingSystemPromptsResponse.error);
+            return { success: false, error: existingSystemPromptsResponse.error };
+        }
+
+        const existingSystemPrompts = existingSystemPromptsResponse.systemPrompts;
         const duplicateSystemPrompt = existingSystemPrompts.find(
             (sp) => sp.name === editedSystemPrompt.name && sp.id !== editedSystemPrompt.id
         );
@@ -61,7 +69,6 @@ export class EditSystemPromptUseCase implements IEditSystemPromptUseCase {
             this.logger.warning(`System prompt with name ${editedSystemPrompt.name} already exists`);
             return {
                 success: false,
-                systemPrompt: undefined,
                 error: `System prompt with name ${editedSystemPrompt.name} already exists`
             };
         }
@@ -71,14 +78,13 @@ export class EditSystemPromptUseCase implements IEditSystemPromptUseCase {
         if (!editResult.success) {
             return {
                 success: false,
-                systemPrompt: undefined,
                 error: editResult.error || 'Failed to edit system prompt'
             };
         }
 
         return {
             success: true,
-            systemPrompt: editedSystemPrompt
+            id: editedSystemPrompt.id
         };
     }
 

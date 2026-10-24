@@ -1,23 +1,13 @@
-import { Adventure } from '../entities';
+import type { AdventureFormFields } from '../services';
 
 export interface ICreateAdventureUseCase {
     execute (request: CreateAdventureCaseParams): Promise<CreateAdventureCaseReturn>;
 }
 
-export type CreateAdventureCaseParams = {
-    name: string;
-    systemPromptIds: string[];
-    characterIds: string[];
-    worldMasterId?: string;
-    characterAsWorldMasterId?: string;
-    charactersControlledByAi: string[];
-    worldIds: string[];
-    locationIds: string[];
-    itemIds: string[];
-};
+export type CreateAdventureCaseParams = AdventureFormFields;
 
 export type CreateAdventureCaseReturn = {
     success: boolean;
-    adventure?: Adventure;
+    id?: string;
     error?: string;
 };

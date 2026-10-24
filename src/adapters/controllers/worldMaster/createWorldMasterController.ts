@@ -9,6 +9,7 @@ export class CreateWorldMasterController implements ICreateWorldMasterController
     ) { }
     async handle (params: CreateWorldMasterControllerParams): Promise<CreateWorldMasterControllerResponse> {
         this.logger.info('Executing CreateWorldMasterController::handle');
+        this.logger.debug('CreateWorldMasterController::handle - params', params);
         const { name, activationWord, prompt, observation, assistantId } = params;
         const response = await this.useCase.execute({
             name,
@@ -20,8 +21,8 @@ export class CreateWorldMasterController implements ICreateWorldMasterController
 
         return {
             success: response.success,
-            worldMaster: response.worldMaster,
-            error: response.error
+            id: response.id,
+            error: response.error,
         };
     }
 }

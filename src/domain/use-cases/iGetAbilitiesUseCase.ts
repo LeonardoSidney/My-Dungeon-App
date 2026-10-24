@@ -1,5 +1,11 @@
 import { Ability } from '../entities';
 
 export interface IGetAbilitiesUseCase {
-    execute(): Promise<Ability[]>;
+    execute (): Promise<GetAbilitiesUseCaseReturn>;
 }
+
+export type GetAbilitiesUseCaseReturn = {
+    success: boolean;
+    abilities?: Ability[];
+    error?: string;
+};

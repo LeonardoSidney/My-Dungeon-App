@@ -34,8 +34,8 @@ function buildDependencies (
     service: IGetModelTemplateService;
 } {
     const repository: IModelTemplateRepository = {
-        getModelTemplate: jest.fn().mockResolvedValue(cached),
-        saveModelTemplate: jest.fn().mockResolvedValue(true)
+        getModelTemplate: jest.fn().mockResolvedValue({ success: true, modelTemplate: cached }),
+        saveModelTemplate: jest.fn().mockResolvedValue({ success: true })
     };
 
     const builtTemplate: ModelTemplate = {
@@ -65,20 +65,20 @@ describe('GetModelTemplateUseCase', () => {
     });
 
     describe('validation', () => {
-        it('throws when modelId is empty', async () => {
+        it('fails when modelId is empty', async () => {
             const { useCase } = buildDependencies(undefined, { success: true, template: TEMPLATE }, buildHashProvider());
 
-            await expect(
-                useCase.execute({ connection: createConnectionHelper(), modelId: '  ' })
-            ).rejects.toThrow('A modelId is required to get the model template');
+            const result = await useCase.execute({ connection: createConnectionHelper(), modelId: '  ' });
+
+            expect(result).toEqual({ success: false, error: 'A modelId is required to get the model template' });
         });
 
-        it('throws when the connection has no ip', async () => {
+        it('fails when the connection has no ip', async () => {
             const { useCase } = buildDependencies(undefined, { success: true, template: TEMPLATE }, buildHashProvider());
 
-            await expect(
-                useCase.execute({ connection: createConnectionHelper({ ip: '' }), modelId: 'model-a' })
-            ).rejects.toThrow('A connection with a valid ip is required to get the model template');
+            const result = await useCase.execute({ connection: createConnectionHelper({ ip: '' }), modelId: 'model-a' });
+
+            expect(result).toEqual({ success: false, error: 'A connection with a valid ip is required to get the model template' });
         });
     });
 
@@ -192,6 +192,27 @@ describe('GetModelTemplateUseCase', () => {
             await useCase.execute({ connection: createConnectionHelper({ ip: '10.0.0.1', port: undefined }), modelId: 'model-a' });
 
             expect(repository.getModelTemplate).toHaveBeenCalledWith({ modelId: 'model-a', connection: '10.0.0.1' });
+        });
+    });
+
+    describe('repository failures', () => {
+        it('returns the repository error when the cache cannot be loaded', async () => {
+            const { useCase, repository, service } = buildDependencies(undefined, { success: true, template: TEMPLATE }, buildHashProvider());
+            (repository.getModelTemplate as jest.Mock).mockResolvedValue({ success: false, error: 'Database error' });
+
+            const result = await useCase.execute({ connection: createConnectionHelper(), modelId: 'model-a' });
+
+            expect(result).toEqual({ success: false, error: 'Database error' });
+            expect(service.fetchModelTemplate).not.toHaveBeenCalled();
+        });
+
+        it('returns the repository error when the new template cannot be saved', async () => {
+            const { useCase, repository } = buildDependencies(undefined, { success: true, template: TEMPLATE }, buildHashProvider());
+            (repository.saveModelTemplate as jest.Mock).mockResolvedValue({ success: false, error: 'Disk full' });
+
+            const result = await useCase.execute({ connection: createConnectionHelper(), modelId: 'model-a' });
+
+            expect(result).toEqual({ success: false, error: 'Disk full' });
         });
     });
 });

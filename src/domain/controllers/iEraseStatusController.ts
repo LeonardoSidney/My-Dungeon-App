@@ -1,8 +1,12 @@
 export interface IEraseStatusController {
-    handle (statusId: string): Promise<EraseStatusControllerResponse>;
+    handle (request: EraseStatusControllerRequest): Promise<EraseStatusControllerResponse>;
 }
 
 export type EraseStatusControllerResponse = {
     success: boolean;
     error?: string;
+};
+
+export type EraseStatusControllerRequest = {
+    id: string;
 };

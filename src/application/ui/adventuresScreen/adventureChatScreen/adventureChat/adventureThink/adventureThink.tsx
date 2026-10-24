@@ -5,28 +5,24 @@ import { styles } from './styles';
 import { TextMarkdown } from '../textMarkdown';
 import { AdventureThinkProps } from './constants';
 
-function AdventureThinkBase ({ chatId, think, isStreaming, thinkLength, thinkIndex, onNavigateThinkIndex, onRegenerateFromThink, onEditThink, onSaveThinkEdit, onDiscardThinkEdit, onDeleteThink, isThinkEditing, editingThinkChatId }: AdventureThinkProps) {
+function AdventureThinkBase ({ chatId, think, isStreaming, onNavigateThinkIndex, onRegenerateFromThink, onEditThink, onSaveThinkEdit, onDiscardThinkEdit, onDeleteThink, isThinkEditing, editingThinkChatId }: AdventureThinkProps) {
   const isEditingThisThink = !isStreaming && isThinkEditing && editingThinkChatId === chatId;
 
-  const [draft, setDraft] = useState(think?.content ?? '');
+  const [draft, setDraft] = useState(think.content ?? '');
 
   useEffect(() => {
-    if (isEditingThisThink) setDraft(think?.content ?? '');
-  }, [isEditingThisThink, think?.content]);
-
-  if (!think) {
-    return null;
-  }
+    if (isEditingThisThink) setDraft(think.content ?? '');
+  }, [isEditingThisThink, think.content]);
 
   const thinkBody = think.content;
   const showOriginalActions = !isEditingThisThink;
   const canEdit = showOriginalActions && !isStreaming && Boolean(thinkBody) && Boolean(onEditThink);
   const showRegenerate = showOriginalActions && !isStreaming && Boolean(onRegenerateFromThink);
-  const showDelete = showOriginalActions && !isStreaming && thinkIndex > 0 && Boolean(onDeleteThink);
+  const showDelete = showOriginalActions && !isStreaming && think.index > 0 && Boolean(onDeleteThink);
   const showDiscard = isEditingThisThink && Boolean(onDiscardThinkEdit);
   const showSave = isEditingThisThink && Boolean(onSaveThinkEdit);
   const showNav = showOriginalActions && !isStreaming;
-  const navEnabled = thinkLength > 1;
+  const navEnabled = think.count > 1;
   const navButtonTextClass = navEnabled ? adventureStyles.navButtonTextEnabled : adventureStyles.navButtonTextDisabled;
   const hasActions = showNav || canEdit || showRegenerate || showDelete || showDiscard || showSave;
 

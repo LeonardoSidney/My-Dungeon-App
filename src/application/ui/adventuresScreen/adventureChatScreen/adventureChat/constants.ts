@@ -1,10 +1,9 @@
-import { Chat } from '@domain/entities';
+import { ChatMessageView } from '@domain/controllers';
 
 export interface AdventureChatProps {
-    chats: Chat[];
-    streamingChat?: Chat | null;
+    messages: ChatMessageView[];
     characterNameById: Record<string, string>;
-    onDeleteMessage?: (chatId: string, index: number) => void;
+    onDeleteMessage?: (chatId: string) => void;
     isMessageEditing?: boolean;
     editingChatId?: string | null;
     onEditMessage?: (chatId: string) => void;
@@ -22,9 +21,4 @@ export interface AdventureChatProps {
     onDeleteThink?: (chatId: string) => void;
     isThinkEditing?: boolean;
     editingThinkChatId?: string | null;
-}
-
-export interface GetStreamingChatFromListParams {
-    streamingChat: Chat | null | undefined;
-    chats: Chat[];
 }

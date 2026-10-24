@@ -1,7 +1,14 @@
 import { MODEL_TEMPLATE_STORAGE_NAMESPACE, STORAGE_NAMESPACE } from '@domain/constants/general';
 import { ModelTemplate } from '@domain/entities';
 import { ILogger } from '@domain/logger';
-import { GetModelTemplateRepositoryParams, IModelTemplateRepository, SaveModelTemplateParams } from '@domain/repository';
+import {
+    GetModelTemplateRepositoryParams,
+    GetModelTemplateRepositoryReturn,
+    GetModelTemplatesReturn,
+    IModelTemplateRepository,
+    SaveModelTemplateParams,
+    SaveModelTemplateRepositoryReturn,
+} from '@domain/repository';
 import { IStorage } from '@domain/storage';
 import { ModelTemplateDTO } from '../dto';
 
@@ -19,27 +26,34 @@ export class ModelTemplateRepository implements IModelTemplateRepository {
         return template.modelId === modelId && template.connection === connection;
     }
 
-    private async getModelTemplates (): Promise<ModelTemplate[]> {
-        const rawData = await this.storage.load<unknown[]>(this.storageKey);
-        this.logger.debug('Executing ModelTemplateRepository::getModelTemplates - rawData: ', rawData);
-
-        if (!rawData) {
-            return [];
+    private async getModelTemplates (): Promise<GetModelTemplatesReturn> {
+        const loaded = await this.storage.load<unknown>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('ModelTemplateRepository::getModelTemplates - failed to load model templates', loaded.error);
+            return { success: false, error: 'Failed to load model templates' };
         }
 
-        const templates: ModelTemplate[] = [];
+        const rawData = loaded.data ?? [];
+        this.logger.debug('Executing ModelTemplateRepository::getModelTemplates - rawData: ', rawData);
+
+        if (!Array.isArray(rawData)) {
+            this.logger.warning('ModelTemplateRepository::getModelTemplates - stored model templates are not a list');
+            return { success: false, error: 'Failed to load model templates' };
+        }
+
+        const modelTemplates: ModelTemplate[] = [];
         for (const templateUnknown of rawData) {
             const template = ModelTemplateDTO.fromStorage(templateUnknown);
             if (template) {
-                templates.push(template.toEntity());
+                modelTemplates.push(template.toEntity());
             }
         }
 
-        if (rawData.length !== templates.length) {
+        if (rawData.length !== modelTemplates.length) {
             this.logger.warning('Some model templates were not converted to entity');
         }
 
-        return templates;
+        return { success: true, modelTemplates };
     }
 
     private upsert (templates: ModelTemplate[], modelTemplate: ModelTemplate): void {
@@ -53,33 +67,39 @@ export class ModelTemplateRepository implements IModelTemplateRepository {
         templates[index] = modelTemplate;
     }
 
-    async getModelTemplate (params: GetModelTemplateRepositoryParams): Promise<ModelTemplate | undefined> {
+    async getModelTemplate (params: GetModelTemplateRepositoryParams): Promise<GetModelTemplateRepositoryReturn> {
         this.logger.info('Executing ModelTemplateRepository::getModelTemplate');
         const { modelId, connection } = params;
 
-        try {
-            const templates = await this.getModelTemplates();
-            return templates.find((t) => this.isSameTemplate(t, modelId, connection));
-        } catch (error) {
-            this.logger.error('Error on ModelTemplateRepository::getModelTemplate', error);
-            throw error;
+        const response = await this.getModelTemplates();
+        if (!response.success || !response.modelTemplates) {
+            return { success: false, error: response.error };
         }
+
+        return {
+            success: true,
+            modelTemplate: response.modelTemplates.find((t) => this.isSameTemplate(t, modelId, connection)),
+        };
     }
 
-    async saveModelTemplate (params: SaveModelTemplateParams): Promise<boolean> {
+    async saveModelTemplate (params: SaveModelTemplateParams): Promise<SaveModelTemplateRepositoryReturn> {
         this.logger.info('Executing ModelTemplateRepository::saveModelTemplate');
         this.logger.debug('Executing ModelTemplateRepository::saveModelTemplate - params: ', params);
 
-        try {
-            const { modelTemplate } = params;
-            const templates = await this.getModelTemplates();
-            this.upsert(templates, modelTemplate);
-            await this.storage.save(this.storageKey, templates);
-        } catch (error) {
-            this.logger.error('Error on ModelTemplateRepository::saveModelTemplate', error);
-            throw error;
+        const response = await this.getModelTemplates();
+        if (!response.success || !response.modelTemplates) {
+            return { success: false, error: 'Failed to save model template' };
         }
 
-        return true;
+        const templates = response.modelTemplates;
+        this.upsert(templates, params.modelTemplate);
+
+        const saved = await this.storage.save(this.storageKey, templates);
+        if (!saved.success) {
+            this.logger.warning('ModelTemplateRepository::saveModelTemplate - failed to persist model templates', saved.error);
+            return { success: false, error: 'Failed to save model template' };
+        }
+
+        return { success: true };
     }
 }

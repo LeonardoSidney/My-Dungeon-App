@@ -1,5 +1,7 @@
-import { World } from '../entities';
+import { ListControllerResponse, ActivationPromptListItem } from './iCrudControllerResponses';
 
 export interface IGetWorldsController {
-    handle(): Promise<World[]>;
+    handle (): Promise<GetWorldsControllerResponse>;
 }
+
+export type GetWorldsControllerResponse = ListControllerResponse<ActivationPromptListItem>;

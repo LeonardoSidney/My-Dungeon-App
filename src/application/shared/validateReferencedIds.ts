@@ -1,33 +1,35 @@
 export type ReferencedIdCheckResult = string | null;
 
-export async function checkReferencedId<
-    TEntity,
-    TResolve extends (id: string) => Promise<TEntity | undefined>
-> (
-    resolve: TResolve,
-    id: string | undefined,
-    entityLabel: string
+type ReferencedIdLookup = { success: boolean; error?: string; };
+
+export async function checkReferencedId<TResponse extends ReferencedIdLookup> (
+    resolve: (id: string) => Promise<TResponse>,
+    entity: { key: NoInfer<Exclude<keyof TResponse, keyof ReferencedIdLookup>>; label: string; },
+    id: string | undefined
 ): Promise<ReferencedIdCheckResult> {
     if (!id) {
         return null;
     }
-    const entity = await resolve(id);
-    if (!entity) {
-        return `${entityLabel} not found: ${id}`;
+
+    const response = await resolve(id);
+    if (!response.success) {
+        return response.error ?? `Failed to load ${entity.label}: ${id}`;
     }
+
+    if (!response[entity.key]) {
+        return `${entity.label} not found: ${id}`;
+    }
+
     return null;
 }
 
-export async function checkReferencedIds<
-    TEntity,
-    TResolve extends (id: string) => Promise<TEntity | undefined>
-> (
-    resolve: TResolve,
-    ids: string[],
-    entityLabel: string
+export async function checkReferencedIds<TResponse extends ReferencedIdLookup> (
+    resolve: (id: string) => Promise<TResponse>,
+    entity: { key: NoInfer<Exclude<keyof TResponse, keyof ReferencedIdLookup>>; label: string; },
+    ids: string[]
 ): Promise<ReferencedIdCheckResult> {
     for (const id of ids) {
-        const error = await checkReferencedId(resolve, id, entityLabel);
+        const error = await checkReferencedId(resolve, entity, id);
         if (error) {
             return error;
         }

@@ -1,29 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { MessageSquare, Scroll, Pencil, Trash2 } from 'lucide-react-native';
-import { Adventure } from '@domain/entities';
+import { AdventureDetails, AdventureListItem } from '@domain/controllers';
 import { useControllers } from '@application/ui/providers/controllersProvider';
 import { styles } from './styles';
 import { colors } from '../theme';
 import { CrudEntityList, screenStyles } from '@application/ui/components';
 import { AdventureChatScreen } from './adventureChatScreen';
 import { SystemPromptViewer } from './systemPromptViewer';
-import { onViewSystemPrompt, SystemPromptViewData } from './onViewSystemPrompt';
 import { AdventuresForm } from './adventuresForm';
 import { useEntityScreen } from '@application/ui/hooks';
-import { AdventuresScreenProps, AdventureChatScreenControllers } from './constants';
+import { AdventureFormData, AdventuresScreenProps, AdventureChatScreenControllers } from './constants';
 import { initialAdventureForm, submitAdventure, toAdventureFormState, validateAdventureForm } from './form';
 import { useAdventureFormOptions } from './useAdventureFormOptions';
 
 export function AdventuresScreen ({ onChatVisibleChange }: AdventuresScreenProps) {
   const controllers = useControllers();
-  const { createAdventure, editAdventure, eraseAdventure, getAdventures } = controllers;
+  const { createAdventure, editAdventure, eraseAdventure, getAdventures, getAdventure } = controllers;
   const formOptions = useAdventureFormOptions(controllers);
   const [showChat, setShowChat] = useState(false);
-  const [selectedAdventure, setSelectedAdventure] = useState<Adventure | null>(null);
-  const [systemPromptView, setSystemPromptView] = useState<SystemPromptViewData | null>(null);
+  const [selectedAdventureId, setSelectedAdventureId] = useState<string | null>(null);
+  const [systemPromptAdventureId, setSystemPromptAdventureId] = useState<string | null>(null);
 
-  const isChatVisible = showChat && selectedAdventure !== null;
+  const isChatVisible = showChat && selectedAdventureId !== null;
 
   useEffect(() => {
     onChatVisibleChange?.(isChatVisible);
@@ -45,10 +44,11 @@ export function AdventuresScreen ({ onChatVisibleChange }: AdventuresScreenProps
     save,
     eraseEntity,
     reload,
-  } = useEntityScreen({
+  } = useEntityScreen<AdventureListItem, AdventureFormData, AdventureDetails>({
     fetch: () => getAdventures.handle(),
+    load: (id) => getAdventure.handle({ id }),
     submit: (adventureForm) => submitAdventure(adventureForm, createAdventure, editAdventure),
-    erase: (id) => eraseAdventure.handle(id),
+    erase: (id) => eraseAdventure.handle({ id }),
     toFormState: (adventure) => toAdventureFormState(adventure, { characters: formOptions.characters.items, systemPrompts: formOptions.systemPrompts.items, worldMasters: formOptions.worldMasters.items, worlds: formOptions.worlds.items, locations: formOptions.locations.items, items: formOptions.items.items }),
     initialForm: initialAdventureForm,
     validate: validateAdventureForm,
@@ -56,49 +56,50 @@ export function AdventuresScreen ({ onChatVisibleChange }: AdventuresScreenProps
     alert: controllers.alert,
   });
 
-  const handleChat = (adventure: Adventure) => {
-    setSelectedAdventure(adventure);
+  const handleChat = (adventure: AdventureListItem) => {
+    setSelectedAdventureId(adventure.id);
     setShowChat(true);
   };
 
-  const handleViewSystemPrompt = async (adventure: Adventure) => {
-    const data = await onViewSystemPrompt(controllers.getAdventureSystemPrompt, controllers.getAdventureText, adventure);
-    setSystemPromptView(data);
+  const handleViewSystemPrompt = (adventure: AdventureListItem) => {
+    setSystemPromptAdventureId(adventure.id);
   };
 
   const handleBackFromSystemPromptViewer = () => {
-    setSystemPromptView(null);
+    setSystemPromptAdventureId(null);
   };
 
   const chatScreenControllers: AdventureChatScreenControllers = {
-    getAdventures,
-    editAdventure,
-    hydrateAdventure: controllers.hydrateAdventure,
-    createChatAdventure: controllers.createChatAdventure,
+    getAdventureSummary: controllers.getAdventureSummary,
+    getAdventureCharacters: controllers.getAdventureCharacters,
+    getAdventureWorldMaster: controllers.getAdventureWorldMaster,
+    getChatMessages: controllers.getChatMessages,
+    getChatMessage: controllers.getChatMessage,
+    stopChatReply: controllers.stopChatReply,
+    subscribeChatReply: controllers.subscribeChatReply,
     appendChatAdventure: controllers.appendChatAdventure,
-    editChatAdventure: controllers.editChatAdventure,
+    addChatVersion: controllers.addChatVersion,
     deleteChatAdventure: controllers.deleteChatAdventure,
-    editThinkAdventure: controllers.editThinkAdventure,
-    deleteThinkAdventure: controllers.deleteThinkAdventure,
+    deleteChatVersion: controllers.deleteChatVersion,
+    addThinkVersion: controllers.addThinkVersion,
+    deleteThinkVersion: controllers.deleteThinkVersion,
     continueFromChat: controllers.continueFromChat,
     regenerateFromChat: controllers.regenerateFromChat,
     resendChat: controllers.resendChat,
-    startStreamingChat: controllers.startStreamingChat,
-    updateStreamingChat: controllers.updateStreamingChat,
-    finishStreamingChat: controllers.finishStreamingChat,
-    getAdventureText: controllers.getAdventureText,
-    getNativeStreamCompletion: controllers.getNativeStreamCompletion,
+    generateChatReply: controllers.generateChatReply,
+    selectChatVersion: controllers.selectChatVersion,
     getWorldMasters: controllers.getWorldMasters,
+    setAdventureWorldMaster: controllers.setAdventureWorldMaster,
     alert: controllers.alert,
   };
 
   const handleBackFromChat = () => {
     setShowChat(false);
-    setSelectedAdventure(null);
+    setSelectedAdventureId(null);
     reload();
   };
 
-  const renderActions = (adventure: Adventure) => (
+  const renderActions = (adventure: AdventureListItem) => (
     <>
       <TouchableOpacity style={screenStyles.actionButton} onPress={() => handleChat(adventure)}>
         <MessageSquare size={16} color={colors.text} />
@@ -145,25 +146,25 @@ export function AdventuresScreen ({ onChatVisibleChange }: AdventuresScreenProps
         onAdd={openAdd}
         onEdit={openEdit}
         onDelete={eraseEntity}
-        getDetailText={(adventure) => `Created: ${adventure.createdAt.toLocaleDateString()}`}
+        getDetailText={(adventure) => `Created: ${new Date(adventure.createdAt).toLocaleDateString()}`}
         renderActions={renderActions}
         isFormOpen={showForm}
         renderForm={renderForm}
       />
 
-      {showChat && selectedAdventure && (
+      {showChat && selectedAdventureId && (
         <View style={styles.chatOverlay}>
           <AdventureChatScreen
-            adventure={selectedAdventure}
+            adventureId={selectedAdventureId}
             onBack={handleBackFromChat}
             controllers={chatScreenControllers}
           />
         </View>
       )}
 
-      {systemPromptView && (
+      {systemPromptAdventureId && (
         <View style={styles.chatOverlay}>
-          <SystemPromptViewer data={systemPromptView} onBack={handleBackFromSystemPromptViewer} />
+          <SystemPromptViewer adventureId={systemPromptAdventureId} onBack={handleBackFromSystemPromptViewer} controllers={controllers} />
         </View>
       )}
     </View>

@@ -8,10 +8,16 @@ type TestEntity = {
     name: string;
 };
 
+type ListResponse = { success: boolean; items?: TestEntity[]; error?: string; };
+
 const LOADED: TestEntity[] = [
     { id: '1', name: 'A' },
     { id: '2', name: 'B' },
 ];
+
+function ok (items: TestEntity[]): ListResponse {
+    return { success: true, items };
+}
 
 async function renderList (fetch: jest.Mock) {
     const navigation = createTestNavigation();
@@ -24,11 +30,11 @@ async function renderList (fetch: jest.Mock) {
 
 describe('useEntityList', () => {
     it('loads items on mount and clears the loading flag', async () => {
-        let resolveFetch: (value: TestEntity[]) => void = () => {
+        let resolveFetch: (value: ListResponse) => void = () => {
             return;
         };
         const fetch = jest.fn().mockImplementation(
-            () => new Promise<TestEntity[]>((resolve) => {
+            () => new Promise<ListResponse>((resolve) => {
                 resolveFetch = resolve;
             })
         );
@@ -37,7 +43,7 @@ describe('useEntityList', () => {
         expect(view.result.current.isLoading).toBe(true);
 
         await act(async () => {
-            resolveFetch(LOADED);
+            resolveFetch(ok(LOADED));
         });
 
         await waitFor(() => expect(view.result.current.isLoading).toBe(false));
@@ -48,8 +54,8 @@ describe('useEntityList', () => {
 
     it('marks the list as errored when fetch fails and recovers on reload', async () => {
         const fetch = jest.fn()
-            .mockRejectedValueOnce(new Error('boom'))
-            .mockResolvedValue(LOADED);
+            .mockResolvedValueOnce({ success: false, error: 'boom' })
+            .mockResolvedValue(ok(LOADED));
         const { view } = await renderList(fetch);
 
         await waitFor(() => expect(view.result.current.isError).toBe(true));
@@ -66,8 +72,8 @@ describe('useEntityList', () => {
 
     it('refetches the latest items on reload', async () => {
         const fetch = jest.fn()
-            .mockResolvedValueOnce(LOADED)
-            .mockResolvedValueOnce(LOADED.slice(0, 1));
+            .mockResolvedValueOnce(ok(LOADED))
+            .mockResolvedValueOnce(ok(LOADED.slice(0, 1)));
         const { view } = await renderList(fetch);
         await waitFor(() => expect(view.result.current.isLoading).toBe(false));
 
@@ -81,8 +87,8 @@ describe('useEntityList', () => {
 
     it('refetches the latest items when the screen regains focus', async () => {
         const fetch = jest.fn()
-            .mockResolvedValueOnce(LOADED)
-            .mockResolvedValueOnce(LOADED.slice(0, 1));
+            .mockResolvedValueOnce(ok(LOADED))
+            .mockResolvedValueOnce(ok(LOADED.slice(0, 1)));
         const { view, navigation } = await renderList(fetch);
         await waitFor(() => expect(view.result.current.isLoading).toBe(false));
 
@@ -94,5 +100,13 @@ describe('useEntityList', () => {
         await waitFor(() => expect(view.result.current.items).toHaveLength(1));
         expect(view.result.current.items).toEqual(LOADED.slice(0, 1));
         expect(fetch).toHaveBeenCalledTimes(2);
+    });
+
+    it('marks the list as errored when the backend answers with an error envelope', async () => {
+        const fetch = jest.fn().mockResolvedValue({ success: false, error: 'storage offline' });
+        const { view } = await renderList(fetch);
+
+        await waitFor(() => expect(view.result.current.isError).toBe(true));
+        expect(view.result.current.items).toEqual([]);
     });
 });

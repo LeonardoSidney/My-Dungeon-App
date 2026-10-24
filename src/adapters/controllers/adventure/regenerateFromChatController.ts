@@ -14,16 +14,13 @@ export class RegenerateFromChatController implements IRegenerateFromChatControll
 
     async handle (request: RegenerateFromChatControllerRequest): Promise<RegenerateFromChatControllerResponse> {
         this.logger.info('Executing RegenerateFromChatController::handle');
-        this.logger.debug('RegenerateFromChatController::handle - request', {
-            chatId: request.chatId,
-        });
+        this.logger.debug('RegenerateFromChatController::handle - params', request);
 
         const response = await this.useCase.execute(request);
 
         return {
             success: response.success,
-            chat: response.chat,
-            adventure: response.adventure,
+            replyChatId: response.replyChatId,
             error: response.error,
         };
     }

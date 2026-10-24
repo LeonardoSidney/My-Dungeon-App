@@ -39,7 +39,13 @@ export class CreateWorldUseCase implements ICreateWorldUseCase {
             };
         }
 
-        const worlds = await this.worldRepository.getWorlds();
+        const worldsResponse = await this.worldRepository.getWorlds();
+        if (!worldsResponse.success || !worldsResponse.worlds) {
+            this.logger.warning('CreateWorldUseCase::execute - failed to load worlds', worldsResponse.error);
+            return { success: false, error: worldsResponse.error };
+        }
+
+        const worlds = worldsResponse.worlds;
         this.logger.debug('WorldRepository executed successfully', worlds);
         const alreadyExists = worlds.find((world) => world.name === response.world?.name);
 
@@ -51,11 +57,15 @@ export class CreateWorldUseCase implements ICreateWorldUseCase {
             };
         }
 
-        await this.worldRepository.saveWorld({ world: response.world });
+        const saveResult = await this.worldRepository.saveWorld({ world: response.world });
+        if (!saveResult.success) {
+            this.logger.warning('CreateWorldUseCase::execute - failed to save world', saveResult.error);
+            return { success: false, error: saveResult.error };
+        }
 
         return {
             success: true,
-            world: response.world
+            id: response.world.id
         };
     }
 

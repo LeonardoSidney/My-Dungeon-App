@@ -1,16 +1,16 @@
-import type { Character, Item, Location, SystemPrompt, World, WorldMaster } from '@domain/entities';
+import type { ActivationPromptListItem, SystemPromptListItem } from '@domain/controllers';
 import type { AppControllers } from '@application/ui/providers/appControllers';
 import type { AdventuresFormOptionErrors } from './adventuresForm';
 import { useEntityList } from '@application/ui/hooks';
 import type { UseEntityListReturn } from '@application/ui/hooks';
 
 export type AdventureFormOptions = {
-    characters: UseEntityListReturn<Character>;
-    systemPrompts: UseEntityListReturn<SystemPrompt>;
-    worldMasters: UseEntityListReturn<WorldMaster>;
-    worlds: UseEntityListReturn<World>;
-    locations: UseEntityListReturn<Location>;
-    items: UseEntityListReturn<Item>;
+    characters: UseEntityListReturn<ActivationPromptListItem>;
+    systemPrompts: UseEntityListReturn<SystemPromptListItem>;
+    worldMasters: UseEntityListReturn<ActivationPromptListItem>;
+    worlds: UseEntityListReturn<ActivationPromptListItem>;
+    locations: UseEntityListReturn<ActivationPromptListItem>;
+    items: UseEntityListReturn<ActivationPromptListItem>;
     optionErrors: AdventuresFormOptionErrors;
 };
 

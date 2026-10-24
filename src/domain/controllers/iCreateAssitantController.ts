@@ -1,4 +1,3 @@
-import { Assistant } from '../entities';
 
 export interface ICreateAssistantController {
     handle (params: CreateAssistantControllerParams): Promise<CreateAssistantControllerResponse>;
@@ -14,6 +13,6 @@ export type CreateAssistantControllerParams = {
 
 export type CreateAssistantControllerResponse = {
     success: boolean;
-    assistant?: Assistant;
+    id?: string;
     error?: string;
 };

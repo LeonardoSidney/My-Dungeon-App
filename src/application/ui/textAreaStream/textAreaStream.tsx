@@ -1,131 +1,35 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
-import { Model } from '@domain/entities';
-import { DEFAULT_SAMPLER } from '@domain/constants/sampler';
-import {
-  IGetConnectionsController,
-  IGetModelsFromProviderController,
-  IStreamCompletionController,
-} from '@domain/controllers';
+import { HOME_DRAFT_ID } from '@domain/constants/draft';
 import { useControllers } from '@application/ui/providers/controllersProvider';
+import { useDraft } from './hooks/useDraft';
+import { toggleDraftCompletion } from './toggleDraftCompletion';
+import { saveDraftEdit } from './saveDraftEdit';
+import { TextAreaStreamProps } from './constants';
 import { buttonStyles, styles } from './styles';
 
-interface TextAreaStreamProps {
-  prompt: string;
-  setPrompt: React.Dispatch<React.SetStateAction<string>>;
-}
+export function TextAreaStream ({ prompt, setPrompt }: TextAreaStreamProps) {
+  const {
+    getDraft,
+    saveDraft,
+    startDraftCompletion,
+    stopDraftCompletion,
+    subscribeDraft,
+    alert,
+  } = useControllers();
 
-async function bolinhaDePelo (
-  getConnections: IGetConnectionsController,
-  getModelsFromProvider: IGetModelsFromProviderController,
-  getStreamCompletion: IStreamCompletionController,
-  prompt: string,
-  setPrompt: React.Dispatch<React.SetStateAction<string>>,
-  abortRef: { current: (() => void) | null; }
-) {
-  const connections = await getConnections.handle();
-  if (connections.length === 0) {
-    throw new Error('No connections found');
-  }
+  const { isStreaming } = useDraft({ draftId: HOME_DRAFT_ID, getDraft, subscribeDraft, setPrompt, alert });
 
-  let selectedConnectionId: string | undefined;
-  let selectedModelId: string | undefined;
-
-  for (const connection of connections) {
-    let loadedModel: Model | undefined;
-    try {
-      const modelsResponse = await getModelsFromProvider.handle({ connection });
-      loadedModel = modelsResponse.models?.find(model => model.loaded === true);
-    } catch (error) {
-      console.error(`Failed to fetch models from connection ${connection.id}:`, error);
-      continue;
-    }
-
-    if (!loadedModel) {
-      continue;
-    }
-
-    selectedConnectionId = connection.id;
-    selectedModelId = loadedModel.id;
-    break;
-  }
-
-  if (!selectedConnectionId || !selectedModelId) {
-    throw new Error('No loaded model found on any connection');
-  }
-
-  const result = await getStreamCompletion.handle({
-    connectionId: selectedConnectionId,
-    samplerId: DEFAULT_SAMPLER.id,
-    modelId: selectedModelId,
+  const handleStreamToggle = () => toggleDraftCompletion({
+    draftId: HOME_DRAFT_ID,
     prompt,
+    isStreaming,
+    startDraftCompletion,
+    stopDraftCompletion,
+    alert,
   });
 
-  if (!result.success || !result.stream) {
-    throw new Error(result.error || 'Failed to start stream completion');
-  }
-
-  abortRef.current = result.abort ?? null;
-
-  let currentText = prompt;
-  let lastUpdateTime = Date.now();
-  const throttleInterval = 100;
-
-  for await (const token of result.stream) {
-    currentText += token;
-
-    const now = Date.now();
-    if (now - lastUpdateTime >= throttleInterval) {
-      setPrompt(currentText);
-      lastUpdateTime = now;
-    }
-  }
-
-  setPrompt(currentText);
-}
-
-export function TextAreaStream ({ prompt, setPrompt }: TextAreaStreamProps) {
-  const controllers = useControllers();
-  const {
-    getConnections,
-    getModelsFromProvider,
-    getStreamCompletion,
-    alert,
-  } = controllers;
-  const [isStreaming, setIsStreaming] = useState(false);
-  const isRunningRef = useRef(false);
-  const abortRef = useRef<(() => void) | null>(null);
-
-  useEffect(() => {
-    return () => {
-      abortRef.current?.();
-    };
-  }, []);
-
-  const handleStreamToggle = async () => {
-    if (isStreaming) {
-      abortRef.current?.();
-      return;
-    }
-
-    if (isRunningRef.current) {
-      return;
-    }
-
-    isRunningRef.current = true;
-    setIsStreaming(true);
-
-    try {
-      await bolinhaDePelo(getConnections, getModelsFromProvider, getStreamCompletion, prompt, setPrompt, abortRef);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to stream response';
-      alert.handle({ title: 'Erro', message });
-    } finally {
-      abortRef.current = null;
-      isRunningRef.current = false;
-      setIsStreaming(false);
-    }
-  };
+  const handleBlur = () => saveDraftEdit({ draftId: HOME_DRAFT_ID, content: prompt, saveDraft, alert });
 
   const buttonLabel = isStreaming ? 'Stop Stream' : 'Start Stream';
 
@@ -135,6 +39,7 @@ export function TextAreaStream ({ prompt, setPrompt }: TextAreaStreamProps) {
         style={styles.textInput}
         value={prompt}
         onChangeText={setPrompt}
+        onBlur={handleBlur}
         editable={!isStreaming}
         multiline
         placeholder="Enter your prompt..."

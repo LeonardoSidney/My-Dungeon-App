@@ -39,7 +39,13 @@ export class CreateLocationUseCase implements ICreateLocationUseCase {
             };
         }
 
-        const locations = await this.locationRepository.getLocations();
+        const locationsResponse = await this.locationRepository.getLocations();
+        if (!locationsResponse.success || !locationsResponse.locations) {
+            this.logger.warning('CreateLocationUseCase::execute - failed to load locations', locationsResponse.error);
+            return { success: false, error: locationsResponse.error };
+        }
+
+        const locations = locationsResponse.locations;
         this.logger.debug('LocationRepository executed successfully', locations);
         const alreadyExists = locations.find((location) => location.name === response.location?.name);
 
@@ -51,11 +57,15 @@ export class CreateLocationUseCase implements ICreateLocationUseCase {
             };
         }
 
-        await this.locationRepository.saveLocation({ location: response.location });
+        const saveResult = await this.locationRepository.saveLocation({ location: response.location });
+        if (!saveResult.success) {
+            this.logger.warning('CreateLocationUseCase::execute - failed to save location', saveResult.error);
+            return { success: false, error: saveResult.error };
+        }
 
         return {
             success: true,
-            location: response.location
+            id: response.location.id
         };
     }
 

@@ -23,8 +23,19 @@ export class FinishStreamingChatUseCase implements IFinishStreamingChatUseCase {
             return validation;
         }
 
+        const adventureResponse = await this.adventureRepository.getAdventureById(params.adventureId);
+        if (!adventureResponse.success) {
+            this.logger.warning('FinishStreamingChatUseCase::execute - failed to load adventure', adventureResponse.error);
+            return { success: false, error: adventureResponse.error };
+        }
+
+        const adventure = adventureResponse.adventure;
+        if (!adventure) {
+            return { success: false, error: `Adventure with id ${params.adventureId} not found` };
+        }
+
         const response = this.finishStreamingChatService.finishStreamingChat({
-            adventure: params.adventure,
+            adventure,
             chatId: params.chatId,
         });
 
@@ -62,6 +73,13 @@ export class FinishStreamingChatUseCase implements IFinishStreamingChatUseCase {
     }
 
     private validate (params: FinishStreamingChatUseCaseParams): FinishStreamingChatUseCaseReturn {
+        if (!params.adventureId?.trim()) {
+            return {
+                success: false,
+                error: 'Adventure id is required',
+            };
+        }
+
         if (!params.chatId?.trim()) {
             this.logger.warning('FinishStreamingChatUseCase::validate - chatId is required');
             return {

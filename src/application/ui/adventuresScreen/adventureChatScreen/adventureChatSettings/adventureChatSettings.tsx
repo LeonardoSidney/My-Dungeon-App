@@ -4,7 +4,7 @@ import { AdventureChatSettingsProps } from './constants';
 import { WorldMasterDropdown } from './worldMasterDropdown';
 
 export function AdventureChatSettings (params: AdventureChatSettingsProps) {
-  const { onBack, adventure, onWorldMasterSelect, controllers } = params;
+  const { onBack, adventureId, adventureName, worldMaster, onWorldMasterChange, controllers } = params;
 
   return (
     <View style={styles.container}>
@@ -12,10 +12,15 @@ export function AdventureChatSettings (params: AdventureChatSettingsProps) {
         <TouchableOpacity style={styles.backButton} onPress={onBack}>
           <Text style={styles.headerText}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{adventure.name} Settings</Text>
+        <Text style={styles.headerTitle}>{adventureName} Settings</Text>
       </View>
       <ScrollView nestedScrollEnabled style={styles.content}>
-        <WorldMasterDropdown adventure={adventure} onWorldMasterSelect={onWorldMasterSelect} controllers={controllers} />
+        <WorldMasterDropdown
+          adventureId={adventureId}
+          worldMaster={worldMaster}
+          onWorldMasterChange={onWorldMasterChange}
+          controllers={controllers}
+        />
       </ScrollView>
     </View>
   );

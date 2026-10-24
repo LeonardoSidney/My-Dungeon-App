@@ -1,21 +1,17 @@
-import { memo, useMemo } from 'react';
+import { memo } from 'react';
 import { View } from 'react-native';
 import { styles } from './styles';
 import { ChatItem } from './chatItem';
-import { getStreamingChatFromList } from './getStreamingChatFromList';
 import { AdventureChatProps } from './constants';
 
-function AdventureChatBase ({ chats, streamingChat, characterNameById, onDeleteMessage, isMessageEditing, editingChatId, onEditMessage, onSaveEditMessage, onDiscardEdit, onContinueFromMessage, onRegenerateFromMessage, onRegenerateContent, onNavigateChatIndex, onNavigateThinkIndex, onRegenerateFromThink, onEditThink, onSaveThinkEdit, onDiscardThinkEdit, onDeleteThink, isThinkEditing, editingThinkChatId }: AdventureChatProps) {
-  const streamingChatFromList = useMemo(() => getStreamingChatFromList({ streamingChat, chats }), [streamingChat, chats]);
-  const streamingChatId = streamingChatFromList?.id ?? null;
-
+function AdventureChatBase ({ messages, characterNameById, onDeleteMessage, isMessageEditing, editingChatId, onEditMessage, onSaveEditMessage, onDiscardEdit, onContinueFromMessage, onRegenerateFromMessage, onRegenerateContent, onNavigateChatIndex, onNavigateThinkIndex, onRegenerateFromThink, onEditThink, onSaveThinkEdit, onDiscardThinkEdit, onDeleteThink, isThinkEditing, editingThinkChatId }: AdventureChatProps) {
   return (
     <View style={styles.container}>
-      {chats.map(chat => (
+      {messages.map(message => (
         <ChatItem
-          key={chat.id}
-          chat={chat}
-          isStreaming={chat.id === streamingChatId}
+          key={message.id}
+          message={message}
+          isStreaming={message.isStreaming}
           characterNameById={characterNameById}
           onDeleteMessage={onDeleteMessage}
           isMessageEditing={isMessageEditing}

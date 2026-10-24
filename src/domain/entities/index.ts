@@ -17,3 +17,4 @@ export * from './WorldMaster';
 export * from './Ability';
 export * from './Status';
 export * from './Proficiency';
+export * from './Draft';

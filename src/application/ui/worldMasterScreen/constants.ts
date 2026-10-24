@@ -1,5 +1,5 @@
 import { ActivationPromptFormConfig } from '@application/ui/components';
-import { Assistant } from '@domain/entities';
+import { EntityOption } from '@domain/controllers';
 
 export const worldMasterFormConfig: ActivationPromptFormConfig = {
     entityName: 'World Master',
@@ -15,7 +15,7 @@ export type WorldMasterFormData = {
     activationWord: string;
     prompt: string;
     observation: string;
-    assistant: Assistant | null;
+    assistant: EntityOption | null;
 };
 
 export type FormErrors = {

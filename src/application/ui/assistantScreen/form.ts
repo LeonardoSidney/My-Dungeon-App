@@ -1,6 +1,8 @@
-import { Assistant, Model, Sampler } from '@domain/entities';
 import {
+    AssistantDetails,
     CreateAssistantControllerParams,
+    EntityOption,
+    ModelOption,
     EditAssistantControllerParams,
     ICreateAssistantController,
     IEditAssistantController,
@@ -9,9 +11,9 @@ import { ControllerResponse } from '@application/ui/hooks';
 import { AssistantFormData, FormErrors } from './constants';
 
 export function toAssistantFormState (
-    assistant: Assistant,
-    models: Model[],
-    samplers: Sampler[]
+    assistant: AssistantDetails,
+    models: ModelOption[],
+    samplers: EntityOption[]
 ): AssistantFormData {
     const currentModel = models.find(
         (m) => m.id === assistant.modelId && m.connectionId === assistant.connectionId
@@ -43,8 +45,8 @@ export function initialAssistantForm (): AssistantFormData {
 
 export function toCreateParams (
     form: AssistantFormData,
-    model: Model,
-    sampler: Sampler
+    model: ModelOption,
+    sampler: EntityOption
 ): CreateAssistantControllerParams {
     const observation = form.observation || undefined;
     return {
@@ -58,8 +60,8 @@ export function toCreateParams (
 
 export function toEditParams (
     form: AssistantFormData,
-    model: Model,
-    sampler: Sampler
+    model: ModelOption,
+    sampler: EntityOption
 ): EditAssistantControllerParams {
     const observation = form.observation || undefined;
     return {

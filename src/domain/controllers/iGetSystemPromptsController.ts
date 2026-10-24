@@ -1,5 +1,7 @@
-import { SystemPrompt } from '../entities';
+import { ListControllerResponse, SystemPromptListItem } from './iCrudControllerResponses';
 
 export interface IGetSystemPromptsController {
-    handle(): Promise<SystemPrompt[]>;
+    handle (): Promise<GetSystemPromptsControllerResponse>;
 }
+
+export type GetSystemPromptsControllerResponse = ListControllerResponse<SystemPromptListItem>;

@@ -1,5 +1,7 @@
-import { WorldMaster } from '../entities';
+import { ListControllerResponse, ActivationPromptListItem } from './iCrudControllerResponses';
 
 export interface IGetWorldMastersController {
-    handle(): Promise<WorldMaster[]>;
+    handle (): Promise<GetWorldMastersControllerResponse>;
 }
+
+export type GetWorldMastersControllerResponse = ListControllerResponse<ActivationPromptListItem>;

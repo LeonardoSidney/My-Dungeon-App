@@ -15,6 +15,7 @@ export function SettingsScreen () {
     eraseAdventures,
     eraseConnection,
     getConnections,
+    getConnection,
     alert,
   } = controllers;
   const [expandedConnection, setExpandedConnection] = useState(false);
@@ -36,8 +37,9 @@ export function SettingsScreen () {
     eraseEntity,
   } = useEntityScreen({
     fetch: () => getConnections.handle(),
+    load: (id) => getConnection.handle({ id }),
     submit: (connectionForm) => submitConnection(connectionForm, createConnectionConfig, editConnection),
-    erase: (id) => eraseConnection.handle(id),
+    erase: (id) => eraseConnection.handle({ id }),
     toFormState: toConnectionFormState,
     initialForm: initialConnectionForm,
     validate: validateConnectionForm,
@@ -47,13 +49,11 @@ export function SettingsScreen () {
 
   const handleDangerErase = async () => {
     setErasing(true);
-    try {
-      await eraseAdventures.handle();
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to erase adventures';
-      alert.handle({ title: 'Erro', message });
-    } finally {
-      setErasing(false);
+    const response = await eraseAdventures.handle();
+    setErasing(false);
+
+    if (!response.success) {
+      alert.handle({ title: 'Erro', message: response.error ?? 'Failed to erase adventures' });
     }
   };
 

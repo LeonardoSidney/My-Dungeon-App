@@ -1,4 +1,3 @@
-import { Item } from '../entities';
 import { ItemEditParams } from '../services';
 
 export interface IEditItemUseCase {
@@ -11,7 +10,7 @@ export type EditItemParams = {
 };
 
 export type EditItemReturn = {
-    item?: Item;
+    id?: string;
     success: boolean;
     error?: string;
 };

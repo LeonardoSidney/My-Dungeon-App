@@ -16,17 +16,21 @@ export class EditLocationUseCase implements IEditLocationUseCase {
         if (validationError) {
             return {
                 success: false,
-                location: undefined,
                 error: validationError
             };
         }
 
         const { id, editParams } = params;
-        const location = await this.locationRepository.getLocationById(id);
+        const locationResponse = await this.locationRepository.getLocationById(id);
+        if (!locationResponse.success) {
+            this.logger.warning('EditLocationUseCase::execute - failed to load location', locationResponse.error);
+            return { success: false, error: locationResponse.error };
+        }
+
+        const location = locationResponse.location;
         if (!location) {
             return {
                 success: false,
-                location: undefined,
                 error: `Location with id ${id} not found`
             };
         }
@@ -38,7 +42,6 @@ export class EditLocationUseCase implements IEditLocationUseCase {
         if (!response.success) {
             return {
                 success: false,
-                location: undefined,
                 error: response.error || 'An unknown error occurred on EditLocationService'
             };
         }
@@ -46,13 +49,18 @@ export class EditLocationUseCase implements IEditLocationUseCase {
         if (!response.location) {
             return {
                 success: false,
-                location: undefined,
                 error: 'Success is true but does not have a location'
             };
         }
 
         const editedLocation = response.location;
-        const existingLocations = await this.locationRepository.getLocations();
+        const existingLocationsResponse = await this.locationRepository.getLocations();
+        if (!existingLocationsResponse.success || !existingLocationsResponse.locations) {
+            this.logger.warning('EditLocationUseCase::execute - failed to load locations', existingLocationsResponse.error);
+            return { success: false, error: existingLocationsResponse.error };
+        }
+
+        const existingLocations = existingLocationsResponse.locations;
         const duplicateLocation = existingLocations.find(
             (l) => l.name === editedLocation.name && l.id !== editedLocation.id
         );
@@ -61,7 +69,6 @@ export class EditLocationUseCase implements IEditLocationUseCase {
             this.logger.warning(`Location with name ${editedLocation.name} already exists`);
             return {
                 success: false,
-                location: undefined,
                 error: `Location with name ${editedLocation.name} already exists`
             };
         }
@@ -70,13 +77,12 @@ export class EditLocationUseCase implements IEditLocationUseCase {
         if (!editResult.success) {
             return {
                 success: false,
-                location: undefined,
                 error: editResult.error || 'Failed to edit location'
             };
         }
 
         return {
-            location: editedLocation,
+            id: editedLocation.id,
             success: true
         };
     }

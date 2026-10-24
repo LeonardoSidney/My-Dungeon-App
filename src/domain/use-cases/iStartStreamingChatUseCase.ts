@@ -5,7 +5,7 @@ export interface IStartStreamingChatUseCase {
 }
 
 export type StartStreamingChatUseCaseParams = {
-    adventure: Adventure;
+    adventureId: string;
     role: Role;
     characterId: string;
     chatId?: string;

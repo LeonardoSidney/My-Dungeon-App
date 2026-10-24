@@ -14,8 +14,8 @@ const mockLogger: ILogger = {
 
 function createStorage (stored: unknown): IStorage {
     return {
-        load: jest.fn().mockResolvedValue(stored),
-        save: jest.fn().mockResolvedValue(undefined)
+        load: jest.fn().mockResolvedValue({ success: true, data: stored }),
+        save: jest.fn().mockResolvedValue({ success: true })
     };
 }
 
@@ -37,26 +37,44 @@ describe('ModelTemplateRepository', () => {
             ];
             const { repository } = buildRepository(stored);
 
-            const template = await repository.getModelTemplate({ modelId: 'model-a', connection: '10.0.0.1:8080' });
+            const { modelTemplate } = await repository.getModelTemplate({ modelId: 'model-a', connection: '10.0.0.1:8080' });
 
-            expect(template?.modelId).toBe('model-a');
+            expect(modelTemplate?.modelId).toBe('model-a');
         });
 
         it('returns undefined when the modelId matches but the connection differs', async () => {
             const stored = [createModelTemplateHelper({ modelId: 'model-a', connection: '10.0.0.1:8080' })];
             const { repository } = buildRepository(stored);
 
-            const template = await repository.getModelTemplate({ modelId: 'model-a', connection: '10.0.0.2:8080' });
+            const result = await repository.getModelTemplate({ modelId: 'model-a', connection: '10.0.0.2:8080' });
 
-            expect(template).toBeUndefined();
+            expect(result).toEqual({ success: true, modelTemplate: undefined });
         });
 
         it('returns undefined for an empty storage', async () => {
             const { repository } = buildRepository(null);
 
-            const template = await repository.getModelTemplate({ modelId: 'model-a', connection: '10.0.0.1:8080' });
+            const result = await repository.getModelTemplate({ modelId: 'model-a', connection: '10.0.0.1:8080' });
 
-            expect(template).toBeUndefined();
+            expect(result).toEqual({ success: true, modelTemplate: undefined });
+        });
+
+        it('fails when the storage cannot be read', async () => {
+            const { repository, storage } = buildRepository(null);
+            (storage.load as jest.Mock).mockResolvedValue({ success: false, error: 'Failed to load @my_dungeon_app/model_template' });
+
+            const result = await repository.getModelTemplate({ modelId: 'model-a', connection: '10.0.0.1:8080' });
+
+            expect(result).toEqual({ success: false, error: 'Failed to load model templates' });
+            expect(mockLogger.warning).toHaveBeenCalled();
+        });
+
+        it('fails when the stored value is not a list', async () => {
+            const { repository } = buildRepository({ not: 'a list' });
+
+            const result = await repository.getModelTemplate({ modelId: 'model-a', connection: '10.0.0.1:8080' });
+
+            expect(result).toEqual({ success: false, error: 'Failed to load model templates' });
         });
 
         it('skips invalid stored entries', async () => {
@@ -66,9 +84,9 @@ describe('ModelTemplateRepository', () => {
             ];
             const { repository } = buildRepository(stored);
 
-            const template = await repository.getModelTemplate({ modelId: 'model-a', connection: '10.0.0.1' });
+            const { modelTemplate } = await repository.getModelTemplate({ modelId: 'model-a', connection: '10.0.0.1' });
 
-            expect(template?.modelId).toBe('model-a');
+            expect(modelTemplate?.modelId).toBe('model-a');
             expect(mockLogger.warning).toHaveBeenCalled();
         });
     });
@@ -80,8 +98,29 @@ describe('ModelTemplateRepository', () => {
 
             const result = await repository.saveModelTemplate({ modelTemplate });
 
-            expect(result).toBe(true);
+            expect(result).toEqual({ success: true });
             expect(storage.save).toHaveBeenCalledWith('@my_dungeon_app/model_template', [modelTemplate]);
+        });
+
+        it('fails without saving when the storage cannot be read', async () => {
+            const { repository, storage } = buildRepository(null);
+            (storage.load as jest.Mock).mockResolvedValue({ success: false, error: 'Failed to load @my_dungeon_app/model_template' });
+            const modelTemplate: ModelTemplate = createModelTemplateHelper({ modelId: 'model-a', connection: '10.0.0.1' });
+
+            const result = await repository.saveModelTemplate({ modelTemplate });
+
+            expect(result).toEqual({ success: false, error: 'Failed to save model template' });
+            expect(storage.save).not.toHaveBeenCalled();
+        });
+
+        it('fails when the storage cannot be written', async () => {
+            const { repository, storage } = buildRepository(null);
+            (storage.save as jest.Mock).mockResolvedValue({ success: false, error: 'Failed to save @my_dungeon_app/model_template' });
+            const modelTemplate: ModelTemplate = createModelTemplateHelper({ modelId: 'model-a', connection: '10.0.0.1' });
+
+            const result = await repository.saveModelTemplate({ modelTemplate });
+
+            expect(result).toEqual({ success: false, error: 'Failed to save model template' });
         });
 
         it('appends the template to a storage without the same key', async () => {

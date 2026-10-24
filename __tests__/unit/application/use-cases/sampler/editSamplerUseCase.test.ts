@@ -14,9 +14,9 @@ const mockLogger: ILogger = {
 };
 
 const mockSamplerRepository = {
-    getSamplers: jest.fn().mockResolvedValue([]),
-    getSamplerById: jest.fn().mockResolvedValue(undefined),
-    saveSampler: jest.fn().mockResolvedValue(true),
+    getSamplers: jest.fn().mockResolvedValue({ success: true, samplers: [] }),
+    getSamplerById: jest.fn().mockResolvedValue({ success: true, sampler: undefined }),
+    saveSampler: jest.fn().mockResolvedValue({ success: true }),
     editSampler: jest.fn().mockResolvedValue({ success: true }),
     eraseSampler: jest.fn().mockResolvedValue({ success: true })
 };
@@ -48,7 +48,7 @@ function buildUseCase (): EditSamplerUseCase {
 describe('EditSamplerUseCase', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        mockSamplerRepository.getSamplers.mockResolvedValue([]);
+        mockSamplerRepository.getSamplers.mockResolvedValue({ success: true, samplers: [] });
         mockGetSamplersService.getSystemDefaultSamplers.mockReturnValue([
             createSamplerHelper({
                 id: 'd159dd93-77da-427b-9407-3d695a13e554',
@@ -64,8 +64,7 @@ describe('EditSamplerUseCase', () => {
         const response = await useCase.execute({
             id: '1',
             editParams: {
-                name: 'top_k',
-                systemDefault: false
+                name: 'top_k'
             }
         });
 
@@ -93,8 +92,7 @@ describe('EditSamplerUseCase', () => {
         const response = await useCase.execute({
             id: '1',
             editParams: {
-                name: 'greedy',
-                systemDefault: false
+                name: 'greedy'
             }
         });
 
@@ -105,8 +103,8 @@ describe('EditSamplerUseCase', () => {
 
     it('should succeed when editing a sampler with a normal name', async () => {
         const existing: Sampler = createSamplerHelper({ id: '1', name: 'old-name' });
-        mockSamplerRepository.getSamplerById.mockResolvedValue(existing);
-        mockSamplerRepository.getSamplers.mockResolvedValue([]);
+        mockSamplerRepository.getSamplerById.mockResolvedValue({ success: true, sampler: existing });
+        mockSamplerRepository.getSamplers.mockResolvedValue({ success: true, samplers: [] });
         const edited: Sampler = createSamplerHelper({ id: '1', name: 'new-name' });
         mockService.editSampler.mockReturnValue({ success: true, sampler: edited });
         const useCase = buildUseCase();
@@ -114,13 +112,96 @@ describe('EditSamplerUseCase', () => {
         const response = await useCase.execute({
             id: '1',
             editParams: {
-                name: 'new-name',
-                systemDefault: false
+                name: 'new-name'
             }
         });
 
         expect(response.success).toBe(true);
-        expect(response.sampler?.name).toBe('new-name');
+        expect(response.id).toBe('1');
         expect(mockSamplerRepository.editSampler).toHaveBeenCalledWith({ sampler: edited });
+    });
+
+    describe('failures', () => {
+        const existing: Sampler = createSamplerHelper({ id: '1', name: 'old-name' });
+        const edited: Sampler = createSamplerHelper({ id: '1', name: 'new-name' });
+
+        beforeEach(() => {
+            mockSamplerRepository.getSamplerById.mockResolvedValue({ success: true, sampler: existing });
+            mockService.editSampler.mockReturnValue({ success: true, sampler: edited });
+        });
+
+        it('should fail when the id is blank', async () => {
+            const response = await buildUseCase().execute({ id: ' ', editParams: { name: 'new-name' } });
+
+            expect(response).toEqual({ success: false, error: 'A sampler id is required to edit a sampler' });
+            expect(mockSamplerRepository.getSamplerById).not.toHaveBeenCalled();
+        });
+
+        it('should fail when the name is blank', async () => {
+            const response = await buildUseCase().execute({ id: '1', editParams: { name: ' ' } });
+
+            expect(response).toEqual({ success: false, error: 'A name is required to edit a sampler' });
+        });
+
+        it('should return the repository error when the sampler cannot be loaded', async () => {
+            mockSamplerRepository.getSamplerById.mockResolvedValue({ success: false, error: 'Database error' });
+
+            const response = await buildUseCase().execute({ id: '1', editParams: { name: 'new-name' } });
+
+            expect(response).toEqual({ success: false, error: 'Database error' });
+            expect(mockService.editSampler).not.toHaveBeenCalled();
+        });
+
+        it('should fail when the sampler does not exist', async () => {
+            mockSamplerRepository.getSamplerById.mockResolvedValue({ success: true, sampler: undefined });
+
+            const response = await buildUseCase().execute({ id: '1', editParams: { name: 'new-name' } });
+
+            expect(response).toEqual({ success: false, error: 'Sampler with id 1 not found' });
+        });
+
+        it.each([
+            [{ success: false, error: 'Invalid sampler' }, 'Invalid sampler'],
+            [{ success: false }, 'An unknown error occurred on EditSamplerService'],
+            [{ success: true }, 'Success is true but does not have a sampler']
+        ])('should fail when the service answers %j', async (serviceResponse, error) => {
+            mockService.editSampler.mockReturnValue(serviceResponse);
+
+            const response = await buildUseCase().execute({ id: '1', editParams: { name: 'new-name' } });
+
+            expect(response).toEqual({ success: false, error });
+            expect(mockSamplerRepository.editSampler).not.toHaveBeenCalled();
+        });
+
+        it('should return the repository error when the samplers cannot be loaded', async () => {
+            mockSamplerRepository.getSamplers.mockResolvedValue({ success: false, error: 'Database error' });
+
+            const response = await buildUseCase().execute({ id: '1', editParams: { name: 'new-name' } });
+
+            expect(response).toEqual({ success: false, error: 'Database error' });
+        });
+
+        it('should fail when another sampler already has the new name', async () => {
+            mockSamplerRepository.getSamplers.mockResolvedValue({
+                success: true,
+                samplers: [edited, createSamplerHelper({ id: '2', name: 'new-name' })]
+            });
+
+            const response = await buildUseCase().execute({ id: '1', editParams: { name: 'new-name' } });
+
+            expect(response).toEqual({ success: false, error: 'Sampler with name new-name already exists' });
+            expect(mockSamplerRepository.editSampler).not.toHaveBeenCalled();
+        });
+
+        it.each([
+            [{ success: false, error: 'Disk full' }, 'Disk full'],
+            [{ success: false }, 'Failed to save sampler']
+        ])('should fail when saving answers %j', async (saveResponse, error) => {
+            mockSamplerRepository.editSampler.mockResolvedValueOnce(saveResponse);
+
+            const response = await buildUseCase().execute({ id: '1', editParams: { name: 'new-name' } });
+
+            expect(response).toEqual({ success: false, error });
+        });
     });
 });

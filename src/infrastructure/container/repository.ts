@@ -13,6 +13,7 @@ import {
     ModelTemplateRepository,
     WorldRepository,
     WorldMasterRepository,
+    DraftRepository,
 } from '../repository';
 import {
     IAbilityRepository,
@@ -29,6 +30,7 @@ import {
     ISystemPromptRepository,
     IWorldRepository,
     IWorldMasterRepository,
+    IDraftRepository,
 } from '@domain/repository';
 import { ILogger } from '@domain/logger';
 import { IStorage } from '@domain/storage';
@@ -87,4 +89,8 @@ export function createWorldRepository (storage: IStorage, logger: ILogger): IWor
 
 export function createWorldMasterRepository (storage: IStorage, logger: ILogger): IWorldMasterRepository {
     return new WorldMasterRepository(logger, storage);
+}
+
+export function createDraftRepository (storage: IStorage, logger: ILogger): IDraftRepository {
+    return new DraftRepository(logger, storage);
 }

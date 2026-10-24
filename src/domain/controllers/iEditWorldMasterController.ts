@@ -1,4 +1,3 @@
-import { WorldMaster } from '../entities';
 import { WorldMasterEditParams } from '../services';
 
 export type EditWorldMasterControllerParams = {
@@ -8,7 +7,7 @@ export type EditWorldMasterControllerParams = {
 
 export type EditWorldMasterControllerResponse = {
     success: boolean;
-    worldMaster?: WorldMaster;
+    id?: string;
     error?: string;
 };
 

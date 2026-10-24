@@ -1,14 +1,13 @@
 import { Adventure } from '../entities';
+import { AdventureFormFields } from './iCreateAdventureService';
 
 export interface IEditAdventureService {
     editAdventure (params: EditAdventureServiceParams): EditAdventureServiceReturn;
 }
 
-export type AdventureEditParams = Omit<Adventure, 'id' | 'createdAt' | 'updatedAt'>;
-
 export type EditAdventureServiceParams = {
     adventure: Adventure;
-    editParams: AdventureEditParams;
+    editParams: AdventureFormFields;
 };
 
 export type EditAdventureServiceReturn = {

@@ -1,5 +1,5 @@
-import { Item } from '@domain/entities';
 import {
+    ActivationPromptDetails,
     CreateItemRequest,
     EditItemControllerParams,
     ICreateItemController,
@@ -11,7 +11,7 @@ import {
 } from '@application/ui/components';
 import { ControllerResponse } from '@application/ui/hooks';
 
-export function toFormState (item: Item): ActivationPromptFormData {
+export function toFormState (item: ActivationPromptDetails): ActivationPromptFormData {
     return {
         id: item.id,
         name: item.name,

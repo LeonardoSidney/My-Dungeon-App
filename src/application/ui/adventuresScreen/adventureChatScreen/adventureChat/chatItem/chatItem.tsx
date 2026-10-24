@@ -6,15 +6,11 @@ import { AdventureThink } from '../adventureThink';
 import { TextMarkdown } from '../textMarkdown';
 import { ChatItemProps } from './constants';
 
-function ChatItemBase ({ chat, isStreaming, characterNameById, onDeleteMessage, isMessageEditing, editingChatId, onEditMessage, onSaveEditMessage, onDiscardEdit, onContinueFromMessage, onRegenerateFromMessage, onRegenerateContent, onNavigateChatIndex, onNavigateThinkIndex, onRegenerateFromThink, onEditThink, onSaveThinkEdit, onDiscardThinkEdit, onDeleteThink, isThinkEditing, editingThinkChatId }: ChatItemProps) {
-  const displayIndex = Math.min(chat.index, Math.max(0, chat.content.length - 1));
-  const thinkLength = chat.think?.length ?? 0;
-  const thinkDisplayIndex = Math.min(chat.thinkIndex, Math.max(0, thinkLength - 1));
-  const think = chat.think?.[thinkDisplayIndex];
-  const content = chat.content[displayIndex] ?? '';
-  const isUserMessage = chat.role === RoleEnum.USER;
-  const characterName = characterNameById[chat.characterId] ?? '';
-  const isEditingThisMessage = !isStreaming && isMessageEditing && editingChatId === chat.id;
+function ChatItemBase ({ message, isStreaming, characterNameById, onDeleteMessage, isMessageEditing, editingChatId, onEditMessage, onSaveEditMessage, onDiscardEdit, onContinueFromMessage, onRegenerateFromMessage, onRegenerateContent, onNavigateChatIndex, onNavigateThinkIndex, onRegenerateFromThink, onEditThink, onSaveThinkEdit, onDiscardThinkEdit, onDeleteThink, isThinkEditing, editingThinkChatId }: ChatItemProps) {
+  const { content, think } = message;
+  const isUserMessage = message.role === RoleEnum.USER;
+  const characterName = characterNameById[message.characterId] ?? '';
+  const isEditingThisMessage = !isStreaming && isMessageEditing && editingChatId === message.id;
 
   const [draft, setDraft] = useState(content);
 
@@ -32,14 +28,14 @@ function ChatItemBase ({ chat, isStreaming, characterNameById, onDeleteMessage, 
   const showDiscard = isEditingThisMessage && Boolean(onDiscardEdit);
   const showSave = isEditingThisMessage && Boolean(onSaveEditMessage);
   const showNav = showOriginalActions && !isStreaming;
-  const navEnabled = chat.content.length > 1;
+  const navEnabled = message.contentCount > 1;
   const navButtonTextClass = navEnabled ? styles.navButtonTextEnabled : styles.navButtonTextDisabled;
   const hasActions = showNav || canEdit || showContinue || showRegenerate || showRegenerateContent || showDelete || showDiscard || showSave;
 
-  const handleNavBack = () => onNavigateChatIndex?.(chat.id, -1);
-  const handleNavAdvance = () => onNavigateChatIndex?.(chat.id, 1);
+  const handleNavBack = () => onNavigateChatIndex?.(message.id, -1);
+  const handleNavAdvance = () => onNavigateChatIndex?.(message.id, 1);
 
-  const hasThink = (chat.think ?? []).some(entry => Boolean(entry.content));
+  const hasThink = think !== undefined;
 
   const chatItemStyle = hasThink ? styles.chatItemWithThink : styles.chatItem;
   const streamingContent = (
@@ -62,13 +58,11 @@ function ChatItemBase ({ chat, isStreaming, characterNameById, onDeleteMessage, 
 
   return (
     <View style={styles.chatWrapper}>
-      {hasThink && (
+      {think && (
         <AdventureThink
-          chatId={chat.id}
+          chatId={message.id}
           think={think}
           isStreaming={isStreaming}
-          thinkLength={thinkLength}
-          thinkIndex={thinkDisplayIndex}
           onNavigateThinkIndex={onNavigateThinkIndex}
           onRegenerateFromThink={onRegenerateFromThink}
           onEditThink={onEditThink}
@@ -98,14 +92,14 @@ function ChatItemBase ({ chat, isStreaming, characterNameById, onDeleteMessage, 
             </TouchableOpacity>
           )}
           {showRegenerate && onRegenerateFromMessage && (
-            <TouchableOpacity style={styles.regenerateButton} onPress={() => onRegenerateFromMessage(chat.id)}>
+            <TouchableOpacity style={styles.regenerateButton} onPress={() => onRegenerateFromMessage(message.id)}>
               <Text style={styles.regenerateButtonText}>↻</Text>
             </TouchableOpacity>
           )}
           {showRegenerateContent && onRegenerateContent && (
             <TouchableOpacity
               style={styles.regenerateButton}
-              onPress={() => onRegenerateContent(chat.id)}
+              onPress={() => onRegenerateContent(message.id)}
               accessibilityRole="button"
               accessibilityLabel="Regenerar conteúdo"
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
@@ -114,7 +108,7 @@ function ChatItemBase ({ chat, isStreaming, characterNameById, onDeleteMessage, 
             </TouchableOpacity>
           )}
           {canEdit && onEditMessage && (
-            <TouchableOpacity style={styles.editButton} onPress={() => onEditMessage(chat.id)}>
+            <TouchableOpacity style={styles.editButton} onPress={() => onEditMessage(message.id)}>
               <Text style={styles.editButtonText}>✏️</Text>
             </TouchableOpacity>
           )}
@@ -126,18 +120,18 @@ function ChatItemBase ({ chat, isStreaming, characterNameById, onDeleteMessage, 
           {showSave && onSaveEditMessage && (
             <TouchableOpacity
               style={[styles.editSaveButton, !draft.trim() && styles.editSaveButtonDisabled]}
-              onPress={() => draft.trim() && onSaveEditMessage(chat.id, draft)}
+              onPress={() => draft.trim() && onSaveEditMessage(message.id, draft)}
             >
               <Text style={styles.editSaveButtonText}>💾</Text>
             </TouchableOpacity>
           )}
           {showContinue && onContinueFromMessage && (
-            <TouchableOpacity style={styles.continueButton} onPress={() => onContinueFromMessage(chat.id)}>
+            <TouchableOpacity style={styles.continueButton} onPress={() => onContinueFromMessage(message.id)}>
               <Text style={styles.continueButtonText}>▶</Text>
             </TouchableOpacity>
           )}
           {showDelete && onDeleteMessage && (
-            <TouchableOpacity style={styles.deleteButton} onPress={() => onDeleteMessage(chat.id, displayIndex)}>
+            <TouchableOpacity style={styles.deleteButton} onPress={() => onDeleteMessage(message.id)}>
               <Text style={styles.deleteButtonText}>🗑</Text>
             </TouchableOpacity>
           )}

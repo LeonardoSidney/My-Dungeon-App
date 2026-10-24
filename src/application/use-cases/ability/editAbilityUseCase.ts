@@ -16,17 +16,21 @@ export class EditAbilityUseCase implements IEditAbilityUseCase {
         if (validationError) {
             return {
                 success: false,
-                ability: undefined,
                 error: validationError
             };
         }
 
         const { id, editParams } = params;
-        const ability = await this.abilityRepository.getAbilityById(id);
+        const abilityResponse = await this.abilityRepository.getAbilityById(id);
+        if (!abilityResponse.success) {
+            this.logger.warning('EditAbilityUseCase::execute - failed to load ability', abilityResponse.error);
+            return { success: false, error: abilityResponse.error };
+        }
+
+        const ability = abilityResponse.ability;
         if (!ability) {
             return {
                 success: false,
-                ability: undefined,
                 error: `Ability with id ${id} not found`
             };
         }
@@ -38,7 +42,6 @@ export class EditAbilityUseCase implements IEditAbilityUseCase {
         if (!response.success) {
             return {
                 success: false,
-                ability: undefined,
                 error: response.error || 'An unknown error occurred on EditAbilityService'
             };
         }
@@ -46,13 +49,18 @@ export class EditAbilityUseCase implements IEditAbilityUseCase {
         if (!response.ability) {
             return {
                 success: false,
-                ability: undefined,
                 error: 'Success is true but does not have an ability'
             };
         }
 
         const editedAbility = response.ability;
-        const existingAbilities = await this.abilityRepository.getAbilities();
+        const existingAbilitiesResponse = await this.abilityRepository.getAbilities();
+        if (!existingAbilitiesResponse.success || !existingAbilitiesResponse.abilities) {
+            this.logger.warning('EditAbilityUseCase::execute - failed to load abilities', existingAbilitiesResponse.error);
+            return { success: false, error: existingAbilitiesResponse.error };
+        }
+
+        const existingAbilities = existingAbilitiesResponse.abilities;
         const duplicateAbility = existingAbilities.find(
             (a) => a.name === editedAbility.name && a.id !== editedAbility.id
         );
@@ -61,7 +69,6 @@ export class EditAbilityUseCase implements IEditAbilityUseCase {
             this.logger.warning(`Ability with name ${editedAbility.name} already exists`);
             return {
                 success: false,
-                ability: undefined,
                 error: `Ability with name ${editedAbility.name} already exists`
             };
         }
@@ -70,13 +77,12 @@ export class EditAbilityUseCase implements IEditAbilityUseCase {
         if (!editResult.success) {
             return {
                 success: false,
-                ability: undefined,
                 error: editResult.error || 'Failed to edit ability'
             };
         }
 
         return {
-            ability: editedAbility,
+            id: editedAbility.id,
             success: true
         };
     }

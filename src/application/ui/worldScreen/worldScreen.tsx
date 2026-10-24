@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { World } from '@domain/entities';
+import { ActivationPromptDetails, ActivationPromptListItem } from '@domain/controllers';
 import { styles } from './styles';
 import { ActivationPromptForm, CrudEntityList, type ActivationPromptFormData } from '@application/ui/components';
 import { useEntityScreen } from '@application/ui/hooks';
@@ -9,7 +9,7 @@ import { worldFormConfig } from './constants';
 import { initialWorldForm, submitWorld, toFormState, validateWorldForm } from './form';
 
 export function WorldScreen () {
-  const { getWorlds, createWorld, editWorld, eraseWorld, alert } = useControllers();
+  const { getWorlds, getWorld, createWorld, editWorld, eraseWorld, alert } = useControllers();
 
   const {
     entities,
@@ -24,10 +24,11 @@ export function WorldScreen () {
     formErrors,
     save,
     eraseEntity,
-  } = useEntityScreen<World, ActivationPromptFormData>({
+  } = useEntityScreen<ActivationPromptListItem, ActivationPromptFormData, ActivationPromptDetails>({
     fetch: () => getWorlds.handle(),
+    load: (id) => getWorld.handle({ id }),
     submit: (worldForm) => submitWorld(worldForm, createWorld, editWorld),
-    erase: (id) => eraseWorld.handle(id),
+    erase: (id) => eraseWorld.handle({ id }),
     toFormState,
     initialForm: initialWorldForm,
     validate: validateWorldForm,

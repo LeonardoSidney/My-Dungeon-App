@@ -4,5 +4,9 @@ export type EraseCharacterControllerResponse = {
 };
 
 export interface IEraseCharacterController {
-    handle (characterId: string): Promise<EraseCharacterControllerResponse>;
+    handle (request: EraseCharacterControllerRequest): Promise<EraseCharacterControllerResponse>;
 }
+
+export type EraseCharacterControllerRequest = {
+    id: string;
+};

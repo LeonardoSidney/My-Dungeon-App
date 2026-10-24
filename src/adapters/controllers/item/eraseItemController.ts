@@ -1,4 +1,4 @@
-import { EraseItemControllerResponse, IEraseItemController } from '@domain/controllers';
+import { EraseItemControllerResponse, IEraseItemController, EraseItemControllerRequest } from '@domain/controllers';
 import { ILogger } from '@domain/logger';
 import { IEraseItemUseCase, EraseItemUseCaseReturn } from '@domain/use-cases';
 
@@ -8,9 +8,10 @@ export class EraseItemController implements IEraseItemController {
         private readonly useCase: IEraseItemUseCase
     ) { }
 
-    async handle (itemId: string): Promise<EraseItemControllerResponse> {
+    async handle (request: EraseItemControllerRequest): Promise<EraseItemControllerResponse> {
         this.logger.info('Executing EraseItemController::handle');
-        const result: EraseItemUseCaseReturn = await this.useCase.execute(itemId);
+        this.logger.debug('EraseItemController::handle - params', request);
+        const result: EraseItemUseCaseReturn = await this.useCase.execute(request);
         return { success: result.success, error: result.error };
     }
 }

@@ -14,12 +14,13 @@ export class EditCharacterController implements IEditCharacterController {
 
     async handle (params: EditCharacterControllerParams): Promise<EditCharacterControllerResponse> {
         this.logger.info('Executing EditCharacterController::handle');
+        this.logger.debug('EditCharacterController::handle - params', params);
         const response = await this.useCase.execute(params);
 
         return {
             success: response.success,
-            character: response.character,
-            error: response.error
+            id: response.id,
+            error: response.error,
         };
     }
 }

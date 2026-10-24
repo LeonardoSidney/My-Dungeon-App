@@ -1,14 +1,15 @@
 import { useCallback } from 'react';
 import { Dispatch, SetStateAction } from 'react';
 import { TextInputKeyPressEvent } from 'react-native';
-import { Adventure } from '@domain/entities';
-import { IAlertController, IDeleteChatAdventureController } from '@domain/controllers';
+import { ChatMessageView, IAlertController, IDeleteChatAdventureController, IDeleteChatVersionController } from '@domain/controllers';
 import { onKeyPressInput } from '../onKeyPressInput';
 
 interface UseMessageActionsParams {
-    currentAdventure: Adventure;
-    setCurrentAdventure: Dispatch<SetStateAction<Adventure>>;
+    adventureId: string;
+    messages: ChatMessageView[];
+    reloadMessages: () => Promise<void>;
     deleteChatAdventure: IDeleteChatAdventureController;
+    deleteChatVersion: IDeleteChatVersionController;
     setMessage: Dispatch<SetStateAction<string>>;
     message: string;
     handleSendMessage: () => Promise<void>;
@@ -16,39 +17,38 @@ interface UseMessageActionsParams {
 }
 
 export function useMessageActions ({
-    currentAdventure,
-    setCurrentAdventure,
+    adventureId,
+    messages,
+    reloadMessages,
     deleteChatAdventure,
+    deleteChatVersion,
     setMessage,
     message,
     handleSendMessage,
     alert
 }: UseMessageActionsParams) {
     const onDeleteMessage = useCallback(
-        async (chatId: string, index: number) => {
-            const targetChat = currentAdventure.chat.find(c => c.id === chatId);
-            if (!targetChat) return;
+        async (chatId: string) => {
+            const target = messages.find(entry => entry.id === chatId);
+            if (!target) return;
 
-            const isOnlyVersion = targetChat.index === 0 && targetChat.content.length === 1;
+            const hasOtherVersions = target.contentCount > 1;
+            const response = hasOtherVersions
+                ? await deleteChatVersion.handle({ adventureId, chatId, versionIndex: target.contentIndex })
+                : await deleteChatAdventure.handle({ adventureId, chatId });
 
-            const response = await deleteChatAdventure.handle({
-                adventure: currentAdventure,
-                chatId,
-                index,
-            });
-
-            if (!response.success || !response.adventure) {
+            if (!response.success) {
                 alert.handle({ title: 'Erro', message: response.error ?? 'Failed to delete message' });
                 return;
             }
 
-            if (isOnlyVersion) {
-                setMessage(targetChat.content[0] ?? '');
+            if (!hasOtherVersions) {
+                setMessage(target.content);
             }
 
-            setCurrentAdventure(response.adventure);
+            await reloadMessages();
         },
-        [currentAdventure, setCurrentAdventure, deleteChatAdventure, setMessage, alert]
+        [adventureId, messages, reloadMessages, deleteChatAdventure, deleteChatVersion, setMessage, alert]
     );
 
     const handleKeyPress = useCallback((e: TextInputKeyPressEvent) => {

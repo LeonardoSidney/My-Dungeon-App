@@ -89,10 +89,11 @@ export class WebStreamProvider implements IStreamProvider {
             } catch (error) {
                 if (error instanceof Error && error.name === 'AbortError') {
                     logger.info('WebStreamProvider::stream aborted', url);
-                } else {
-                    logger.error('WebStreamProvider::stream read failed:', url, error);
-                    throw error;
+                    return;
                 }
+
+                logger.error('WebStreamProvider::stream read failed:', url, error);
+                throw error;
             } finally {
                 parser.flush([], onStreamDone);
                 reader.releaseLock();

@@ -1,9 +1,9 @@
 import { Character } from '../entities';
 
 export interface ICharacterRepository {
-    saveCharacter (params: SaveCharacterParams): Promise<boolean>;
-    getCharacters (): Promise<Character[]>;
-    getCharacterById (characterId: string): Promise<Character | undefined>;
+    saveCharacter (params: SaveCharacterParams): Promise<SaveCharacterRepositoryReturn>;
+    getCharacters (): Promise<GetCharactersRepositoryReturn>;
+    getCharacterById (characterId: string): Promise<GetCharacterByIdRepositoryReturn>;
     editCharacter (params: EditCharacterParams): Promise<EditCharacterReturn>;
     eraseCharacter (characterId: string): Promise<EraseCharacterReturn>;
 }
@@ -14,6 +14,23 @@ export type SaveCharacterParams = {
 
 export type EditCharacterParams = {
     character: Character;
+};
+
+export type SaveCharacterRepositoryReturn = {
+    success: boolean;
+    error?: string;
+};
+
+export type GetCharactersRepositoryReturn = {
+    success: boolean;
+    characters?: Character[];
+    error?: string;
+};
+
+export type GetCharacterByIdRepositoryReturn = {
+    success: boolean;
+    character?: Character;
+    error?: string;
 };
 
 export type EditCharacterReturn = {

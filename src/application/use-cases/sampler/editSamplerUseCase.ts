@@ -17,7 +17,6 @@ export class EditSamplerUseCase implements IEditSamplerUseCase {
         if (validationError) {
             return {
                 success: false,
-                sampler: undefined,
                 error: validationError
             };
         }
@@ -26,17 +25,21 @@ export class EditSamplerUseCase implements IEditSamplerUseCase {
         if (reservedNameError) {
             return {
                 success: false,
-                sampler: undefined,
                 error: reservedNameError
             };
         }
 
         const { id, editParams } = params;
-        const sampler = await this.samplerRepository.getSamplerById(id);
+        const samplerResponse = await this.samplerRepository.getSamplerById(id);
+        if (!samplerResponse.success) {
+            this.logger.warning('EditSamplerUseCase::execute - failed to load sampler', samplerResponse.error);
+            return { success: false, error: samplerResponse.error };
+        }
+
+        const sampler = samplerResponse.sampler;
         if (!sampler) {
             return {
                 success: false,
-                sampler: undefined,
                 error: `Sampler with id ${id} not found`
             };
         }
@@ -48,7 +51,6 @@ export class EditSamplerUseCase implements IEditSamplerUseCase {
         if (!response.success) {
             return {
                 success: false,
-                sampler: undefined,
                 error: response.error || 'An unknown error occurred on EditSamplerService'
             };
         }
@@ -56,13 +58,18 @@ export class EditSamplerUseCase implements IEditSamplerUseCase {
         if (!response.sampler) {
             return {
                 success: false,
-                sampler: undefined,
                 error: 'Success is true but does not have a sampler'
             };
         }
 
         const editedSampler = response.sampler;
-        const existingSamplers = await this.samplerRepository.getSamplers();
+        const existingSamplersResponse = await this.samplerRepository.getSamplers();
+        if (!existingSamplersResponse.success || !existingSamplersResponse.samplers) {
+            this.logger.warning('EditSamplerUseCase::execute - failed to load samplers', existingSamplersResponse.error);
+            return { success: false, error: existingSamplersResponse.error };
+        }
+
+        const existingSamplers = existingSamplersResponse.samplers;
         const duplicateSampler = existingSamplers.find(
             (s) => s.name === editedSampler.name && s.id !== editedSampler.id
         );
@@ -71,7 +78,6 @@ export class EditSamplerUseCase implements IEditSamplerUseCase {
             this.logger.warning(`Sampler with name ${editedSampler.name} already exists`);
             return {
                 success: false,
-                sampler: undefined,
                 error: `Sampler with name ${editedSampler.name} already exists`
             };
         }
@@ -82,14 +88,13 @@ export class EditSamplerUseCase implements IEditSamplerUseCase {
             this.logger.error('Failed to save edited sampler', saveResult);
             return {
                 success: false,
-                sampler: undefined,
                 error: saveResult.error || 'Failed to save sampler'
             };
         }
 
         return {
             success: true,
-            sampler: editedSampler
+            id: editedSampler.id
         };
     }
 

@@ -1,11 +1,9 @@
-import { Think } from '@domain/entities';
+import { ChatThinkView } from '@domain/controllers';
 
 export interface AdventureThinkProps {
   chatId: string;
-  think: Think | null | undefined;
+  think: ChatThinkView;
   isStreaming: boolean;
-  thinkLength: number;
-  thinkIndex: number;
   onNavigateThinkIndex?: (chatId: string, direction: -1 | 1) => void;
   onRegenerateFromThink?: (chatId: string) => void;
   onEditThink?: (chatId: string) => void;

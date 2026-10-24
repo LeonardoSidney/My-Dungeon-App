@@ -1,7 +1,6 @@
-import { Ability } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { IAbilityRepository } from '@domain/repository';
-import { IGetAbilitiesUseCase } from '@domain/use-cases';
+import { GetAbilitiesUseCaseReturn, IGetAbilitiesUseCase } from '@domain/use-cases';
 
 export class GetAbilitiesUseCase implements IGetAbilitiesUseCase {
     constructor (
@@ -9,8 +8,15 @@ export class GetAbilitiesUseCase implements IGetAbilitiesUseCase {
         private readonly abilityRepository: IAbilityRepository
     ) { }
 
-    async execute (): Promise<Ability[]> {
+    async execute (): Promise<GetAbilitiesUseCaseReturn> {
         this.logger.info('Executing GetAbilitiesUseCase::execute');
-        return this.abilityRepository.getAbilities();
+
+        const response = await this.abilityRepository.getAbilities();
+        if (!response.success || !response.abilities) {
+            this.logger.warning('GetAbilitiesUseCase::execute - failed to load abilities', response.error);
+            return { success: false, error: response.error };
+        }
+
+        return { success: true, abilities: response.abilities };
     }
 } 

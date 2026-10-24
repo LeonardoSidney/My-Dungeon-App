@@ -1,5 +1,7 @@
-import { Item } from '../entities';
+import { ListControllerResponse, ActivationPromptListItem } from './iCrudControllerResponses';
 
 export interface IGetItemsController {
-    handle(): Promise<Item[]>;
+    handle (): Promise<GetItemsControllerResponse>;
 }
+
+export type GetItemsControllerResponse = ListControllerResponse<ActivationPromptListItem>;

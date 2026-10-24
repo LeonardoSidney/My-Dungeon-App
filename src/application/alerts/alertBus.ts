@@ -1,7 +1,5 @@
-import { IAlertChannel } from '@domain/providers';
+import { AlertSubscriber, IAlertChannel } from '@domain/providers';
 import { AlertUseCaseParams } from '@domain/use-cases';
-
-export type AlertSubscriber = (params: AlertUseCaseParams) => void;
 
 export class AlertBus implements IAlertChannel {
     private subscribers: AlertSubscriber[] = [];

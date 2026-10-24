@@ -1,21 +1,25 @@
 import {
     createWorldMasterController,
     editWorldMasterController,
-    getWorldMasterController,
+    getWorldMastersController,
 } from '@infra/container';
 import { logger } from '@infra/container/shared';
-import { Assistant } from '@domain/entities';
 import { SeedWorldMaster } from './types';
-import { nameIndex } from './shared';
+import { nameIndex, listItems, NamedEntity, MigrationReturn } from './shared';
 
 export async function seedWorldMasters (
     seeds: SeedWorldMaster[],
-    assistants: Assistant[]
-): Promise<void> {
+    assistants: NamedEntity[]
+): Promise<MigrationReturn> {
     const createWorldMaster = createWorldMasterController();
     const editWorldMaster = editWorldMasterController();
-    const getWorldMasters = getWorldMasterController();
-    const existing = await getWorldMasters.handle();
+    const getWorldMasters = getWorldMastersController();
+    const existingResponse = listItems(await getWorldMasters.handle(), 'world masters');
+    if (!existingResponse.success || !existingResponse.items) {
+        return { success: false, error: existingResponse.error };
+    }
+
+    const existing = existingResponse.items;
     const existingIndex = nameIndex(existing);
     logger.info(`Migration: seeding world masters (${seeds.length} seed(s))`);
 
@@ -24,7 +28,7 @@ export async function seedWorldMasters (
     for (const seed of seeds) {
         const assistant = assistantIndex.get(seed.assistant);
         if (!assistant) {
-            throw new Error(`Migration: assistant "${seed.assistant}" for world master "${seed.name}" does not exist`);
+            return { success: false, error: `Migration: assistant "${seed.assistant}" for world master "${seed.name}" does not exist` };
         }
 
         const current = existingIndex.get(seed.name);
@@ -37,7 +41,7 @@ export async function seedWorldMasters (
                 assistantId: assistant.id,
             });
             if (!response.success) {
-                throw new Error(`Migration: failed to create world master "${seed.name}": ${response.error}`);
+                return { success: false, error: `Migration: failed to create world master "${seed.name}": ${response.error}` };
             }
             continue;
         }
@@ -53,7 +57,9 @@ export async function seedWorldMasters (
             },
         });
         if (!response.success) {
-            throw new Error(`Migration: failed to restore world master "${seed.name}": ${response.error}`);
+            return { success: false, error: `Migration: failed to restore world master "${seed.name}": ${response.error}` };
         }
     }
+
+    return { success: true };
 }

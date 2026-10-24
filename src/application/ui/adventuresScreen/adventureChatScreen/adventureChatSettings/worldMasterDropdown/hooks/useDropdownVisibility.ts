@@ -1,9 +1,9 @@
 import { useState, useCallback } from 'react';
-import { WorldMaster } from '@domain/entities';
+import { AdventureChatWorldMaster } from '@domain/controllers';
 
 export function useDropdownVisibility () {
     const [showList, setShowList] = useState(false);
-    const [allWorldMasters, setAllWorldMasters] = useState<WorldMaster[]>([]);
+    const [allWorldMasters, setAllWorldMasters] = useState<AdventureChatWorldMaster[]>([]);
     const [isAdding, setIsAdding] = useState(false);
 
     const toggleList = useCallback(() => {
@@ -20,7 +20,7 @@ export function useDropdownVisibility () {
         setIsAdding(true);
     }, []);
 
-    const setWorldMasters = useCallback((masters: WorldMaster[]) => {
+    const setWorldMasters = useCallback((masters: AdventureChatWorldMaster[]) => {
         setAllWorldMasters(masters);
     }, []);
 

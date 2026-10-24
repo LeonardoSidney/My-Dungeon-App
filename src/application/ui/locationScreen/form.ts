@@ -1,5 +1,5 @@
-import { Location } from '@domain/entities';
 import {
+    ActivationPromptDetails,
     CreateLocationRequest,
     EditLocationControllerParams,
     ICreateLocationController,
@@ -11,7 +11,7 @@ import {
 } from '@application/ui/components';
 import { ControllerResponse } from '@application/ui/hooks';
 
-export function toFormState (location: Location): ActivationPromptFormData {
+export function toFormState (location: ActivationPromptDetails): ActivationPromptFormData {
     return {
         id: location.id,
         name: location.name,

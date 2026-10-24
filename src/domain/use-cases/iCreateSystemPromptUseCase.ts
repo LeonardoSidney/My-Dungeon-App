@@ -1,4 +1,3 @@
-import { SystemPrompt } from '../entities';
 
 export interface ICreateSystemPromptUseCase {
     execute(request: CreateSystemPromptUseCaseParams): Promise<CreateSystemPromptUseCaseResponse>;
@@ -12,6 +11,6 @@ export type CreateSystemPromptUseCaseParams = {
 
 export type CreateSystemPromptUseCaseResponse = {
     success: boolean;
-    systemPrompt?: SystemPrompt;
+    id?: string;
     error?: string;
 };

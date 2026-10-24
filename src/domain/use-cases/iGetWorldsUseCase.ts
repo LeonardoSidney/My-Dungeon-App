@@ -1,5 +1,11 @@
 import { World } from '../entities';
 
 export interface IGetWorldsUseCase {
-    execute(): Promise<World[]>;
+    execute (): Promise<GetWorldsUseCaseReturn>;
 }
+
+export type GetWorldsUseCaseReturn = {
+    success: boolean;
+    worlds?: World[];
+    error?: string;
+};

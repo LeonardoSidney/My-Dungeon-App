@@ -4,23 +4,27 @@ import {
     getAdventuresController,
 } from '@infra/container';
 import { logger } from '@infra/container/shared';
-import { Character, Item, Location, SystemPrompt, World, WorldMaster } from '@domain/entities';
 import { SeedAdventure } from './types';
-import { nameIndex, resolveReferencedIds } from './shared';
+import { nameIndex, resolveReferencedIds, listItems, NamedEntity, MigrationReturn } from './shared';
 
 export async function seedAdventures (
     seeds: SeedAdventure[],
-    characters: Character[],
-    worldMasters: WorldMaster[],
-    systemPrompts: SystemPrompt[],
-    worlds: World[],
-    locations: Location[],
-    items: Item[]
-): Promise<void> {
+    characters: NamedEntity[],
+    worldMasters: NamedEntity[],
+    systemPrompts: NamedEntity[],
+    worlds: NamedEntity[],
+    locations: NamedEntity[],
+    items: NamedEntity[]
+): Promise<MigrationReturn> {
     const createAdventure = createAdventureController();
     const editAdventure = editAdventureController();
     const getAdventures = getAdventuresController();
-    const existing = await getAdventures.handle();
+    const existingResponse = listItems(await getAdventures.handle(), 'adventures');
+    if (!existingResponse.success || !existingResponse.items) {
+        return { success: false, error: existingResponse.error };
+    }
+
+    const existing = existingResponse.items;
     const existingIndex = nameIndex(existing);
     logger.info(`Migration: seeding adventures (${seeds.length} seed(s))`);
 
@@ -33,32 +37,65 @@ export async function seedAdventures (
 
     for (const seed of seeds) {
         const ownerLabel = `adventure "${seed.name}"`;
-        const worldMasterIds = seed.worldMaster
-            ? resolveReferencedIds(worldMasterIndex, [seed.worldMaster], 'world master', ownerLabel)
-            : [];
-        const worldMasterId = worldMasterIds[0];
+        const worldMasterIdsResponse = resolveReferencedIds(worldMasterIndex, seed.worldMaster ? [seed.worldMaster] : [], 'world master', ownerLabel);
+        if (!worldMasterIdsResponse.success || !worldMasterIdsResponse.ids) {
+            return { success: false, error: worldMasterIdsResponse.error };
+        }
 
-        const characterIds = resolveReferencedIds(characterIndex, seed.characters, 'character', ownerLabel);
-        const charactersControlledByAi = resolveReferencedIds(characterIndex, seed.charactersControlledByAi, 'character', ownerLabel);
-        const systemPromptIds = resolveReferencedIds(systemPromptIndex, seed.systemPrompts, 'system prompt', ownerLabel);
-        const worldIds = resolveReferencedIds(worldIndex, seed.worlds, 'world', ownerLabel);
-        const locationIds = resolveReferencedIds(locationIndex, seed.locations, 'location', ownerLabel);
-        const itemIds = resolveReferencedIds(itemIndex, seed.items, 'item', ownerLabel);
+        const worldMasterId = worldMasterIdsResponse.ids[0];
+
+        const characterIdsResponse = resolveReferencedIds(characterIndex, seed.characters, 'character', ownerLabel);
+        if (!characterIdsResponse.success || !characterIdsResponse.ids) {
+            return { success: false, error: characterIdsResponse.error };
+        }
+
+        const characterIds = characterIdsResponse.ids;
+        const aiControlledCharacterIdsResponse = resolveReferencedIds(characterIndex, seed.charactersControlledByAi, 'character', ownerLabel);
+        if (!aiControlledCharacterIdsResponse.success || !aiControlledCharacterIdsResponse.ids) {
+            return { success: false, error: aiControlledCharacterIdsResponse.error };
+        }
+
+        const aiControlledCharacterIds = aiControlledCharacterIdsResponse.ids;
+        const playableCharacterIds = characterIds.filter(id => !aiControlledCharacterIds.includes(id));
+        const systemPromptIdsResponse = resolveReferencedIds(systemPromptIndex, seed.systemPrompts, 'system prompt', ownerLabel);
+        if (!systemPromptIdsResponse.success || !systemPromptIdsResponse.ids) {
+            return { success: false, error: systemPromptIdsResponse.error };
+        }
+
+        const systemPromptIds = systemPromptIdsResponse.ids;
+        const worldIdsResponse = resolveReferencedIds(worldIndex, seed.worlds, 'world', ownerLabel);
+        if (!worldIdsResponse.success || !worldIdsResponse.ids) {
+            return { success: false, error: worldIdsResponse.error };
+        }
+
+        const worldIds = worldIdsResponse.ids;
+        const locationIdsResponse = resolveReferencedIds(locationIndex, seed.locations, 'location', ownerLabel);
+        if (!locationIdsResponse.success || !locationIdsResponse.ids) {
+            return { success: false, error: locationIdsResponse.error };
+        }
+
+        const locationIds = locationIdsResponse.ids;
+        const itemIdsResponse = resolveReferencedIds(itemIndex, seed.items, 'item', ownerLabel);
+        if (!itemIdsResponse.success || !itemIdsResponse.ids) {
+            return { success: false, error: itemIdsResponse.error };
+        }
+
+        const itemIds = itemIdsResponse.ids;
 
         const current = existingIndex.get(seed.name);
         if (!current) {
             const response = await createAdventure.handle({
                 name: seed.name,
-                characterIds,
+                playableCharacterIds,
+                aiControlledCharacterIds,
                 worldMasterId,
                 systemPromptIds,
                 worldIds,
                 locationIds,
                 itemIds,
-                charactersControlledByAi,
             });
             if (!response.success) {
-                throw new Error(`Migration: failed to create adventure "${seed.name}": ${response.error}`);
+                return { success: false, error: `Migration: failed to create adventure "${seed.name}": ${response.error}` };
             }
             continue;
         }
@@ -67,19 +104,20 @@ export async function seedAdventures (
             id: current.id,
             editParams: {
                 name: current.name,
-                chat: [],
-                characterIds,
+                playableCharacterIds,
+                aiControlledCharacterIds,
                 worldMasterId,
                 characterAsWorldMasterId: undefined,
                 systemPromptIds,
                 worldIds,
                 locationIds,
                 itemIds,
-                charactersControlledByAi,
             },
         });
         if (!response.success) {
-            throw new Error(`Migration: failed to restore adventure "${seed.name}": ${response.error}`);
+            return { success: false, error: `Migration: failed to restore adventure "${seed.name}": ${response.error}` };
         }
     }
+
+    return { success: true };
 }

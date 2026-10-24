@@ -1,15 +1,11 @@
-import { Adventure } from '../entities';
+import { DetailControllerResponse } from './iCrudControllerResponses';
 
 export interface IGetAdventureSystemPromptController {
     handle (params: GetAdventureSystemPromptControllerParams): Promise<GetAdventureSystemPromptControllerResponse>;
 }
 
 export type GetAdventureSystemPromptControllerParams = {
-    adventure: Adventure;
+    adventureId: string;
 };
 
-export type GetAdventureSystemPromptControllerResponse = {
-    success: boolean;
-    systemPrompt?: string;
-    error?: string;
-};
+export type GetAdventureSystemPromptControllerResponse = DetailControllerResponse<string>;

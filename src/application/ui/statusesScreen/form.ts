@@ -1,5 +1,5 @@
-import { Status } from '@domain/entities';
 import {
+    ActivationPromptDetails,
     CreateStatusControllerParams,
     EditStatusControllerParams,
     ICreateStatusController,
@@ -11,7 +11,7 @@ import {
 } from '@application/ui/components';
 import { ControllerResponse } from '@application/ui/hooks';
 
-export function toFormState (status: Status): ActivationPromptFormData {
+export function toFormState (status: ActivationPromptDetails): ActivationPromptFormData {
     return {
         id: status.id,
         name: status.name,

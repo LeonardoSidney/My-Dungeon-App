@@ -16,10 +16,19 @@ export class GetModelTemplateUseCase implements IGetModelTemplateUseCase {
     async execute (params: GetModelTemplateUseCaseParams): Promise<GetModelTemplateUseCaseResponse> {
         this.logger.info('Executing GetModelTemplateUseCase::execute');
 
-        this.validate(params);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return { success: false, error: validationError };
+        }
 
         const connectionKey = this.buildConnectionKey(params.connection);
-        const cached = await this.modelTemplateRepository.getModelTemplate({ modelId: params.modelId, connection: connectionKey });
+        const cachedResponse = await this.modelTemplateRepository.getModelTemplate({ modelId: params.modelId, connection: connectionKey });
+        if (!cachedResponse.success) {
+            this.logger.warning('GetModelTemplateUseCase::execute - failed to load model template', cachedResponse.error);
+            return { success: false, error: cachedResponse.error };
+        }
+
+        const cached = cachedResponse.modelTemplate;
 
         if (cached && cached.editedByUser) {
             this.logger.debug('Executing GetModelTemplateUseCase::execute - serving user-edited cache');
@@ -42,7 +51,12 @@ export class GetModelTemplateUseCase implements IGetModelTemplateUseCase {
         }
 
         const modelTemplate = this.getModelTemplateService.buildModelTemplate({ modelId: params.modelId, connection: connectionKey, template: fetched.template, cached });
-        await this.modelTemplateRepository.saveModelTemplate({ modelTemplate });
+        const saveResult = await this.modelTemplateRepository.saveModelTemplate({ modelTemplate });
+        if (!saveResult.success) {
+            this.logger.warning('GetModelTemplateUseCase::execute - failed to save model template', saveResult.error);
+            return { success: false, error: saveResult.error };
+        }
+
         this.logger.debug('Executing GetModelTemplateUseCase::execute - model template saved: ', modelTemplate);
 
         return { success: true, modelTemplate };
@@ -53,13 +67,15 @@ export class GetModelTemplateUseCase implements IGetModelTemplateUseCase {
         return `${connection.ip}${portSuffix}`;
     }
 
-    private validate (params: GetModelTemplateUseCaseParams): void {
+    private validate (params: GetModelTemplateUseCaseParams): string | null {
         if (!params.modelId?.trim()) {
-            throw new Error('A modelId is required to get the model template');
+            return 'A modelId is required to get the model template';
         }
 
         if (!params.connection?.ip?.trim()) {
-            throw new Error('A connection with a valid ip is required to get the model template');
+            return 'A connection with a valid ip is required to get the model template';
         }
+
+        return null;
     }
 }

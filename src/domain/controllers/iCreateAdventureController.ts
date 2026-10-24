@@ -1,23 +1,21 @@
-import { Adventure } from '../entities';
+import { MutationControllerResponse } from './iCrudControllerResponses';
 
 export interface ICreateAdventureController {
     handle (request: CreateAdventureRequest): Promise<CreateAdventureResponse>;
 }
 
-export type CreateAdventureRequest = {
+export type AdventureFormRequest = {
     name: string;
     systemPromptIds: string[];
-    characterIds: string[];
-    worldMasterId?: string;
+    playableCharacterIds: string[];
+    aiControlledCharacterIds: string[];
     characterAsWorldMasterId?: string;
-    charactersControlledByAi: string[];
+    worldMasterId?: string;
     worldIds: string[];
     locationIds: string[];
     itemIds: string[];
 };
 
-export type CreateAdventureResponse = {
-    success: boolean;
-    adventure?: Adventure;
-    error?: string;
-};
+export type CreateAdventureRequest = AdventureFormRequest;
+
+export type CreateAdventureResponse = MutationControllerResponse;

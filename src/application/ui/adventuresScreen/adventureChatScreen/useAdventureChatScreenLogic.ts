@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView } from 'react-native';
-import { Adventure } from '@domain/entities';
+import { ChatMessageView } from '@domain/controllers';
 import { useScrollState } from './hooks/useScrollState';
 import { useScrollToBottom } from './hooks/useScrollToBottom';
 import { useScrollHandler } from './hooks/useScrollHandler';
 
-export function useAdventureChatScreenLogic (currentAdventure: Adventure) {
+export function useAdventureChatScreenLogic (messages: ChatMessageView[]) {
     const scrollViewRef = useRef<ScrollView | null>(null);
     const { isAtBottom, setIsAtBottom, isScrollingProgrammatically, setIsScrollingProgrammatically, lastContentHeight, setLastContentHeight } = useScrollState();
     const [showScrollToBottom, setShowScrollToBottom] = useState(false);
@@ -33,9 +33,7 @@ export function useAdventureChatScreenLogic (currentAdventure: Adventure) {
     const previousStreamingChatIdRef = useRef<string | null>(null);
 
     useEffect(() => {
-        const lastChat = currentAdventure.chat.length > 0
-            ? currentAdventure.chat[currentAdventure.chat.length - 1]
-            : null;
+        const lastChat = messages.length > 0 ? messages[messages.length - 1] : null;
         const isStreaming = lastChat?.isStreaming ?? false;
         const currentChatId = lastChat?.id ?? null;
 
@@ -54,7 +52,7 @@ export function useAdventureChatScreenLogic (currentAdventure: Adventure) {
         if (isAtBottom) {
             scrollToBottom();
         }
-    }, [currentAdventure.chat, scrollToBottom, isAtBottom, setIsAtBottom]);
+    }, [messages, scrollToBottom, isAtBottom, setIsAtBottom]);
 
     return {
         scrollViewRef,

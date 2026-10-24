@@ -16,17 +16,21 @@ export class EditWorldUseCase implements IEditWorldUseCase {
         if (validationError) {
             return {
                 success: false,
-                world: undefined,
                 error: validationError
             };
         }
 
         const { id, editParams } = params;
-        const world = await this.worldRepository.getWorldById(id);
+        const worldResponse = await this.worldRepository.getWorldById(id);
+        if (!worldResponse.success) {
+            this.logger.warning('EditWorldUseCase::execute - failed to load world', worldResponse.error);
+            return { success: false, error: worldResponse.error };
+        }
+
+        const world = worldResponse.world;
         if (!world) {
             return {
                 success: false,
-                world: undefined,
                 error: `World with id ${id} not found`
             };
         }
@@ -38,7 +42,6 @@ export class EditWorldUseCase implements IEditWorldUseCase {
         if (!response.success) {
             return {
                 success: false,
-                world: undefined,
                 error: response.error || 'An unknown error occurred on EditWorldService'
             };
         }
@@ -46,13 +49,18 @@ export class EditWorldUseCase implements IEditWorldUseCase {
         if (!response.world) {
             return {
                 success: false,
-                world: undefined,
                 error: 'Success is true but does not have a world'
             };
         }
 
         const editedWorld = response.world;
-        const existingWorlds = await this.worldRepository.getWorlds();
+        const existingWorldsResponse = await this.worldRepository.getWorlds();
+        if (!existingWorldsResponse.success || !existingWorldsResponse.worlds) {
+            this.logger.warning('EditWorldUseCase::execute - failed to load worlds', existingWorldsResponse.error);
+            return { success: false, error: existingWorldsResponse.error };
+        }
+
+        const existingWorlds = existingWorldsResponse.worlds;
         const duplicateWorld = existingWorlds.find(
             (w) => w.name === editedWorld.name && w.id !== editedWorld.id
         );
@@ -61,7 +69,6 @@ export class EditWorldUseCase implements IEditWorldUseCase {
             this.logger.warning(`World with name ${editedWorld.name} already exists`);
             return {
                 success: false,
-                world: undefined,
                 error: `World with name ${editedWorld.name} already exists`
             };
         }
@@ -70,13 +77,12 @@ export class EditWorldUseCase implements IEditWorldUseCase {
         if (!editResult.success) {
             return {
                 success: false,
-                world: undefined,
                 error: editResult.error || 'Failed to edit world'
             };
         }
 
         return {
-            world: editedWorld,
+            id: editedWorld.id,
             success: true
         };
     }

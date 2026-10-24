@@ -1,4 +1,4 @@
-import { EraseLocationControllerResponse, IEraseLocationController } from '@domain/controllers';
+import { EraseLocationControllerResponse, IEraseLocationController, EraseLocationControllerRequest } from '@domain/controllers';
 import { ILogger } from '@domain/logger';
 import { IEraseLocationUseCase, EraseLocationUseCaseReturn } from '@domain/use-cases';
 
@@ -8,9 +8,10 @@ export class EraseLocationController implements IEraseLocationController {
         private readonly useCase: IEraseLocationUseCase
     ) { }
 
-    async handle (locationId: string): Promise<EraseLocationControllerResponse> {
+    async handle (request: EraseLocationControllerRequest): Promise<EraseLocationControllerResponse> {
         this.logger.info('Executing EraseLocationController::handle');
-        const result: EraseLocationUseCaseReturn = await this.useCase.execute(locationId);
+        this.logger.debug('EraseLocationController::handle - params', request);
+        const result: EraseLocationUseCaseReturn = await this.useCase.execute(request);
         return { success: result.success, error: result.error };
     }
 }

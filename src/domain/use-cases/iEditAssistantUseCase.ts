@@ -1,4 +1,3 @@
-import { Assistant } from '../entities';
 import { AssistantEditParams } from '../services';
 
 export interface IEditAssistantUseCase {
@@ -11,7 +10,7 @@ export type EditAssistantParams = {
 };
 
 export type EditAssistantReturn = {
-    assistant?: Assistant;
+    id?: string;
     success: boolean;
     error?: string;
 };

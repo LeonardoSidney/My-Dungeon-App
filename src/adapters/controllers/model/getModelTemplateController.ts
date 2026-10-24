@@ -10,6 +10,7 @@ export class GetModelTemplateController implements IGetModelTemplateController {
 
     async handle (request: GetModelTemplateControllerRequest): Promise<GetModelTemplateControllerResponse> {
         this.logger.info('Executing GetModelTemplateController::handle');
+        this.logger.debug('GetModelTemplateController::handle - params', request);
         const { connection, modelId } = request;
         const response = await this.useCase.execute({ connection, modelId });
         return {

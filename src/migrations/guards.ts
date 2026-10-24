@@ -253,15 +253,21 @@ export function isSeedAdventure (value: unknown): value is SeedAdventure {
     return hasName && hasCharacters && hasSystemPrompts && hasWorlds && hasLocations && hasItems && hasCharactersControlledByAi && hasWorldMaster;
 }
 
-export function parseSeedArray<T> (data: unknown, label: string, isSeed: (value: unknown) => value is T): T[] {
+export type ParseSeedArrayReturn<T> = {
+    success: boolean;
+    seeds?: T[];
+    error?: string;
+};
+
+export function parseSeedArray<T> (data: unknown, label: string, isSeed: (value: unknown) => value is T): ParseSeedArrayReturn<T> {
     if (!Array.isArray(data)) {
-        throw new Error(`Migration: seed ${label} is invalid, expected an array of objects`);
+        return { success: false, error: `Migration: seed ${label} is invalid, expected an array of objects` };
     }
     for (let index = 0; index < data.length; index += 1) {
         const entry = data[index];
         if (!isSeed(entry)) {
-            throw new Error(`Migration: seed ${label} entry ${index} is invalid`);
+            return { success: false, error: `Migration: seed ${label} entry ${index} is invalid` };
         }
     }
-    return data;
+    return { success: true, seeds: data };
 }

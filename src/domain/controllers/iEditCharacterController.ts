@@ -1,4 +1,3 @@
-import { Character } from '../entities';
 import { CharacterEditParams } from '../services';
 
 export type EditCharacterControllerParams = {
@@ -8,7 +7,7 @@ export type EditCharacterControllerParams = {
 
 export type EditCharacterControllerResponse = {
     success: boolean;
-    character?: Character;
+    id?: string;
     error?: string;
 };
 

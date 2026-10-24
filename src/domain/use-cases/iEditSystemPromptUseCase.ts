@@ -1,4 +1,3 @@
-import { SystemPrompt } from '../entities';
 import { SystemPromptEditParams } from '../services';
 
 export interface IEditSystemPromptUseCase {
@@ -11,7 +10,7 @@ export type EditSystemPromptParams = {
 };
 
 export type EditSystemPromptReturn = {
-    systemPrompt?: SystemPrompt;
+    id?: string;
     success: boolean;
     error?: string;
 };

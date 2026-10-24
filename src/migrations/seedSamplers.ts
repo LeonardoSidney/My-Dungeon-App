@@ -5,13 +5,18 @@ import {
 } from '@infra/container';
 import { logger } from '@infra/container/shared';
 import { SeedSampler } from './types';
-import { nameIndex } from './shared';
+import { nameIndex, listItems, MigrationReturn } from './shared';
 
-export async function seedSamplers (seeds: SeedSampler[]): Promise<void> {
+export async function seedSamplers (seeds: SeedSampler[]): Promise<MigrationReturn> {
     const createSampler = createSamplerController();
     const editSampler = editSamplerController();
     const getSamplers = getSamplersController();
-    const existing = await getSamplers.handle();
+    const existingResponse = listItems(await getSamplers.handle(), 'samplers');
+    if (!existingResponse.success || !existingResponse.items) {
+        return { success: false, error: existingResponse.error };
+    }
+
+    const existing = existingResponse.items;
     const existingIndex = nameIndex(existing);
     logger.info(`Migration: seeding samplers (${seeds.length} seed(s))`);
 
@@ -20,7 +25,7 @@ export async function seedSamplers (seeds: SeedSampler[]): Promise<void> {
         if (!current) {
             const response = await createSampler.handle(seed);
             if (!response.success) {
-                throw new Error(`Migration: failed to create sampler "${seed.name}": ${response.error}`);
+                return { success: false, error: `Migration: failed to create sampler "${seed.name}": ${response.error}` };
             }
             continue;
         }
@@ -35,7 +40,6 @@ export async function seedSamplers (seeds: SeedSampler[]): Promise<void> {
             editParams: {
                 name: seed.name,
                 observation: seed.observation,
-                systemDefault: false,
                 adaptativeDecay: seed.adaptativeDecay,
                 adaptativeTarget: seed.adaptativeTarget,
                 dryAllowedLenght: seed.dryAllowedLenght,
@@ -64,7 +68,9 @@ export async function seedSamplers (seeds: SeedSampler[]): Promise<void> {
             },
         });
         if (!response.success) {
-            throw new Error(`Migration: failed to restore sampler "${seed.name}": ${response.error}`);
+            return { success: false, error: `Migration: failed to restore sampler "${seed.name}": ${response.error}` };
         }
     }
+
+    return { success: true };
 }

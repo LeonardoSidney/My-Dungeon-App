@@ -14,15 +14,12 @@ export class ContinueFromChatController implements IContinueFromChatController {
 
     async handle (request: ContinueFromChatControllerRequest): Promise<ContinueFromChatControllerResponse> {
         this.logger.info('Executing ContinueFromChatController::handle');
-        this.logger.debug('ContinueFromChatController::handle - request', {
-            chatId: request.chatId,
-        });
+        this.logger.debug('ContinueFromChatController::handle - params', request);
 
         const response = await this.useCase.execute(request);
 
         return {
             success: response.success,
-            adventure: response.adventure,
             error: response.error,
         };
     }

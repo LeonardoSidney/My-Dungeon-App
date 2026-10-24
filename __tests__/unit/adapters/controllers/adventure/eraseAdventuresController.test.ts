@@ -27,7 +27,7 @@ describe('EraseAdventuresController', () => {
     });
 
     it('should call logger.info when handling a request', async () => {
-        mockUseCase.execute.mockResolvedValue(undefined);
+        mockUseCase.execute.mockResolvedValue({ success: true });
 
         await controller.handle();
 
@@ -35,23 +35,23 @@ describe('EraseAdventuresController', () => {
     });
 
     it('should execute use case', async () => {
-        mockUseCase.execute.mockResolvedValue(undefined);
+        mockUseCase.execute.mockResolvedValue({ success: true });
 
         await controller.handle();
 
         expect(mockUseCase.execute).toHaveBeenCalledTimes(1);
     });
 
-    it('should return void when use case succeeds', async () => {
-        mockUseCase.execute.mockResolvedValue(undefined);
+    it('should return the use case result when it succeeds', async () => {
+        mockUseCase.execute.mockResolvedValue({ success: true });
 
         const result = await controller.handle();
 
-        expect(result).toBeUndefined();
+        expect(result).toEqual({ success: true });
     });
 
     it('should call logger.info exactly once', async () => {
-        mockUseCase.execute.mockResolvedValue(undefined);
+        mockUseCase.execute.mockResolvedValue({ success: true });
 
         await controller.handle();
 
@@ -59,16 +59,18 @@ describe('EraseAdventuresController', () => {
     });
 
     it('should call logger.info with the correct method and class name', async () => {
-        mockUseCase.execute.mockResolvedValue(undefined);
+        mockUseCase.execute.mockResolvedValue({ success: true });
 
         await controller.handle();
 
         expect(mockLogger.info).toHaveBeenCalledWith('Executing EraseAdventuresController::handle');
     });
 
-    it('should handle use case rejection', async () => {
-        mockUseCase.execute.mockRejectedValue(new Error('Erase failed'));
+    it('should return the use case failure', async () => {
+        mockUseCase.execute.mockResolvedValue({ success: false, error: 'Erase failed' });
 
-        await expect(controller.handle()).rejects.toThrow('Erase failed');
+        const result = await controller.handle();
+
+        expect(result).toEqual({ success: false, error: 'Erase failed' });
     });
 });

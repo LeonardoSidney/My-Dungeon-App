@@ -13,12 +13,13 @@ export class EditStatusController implements IEditStatusController {
     ) { }
     async handle (params: EditStatusControllerParams): Promise<EditStatusControllerResponse> {
         this.logger.info('Executing EditStatusController::handle');
+        this.logger.debug('EditStatusController::handle - params', params);
         const response = await this.useCase.execute(params);
 
         return {
             success: response.success,
-            status: response.status,
-            error: response.error
+            id: response.id,
+            error: response.error,
         };
     }
 }

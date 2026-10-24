@@ -1,15 +1,15 @@
-import { Character, WorldMaster } from '@domain/entities';
+import { EntityOption } from '@domain/controllers';
 
 export interface CharacterRosterProps {
-    characters: Character[];
-    worldMasters: WorldMaster[];
-    selectedCharacters: Character[];
+    characters: EntityOption[];
+    worldMasters: EntityOption[];
+    selectedCharacters: EntityOption[];
     aiCharacterIds: string[];
     characterAsWorldMasterId?: string;
-    worldMaster?: WorldMaster;
+    worldMaster?: EntityOption;
     error?: string;
-    onToggleCharacter: (character: Character) => void;
-    onToggleAiCharacter: (character: Character) => void;
-    onCharacterAsWorldMaster: (character: Character) => void;
-    onWorldMaster: (worldMaster: WorldMaster) => void;
+    onToggleCharacter: (character: EntityOption) => void;
+    onToggleAiCharacter: (character: EntityOption) => void;
+    onCharacterAsWorldMaster: (character: EntityOption) => void;
+    onWorldMaster: (worldMaster: EntityOption) => void;
 }

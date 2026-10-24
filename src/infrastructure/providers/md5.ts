@@ -20,42 +20,7 @@ const SINE_TABLE: number[] = [
     0x6fa87e4f, 0xfe2ce6e0, 0xa3014314, 0x4e0811a1, 0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391
 ];
 
-function pushUtf8Bytes (bytes: number[], code: number): void {
-    if (code < 0x80) {
-        bytes.push(code);
-
-        return;
-    }
-
-    if (code < 0x800) {
-        bytes.push(0xc0 | (code >> 6), 0x80 | (code & 0x3f));
-
-        return;
-    }
-
-    if (code < 0x10000) {
-        bytes.push(0xe0 | (code >> 12), 0x80 | ((code >> 6) & 0x3f), 0x80 | (code & 0x3f));
-
-        return;
-    }
-
-    bytes.push(
-        0xf0 | (code >> 18),
-        0x80 | ((code >> 12) & 0x3f),
-        0x80 | ((code >> 6) & 0x3f),
-        0x80 | (code & 0x3f)
-    );
-}
-
-function toUtf8Bytes (value: string): Uint8Array {
-    const bytes: number[] = [];
-
-    for (const char of value) {
-        pushUtf8Bytes(bytes, char.codePointAt(0) ?? 0);
-    }
-
-    return new Uint8Array(bytes);
-}
+const UTF8_ENCODER = new TextEncoder();
 
 function roundValues (t: number, b: number, c: number, d: number): { f: number; g: number; } {
     if (t < 16) {
@@ -128,7 +93,7 @@ function digestBytes (bytes: Uint8Array): number[] {
 
 export class MD5Provider implements IHashProvider {
     md5 (value: string): string {
-        const digest = digestBytes(toUtf8Bytes(value));
+        const digest = digestBytes(UTF8_ENCODER.encode(value));
         return digest.map((byte) => byte.toString(16).padStart(2, '0')).join('');
     }
 }

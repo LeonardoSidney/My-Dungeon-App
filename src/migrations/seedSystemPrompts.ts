@@ -5,13 +5,18 @@ import {
 } from '@infra/container';
 import { logger } from '@infra/container/shared';
 import { SeedSystemPrompt } from './types';
-import { nameIndex } from './shared';
+import { nameIndex, listItems, MigrationReturn } from './shared';
 
-export async function seedSystemPrompts (seeds: SeedSystemPrompt[]): Promise<void> {
+export async function seedSystemPrompts (seeds: SeedSystemPrompt[]): Promise<MigrationReturn> {
     const createSystemPrompt = createSystemPromptController();
     const editSystemPrompt = editSystemPromptController();
     const getSystemPrompts = getSystemPromptsController();
-    const existing = await getSystemPrompts.handle();
+    const existingResponse = listItems(await getSystemPrompts.handle(), 'system prompts');
+    if (!existingResponse.success || !existingResponse.items) {
+        return { success: false, error: existingResponse.error };
+    }
+
+    const existing = existingResponse.items;
     const existingIndex = nameIndex(existing);
     logger.info(`Migration: seeding system prompts (${seeds.length} seed(s))`);
 
@@ -20,7 +25,7 @@ export async function seedSystemPrompts (seeds: SeedSystemPrompt[]): Promise<voi
         if (!current) {
             const response = await createSystemPrompt.handle(seed);
             if (!response.success) {
-                throw new Error(`Migration: failed to create system prompt "${seed.name}": ${response.error}`);
+                return { success: false, error: `Migration: failed to create system prompt "${seed.name}": ${response.error}` };
             }
             continue;
         }
@@ -34,7 +39,9 @@ export async function seedSystemPrompts (seeds: SeedSystemPrompt[]): Promise<voi
             },
         });
         if (!response.success) {
-            throw new Error(`Migration: failed to restore system prompt "${seed.name}": ${response.error}`);
+            return { success: false, error: `Migration: failed to restore system prompt "${seed.name}": ${response.error}` };
         }
     }
+
+    return { success: true };
 }

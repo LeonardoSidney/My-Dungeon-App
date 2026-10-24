@@ -14,12 +14,16 @@ export class EditConnectionController implements IEditConnectionController {
 
     async handle (params: EditConnectionControllerParams): Promise<EditConnectionControllerResponse> {
         this.logger.info('Executing EditConnectionController::handle');
+        this.logger.debug('EditConnectionController::handle - params', {
+            ...params,
+            editParams: { ...params.editParams, auth: params.editParams.auth ? '***' : undefined },
+        });
         const response = await this.useCase.execute(params);
 
         return {
             success: response.success,
-            connection: response.connection,
-            error: response.error
+            id: response.id,
+            error: response.error,
         };
     }
 }

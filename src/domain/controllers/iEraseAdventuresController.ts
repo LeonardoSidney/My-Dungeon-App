@@ -1,3 +1,8 @@
 export interface IEraseAdventuresController {
-    handle(): Promise<void>;
+    handle(): Promise<EraseAdventuresControllerResponse>;
 }
+
+export type EraseAdventuresControllerResponse = {
+    success: boolean;
+    error?: string;
+};

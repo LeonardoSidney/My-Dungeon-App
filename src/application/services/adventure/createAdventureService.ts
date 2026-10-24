@@ -2,7 +2,7 @@ import { Adventure } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { CreateAdventureServiceParams, CreateAdventureServiceReturn, ICreateAdventureService } from '@domain/services';
 import { IIdGenerator } from '@domain/providers';
-import { validateAdventureCharacterSelection } from '@application/shared/adventureCharacterRules';
+import { buildAdventureCharacterIds, validateAdventureCharacterSelection } from '@application/shared/adventureCharacterRules';
 
 export class CreateAdventureService implements ICreateAdventureService {
     constructor (
@@ -12,26 +12,33 @@ export class CreateAdventureService implements ICreateAdventureService {
     createAdventure (params: CreateAdventureServiceParams): CreateAdventureServiceReturn {
         this.logger.info('Executing CreateAdventureService', params);
 
-        const validationError = validateAdventureCharacterSelection(params, params.systemPromptIds.length);
+        const characterIds = buildAdventureCharacterIds({
+            playableCharacterIds: params.playableCharacterIds,
+            characterAsWorldMasterId: params.characterAsWorldMasterId,
+            charactersControlledByAi: params.aiControlledCharacterIds,
+        });
+        const roster = {
+            characterIds,
+            worldMasterId: params.worldMasterId,
+            characterAsWorldMasterId: params.characterAsWorldMasterId,
+            charactersControlledByAi: params.aiControlledCharacterIds,
+        };
+
+        const validationError = validateAdventureCharacterSelection(roster, params.systemPromptIds.length);
         if (validationError) {
             return { success: false, error: validationError };
         }
 
-        const { name, systemPromptIds, characterIds, worldMasterId, characterAsWorldMasterId, charactersControlledByAi, worldIds, locationIds, itemIds } = params;
-
         const createdAt = new Date();
         const adventure: Adventure = {
             id: this.idGenerate.generate(),
-            name,
+            name: params.name,
             chat: [],
-            systemPromptIds,
-            characterIds,
-            worldMasterId,
-            characterAsWorldMasterId,
-            charactersControlledByAi,
-            worldIds,
-            locationIds,
-            itemIds,
+            systemPromptIds: params.systemPromptIds,
+            ...roster,
+            worldIds: params.worldIds,
+            locationIds: params.locationIds,
+            itemIds: params.itemIds,
             createdAt: createdAt,
             updatedAt: createdAt
         };

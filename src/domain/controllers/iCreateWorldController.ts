@@ -1,4 +1,3 @@
-import { World } from '../entities';
 
 export interface ICreateWorldController {
     handle(request: CreateWorldRequest): Promise<CreateWorldResponse>;
@@ -13,6 +12,6 @@ export type CreateWorldRequest = {
 
 export type CreateWorldResponse = {
     success: boolean;
-    world?: World;
+    id?: string;
     error?: string;
 };

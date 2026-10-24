@@ -1,6 +1,6 @@
 import { ILogger } from '@domain/logger';
 import { IAbilityRepository } from '@domain/repository';
-import { EraseAbilityUseCaseReturn, IEraseAbilityUseCase } from '@domain/use-cases';
+import { EraseAbilityUseCaseReturn, IEraseAbilityUseCase, EraseAbilityUseCaseParams } from '@domain/use-cases';
 
 export class EraseAbilityUseCase implements IEraseAbilityUseCase {
     constructor (
@@ -8,11 +8,16 @@ export class EraseAbilityUseCase implements IEraseAbilityUseCase {
         private readonly abilityRepository: IAbilityRepository
     ) { }
 
-    async execute (abilityId: string): Promise<EraseAbilityUseCaseReturn> {
+    async execute (params: EraseAbilityUseCaseParams): Promise<EraseAbilityUseCaseReturn> {
         this.logger.info('Executing EraseAbilityUseCase::execute');
-        this.logger.debug('Executing EraseAbilityUseCase::execute - abilityId: ', abilityId);
+        this.logger.debug('Executing EraseAbilityUseCase::execute - params.id: ', params.id);
 
-        const result = await this.abilityRepository.eraseAbility(abilityId);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return { success: false, error: validationError };
+        }
+
+        const result = await this.abilityRepository.eraseAbility(params.id);
 
         if (!result.success) {
             this.logger.warning('Failed to erase ability', result);
@@ -24,5 +29,13 @@ export class EraseAbilityUseCase implements IEraseAbilityUseCase {
 
         this.logger.info('Ability erased successfully');
         return { success: true };
+    }
+
+    private validate (params: EraseAbilityUseCaseParams): string | null {
+        if (!params.id) {
+            return 'An ability id is required to erase an ability';
+        }
+
+        return null;
     }
 }

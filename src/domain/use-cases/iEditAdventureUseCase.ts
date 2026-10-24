@@ -1,5 +1,4 @@
-import { Adventure } from '../entities';
-import { AdventureEditParams } from '../services';
+import type { AdventureFormFields } from '../services';
 
 export interface IEditAdventureUseCase {
     execute (params: EditAdventureParams): Promise<EditAdventureReturn>;
@@ -7,11 +6,11 @@ export interface IEditAdventureUseCase {
 
 export type EditAdventureParams = {
     id: string;
-    editParams: AdventureEditParams;
+    editParams: AdventureFormFields;
 };
 
 export type EditAdventureReturn = {
     success: boolean;
-    adventure?: Adventure;
+    id?: string;
     error?: string;
 };

@@ -1,15 +1,24 @@
-import { IGetSamplersController } from '@domain/controllers';
-import { Sampler } from '@domain/entities';
+import { GetByIdControllerParams, GetSamplerControllerResponse, IGetSamplerController } from '@domain/controllers';
 import { ILogger } from '@domain/logger';
-import { IGetSamplersUseCase } from '@domain/use-cases';
+import { IGetSamplerPresenter } from '@domain/presenters';
+import { IGetSamplerByIdUseCase } from '@domain/use-cases';
 
-export class GetSamplersController implements IGetSamplersController {
+export class GetSamplerController implements IGetSamplerController {
     constructor (
         private readonly logger: ILogger,
-        private readonly useCase: IGetSamplersUseCase
+        private readonly useCase: IGetSamplerByIdUseCase,
+        private readonly presenter: IGetSamplerPresenter
     ) { }
-    async handle (): Promise<Sampler[]> {
-        this.logger.info('Executing GetSamplersController::handle');
-        return this.useCase.execute();
+
+    async handle (params: GetByIdControllerParams): Promise<GetSamplerControllerResponse> {
+        this.logger.info('Executing GetSamplerController::handle');
+        this.logger.debug('GetSamplerController::handle - params', params);
+        const response = await this.useCase.execute(params);
+
+        return {
+            success: response.success,
+            data: response.sampler && this.presenter.present(response.sampler),
+            error: response.error,
+        };
     }
 }

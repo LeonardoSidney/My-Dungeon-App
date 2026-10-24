@@ -16,17 +16,21 @@ export class EditProficiencyUseCase implements IEditProficiencyUseCase {
         if (validationError) {
             return {
                 success: false,
-                proficiency: undefined,
                 error: validationError
             };
         }
 
         const { id, editParams } = params;
-        const proficiency = await this.proficiencyRepository.getProficiencyById(id);
+        const proficiencyResponse = await this.proficiencyRepository.getProficiencyById(id);
+        if (!proficiencyResponse.success) {
+            this.logger.warning('EditProficiencyUseCase::execute - failed to load proficiency', proficiencyResponse.error);
+            return { success: false, error: proficiencyResponse.error };
+        }
+
+        const proficiency = proficiencyResponse.proficiency;
         if (!proficiency) {
             return {
                 success: false,
-                proficiency: undefined,
                 error: `Proficiency with id ${id} not found`
             };
         }
@@ -38,7 +42,6 @@ export class EditProficiencyUseCase implements IEditProficiencyUseCase {
         if (!response.success) {
             return {
                 success: false,
-                proficiency: undefined,
                 error: response.error || 'An unknown error occurred on EditProficiencyService'
             };
         }
@@ -46,13 +49,18 @@ export class EditProficiencyUseCase implements IEditProficiencyUseCase {
         if (!response.proficiency) {
             return {
                 success: false,
-                proficiency: undefined,
                 error: 'Success is true but does not have a proficiency'
             };
         }
 
         const editedProficiency = response.proficiency;
-        const existingProficiencies = await this.proficiencyRepository.getProficiencies();
+        const existingProficienciesResponse = await this.proficiencyRepository.getProficiencies();
+        if (!existingProficienciesResponse.success || !existingProficienciesResponse.proficiencies) {
+            this.logger.warning('EditProficiencyUseCase::execute - failed to load proficiencies', existingProficienciesResponse.error);
+            return { success: false, error: existingProficienciesResponse.error };
+        }
+
+        const existingProficiencies = existingProficienciesResponse.proficiencies;
         const duplicateProficiency = existingProficiencies.find(
             (p) => p.name === editedProficiency.name && p.id !== editedProficiency.id
         );
@@ -61,7 +69,6 @@ export class EditProficiencyUseCase implements IEditProficiencyUseCase {
             this.logger.warning(`Proficiency with name ${editedProficiency.name} already exists`);
             return {
                 success: false,
-                proficiency: undefined,
                 error: `Proficiency with name ${editedProficiency.name} already exists`
             };
         }
@@ -70,13 +77,12 @@ export class EditProficiencyUseCase implements IEditProficiencyUseCase {
         if (!editResult.success) {
             return {
                 success: false,
-                proficiency: undefined,
                 error: editResult.error || 'Failed to edit proficiency'
             };
         }
 
         return {
-            proficiency: editedProficiency,
+            id: editedProficiency.id,
             success: true
         };
     }

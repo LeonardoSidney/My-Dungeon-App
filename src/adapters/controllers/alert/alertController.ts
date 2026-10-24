@@ -10,6 +10,7 @@ export class AlertController implements IAlertController {
 
     async handle (params: AlertControllerParams): Promise<void> {
         this.logger.info('Executing AlertController::handle');
+        this.logger.debug('AlertController::handle - params', params);
         this.useCase.execute(params);
     }
 }

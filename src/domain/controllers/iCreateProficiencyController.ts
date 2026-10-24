@@ -1,4 +1,3 @@
-import { Proficiency } from '../entities';
 
 export interface ICreateProficiencyController {
     handle(params: CreateProficiencyControllerParams): Promise<CreateProficiencyControllerResponse>;
@@ -13,6 +12,6 @@ export type CreateProficiencyControllerParams = {
 
 export type CreateProficiencyControllerResponse = {
     success: boolean;
-    proficiency?: Proficiency;
+    id?: string;
     error?: string;
 };

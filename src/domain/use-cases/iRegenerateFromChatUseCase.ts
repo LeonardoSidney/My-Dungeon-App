@@ -1,4 +1,3 @@
-import { Adventure, Chat } from '@domain/entities';
 import { RegenerateFromChatScope } from '@domain/services';
 
 export interface IRegenerateFromChatUseCase {
@@ -6,14 +5,13 @@ export interface IRegenerateFromChatUseCase {
 }
 
 export type RegenerateFromChatUseCaseParams = {
-    adventure: Adventure;
+    adventureId: string;
     chatId: string;
     scope?: RegenerateFromChatScope;
 };
 
 export type RegenerateFromChatUseCaseReturn = {
     success: boolean;
-    chat?: Chat;
-    adventure?: Adventure;
+    replyChatId?: string;
     error?: string;
 };

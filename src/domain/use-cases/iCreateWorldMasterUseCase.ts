@@ -1,4 +1,3 @@
-import { WorldMaster } from '../entities';
 
 export interface ICreateWorldMasterUseCase {
     execute (params: CreateWorldMasterUseCaseParams): Promise<CreateWorldMasterUseCaseResponse>;
@@ -14,6 +13,6 @@ export type CreateWorldMasterUseCaseParams = {
 
 export type CreateWorldMasterUseCaseResponse = {
     success: boolean;
-    worldMaster?: WorldMaster;
+    id?: string;
     error?: string;
 };

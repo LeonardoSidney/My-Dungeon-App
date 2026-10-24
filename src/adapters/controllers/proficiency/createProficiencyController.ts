@@ -9,6 +9,7 @@ export class CreateProficiencyController implements ICreateProficiencyController
     ) { }
     async handle (params: CreateProficiencyControllerParams): Promise<CreateProficiencyControllerResponse> {
         this.logger.info('Executing CreateProficiencyController::handle');
+        this.logger.debug('CreateProficiencyController::handle - params', params);
         const { name, prompt, activationWord, observation } = params;
         const response = await this.useCase.execute({
             name,
@@ -17,6 +18,10 @@ export class CreateProficiencyController implements ICreateProficiencyController
             observation
         });
 
-        return response;
+        return {
+            success: response.success,
+            id: response.id,
+            error: response.error,
+        };
     }
 }

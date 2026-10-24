@@ -1,4 +1,3 @@
-import { Item } from '../entities';
 
 export interface ICreateItemController {
     handle(request: CreateItemRequest): Promise<CreateItemResponse>;
@@ -13,6 +12,6 @@ export type CreateItemRequest = {
 
 export type CreateItemResponse = {
     success: boolean;
-    item?: Item;
+    id?: string;
     error?: string;
 };

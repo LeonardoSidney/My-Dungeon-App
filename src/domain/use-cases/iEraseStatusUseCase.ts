@@ -4,5 +4,9 @@ export type EraseStatusUseCaseReturn = {
 };
 
 export interface IEraseStatusUseCase {
-    execute (statusId: string): Promise<EraseStatusUseCaseReturn>;
+    execute (params: EraseStatusUseCaseParams): Promise<EraseStatusUseCaseReturn>;
 }
+
+export type EraseStatusUseCaseParams = {
+    id: string;
+};

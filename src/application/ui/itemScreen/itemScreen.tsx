@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Item } from '@domain/entities';
+import { ActivationPromptDetails, ActivationPromptListItem } from '@domain/controllers';
 import { styles } from './styles';
 import { ActivationPromptForm, CrudEntityList, type ActivationPromptFormData } from '@application/ui/components';
 import { useEntityScreen } from '@application/ui/hooks';
@@ -9,7 +9,7 @@ import { itemFormConfig } from './constants';
 import { initialItemForm, submitItem, toFormState, validateItemForm } from './form';
 
 export function ItemScreen () {
-  const { getItems, createItem, editItem, eraseItem, alert } = useControllers();
+  const { getItems, getItem, createItem, editItem, eraseItem, alert } = useControllers();
 
   const {
     entities,
@@ -24,10 +24,11 @@ export function ItemScreen () {
     formErrors,
     save,
     eraseEntity,
-  } = useEntityScreen<Item, ActivationPromptFormData>({
+  } = useEntityScreen<ActivationPromptListItem, ActivationPromptFormData, ActivationPromptDetails>({
     fetch: () => getItems.handle(),
+    load: (id) => getItem.handle({ id }),
     submit: (itemForm) => submitItem(itemForm, createItem, editItem),
-    erase: (id) => eraseItem.handle(id),
+    erase: (id) => eraseItem.handle({ id }),
     toFormState,
     initialForm: initialItemForm,
     validate: validateItemForm,

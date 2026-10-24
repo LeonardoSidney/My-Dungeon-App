@@ -5,55 +5,77 @@ import {
     getSamplersController,
 } from '@infra/container';
 import { logger } from '@infra/container/shared';
-import { Connection, Model } from '@domain/entities';
+import { ConnectionListItem } from '@domain/controllers';
+import { Model } from '@domain/entities';
 import { SeedAssistant } from './types';
-import { MODEL_ID_PLACEHOLDER, nameIndex } from './shared';
+import { MODEL_ID_PLACEHOLDER, nameIndex, listItems, MigrationReturn } from './shared';
+
+type ResolveSeedModelReturn = {
+    success: boolean;
+    model?: Model;
+    error?: string;
+};
 
 function resolveSeedModel (
     seed: SeedAssistant,
     models: Model[],
     connectionName: string
-): Model {
+): ResolveSeedModelReturn {
     if (seed.modelId === MODEL_ID_PLACEHOLDER) {
         const firstModel = models[0];
         if (!firstModel) {
-            throw new Error(`Migration: connection "${connectionName}" has no models`);
+            return { success: false, error: `Migration: connection "${connectionName}" has no models` };
         }
 
         logger.info(`Migration: placeholder modelId resolved to "${firstModel.id}" for assistant "${seed.name}"`);
-        return firstModel;
+        return { success: true, model: firstModel };
     }
 
     const model = models.find(candidate => candidate.id === seed.modelId);
     if (!model) {
-        throw new Error(`Migration: model "${seed.modelId}" is not loaded on connection "${connectionName}"`);
+        return { success: false, error: `Migration: model "${seed.modelId}" is not loaded on connection "${connectionName}"` };
     }
 
-    return model;
+    return { success: true, model };
 }
 
 export async function seedAssistants (
     seeds: SeedAssistant[],
-    connection: Connection,
+    connection: ConnectionListItem,
     models: Model[]
-): Promise<void> {
+): Promise<MigrationReturn> {
     const createAssistant = createAssistantController();
     const editAssistant = editAssistantController();
     const getAssistants = getAssistantsController();
     const getSamplers = getSamplersController();
-    const samplers = await getSamplers.handle();
-    const existing = await getAssistants.handle();
+    const samplersResponse = listItems(await getSamplers.handle(), 'samplers');
+    if (!samplersResponse.success || !samplersResponse.items) {
+        return { success: false, error: samplersResponse.error };
+    }
+
+    const samplers = samplersResponse.items;
+    const existingResponse = listItems(await getAssistants.handle(), 'assistants');
+    if (!existingResponse.success || !existingResponse.items) {
+        return { success: false, error: existingResponse.error };
+    }
+
+    const existing = existingResponse.items;
     const existingIndex = nameIndex(existing);
     logger.info(`Migration: seeding assistants (${seeds.length} seed(s))`);
 
     const samplerIndex = nameIndex(samplers);
 
     for (const seed of seeds) {
-        const model = resolveSeedModel(seed, models, connection.name);
+        const modelResponse = resolveSeedModel(seed, models, connection.name);
+        if (!modelResponse.success || !modelResponse.model) {
+            return { success: false, error: modelResponse.error };
+        }
+
+        const model = modelResponse.model;
 
         const sampler = samplerIndex.get(seed.sampler);
         if (!sampler) {
-            throw new Error(`Migration: sampler "${seed.sampler}" does not exist`);
+            return { success: false, error: `Migration: sampler "${seed.sampler}" does not exist` };
         }
 
         const current = existingIndex.get(seed.name);
@@ -66,7 +88,7 @@ export async function seedAssistants (
                 connectionId: connection.id,
             });
             if (!response.success) {
-                throw new Error(`Migration: failed to create assistant "${seed.name}": ${response.error}`);
+                return { success: false, error: `Migration: failed to create assistant "${seed.name}": ${response.error}` };
             }
             continue;
         }
@@ -82,7 +104,9 @@ export async function seedAssistants (
             },
         });
         if (!response.success) {
-            throw new Error(`Migration: failed to restore assistant "${seed.name}": ${response.error}`);
+            return { success: false, error: `Migration: failed to restore assistant "${seed.name}": ${response.error}` };
         }
     }
+
+    return { success: true };
 }

@@ -1,4 +1,3 @@
-import { World } from '../entities';
 import { WorldEditParams } from '../services';
 
 export interface IEditWorldUseCase {
@@ -11,7 +10,7 @@ export type EditWorldParams = {
 };
 
 export type EditWorldReturn = {
-    world?: World;
+    id?: string;
     success: boolean;
     error?: string;
 };

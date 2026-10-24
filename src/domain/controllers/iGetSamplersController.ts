@@ -1,5 +1,7 @@
-import { Sampler } from '../entities';
+import { ListControllerResponse, SamplerListItem } from './iCrudControllerResponses';
 
 export interface IGetSamplersController {
-    handle(): Promise<Sampler[]>
+    handle (): Promise<GetSamplersControllerResponse>;
 }
+
+export type GetSamplersControllerResponse = ListControllerResponse<SamplerListItem>;

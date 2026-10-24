@@ -1,4 +1,3 @@
-import { Location } from '../entities';
 
 export interface ICreateLocationController {
     handle(request: CreateLocationRequest): Promise<CreateLocationResponse>;
@@ -13,6 +12,6 @@ export type CreateLocationRequest = {
 
 export type CreateLocationResponse = {
     success: boolean;
-    location?: Location;
+    id?: string;
     error?: string;
 };

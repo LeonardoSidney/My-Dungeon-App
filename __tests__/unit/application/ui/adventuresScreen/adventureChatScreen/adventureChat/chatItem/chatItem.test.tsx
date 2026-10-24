@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 import { ChatItem } from '@application/ui/adventuresScreen/adventureChatScreen/adventureChat/chatItem';
 import { Chat, RoleEnum } from '@domain/entities';
 import { createChatHelper } from '@test/helpers';
+import { ChatMessagesPresenter } from '@adapters/presenters';
 
 jest.mock('@application/ui/adventuresScreen/adventureChatScreen/adventureChat/textMarkdown', () => ({
   TextMarkdown: () => null,
@@ -14,7 +15,7 @@ const onRegenerateContent = jest.fn();
 const setup = (chat: Chat) =>
   render(
     <ChatItem
-      chat={chat}
+      message={new ChatMessagesPresenter().presentOne(chat)}
       isStreaming={false}
       characterNameById={{ 'character-1': 'Hero' }}
       onNavigateThinkIndex={onNavigateThinkIndex}

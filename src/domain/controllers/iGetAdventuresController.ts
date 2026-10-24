@@ -1,5 +1,7 @@
-import { Adventure } from '../entities';
+import { AdventureListItem, ListControllerResponse } from './iCrudControllerResponses';
 
 export interface IGetAdventuresController {
-    handle(): Promise<Adventure[]>;
+    handle (): Promise<GetAdventuresControllerResponse>;
 }
+
+export type GetAdventuresControllerResponse = ListControllerResponse<AdventureListItem>;

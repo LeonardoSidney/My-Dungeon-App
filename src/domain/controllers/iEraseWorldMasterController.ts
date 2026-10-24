@@ -4,5 +4,9 @@ export type EraseWorldMasterControllerResponse = {
 };
 
 export interface IEraseWorldMasterController {
-    handle (worldMasterId: string): Promise<EraseWorldMasterControllerResponse>;
+    handle (request: EraseWorldMasterControllerRequest): Promise<EraseWorldMasterControllerResponse>;
 }
+
+export type EraseWorldMasterControllerRequest = {
+    id: string;
+};

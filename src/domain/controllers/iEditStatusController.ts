@@ -1,4 +1,3 @@
-import { Status } from '../entities';
 import { StatusEditParams } from '../services';
 
 export interface IEditStatusController {
@@ -11,7 +10,7 @@ export type EditStatusControllerParams = {
 };
 
 export type EditStatusControllerResponse = {
-    status?: Status;
+    id?: string;
     success: boolean;
     error?: string;
 };

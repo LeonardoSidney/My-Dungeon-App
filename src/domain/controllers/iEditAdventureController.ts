@@ -1,5 +1,5 @@
-import { Adventure } from '../entities';
-import { AdventureEditParams } from '../services';
+import { MutationControllerResponse } from './iCrudControllerResponses';
+import { AdventureFormRequest } from './iCreateAdventureController';
 
 export interface IEditAdventureController {
     handle (request: EditAdventureControllerParams): Promise<EditAdventureControllerResponse>;
@@ -7,11 +7,7 @@ export interface IEditAdventureController {
 
 export type EditAdventureControllerParams = {
     id: string;
-    editParams: AdventureEditParams;
+    editParams: AdventureFormRequest;
 };
 
-export type EditAdventureControllerResponse = {
-    success: boolean;
-    adventure?: Adventure;
-    error?: string;
-};
+export type EditAdventureControllerResponse = MutationControllerResponse;

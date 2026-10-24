@@ -1,4 +1,4 @@
-import { Attribute, Character } from '../entities';
+import { Attribute } from '../entities';
 
 export interface ICreateCharacterController {
     handle (params: CreateCharacterControllerPrams): Promise<CreateCharacterControllerResponse>;
@@ -18,6 +18,6 @@ export type CreateCharacterControllerPrams = {
 
 export type CreateCharacterControllerResponse = {
     success: boolean;
-    character?: Character;
+    id?: string;
     error?: string;
 };

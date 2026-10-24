@@ -1,5 +1,7 @@
-import { Connection } from '../entities';
+import { ListControllerResponse, ConnectionListItem } from './iCrudControllerResponses';
 
 export interface IGetConnectionsController {
-    handle(): Promise<Connection[]>;
+    handle (): Promise<GetConnectionsControllerResponse>;
 }
+
+export type GetConnectionsControllerResponse = ListControllerResponse<ConnectionListItem>;

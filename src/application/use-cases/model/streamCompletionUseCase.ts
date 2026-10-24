@@ -20,51 +20,69 @@ export class StreamCompletionUseCase implements IStreamCompletionUseCase {
 
     async execute (params: StreamCompletionUseCaseParams): Promise<StreamCompletionUseCaseResponse> {
         this.logger.info('Executing StreamCompletionUseCase::execute');
-        try {
-            const connection = await this.connectionRepository.getConnectionById(params.connectionId);
 
-            if (!connection) {
-                return {
-                    success: false,
-                    error: `Connection not found: ${params.connectionId}`,
-                };
-            }
+        const validationError = this.validate(params);
+        if (validationError) {
+            return { success: false, error: validationError };
+        }
 
-            const resolveSampler = createSamplerResolver(this.samplerRepository, this.getSamplersService);
-            const sampler = await resolveSampler(params.samplerId);
+        const connectionResponse = await this.connectionRepository.getConnectionById(params.connectionId);
+        if (!connectionResponse.success) {
+            this.logger.warning('StreamCompletionUseCase::execute - failed to load connection', connectionResponse.error);
+            return { success: false, error: connectionResponse.error };
+        }
 
-            if (!sampler) {
-                return {
-                    success: false,
-                    error: `Sampler not found: ${params.samplerId}`,
-                };
-            }
+        const connection = connectionResponse.connection;
 
-            const { stream, abort } = this.gateway.streamCompletion({
-                connection,
-                sampler,
-                modelId: params.modelId,
-                prompt: params.prompt
-            });
-
-            return {
-                success: true,
-                stream,
-                abort,
-            };
-        } catch (error) {
-            if (error instanceof Error) {
-                this.logger.error('Error in StreamCompletionUseCase::execute', error);
-                return {
-                    success: false,
-                    error: error.message || 'Stream completion failed',
-                };
-            }
-            this.logger.error('Error in StreamCompletionUseCase::execute', error);
+        if (!connection) {
             return {
                 success: false,
-                error: 'Stream completion failed',
+                error: `Connection not found: ${params.connectionId}`,
             };
         }
+
+        const resolveSampler = createSamplerResolver(this.samplerRepository, this.getSamplersService);
+        const samplerResponse = await resolveSampler(params.samplerId);
+        if (!samplerResponse.success) {
+            this.logger.warning('StreamCompletionUseCase::execute - failed to load sampler', samplerResponse.error);
+            return { success: false, error: samplerResponse.error };
+        }
+
+        const sampler = samplerResponse.sampler;
+        if (!sampler) {
+            return {
+                success: false,
+                error: `Sampler not found: ${params.samplerId}`,
+            };
+        }
+
+        const { stream, abort } = this.gateway.streamCompletion({
+            connection,
+            sampler,
+            modelId: params.modelId,
+            prompt: params.prompt
+        });
+
+        return {
+            success: true,
+            stream,
+            abort,
+        };
+    }
+
+    private validate (params: StreamCompletionUseCaseParams): string | null {
+        if (!params.connectionId?.trim()) {
+            return 'Connection id is required';
+        }
+
+        if (!params.modelId?.trim()) {
+            return 'Model id is required';
+        }
+
+        if (!params.prompt?.trim()) {
+            return 'Prompt is required';
+        }
+
+        return null;
     }
 }

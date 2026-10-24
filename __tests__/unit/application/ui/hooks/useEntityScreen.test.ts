@@ -15,15 +15,22 @@ type TestForm = {
     activationWord: string;
 };
 
-const LOADED: TestEntity[] = [{ id: '1', name: 'A', activationWord: 'w' }];
-const alert = { handle: jest.fn() };
+type TestDetails = TestEntity & {
+    prompt: string;
+};
 
-function buildParams (fetch: jest.Mock, submit?: jest.Mock, erase?: jest.Mock): UseEntityScreenParams<TestEntity, TestForm> {
+const LOADED = { success: true, items: [{ id: '1', name: 'A', activationWord: 'w' }] };
+const DETAILS: TestDetails = { id: '1', name: 'A', activationWord: 'w', prompt: 'p' };
+const alert = { handle: jest.fn() };
+let load: jest.Mock;
+
+function buildParams (fetch: jest.Mock, submit?: jest.Mock, erase?: jest.Mock): UseEntityScreenParams<TestEntity, TestForm, TestDetails> {
     return {
         fetch,
+        load,
         submit: submit ?? jest.fn().mockResolvedValue({ success: true }),
         erase: erase ?? jest.fn().mockResolvedValue({ success: true }),
-        toFormState: (entity) => ({ id: entity.id, name: entity.name, activationWord: entity.activationWord }),
+        toFormState: (details) => ({ id: details.id, name: details.name, activationWord: details.activationWord }),
         initialForm: () => ({ id: '', name: '', activationWord: '' }),
         validate: (form) => {
             const errors: EntityFormErrors<TestForm> = {};
@@ -41,7 +48,7 @@ async function renderLoaded (fetch: jest.Mock, submit?: jest.Mock, erase?: jest.
     const params = buildParams(fetch, submit, erase);
     const navigation = createTestNavigation();
     const view = await renderHook(
-        () => useEntityScreen<TestEntity, TestForm>(params),
+        () => useEntityScreen<TestEntity, TestForm, TestDetails>(params),
         { wrapper: (props) => React.createElement(TestNavigationProvider, { navigation: navigation.navigation }, props.children) }
     );
     await waitFor(() => expect(view.result.current.isLoading).toBe(false));
@@ -51,6 +58,7 @@ async function renderLoaded (fetch: jest.Mock, submit?: jest.Mock, erase?: jest.
 describe('useEntityScreen', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        load = jest.fn().mockResolvedValue({ success: true, data: DETAILS });
     });
 
     it('loads entities on mount and clears the loading flag', async () => {
@@ -64,7 +72,7 @@ describe('useEntityScreen', () => {
 
     it('marks the list as errored when fetch fails and recovers on reload', async () => {
         const fetch = jest.fn()
-            .mockRejectedValueOnce(new Error('boom'))
+            .mockResolvedValueOnce({ success: false, error: 'boom' })
             .mockResolvedValue(LOADED);
         const { result } = await renderLoaded(fetch);
 
@@ -147,16 +155,35 @@ describe('useEntityScreen', () => {
         expect(result.current.showForm).toBe(true);
     });
 
-    it('fills the form from the entity and opens it on edit', async () => {
+    it('marks the list as errored when fetch fails', async () => {
+        const { result } = await renderLoaded(jest.fn().mockResolvedValue({ success: false, error: 'boom' }));
+
+        await waitFor(() => expect(result.current.isError).toBe(true));
+    });
+
+    it('loads the details by id and fills the form on edit', async () => {
         const { result } = await renderLoaded(jest.fn().mockResolvedValue(LOADED));
         const target = result.current.entities[0];
 
         await act(async () => {
-            result.current.openEdit(target);
+            await result.current.openEdit(target);
         });
 
+        expect(load).toHaveBeenCalledWith('1');
         expect(result.current.showForm).toBe(true);
-        expect(result.current.form).toEqual({ id: target.id, name: target.name, activationWord: target.activationWord });
+        expect(result.current.form).toEqual({ id: DETAILS.id, name: DETAILS.name, activationWord: DETAILS.activationWord });
+    });
+
+    it('alerts and keeps the form closed when the details cannot be loaded', async () => {
+        load = jest.fn().mockResolvedValue({ success: false, error: 'thing with id 1 not found' });
+        const { result } = await renderLoaded(jest.fn().mockResolvedValue(LOADED));
+
+        await act(async () => {
+            await result.current.openEdit(result.current.entities[0]);
+        });
+
+        expect(alert.handle).toHaveBeenCalledWith({ title: 'Erro', message: 'thing with id 1 not found' });
+        expect(result.current.showForm).toBe(false);
     });
 
     it('reloads the list after a successful erase', async () => {

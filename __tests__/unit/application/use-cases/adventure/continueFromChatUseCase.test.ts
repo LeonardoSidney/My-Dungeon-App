@@ -17,20 +17,25 @@ const mockContinueFromChatService = {
 };
 
 const mockAdventureRepository = {
+    getAdventureById: jest.fn(),
     updateAdventure: jest.fn()
 };
 
 function buildUseCase (): ContinueFromChatUseCase {
     return new ContinueFromChatUseCase(
         mockLogger,
-    mockContinueFromChatService as unknown as IContinueFromChatService,
-    mockAdventureRepository as unknown as IAdventureRepository
+        mockContinueFromChatService as unknown as IContinueFromChatService,
+        mockAdventureRepository as unknown as IAdventureRepository
     );
 }
 
 function buildParams (overrides: Record<string, unknown> = {}) {
+    const providedAdventure = overrides.adventure as ReturnType<typeof createAdventureHelper> | undefined;
+    const adventure = providedAdventure ?? createAdventureHelper({ chat: [createChatHelper()] });
+    mockAdventureRepository.getAdventureById.mockResolvedValue({ success: true, adventure });
     return {
-        adventure: createAdventureHelper({ chat: [createChatHelper()] }),
+        adventure,
+        adventureId: adventure.id,
         chatId: 'chat-1',
         ...overrides
     };
@@ -97,5 +102,42 @@ describe('ContinueFromChatUseCase', () => {
 
         expect(response).toEqual({ success: false, error: 'Chat id is required' });
         expect(mockContinueFromChatService.continueFromChat).not.toHaveBeenCalled();
+    });
+
+    it('fails when the adventure id is missing', async () => {
+        const response = await buildUseCase().execute(buildParams({ adventureId: '' }));
+
+        expect(response).toEqual({ success: false, error: 'Adventure id is required' });
+        expect(mockAdventureRepository.getAdventureById).not.toHaveBeenCalled();
+    });
+
+    it('returns the repository error when the adventure cannot be loaded', async () => {
+        const params = buildParams();
+        mockAdventureRepository.getAdventureById.mockResolvedValue({ success: false, error: 'Database error' });
+
+        const response = await buildUseCase().execute(params);
+
+        expect(response).toEqual({ success: false, error: 'Database error' });
+        expect(mockContinueFromChatService.continueFromChat).not.toHaveBeenCalled();
+    });
+
+    it('fails when the adventure does not exist', async () => {
+        const params = buildParams();
+        mockAdventureRepository.getAdventureById.mockResolvedValue({ success: true, adventure: undefined });
+
+        const response = await buildUseCase().execute(params);
+
+        expect(response).toEqual({ success: false, error: `Adventure with id ${params.adventureId} not found` });
+        expect(mockContinueFromChatService.continueFromChat).not.toHaveBeenCalled();
+    });
+
+    it('falls back to a generic error when persistence fails without a message', async () => {
+        const params = buildParams();
+        mockContinueFromChatService.continueFromChat.mockReturnValue({ success: true, adventure: params.adventure });
+        mockAdventureRepository.updateAdventure.mockResolvedValue({ success: false });
+
+        const response = await buildUseCase().execute(params);
+
+        expect(response).toEqual({ success: false, error: 'Failed to save adventure' });
     });
 });

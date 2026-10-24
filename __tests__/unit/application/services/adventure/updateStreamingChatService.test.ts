@@ -85,4 +85,27 @@ describe('UpdateStreamingChatService', () => {
         expect(result.adventure).toBeUndefined();
         expect(result.error).toContain('Chat not found');
     });
+
+    it('keeps the other chats of the adventure untouched', () => {
+        const other = createChatHelper({ id: 'chat-0' });
+        const adventure = createAdventureHelper({
+            chat: [other, createChatHelper({ content: ['v0'], index: 0 })]
+        });
+
+        const result: UpdateStreamingChatServiceReturn = service.updateStreamingChat(buildParams({ adventure }));
+
+        expect(result.adventure?.chat[0]).toBe(other);
+        expect(result.adventure?.chat[1].content).toEqual(['v1 updated']);
+    });
+
+    it('starts the think list when the chat had no thinks yet', () => {
+        const adventure = createAdventureHelper({
+            chat: [createChatHelper({ think: undefined, thinkIndex: 0 })]
+        });
+
+        const result: UpdateStreamingChatServiceReturn = service.updateStreamingChat(buildParams({ adventure, think: firstThink }));
+
+        expect(result.chat?.think).toEqual([firstThink]);
+        expect(result.chat?.thinkIndex).toBe(0);
+    });
 });

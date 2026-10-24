@@ -14,9 +14,9 @@ const mockLogger: ILogger = {
 };
 
 const mockSamplerRepository = {
-    getSamplers: jest.fn().mockResolvedValue([]),
-    getSamplerById: jest.fn().mockResolvedValue(undefined),
-    saveSampler: jest.fn().mockResolvedValue(true),
+    getSamplers: jest.fn().mockResolvedValue({ success: true, samplers: [] }),
+    getSamplerById: jest.fn().mockResolvedValue({ success: true, sampler: undefined }),
+    saveSampler: jest.fn().mockResolvedValue({ success: true }),
     editSampler: jest.fn().mockResolvedValue({ success: true }),
     eraseSampler: jest.fn().mockResolvedValue({ success: true })
 };
@@ -48,7 +48,7 @@ function buildUseCase (): CreateSamplerUseCase {
 describe('CreateSamplerUseCase', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        mockSamplerRepository.getSamplers.mockResolvedValue([]);
+        mockSamplerRepository.getSamplers.mockResolvedValue({ success: true, samplers: [] });
         mockGetSamplersService.getSystemDefaultSamplers.mockReturnValue([
             createSamplerHelper({
                 id: 'd159dd93-77da-427b-9407-3d695a13e554',
@@ -106,7 +106,84 @@ describe('CreateSamplerUseCase', () => {
         });
 
         expect(response.success).toBe(true);
-        expect(response.sampler?.name).toBe('creative-narrative');
+        expect(response.id).toBe(created.id);
         expect(mockSamplerRepository.saveSampler).toHaveBeenCalledWith({ sampler: created });
+    });
+
+    it('should fail when the name is blank', async () => {
+        const response = await buildUseCase().execute({ name: '   ' });
+
+        expect(response).toEqual({ success: false, error: 'A name is required to create a sampler' });
+        expect(mockService.createSampler).not.toHaveBeenCalled();
+    });
+
+    it.each([0, -0.5, 1.5])('should fail when the adaptative target is %p', async (adaptativeTarget) => {
+        const response = await buildUseCase().execute({ name: 'custom', adaptativeTarget });
+
+        expect(response).toEqual({ success: false, error: 'Adaptative target must be greater than 0 and up to 1 to create a sampler' });
+    });
+
+    it.each([0, -0.5, 1.5])('should fail when the adaptative decay is %p', async (adaptativeDecay) => {
+        const response = await buildUseCase().execute({ name: 'custom', adaptativeDecay });
+
+        expect(response).toEqual({ success: false, error: 'Adaptative decay must be greater than 0 and up to 1 to create a sampler' });
+    });
+
+    it('should accept adaptative values inside the allowed range', async () => {
+        const created: Sampler = createSamplerHelper({ name: 'custom' });
+        mockService.createSampler.mockReturnValue({ success: true, sampler: created });
+
+        const response = await buildUseCase().execute({ name: 'custom', adaptativeTarget: 1, adaptativeDecay: 0.5 });
+
+        expect(response).toEqual({ success: true, id: created.id });
+    });
+
+    it('should return the service error when the service fails', async () => {
+        mockService.createSampler.mockReturnValue({ success: false, error: 'Invalid sampler' });
+
+        const response = await buildUseCase().execute({ name: 'custom' });
+
+        expect(response).toEqual({ success: false, error: 'Invalid sampler' });
+        expect(mockSamplerRepository.saveSampler).not.toHaveBeenCalled();
+    });
+
+    it('should fail when the service succeeds without a sampler', async () => {
+        mockService.createSampler.mockReturnValue({ success: true });
+
+        const response = await buildUseCase().execute({ name: 'custom' });
+
+        expect(response).toEqual({ success: false, error: 'Something went wrong when creating the sampler' });
+    });
+
+    it('should return the repository error when the samplers cannot be loaded', async () => {
+        mockService.createSampler.mockReturnValue({ success: true, sampler: createSamplerHelper({ name: 'custom' }) });
+        mockSamplerRepository.getSamplers.mockResolvedValue({ success: false, error: 'Database error' });
+
+        const response = await buildUseCase().execute({ name: 'custom' });
+
+        expect(response).toEqual({ success: false, error: 'Database error' });
+        expect(mockSamplerRepository.saveSampler).not.toHaveBeenCalled();
+    });
+
+    it('should fail when a sampler with the same name already exists', async () => {
+        mockService.createSampler.mockReturnValue({ success: true, sampler: createSamplerHelper({ id: 'new', name: 'custom' }) });
+        mockSamplerRepository.getSamplers.mockResolvedValue({
+            success: true,
+            samplers: [createSamplerHelper({ id: 'other', name: 'another' }), createSamplerHelper({ id: 'old', name: 'custom' })]
+        });
+
+        const response = await buildUseCase().execute({ name: 'custom' });
+
+        expect(response).toEqual({ success: false, error: 'A sampler with this name already exists' });
+        expect(mockSamplerRepository.saveSampler).not.toHaveBeenCalled();
+    });
+
+    it('should return the repository error when saving fails', async () => {
+        mockService.createSampler.mockReturnValue({ success: true, sampler: createSamplerHelper({ name: 'custom' }) });
+        mockSamplerRepository.saveSampler.mockResolvedValueOnce({ success: false, error: 'Disk full' });
+
+        const response = await buildUseCase().execute({ name: 'custom' });
+
+        expect(response).toEqual({ success: false, error: 'Disk full' });
     });
 });

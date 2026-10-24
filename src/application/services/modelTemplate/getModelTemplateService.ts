@@ -33,9 +33,15 @@ export class GetModelTemplateService implements IGetModelTemplateService {
         this.logger.info('Execute GetModelTemplateService::fetchModelTemplate');
 
         const { connection, modelId } = params;
-        const props = await this.gateway.getProps({ connection, modelId, autoload: false });
-        this.logger.debug('Execute GetModelTemplateService::fetchModelTemplate - props: ', props);
+        const response = await this.gateway.getProps({ connection, modelId, autoload: false });
+        this.logger.debug('Execute GetModelTemplateService::fetchModelTemplate - props: ', response.props);
 
+        if (!response.success) {
+            this.logger.warning('GetModelTemplateService::fetchModelTemplate - failed to get props', response.error);
+            return { success: false, error: response.error };
+        }
+
+        const props = response.props;
         if (!props) {
             return { success: false, error: 'props response was empty' };
         }

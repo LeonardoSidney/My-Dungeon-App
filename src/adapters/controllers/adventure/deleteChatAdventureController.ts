@@ -14,17 +14,12 @@ export class DeleteChatAdventureController implements IDeleteChatAdventureContro
 
     async handle (request: DeleteChatControllerRequest): Promise<DeleteChatControllerResponse> {
         this.logger.info('Executing DeleteChatAdventureController::handle');
-        this.logger.debug('DeleteChatAdventureController::handle - request', {
-            chatId: request.chatId,
-            index: request.index,
-        });
+        this.logger.debug('DeleteChatAdventureController::handle - params', request);
 
         const response = await this.useCase.execute(request);
 
         return {
             success: response.success,
-            chat: response.chat,
-            adventure: response.adventure,
             error: response.error,
         };
     }

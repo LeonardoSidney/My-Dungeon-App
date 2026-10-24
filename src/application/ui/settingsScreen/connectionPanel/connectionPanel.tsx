@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { Connection } from '@domain/entities';
+import { ConnectionListItem } from '@domain/controllers';
 import { Pencil, Trash2 } from 'lucide-react-native';
 import { ConnectionForm } from '../connectionForm';
 import { ConnectionFormData } from '../constants';
@@ -8,14 +8,14 @@ import { styles } from './styles';
 import { colors } from '../../theme';
 
 type ConnectionPanelProps = {
-  connections: Connection[];
+  connections: ConnectionListItem[];
   loading: boolean;
   isError?: boolean;
   expanded: boolean;
   onToggleExpand: () => void;
   onAdd: () => void;
-  onEdit: (connection: Connection) => void;
-  onDelete: (connection: Connection) => Promise<void>;
+  onEdit: (connection: ConnectionListItem) => void;
+  onDelete: (connection: ConnectionListItem) => Promise<void>;
   formVisible: boolean;
   formData: ConnectionFormData;
   onFormChange: (field: keyof ConnectionFormData, value: string) => void;

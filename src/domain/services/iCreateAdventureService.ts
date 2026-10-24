@@ -4,17 +4,19 @@ export interface ICreateAdventureService {
     createAdventure (params: CreateAdventureServiceParams): CreateAdventureServiceReturn;
 }
 
-export type CreateAdventureServiceParams = {
+export type AdventureFormFields = {
     name: string;
     systemPromptIds: string[];
-    characterIds: string[];
-    worldMasterId?: string;
+    playableCharacterIds: string[];
+    aiControlledCharacterIds: string[];
     characterAsWorldMasterId?: string;
-    charactersControlledByAi: string[];
+    worldMasterId?: string;
     worldIds: string[];
     locationIds: string[];
     itemIds: string[];
 };
+
+export type CreateAdventureServiceParams = AdventureFormFields;
 
 export type CreateAdventureServiceReturn = {
     success: boolean;

@@ -1,16 +1,16 @@
-import { Adventure } from '@domain/entities';
-import { IAlertController, IEditAdventureController, IGetWorldMastersController } from '@domain/controllers';
+import { AdventureChatWorldMaster, IAlertController, IGetWorldMastersController, ISetAdventureWorldMasterController } from '@domain/controllers';
 
 export interface WorldMasterDropdownControllers {
     getWorldMasters: IGetWorldMastersController;
-    editAdventure: IEditAdventureController;
+    setAdventureWorldMaster: ISetAdventureWorldMasterController;
     alert: IAlertController;
 }
 
 export interface AdventureChatSettingsProps {
     onBack: () => void;
-    adventure: Adventure;
-    onWorldMasterSelect: (adventure: Adventure) => void;
-    onCharacterSelect?: (adventure: Adventure) => void;
+    adventureId: string;
+    adventureName: string;
+    worldMaster?: AdventureChatWorldMaster;
+    onWorldMasterChange: () => Promise<void>;
     controllers: WorldMasterDropdownControllers;
 }

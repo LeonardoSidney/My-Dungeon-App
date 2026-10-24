@@ -1,5 +1,5 @@
-import { World } from '@domain/entities';
 import {
+    ActivationPromptDetails,
     CreateWorldRequest,
     EditWorldControllerParams,
     ICreateWorldController,
@@ -11,7 +11,7 @@ import {
 } from '@application/ui/components';
 import { ControllerResponse } from '@application/ui/hooks';
 
-export function toFormState (world: World): ActivationPromptFormData {
+export function toFormState (world: ActivationPromptDetails): ActivationPromptFormData {
     return {
         id: world.id,
         name: world.name,

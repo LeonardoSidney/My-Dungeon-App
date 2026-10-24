@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Location } from '@domain/entities';
+import { ActivationPromptDetails, ActivationPromptListItem } from '@domain/controllers';
 import { styles } from './styles';
 import { ActivationPromptForm, CrudEntityList, type ActivationPromptFormData } from '@application/ui/components';
 import { useEntityScreen } from '@application/ui/hooks';
@@ -9,7 +9,7 @@ import { locationFormConfig } from './constants';
 import { initialLocationForm, submitLocation, toFormState, validateLocationForm } from './form';
 
 export function LocationScreen () {
-  const { getLocations, createLocation, editLocation, eraseLocation, alert } = useControllers();
+  const { getLocations, getLocation, createLocation, editLocation, eraseLocation, alert } = useControllers();
 
   const {
     entities,
@@ -24,10 +24,11 @@ export function LocationScreen () {
     formErrors,
     save,
     eraseEntity,
-  } = useEntityScreen<Location, ActivationPromptFormData>({
+  } = useEntityScreen<ActivationPromptListItem, ActivationPromptFormData, ActivationPromptDetails>({
     fetch: () => getLocations.handle(),
+    load: (id) => getLocation.handle({ id }),
     submit: (locationForm) => submitLocation(locationForm, createLocation, editLocation),
-    erase: (id) => eraseLocation.handle(id),
+    erase: (id) => eraseLocation.handle({ id }),
     toFormState,
     initialForm: initialLocationForm,
     validate: validateLocationForm,

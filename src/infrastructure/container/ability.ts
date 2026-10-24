@@ -3,19 +3,26 @@ import {
     EditAbilityController,
     EraseAbilityController,
     GetAbilitiesController,
+    GetAbilityController,
 } from '@adapters/controllers';
+import {
+    GetAbilitiesPresenter,
+    GetAbilityPresenter,
+} from '@adapters/presenters';
 import { CreateAbilityService, EditAbilityService } from '@application/services';
 import {
     CreateAbilityUseCase,
     EditAbilityUseCase,
     EraseAbilityUseCase,
     GetAbilitiesUseCase,
+    GetAbilityByIdUseCase,
 } from '@application/use-cases';
 import {
     ICreateAbilityController,
     IEditAbilityController,
     IEraseAbilityController,
     IGetAbilitiesController,
+    IGetAbilityController,
 } from '@domain/controllers';
 import { idGenerate, logger, storage } from './shared';
 import { createAbilityRepository } from './repository';
@@ -30,7 +37,7 @@ export function createAbilityController (): ICreateAbilityController {
 export function getAbilitiesController (): IGetAbilitiesController {
     const abilityRepository = createAbilityRepository(storage, logger);
     const getAbilitiesUseCase = new GetAbilitiesUseCase(logger, abilityRepository);
-    return new GetAbilitiesController(logger, getAbilitiesUseCase);
+    return new GetAbilitiesController(logger, getAbilitiesUseCase, new GetAbilitiesPresenter());
 }
 
 export function editAbilityController (): IEditAbilityController {
@@ -44,4 +51,9 @@ export function eraseAbilityController (): IEraseAbilityController {
     const abilityRepository = createAbilityRepository(storage, logger);
     const eraseAbilityUseCase = new EraseAbilityUseCase(logger, abilityRepository);
     return new EraseAbilityController(logger, eraseAbilityUseCase);
+}
+
+export function getAbilityController (): IGetAbilityController {
+    const useCase = new GetAbilityByIdUseCase(logger, createAbilityRepository(storage, logger));
+    return new GetAbilityController(logger, useCase, new GetAbilityPresenter());
 }

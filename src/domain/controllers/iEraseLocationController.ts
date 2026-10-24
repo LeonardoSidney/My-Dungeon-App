@@ -1,8 +1,12 @@
 export interface IEraseLocationController {
-    handle (locationId: string): Promise<EraseLocationControllerResponse>;
+    handle (request: EraseLocationControllerRequest): Promise<EraseLocationControllerResponse>;
 }
 
 export type EraseLocationControllerResponse = {
     success: boolean;
     error?: string;
+};
+
+export type EraseLocationControllerRequest = {
+    id: string;
 };

@@ -1,14 +1,15 @@
-import { Sampler, MirostatEnum } from '@domain/entities';
+import { MirostatEnum } from '@domain/entities';
+import { SamplerListItem } from '@domain/controllers';
 
 export type FormErrors = {
     name?: string;
 };
 
 export interface SamplerPanelProps {
-    samplers: Sampler[];
+    samplers: SamplerListItem[];
     isLoading?: boolean;
-    onEdit: (sampler: Sampler) => void;
-    onDelete: (sampler: Sampler) => Promise<void>;
+    onEdit: (sampler: SamplerListItem) => void;
+    onDelete: (sampler: SamplerListItem) => Promise<void>;
 }
 
 export type SamplerFormData = {

@@ -1,5 +1,5 @@
 import { AdventureFormData } from '../constants';
-import { Character, WorldMaster, SystemPrompt, World, Location, Item } from '@domain/entities';
+import { EntityOption } from '@domain/controllers';
 
 function toggleInList<T extends { id: string; }> (list: T[], item: T): T[] {
     const isItemSelected = list.some(entry => entry.id === item.id);
@@ -9,7 +9,7 @@ function toggleInList<T extends { id: string; }> (list: T[], item: T): T[] {
 
 export function useAdventureFormLogic (
     adventureStateFormData: AdventureFormData,
-    characters: Character[],
+    characters: EntityOption[],
     onChange: (field: keyof AdventureFormData, value: AdventureFormData[keyof AdventureFormData]) => void
 ) {
     const characterAsWorldMasterId = adventureStateFormData.characterAsWorldMasterId;
@@ -23,7 +23,7 @@ export function useAdventureFormLogic (
     );
 
     const removeCharacterFromBuckets = (id: string): {
-        characters: Character[];
+        characters: EntityOption[];
         aiIds: string[];
         wmCharId?: string;
     } => {
@@ -33,7 +33,7 @@ export function useAdventureFormLogic (
         return { characters: charactersWithout, aiIds: aiIdsWithout, wmCharId };
     };
 
-    const restoreCharacterAsPlayable = (id: string, bucketCharacters: Character[]): Character[] => {
+    const restoreCharacterAsPlayable = (id: string, bucketCharacters: EntityOption[]): EntityOption[] => {
         const character = bucketCharacters.find(entry => entry.id === id);
         if (!character) {
             return bucketCharacters;
@@ -42,11 +42,11 @@ export function useAdventureFormLogic (
         return [...charactersWithout, character];
     };
 
-    const handleSystemPromptToggle = (systemPrompt: SystemPrompt) => {
+    const handleSystemPromptToggle = (systemPrompt: EntityOption) => {
         onChange('systemPrompts', toggleInList(adventureStateFormData.systemPrompts, systemPrompt));
     };
 
-    const handleCharacterToggle = (character: Character) => {
+    const handleCharacterToggle = (character: EntityOption) => {
         const isPlayable = formSelectedCharacters.some(entry => entry.id === character.id);
         if (isPlayable) {
             onChange('characters', formSelectedCharacters.filter(entry => entry.id !== character.id));
@@ -58,7 +58,7 @@ export function useAdventureFormLogic (
         onChange('characterAsWorldMasterId', cleaned.wmCharId);
     };
 
-    const handleAiCharacterToggle = (character: Character) => {
+    const handleAiCharacterToggle = (character: EntityOption) => {
         const isAiControlled = formDataCharactersControlledByAi.includes(character.id);
         if (isAiControlled) {
             onChange('charactersControlledByAi', formDataCharactersControlledByAi.filter(id => id !== character.id));
@@ -70,7 +70,7 @@ export function useAdventureFormLogic (
         onChange('characterAsWorldMasterId', cleaned.wmCharId);
     };
 
-    const handleWorldMasterCharacterSelect = (selectedCharacter: Character) => {
+    const handleWorldMasterCharacterSelect = (selectedCharacter: EntityOption) => {
         const isCurrent = characterAsWorldMasterId === selectedCharacter.id;
         if (isCurrent) {
             onChange('characterAsWorldMasterId', undefined);
@@ -87,7 +87,7 @@ export function useAdventureFormLogic (
         onChange('worldMaster', undefined);
     };
 
-    const handleWorldMasterSelect = (worldMasterEntity: WorldMaster) => {
+    const handleWorldMasterSelect = (worldMasterEntity: EntityOption) => {
         const isCurrent = worldMaster?.id === worldMasterEntity.id;
         if (isCurrent) {
             onChange('worldMaster', undefined);
@@ -101,15 +101,15 @@ export function useAdventureFormLogic (
         onChange('worldMaster', worldMasterEntity);
     };
 
-    const handleWorldToggle = (world: World) => {
+    const handleWorldToggle = (world: EntityOption) => {
         onChange('worlds', toggleInList(adventureStateFormData.worlds ?? [], world));
     };
 
-    const handleLocationToggle = (location: Location) => {
+    const handleLocationToggle = (location: EntityOption) => {
         onChange('locations', toggleInList(adventureStateFormData.locations ?? [], location));
     };
 
-    const handleItemToggle = (item: Item) => {
+    const handleItemToggle = (item: EntityOption) => {
         onChange('items', toggleInList(adventureStateFormData.items ?? [], item));
     };
 

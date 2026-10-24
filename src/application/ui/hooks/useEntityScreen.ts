@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { IAlertController } from '@domain/controllers';
+import { DetailControllerResponse, IAlertController, ListControllerResponse } from '@domain/controllers';
 import { useEntityList } from './useEntityList';
 
 export type ControllerResponse = {
@@ -9,11 +9,12 @@ export type ControllerResponse = {
 
 export type EntityFormErrors<Form> = Partial<Record<keyof Form, string>>;
 
-export type UseEntityScreenParams<Entity extends { id: string; }, Form> = {
-    fetch: () => Promise<Entity[]>;
+export type UseEntityScreenParams<Entity extends { id: string; }, Form, Details = Entity> = {
+    fetch: () => Promise<ListControllerResponse<Entity>>;
+    load: (id: string) => Promise<DetailControllerResponse<Details>>;
     submit: (form: Form) => Promise<ControllerResponse>;
     erase: (id: string) => Promise<ControllerResponse>;
-    toFormState: (entity: Entity) => Form;
+    toFormState: (details: Details) => Form;
     initialForm: () => Form;
     validate: (form: Form) => EntityFormErrors<Form>;
     entityName: string;
@@ -29,15 +30,15 @@ export type UseEntityScreenReturn<Entity extends { id: string; }, Form> = {
     updateField: <K extends keyof Form>(field: K, value: Form[K]) => void;
     showForm: boolean;
     openAdd: () => void;
-    openEdit: (entity: Entity) => void;
+    openEdit: (entity: Entity) => Promise<void>;
     closeForm: () => void;
     formErrors: EntityFormErrors<Form>;
     save: () => Promise<void>;
     eraseEntity: (entity: Entity) => Promise<void>;
 };
 
-export function useEntityScreen<Entity extends { id: string; }, Form> (
-    params: UseEntityScreenParams<Entity, Form>
+export function useEntityScreen<Entity extends { id: string; }, Form, Details = Entity> (
+    params: UseEntityScreenParams<Entity, Form, Details>
 ): UseEntityScreenReturn<Entity, Form> {
     const paramsRef = useRef(params);
     paramsRef.current = params;
@@ -71,8 +72,13 @@ export function useEntityScreen<Entity extends { id: string; }, Form> (
         setShowForm(true);
     }, []);
 
-    const openEdit = useCallback((entity: Entity): void => {
-        setForm(paramsRef.current.toFormState(entity));
+    const openEdit = useCallback(async (entity: Entity): Promise<void> => {
+        const response = await paramsRef.current.load(entity.id);
+        if (!response.success || !response.data) {
+            paramsRef.current.alert.handle({ title: 'Erro', message: response.error ?? `Failed to load ${paramsRef.current.entityName}` });
+            return;
+        }
+        setForm(paramsRef.current.toFormState(response.data));
         setFormErrors({});
         setShowForm(true);
     }, []);

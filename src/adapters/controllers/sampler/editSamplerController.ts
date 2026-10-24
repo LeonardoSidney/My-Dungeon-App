@@ -13,12 +13,13 @@ export class EditSamplerController implements IEditSamplerController {
     ) { }
     async handle (params: EditSamplerControllerParams): Promise<EditSamplerControllerResponse> {
         this.logger.info('Executing EditSamplerController::handle');
+        this.logger.debug('EditSamplerController::handle - params', params);
         const response = await this.useCase.execute(params);
 
         return {
             success: response.success,
-            sampler: response.sampler,
-            error: response.error
+            id: response.id,
+            error: response.error,
         };
     }
 }

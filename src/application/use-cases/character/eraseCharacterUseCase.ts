@@ -1,6 +1,6 @@
 import { ILogger } from '@domain/logger';
 import { ICharacterRepository } from '@domain/repository';
-import { IEraseCharacterUseCase, EraseCharacterReturn } from '@domain/use-cases';
+import { IEraseCharacterUseCase, EraseCharacterReturn, EraseCharacterUseCaseParams } from '@domain/use-cases';
 
 export class EraseCharacterUseCase implements IEraseCharacterUseCase {
     constructor (
@@ -8,17 +8,26 @@ export class EraseCharacterUseCase implements IEraseCharacterUseCase {
         private readonly characterRepository: ICharacterRepository
     ) { }
 
-    async execute (characterId: string): Promise<EraseCharacterReturn> {
+    async execute (params: EraseCharacterUseCaseParams): Promise<EraseCharacterReturn> {
         this.logger.info('Executing EraseCharacterUseCase::execute');
 
-        if (!characterId) {
-            return { success: false, error: 'A character id is required to erase a character' };
+        const validationError = this.validate(params);
+        if (validationError) {
+            return { success: false, error: validationError };
         }
 
-        const result = await this.characterRepository.eraseCharacter(characterId);
+        const result = await this.characterRepository.eraseCharacter(params.id);
         if (!result.success) {
             return { success: false, error: result.error || 'Failed to erase character' };
         }
         return { success: true };
+    }
+
+    private validate (params: EraseCharacterUseCaseParams): string | null {
+        if (!params.id) {
+            return 'A character id is required to erase a character';
+        }
+
+        return null;
     }
 }

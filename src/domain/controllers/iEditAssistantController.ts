@@ -1,4 +1,3 @@
-import { Assistant } from '../entities';
 import { AssistantEditParams } from '../services';
 
 export interface IEditAssistantController {
@@ -12,6 +11,6 @@ export type EditAssistantControllerParams = {
 
 export type EditAssistantControllerResponse = {
     success: boolean;
-    assistant?: Assistant;
+    id?: string;
     error?: string;
 };

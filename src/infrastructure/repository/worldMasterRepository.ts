@@ -1,7 +1,16 @@
-import { STORAGE_NAMESPACE, WORLD_MASTER_STORAGE_NAMESPACE } from '@domain/constants/general';
+import { WORLD_MASTER_STORAGE_NAMESPACE, STORAGE_NAMESPACE } from '@domain/constants/general';
 import { WorldMaster } from '@domain/entities';
 import { ILogger } from '@domain/logger';
-import { IWorldMasterRepository, SaveWorldMasterParams, EditWorldMasterParams, EditWorldMasterReturn, EraseWorldMasterReturn } from '@domain/repository';
+import {
+    IWorldMasterRepository,
+    SaveWorldMasterParams,
+    SaveWorldMasterRepositoryReturn,
+    GetWorldMastersRepositoryReturn,
+    GetWorldMasterByIdRepositoryReturn,
+    EditWorldMasterParams,
+    EditWorldMasterReturn,
+    EraseWorldMasterReturn,
+} from '@domain/repository';
 import { IStorage } from '@domain/storage';
 import { WorldMasterDTO } from '@infra/dto';
 
@@ -11,118 +20,126 @@ export class WorldMasterRepository implements IWorldMasterRepository {
         private readonly storage: IStorage
     ) { }
 
-    async saveWorldMaster (params: SaveWorldMasterParams): Promise<boolean> {
+    private get storageKey (): string {
+        return `${STORAGE_NAMESPACE}/${WORLD_MASTER_STORAGE_NAMESPACE}`;
+    }
+
+    async saveWorldMaster (params: SaveWorldMasterParams): Promise<SaveWorldMasterRepositoryReturn> {
         this.logger.info('Executing WorldMasterRepository::saveWorldMaster');
         this.logger.debug('Executing WorldMasterRepository::saveWorldMaster - params: ', params);
 
-        try {
-            const { worldMaster } = params;
-            const existingData = await this.storage.load<WorldMaster[]>(`${STORAGE_NAMESPACE}/${WORLD_MASTER_STORAGE_NAMESPACE}`);
-            const worldMasters: WorldMaster[] = existingData ? [...existingData, worldMaster] : [worldMaster];
-            await this.storage.save(`${STORAGE_NAMESPACE}/${WORLD_MASTER_STORAGE_NAMESPACE}`, worldMasters);
-        } catch (error) {
-            this.logger.error('Error on WorldMasterRepository::saveWorldMaster', error);
-            throw error;
+        const loaded = await this.storage.load<WorldMaster[]>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('WorldMasterRepository::saveWorldMaster - failed to load world masters', loaded.error);
+            return { success: false, error: 'Failed to save world master' };
         }
-        return true;
+
+        const worldMasters = [...(loaded.data ?? []), params.worldMaster];
+        const saved = await this.storage.save(this.storageKey, worldMasters);
+        if (!saved.success) {
+            this.logger.warning('WorldMasterRepository::saveWorldMaster - failed to persist world masters', saved.error);
+            return { success: false, error: 'Failed to save world master' };
+        }
+
+        return { success: true };
     }
 
-    async getWorldMasterById (worldMasterId: string): Promise<WorldMaster | undefined> {
+    async getWorldMasterById (worldMasterId: string): Promise<GetWorldMasterByIdRepositoryReturn> {
         this.logger.info('Executing WorldMasterRepository::getWorldMasterById');
-        const worldMasters = await this.getWorldMasters();
-        return worldMasters.find((wm) => wm.id === worldMasterId);
-    }
 
-    async getWorldMasters (): Promise<WorldMaster[]> {
-        this.logger.info('Executing WorldMasterRepository::getWorldMasters');
-        try {
-            const worldMasters: WorldMaster[] = [];
-            const rawData = await this.storage.load<unknown[]>(`${STORAGE_NAMESPACE}/${WORLD_MASTER_STORAGE_NAMESPACE}`);
-            this.logger.debug('Executing WorldMasterRepository::getWorldMasters - rawData: ', rawData);
-
-            if (rawData) {
-                const worldMastersDTO: WorldMasterDTO[] = [];
-                for (const worldMasterUnknown of rawData) {
-                    const worldMaster = WorldMasterDTO.fromStorage(worldMasterUnknown);
-                    if (worldMaster) {
-                        worldMastersDTO.push(worldMaster);
-                    }
-                }
-
-                worldMasters.push(...worldMastersDTO.map(dto => dto.toEntity()));
-
-                if (rawData.length !== worldMasters.length) {
-                    this.logger.warning('Some world masters were not converted to entity');
-                }
-            }
-
-            this.logger.debug('Executing WorldMasterRepository::getWorldMasters - worldMasters: ', worldMasters);
-
-            return worldMasters;
-        } catch (error) {
-            this.logger.error('Error on WorldMasterRepository getWorldMasters', error);
-            throw error;
+        const response = await this.getWorldMasters();
+        if (!response.success || !response.worldMasters) {
+            return { success: false, error: response.error };
         }
+
+        return { success: true, worldMaster: response.worldMasters.find((wm) => wm.id === worldMasterId) };
     }
 
-    private async findWorldMasterIndex (worldMasters: WorldMaster[], worldMasterId: string): Promise<number> {
-        return worldMasters.findIndex((wm) => wm.id === worldMasterId);
-    }
+    async getWorldMasters (): Promise<GetWorldMastersRepositoryReturn> {
+        this.logger.info('Executing WorldMasterRepository::getWorldMasters');
 
-    private removeAt (worldMasters: WorldMaster[], index: number): WorldMaster[] {
-        worldMasters.splice(index, 1);
-        return worldMasters;
-    }
+        const loaded = await this.storage.load<unknown>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('WorldMasterRepository::getWorldMasters - failed to load world masters', loaded.error);
+            return { success: false, error: 'Failed to load world masters' };
+        }
 
-    private replaceAt (worldMasters: WorldMaster[], index: number, newItem: WorldMaster): WorldMaster[] {
-        worldMasters[index] = newItem;
-        return worldMasters;
+        const rawData = loaded.data ?? [];
+        this.logger.debug('Executing WorldMasterRepository::getWorldMasters - rawData: ', rawData);
+
+        if (!Array.isArray(rawData)) {
+            this.logger.warning('WorldMasterRepository::getWorldMasters - stored world masters are not a list');
+            return { success: false, error: 'Failed to load world masters' };
+        }
+
+        const worldMasters: WorldMaster[] = [];
+        for (const worldMasterUnknown of rawData) {
+            const dto = WorldMasterDTO.fromStorage(worldMasterUnknown);
+            if (dto) {
+                worldMasters.push(dto.toEntity());
+            }
+        }
+
+        if (rawData.length !== worldMasters.length) {
+            this.logger.warning('Some world masters were not converted to entity');
+        }
+
+        this.logger.debug('Executing WorldMasterRepository::getWorldMasters - worldMasters: ', worldMasters);
+        return { success: true, worldMasters };
     }
 
     async editWorldMaster (params: EditWorldMasterParams): Promise<EditWorldMasterReturn> {
         this.logger.info('Executing WorldMasterRepository::editWorldMaster');
         this.logger.debug('Executing WorldMasterRepository::editWorldMaster - params: ', params);
 
-        try {
-            const { worldMaster } = params;
-            const existingData = await this.storage.load<WorldMaster[]>(`${STORAGE_NAMESPACE}/${WORLD_MASTER_STORAGE_NAMESPACE}`);
-            const worldMasters = existingData || [];
-            const index = await this.findWorldMasterIndex(worldMasters, worldMaster.id);
-
-            if (index === -1) {
-                this.logger.warning(`World master with id ${worldMaster.id} not found`);
-                return { success: false, error: `World master with id ${worldMaster.id} does not exist` };
-            }
-
-            const updatedWorldMasters = this.replaceAt(worldMasters, index, worldMaster);
-            await this.storage.save(`${STORAGE_NAMESPACE}/${WORLD_MASTER_STORAGE_NAMESPACE}`, updatedWorldMasters);
-            return { success: true };
-        } catch (error) {
-            this.logger.error('Error on WorldMasterRepository::editWorldMaster', error);
+        const { worldMaster } = params;
+        const loaded = await this.storage.load<WorldMaster[]>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('WorldMasterRepository::editWorldMaster - failed to load world masters', loaded.error);
             return { success: false, error: 'Failed to edit world master' };
         }
+
+        const worldMasters = loaded.data ?? [];
+        const index = worldMasters.findIndex((wm) => wm.id === worldMaster.id);
+        if (index === -1) {
+            this.logger.warning(`WorldMaster with id ${worldMaster.id} not found`);
+            return { success: false, error: `WorldMaster with id ${worldMaster.id} does not exist` };
+        }
+
+        worldMasters[index] = worldMaster;
+        const saved = await this.storage.save(this.storageKey, worldMasters);
+        if (!saved.success) {
+            this.logger.warning('WorldMasterRepository::editWorldMaster - failed to persist world masters', saved.error);
+            return { success: false, error: 'Failed to edit world master' };
+        }
+
+        return { success: true };
     }
 
     async eraseWorldMaster (worldMasterId: string): Promise<EraseWorldMasterReturn> {
         this.logger.info('Executing WorldMasterRepository::eraseWorldMaster');
         this.logger.debug('Executing WorldMasterRepository::eraseWorldMaster - worldMasterId: ', worldMasterId);
 
-        try {
-            const existingData = await this.storage.load<WorldMaster[]>(`${STORAGE_NAMESPACE}/${WORLD_MASTER_STORAGE_NAMESPACE}`);
-            const worldMasters = existingData || [];
-            const index = await this.findWorldMasterIndex(worldMasters, worldMasterId);
-
-            if (index === -1) {
-                this.logger.warning(`World master with id ${worldMasterId} not found`);
-                return { success: false, error: `World master with id ${worldMasterId} does not exist` };
-            }
-
-            const filteredWorldMasters = this.removeAt(worldMasters, index);
-            await this.storage.save(`${STORAGE_NAMESPACE}/${WORLD_MASTER_STORAGE_NAMESPACE}`, filteredWorldMasters);
-            return { success: true };
-        } catch (error) {
-            this.logger.error('Error on WorldMasterRepository::eraseWorldMaster', error);
+        const loaded = await this.storage.load<WorldMaster[]>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('WorldMasterRepository::eraseWorldMaster - failed to load world masters', loaded.error);
             return { success: false, error: 'Failed to erase world master' };
         }
+
+        const worldMasters = loaded.data ?? [];
+        const index = worldMasters.findIndex((wm) => wm.id === worldMasterId);
+        if (index === -1) {
+            this.logger.warning(`WorldMaster with id ${worldMasterId} not found`);
+            return { success: false, error: `WorldMaster with id ${worldMasterId} does not exist` };
+        }
+
+        worldMasters.splice(index, 1);
+        const saved = await this.storage.save(this.storageKey, worldMasters);
+        if (!saved.success) {
+            this.logger.warning('WorldMasterRepository::eraseWorldMaster - failed to persist world masters', saved.error);
+            return { success: false, error: 'Failed to erase world master' };
+        }
+
+        return { success: true };
     }
 }

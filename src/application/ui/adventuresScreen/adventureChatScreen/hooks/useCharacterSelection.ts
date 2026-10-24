@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Character } from '@domain/entities';
+import { AdventureChatCharacter } from '@domain/controllers';
 
 interface UseCharacterSelectionParams {
-    characters: Character[];
+    characters: AdventureChatCharacter[];
 }
 
 export function useCharacterSelection ({ characters }: UseCharacterSelectionParams) {
@@ -10,7 +10,7 @@ export function useCharacterSelection ({ characters }: UseCharacterSelectionPara
         throw new Error('useCharacterSelection requires at least one character');
     }
 
-    const [selectedCharacter, setSelectedCharacter] = useState<Character>(characters[0]);
+    const [selectedCharacter, setSelectedCharacter] = useState<AdventureChatCharacter>(characters[0]);
 
     return {
         selectedCharacter,

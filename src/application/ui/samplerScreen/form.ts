@@ -1,5 +1,5 @@
-import { Sampler } from '@domain/entities';
 import {
+    SamplerDetails,
     CreateSamplerControllerParams,
     EditSamplerControllerParams,
     ICreateSamplerController,
@@ -8,7 +8,7 @@ import {
 import { SamplerFormData, FormErrors } from './constants';
 import { ControllerResponse } from '@application/ui/hooks';
 
-export function toSamplerFormState (sampler: Sampler): SamplerFormData {
+export function toSamplerFormState (sampler: SamplerDetails): SamplerFormData {
     return {
         id: sampler.id,
         name: sampler.name,
@@ -136,7 +136,6 @@ export function toEditParams (form: SamplerFormData): EditSamplerControllerParam
         editParams: {
             name: form.name,
             observation: form.observation || undefined,
-            systemDefault: false,
             temperature: toOptionalFloat(form.temperature),
             topP: toOptionalFloat(form.topP),
             topK: toOptionalInt(form.topK),

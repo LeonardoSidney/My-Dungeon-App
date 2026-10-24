@@ -1,4 +1,4 @@
-import { IEraseAdventuresController } from '@domain/controllers';
+import { EraseAdventuresControllerResponse, IEraseAdventuresController } from '@domain/controllers';
 import { ILogger } from '@domain/logger';
 import { IEraseAdventuresUseCase } from '@domain/use-cases';
 
@@ -8,8 +8,8 @@ export class EraseAdventuresController implements IEraseAdventuresController {
         private useCase: IEraseAdventuresUseCase
     ) { }
 
-    async handle (): Promise<void> {
+    async handle (): Promise<EraseAdventuresControllerResponse> {
         this.logger.info('Executing EraseAdventuresController::handle');
-        await this.useCase.execute();
+        return this.useCase.execute();
     }
 }

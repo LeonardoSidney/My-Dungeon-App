@@ -25,6 +25,24 @@ export namespace ModelProviderGateway {
         chat: Chat[];
     };
 
+    export type GetModelsResult = {
+        success: boolean;
+        models?: Model[];
+        error?: string;
+    };
+
+    export type GetPropsResult = {
+        success: boolean;
+        props?: ModelProps;
+        error?: string;
+    };
+
+    export type ApplyTemplateResult = {
+        success: boolean;
+        prompt?: string;
+        error?: string;
+    };
+
     export type StreamCompletionParams = {
         connection: Connection;
         sampler: Sampler;
@@ -34,8 +52,8 @@ export namespace ModelProviderGateway {
 }
 
 export interface IModelProviderGateway {
-    getModels (connection: Connection): Promise<Model[] | null>;
-    getProps (params: ModelProviderGateway.GetPropsParams): Promise<ModelProviderGateway.ModelProps | null>;
-    applyTemplate (params: ModelProviderGateway.ApplyTemplateParams): Promise<string | null>;
+    getModels (connection: Connection): Promise<ModelProviderGateway.GetModelsResult>;
+    getProps (params: ModelProviderGateway.GetPropsParams): Promise<ModelProviderGateway.GetPropsResult>;
+    applyTemplate (params: ModelProviderGateway.ApplyTemplateParams): Promise<ModelProviderGateway.ApplyTemplateResult>;
     streamCompletion (params: ModelProviderGateway.StreamCompletionParams): ModelProviderGateway.StreamResult;
 }

@@ -8,6 +8,7 @@ import {
 } from '@domain/repository';
 import { ICreateCharacterService } from '@domain/services';
 import { CreateCharacterUseCasePrams, CreateCharacterUseCaseResponse, ICreateCharacterUseCase } from '@domain/use-cases';
+import { REFERENCED_ENTITIES } from '@domain/constants/referencedEntities';
 import { checkReferencedId, checkReferencedIds } from '@application/shared/validateReferencedIds';
 
 export class CreateCharacterUseCase implements ICreateCharacterUseCase {
@@ -29,7 +30,6 @@ export class CreateCharacterUseCase implements ICreateCharacterUseCase {
         if (validationError) {
             return {
                 success: false,
-                character: undefined,
                 error: validationError
             };
         }
@@ -55,12 +55,17 @@ export class CreateCharacterUseCase implements ICreateCharacterUseCase {
         if (!response.character) {
             return {
                 success: false,
-                character: undefined,
                 error: 'Something went wrong when tried to create the character'
             };
         }
 
-        const characters = await this.characterRepository.getCharacters();
+        const charactersResponse = await this.characterRepository.getCharacters();
+        if (!charactersResponse.success || !charactersResponse.characters) {
+            this.logger.warning('CreateCharacterUseCase::execute - failed to load characters', charactersResponse.error);
+            return { success: false, error: charactersResponse.error };
+        }
+
+        const characters = charactersResponse.characters;
         this.logger.debug('CharacterRepository executed successfully', characters);
         const alreadyExists = characters.find((c) => c.name === response.character?.name);
 
@@ -72,11 +77,15 @@ export class CreateCharacterUseCase implements ICreateCharacterUseCase {
             };
         }
 
-        await this.characterRepository.saveCharacter({ character: response.character });
+        const saveResult = await this.characterRepository.saveCharacter({ character: response.character });
+        if (!saveResult.success) {
+            this.logger.warning('CreateCharacterUseCase::execute - failed to save character', saveResult.error);
+            return { success: false, error: saveResult.error };
+        }
 
         return {
             success: true,
-            character: response.character
+            id: response.character.id
         };
     }
 
@@ -98,33 +107,33 @@ export class CreateCharacterUseCase implements ICreateCharacterUseCase {
 
     private async validateReferencedIds (params: CreateCharacterUseCasePrams): Promise<string | null> {
         const assistantError = await checkReferencedId(
-            (id) => this.assistantRepository.getAssistantById(id),
-            params.assistantId,
-            'Assistant'
+            (id: string) => this.assistantRepository.getAssistantById(id),
+            REFERENCED_ENTITIES.ASSISTANT,
+            params.assistantId
         );
         if (assistantError) {
             return assistantError;
         }
         const abilityError = await checkReferencedIds(
-            (id) => this.abilityRepository.getAbilityById(id),
-            params.abilityIds ?? [],
-            'Ability'
+            (id: string) => this.abilityRepository.getAbilityById(id),
+            REFERENCED_ENTITIES.ABILITY,
+            params.abilityIds ?? []
         );
         if (abilityError) {
             return abilityError;
         }
         const proficiencyError = await checkReferencedIds(
-            (id) => this.proficiencyRepository.getProficiencyById(id),
-            params.proficiencyIds ?? [],
-            'Proficiency'
+            (id: string) => this.proficiencyRepository.getProficiencyById(id),
+            REFERENCED_ENTITIES.PROFICIENCY,
+            params.proficiencyIds ?? []
         );
         if (proficiencyError) {
             return proficiencyError;
         }
         const statusError = await checkReferencedIds(
-            (id) => this.statusRepository.getStatusById(id),
-            params.statusIds ?? [],
-            'Status'
+            (id: string) => this.statusRepository.getStatusById(id),
+            REFERENCED_ENTITIES.STATUS,
+            params.statusIds ?? []
         );
         if (statusError) {
             return statusError;

@@ -16,17 +16,21 @@ export class EditStatusUseCase implements IEditStatusUseCase {
         if (validationError) {
             return {
                 success: false,
-                status: undefined,
                 error: validationError
             };
         }
 
         const { id, editParams } = params;
-        const status = await this.statusRepository.getStatusById(id);
+        const statusResponse = await this.statusRepository.getStatusById(id);
+        if (!statusResponse.success) {
+            this.logger.warning('EditStatusUseCase::execute - failed to load status', statusResponse.error);
+            return { success: false, error: statusResponse.error };
+        }
+
+        const status = statusResponse.status;
         if (!status) {
             return {
                 success: false,
-                status: undefined,
                 error: `Status with id ${id} not found`
             };
         }
@@ -38,7 +42,6 @@ export class EditStatusUseCase implements IEditStatusUseCase {
         if (!response.success) {
             return {
                 success: false,
-                status: undefined,
                 error: response.error || 'An unknown error occurred on EditStatusService'
             };
         }
@@ -46,13 +49,18 @@ export class EditStatusUseCase implements IEditStatusUseCase {
         if (!response.status) {
             return {
                 success: false,
-                status: undefined,
                 error: 'Success is true but does not have a status'
             };
         }
 
         const editedStatus = response.status;
-        const existingStatuses = await this.statusRepository.getStatuses();
+        const existingStatusesResponse = await this.statusRepository.getStatuses();
+        if (!existingStatusesResponse.success || !existingStatusesResponse.statuses) {
+            this.logger.warning('EditStatusUseCase::execute - failed to load statuses', existingStatusesResponse.error);
+            return { success: false, error: existingStatusesResponse.error };
+        }
+
+        const existingStatuses = existingStatusesResponse.statuses;
         const duplicateStatus = existingStatuses.find(
             (s) => s.name === editedStatus.name && s.id !== editedStatus.id
         );
@@ -61,7 +69,6 @@ export class EditStatusUseCase implements IEditStatusUseCase {
             this.logger.warning(`Status with name ${editedStatus.name} already exists`);
             return {
                 success: false,
-                status: undefined,
                 error: `Status with name ${editedStatus.name} already exists`
             };
         }
@@ -70,13 +77,12 @@ export class EditStatusUseCase implements IEditStatusUseCase {
         if (!editResult.success) {
             return {
                 success: false,
-                status: undefined,
                 error: editResult.error || 'Failed to edit status'
             };
         }
 
         return {
-            status: editedStatus,
+            id: editedStatus.id,
             success: true
         };
     }

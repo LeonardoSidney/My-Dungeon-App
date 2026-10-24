@@ -4,5 +4,9 @@ export type EraseLocationUseCaseReturn = {
 };
 
 export interface IEraseLocationUseCase {
-    execute (locationId: string): Promise<EraseLocationUseCaseReturn>;
+    execute (params: EraseLocationUseCaseParams): Promise<EraseLocationUseCaseReturn>;
 }
+
+export type EraseLocationUseCaseParams = {
+    id: string;
+};

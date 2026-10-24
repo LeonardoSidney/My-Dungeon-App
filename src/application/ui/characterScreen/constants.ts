@@ -1,5 +1,6 @@
 import { ActivationPromptFormConfig } from '@application/ui/components';
-import { Assistant, Ability, Proficiency, Status, Attribute } from '@domain/entities';
+import { Attribute } from '@domain/entities';
+import { EntityOption } from '@domain/controllers';
 
 export const characterFormConfig: ActivationPromptFormConfig = {
     entityName: 'Character',
@@ -22,9 +23,9 @@ export type CharacterFormData = {
     activationWord: string;
     prompt: string;
     observation: string;
-    assistant: Assistant | null;
-    abilities: Ability[];
-    proficiencies: Proficiency[];
-    statuses: Status[];
+    assistant: EntityOption | null;
+    abilities: EntityOption[];
+    proficiencies: EntityOption[];
+    statuses: EntityOption[];
     attributes: Attribute[];
 };

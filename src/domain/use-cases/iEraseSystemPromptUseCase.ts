@@ -4,5 +4,9 @@ export type EraseSystemPromptUseCaseReturn = {
 };
 
 export interface IEraseSystemPromptUseCase {
-    execute (systemPromptId: string): Promise<EraseSystemPromptUseCaseReturn>;
+    execute (params: EraseSystemPromptUseCaseParams): Promise<EraseSystemPromptUseCaseReturn>;
 }
+
+export type EraseSystemPromptUseCaseParams = {
+    id: string;
+};

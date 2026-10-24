@@ -14,12 +14,13 @@ export class EditLocationController implements IEditLocationController {
 
     async handle (params: EditLocationControllerParams): Promise<EditLocationControllerResponse> {
         this.logger.info('Executing EditLocationController::handle');
+        this.logger.debug('EditLocationController::handle - params', params);
         const response = await this.useCase.execute(params);
 
         return {
             success: response.success,
-            location: response.location,
-            error: response.error
+            id: response.id,
+            error: response.error,
         };
     }
 }

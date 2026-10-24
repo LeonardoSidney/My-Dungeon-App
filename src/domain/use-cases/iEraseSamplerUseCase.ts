@@ -4,5 +4,9 @@ export type EraseSamplerUseCaseReturn = {
 };
 
 export interface IEraseSamplerUseCase {
-    execute (samplerId: string): Promise<EraseSamplerUseCaseReturn>;
+    execute (params: EraseSamplerUseCaseParams): Promise<EraseSamplerUseCaseReturn>;
 }
+
+export type EraseSamplerUseCaseParams = {
+    id: string;
+};

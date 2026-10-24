@@ -7,6 +7,7 @@ import {
 import { AssistantEditParams, IEditAssistantService, IGetSamplersService } from '@domain/services';
 import { EditAssistantParams, EditAssistantReturn, IEditAssistantUseCase } from '@domain/use-cases';
 import { createSamplerResolver } from '@application/shared/resolveSampler';
+import { REFERENCED_ENTITIES } from '@domain/constants/referencedEntities';
 import { checkReferencedId } from '@application/shared/validateReferencedIds';
 
 export class EditAssistantUseCase implements IEditAssistantUseCase {
@@ -25,7 +26,6 @@ export class EditAssistantUseCase implements IEditAssistantUseCase {
         if (validationError) {
             return {
                 success: false,
-                assistant: undefined,
                 error: validationError
             };
         }
@@ -33,17 +33,21 @@ export class EditAssistantUseCase implements IEditAssistantUseCase {
         if (missingIdError) {
             return {
                 success: false,
-                assistant: undefined,
                 error: missingIdError
             };
         }
 
         const { id, editParams } = params;
-        const assistant = await this.assistantRepository.getAssistantById(id);
+        const assistantResponse = await this.assistantRepository.getAssistantById(id);
+        if (!assistantResponse.success) {
+            this.logger.warning('EditAssistantUseCase::execute - failed to load assistant', assistantResponse.error);
+            return { success: false, error: assistantResponse.error };
+        }
+
+        const assistant = assistantResponse.assistant;
         if (!assistant) {
             return {
                 success: false,
-                assistant: undefined,
                 error: `Assistant with id ${id} not found`
             };
         }
@@ -55,7 +59,6 @@ export class EditAssistantUseCase implements IEditAssistantUseCase {
         if (!response.success) {
             return {
                 success: false,
-                assistant: undefined,
                 error: response.error || 'An unknown error occurred on EditAssistantService'
             };
         }
@@ -63,13 +66,18 @@ export class EditAssistantUseCase implements IEditAssistantUseCase {
         if (!response.assistant) {
             return {
                 success: false,
-                assistant: undefined,
                 error: 'Success is true but does not have an assistant'
             };
         }
 
         const editedAssistant = response.assistant;
-        const existingAssistants = await this.assistantRepository.getAssistants();
+        const existingAssistantsResponse = await this.assistantRepository.getAssistants();
+        if (!existingAssistantsResponse.success || !existingAssistantsResponse.assistants) {
+            this.logger.warning('EditAssistantUseCase::execute - failed to load assistants', existingAssistantsResponse.error);
+            return { success: false, error: existingAssistantsResponse.error };
+        }
+
+        const existingAssistants = existingAssistantsResponse.assistants;
         const duplicateAssistant = existingAssistants.find(
             (a) => a.name === editedAssistant.name && a.id !== editedAssistant.id
         );
@@ -78,7 +86,6 @@ export class EditAssistantUseCase implements IEditAssistantUseCase {
             this.logger.warning(`Assistant with name ${editedAssistant.name} already exists`);
             return {
                 success: false,
-                assistant: undefined,
                 error: `Assistant with name ${editedAssistant.name} already exists`
             };
         }
@@ -87,13 +94,12 @@ export class EditAssistantUseCase implements IEditAssistantUseCase {
         if (!editResult.success) {
             return {
                 success: false,
-                assistant: undefined,
                 error: editResult.error || 'Failed to edit assistant'
             };
         }
 
         return {
-            assistant: editedAssistant,
+            id: editedAssistant.id,
             success: true
         };
     }
@@ -113,17 +119,17 @@ export class EditAssistantUseCase implements IEditAssistantUseCase {
     private async validateReferencedIds (editParams: AssistantEditParams): Promise<string | null> {
         const resolveSampler = createSamplerResolver(this.samplerRepository, this.getSamplersService);
         const samplerError = await checkReferencedId(
-            (id) => resolveSampler(id),
-            editParams.samplerId,
-            'Sampler'
+            (id: string) => resolveSampler(id),
+            REFERENCED_ENTITIES.SAMPLER,
+            editParams.samplerId
         );
         if (samplerError) {
             return samplerError;
         }
         return checkReferencedId(
-            (id) => this.connectionRepository.getConnectionById(id),
-            editParams.connectionId,
-            'Connection'
+            (id: string) => this.connectionRepository.getConnectionById(id),
+            REFERENCED_ENTITIES.CONNECTION,
+            editParams.connectionId
         );
     }
 }

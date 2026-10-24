@@ -2,9 +2,7 @@ import {
     Ability,
     Assistant,
     Character,
-    Connection,
     Proficiency,
-    Sampler,
     Status,
     WorldMaster,
 } from '@domain/entities';
@@ -23,7 +21,7 @@ import {
     IWorldMasterRepository,
     IWorldRepository,
 } from '@domain/repository';
-import { IGetSamplersService } from '@domain/services';
+import { IGetSamplersService, ResolvedAssistants, ResolvedEntities } from '@domain/services';
 import {
     HydrateAdventureServiceParams,
     HydrateAdventureServiceResponse,
@@ -55,80 +53,124 @@ export class HydrateAdventureService implements IHydrateAdventureService {
         this.logger.info('Execute HydrateAdventureService::hydrate');
         const { adventure } = params;
 
-        try {
-            const characters = await this.resolveCharacters(adventure.characterIds);
-            const worldMaster = adventure.worldMasterId
-                ? await this.worldMasterRepository.getWorldMasterById(adventure.worldMasterId)
-                : undefined;
+        const characters = await this.resolveByIds(adventure.characterIds, (id) => this.characterRepository.getCharacterById(id), (r) => r.character);
+        if (!characters.success || !characters.entities) {
+            return this.fail('characters', characters.error);
+        }
 
-            const assistants = await this.resolveAssistants(characters, worldMaster);
-            const samplers = await this.resolveSamplers(assistants);
-            const connections = await this.resolveConnections(assistants);
-            const worlds = await this.resolveByIds(adventure.worldIds, (id) => this.worldRepository.getWorldById(id));
-            const locations = await this.resolveByIds(adventure.locationIds, (id) => this.locationRepository.getLocationById(id));
-            const items = await this.resolveByIds(adventure.itemIds, (id) => this.itemRepository.getItemById(id));
-            const systemPrompts = await this.resolveByIds(adventure.systemPromptIds, (id) => this.systemPromptRepository.getSystemPromptById(id));
-
-            const abilityIds = this.collectIds(characters, 'abilityIds');
-            const proficiencyIds = this.collectIds(characters, 'proficiencyIds');
-            const statusIds = this.collectIds(characters, 'statusIds');
-            const abilities = await this.resolveByIds(abilityIds, (id) => this.abilityRepository.getAbilityById(id));
-            const proficiencies = await this.resolveByIds(proficiencyIds, (id) => this.proficiencyRepository.getProficiencyById(id));
-            const statuses = await this.resolveByIds(statusIds, (id) => this.statusRepository.getStatusById(id));
-
-            const hydratedCharacters = characters.map((character) => this.buildHydratedCharacter(character, adventure.characterAsWorldMasterId, adventure.charactersControlledByAi, abilities, proficiencies, statuses));
-
-            const hydrated: HydratedAdventure = {
-                adventure,
-                characters: hydratedCharacters,
-                worldMaster,
-                assistants,
-                samplers,
-                connections,
-                worlds,
-                locations,
-                items,
-                systemPrompts,
-                abilities,
-                proficiencies,
-                statuses,
-            };
-
-            this.logger.debug('HydrateAdventureService::hydrate - hydrated adventure built', {
-                characterCount: characters.length,
-                hasWorldMaster: Boolean(worldMaster),
-                assistantCount: Object.keys(assistants).length,
-            });
-
-            return {
-                success: true,
-                hydrated,
-            };
-        } catch (error) {
-            if (error instanceof Error) {
-                this.logger.error(`HydrateAdventureService::hydrate failed: ${error.message}`);
-                return {
-                    success: false,
-                    error: error.message,
-                };
+        let worldMaster: WorldMaster | undefined;
+        if (adventure.worldMasterId) {
+            const worldMasterResponse = await this.worldMasterRepository.getWorldMasterById(adventure.worldMasterId);
+            if (!worldMasterResponse.success) {
+                return this.fail('world master', worldMasterResponse.error);
             }
-            return {
-                success: false,
-                error: 'Unknown error while hydrating adventure',
-            };
+            worldMaster = worldMasterResponse.worldMaster;
         }
+
+        const assistants = await this.resolveAssistants(characters.entities, worldMaster);
+        if (!assistants.success || !assistants.assistants) {
+            return this.fail('assistants', assistants.error);
+        }
+
+        const samplerIds = this.uniqueIds(Object.values(assistants.assistants).map((a) => a.samplerId));
+        const samplers = await this.resolveByIds(samplerIds, createSamplerResolver(this.samplerRepository, this.getSamplersService), (r) => r.sampler);
+        if (!samplers.success || !samplers.entities) {
+            return this.fail('samplers', samplers.error);
+        }
+
+        const connectionIds = this.uniqueIds(Object.values(assistants.assistants).map((a) => a.connectionId));
+        const connections = await this.resolveByIds(connectionIds, (id) => this.connectionRepository.getConnectionById(id), (r) => r.connection);
+        if (!connections.success || !connections.entities) {
+            return this.fail('connections', connections.error);
+        }
+
+        const worlds = await this.resolveByIds(adventure.worldIds, (id) => this.worldRepository.getWorldById(id), (r) => r.world);
+        if (!worlds.success || !worlds.entities) {
+            return this.fail('worlds', worlds.error);
+        }
+
+        const locations = await this.resolveByIds(adventure.locationIds, (id) => this.locationRepository.getLocationById(id), (r) => r.location);
+        if (!locations.success || !locations.entities) {
+            return this.fail('locations', locations.error);
+        }
+
+        const items = await this.resolveByIds(adventure.itemIds, (id) => this.itemRepository.getItemById(id), (r) => r.item);
+        if (!items.success || !items.entities) {
+            return this.fail('items', items.error);
+        }
+
+        const systemPrompts = await this.resolveByIds(adventure.systemPromptIds, (id) => this.systemPromptRepository.getSystemPromptById(id), (r) => r.systemPrompt);
+        if (!systemPrompts.success || !systemPrompts.entities) {
+            return this.fail('system prompts', systemPrompts.error);
+        }
+
+        const abilityIds = this.collectIds(characters.entities, 'abilityIds');
+        const abilities = await this.resolveByIds(abilityIds, (id) => this.abilityRepository.getAbilityById(id), (r) => r.ability);
+        if (!abilities.success || !abilities.entities) {
+            return this.fail('abilities', abilities.error);
+        }
+
+        const proficiencyIds = this.collectIds(characters.entities, 'proficiencyIds');
+        const proficiencies = await this.resolveByIds(proficiencyIds, (id) => this.proficiencyRepository.getProficiencyById(id), (r) => r.proficiency);
+        if (!proficiencies.success || !proficiencies.entities) {
+            return this.fail('proficiencies', proficiencies.error);
+        }
+
+        const statusIds = this.collectIds(characters.entities, 'statusIds');
+        const statuses = await this.resolveByIds(statusIds, (id) => this.statusRepository.getStatusById(id), (r) => r.status);
+        if (!statuses.success || !statuses.entities) {
+            return this.fail('statuses', statuses.error);
+        }
+
+        const resolvedAbilities = abilities.entities;
+        const resolvedProficiencies = proficiencies.entities;
+        const resolvedStatuses = statuses.entities;
+        const hydratedCharacters = characters.entities.map((character) => this.buildHydratedCharacter(
+            character,
+            adventure.characterAsWorldMasterId,
+            adventure.charactersControlledByAi,
+            resolvedAbilities,
+            resolvedProficiencies,
+            resolvedStatuses
+        ));
+
+        const hydrated: HydratedAdventure = {
+            adventure,
+            characters: hydratedCharacters,
+            worldMaster,
+            assistants: assistants.assistants,
+            samplers: samplers.entities,
+            connections: connections.entities,
+            worlds: worlds.entities,
+            locations: locations.entities,
+            items: items.entities,
+            systemPrompts: systemPrompts.entities,
+            abilities: abilities.entities,
+            proficiencies: proficiencies.entities,
+            statuses: statuses.entities,
+        };
+
+        this.logger.debug('HydrateAdventureService::hydrate - hydrated adventure built', {
+            characterCount: characters.entities.length,
+            hasWorldMaster: Boolean(worldMaster),
+            assistantCount: Object.keys(assistants.assistants).length,
+        });
+
+        return {
+            success: true,
+            hydrated,
+        };
     }
 
-    private async resolveCharacters (characterIds: string[]): Promise<Character[]> {
-        this.logger.debug(`Resolving ${characterIds.length} characters`);
-        const characters = await this.resolveByIds(characterIds, (id) => this.characterRepository.getCharacterById(id));
-        if (characters.length !== characterIds.length) {
-            throw new Error(`Some characters were not found for adventure: ${characterIds.length - characters.length} orphan ids`);
-        }
-        return characters;
+    private fail (resource: string, error: string | undefined): HydrateAdventureServiceResponse {
+        this.logger.warning(`HydrateAdventureService::hydrate - failed to resolve ${resource}`, error);
+        return {
+            success: false,
+            error: error ?? `Failed to resolve ${resource}`,
+        };
     }
 
-    private async resolveAssistants (characters: Character[], worldMaster: WorldMaster | undefined): Promise<Record<string, Assistant>> {
+    private async resolveAssistants (characters: Character[], worldMaster: WorldMaster | undefined): Promise<ResolvedAssistants> {
         const assistantIds = this.uniqueIds(
             [
                 ...characters.map((c) => c.assistantId),
@@ -138,40 +180,43 @@ export class HydrateAdventureService implements IHydrateAdventureService {
 
         const assistants: Record<string, Assistant> = {};
         for (const assistantId of assistantIds) {
-            const assistant = await this.assistantRepository.getAssistantById(assistantId);
-            if (!assistant) {
-                throw new Error(`Assistant not found: ${assistantId}`);
+            const response = await this.assistantRepository.getAssistantById(assistantId);
+            if (!response.success) {
+                return { success: false, error: response.error };
             }
-            assistants[assistant.id] = assistant;
+
+            if (!response.assistant) {
+                return { success: false, error: `Assistant not found: ${assistantId}` };
+            }
+
+            assistants[response.assistant.id] = response.assistant;
         }
+
         this.logger.debug(`Resolved ${assistantIds.length} assistants`);
-        return assistants;
+        return { success: true, assistants };
     }
 
-    private async resolveSamplers (assistants: Record<string, Assistant>): Promise<Sampler[]> {
-        const samplerIds = this.uniqueIds(Object.values(assistants).map((a) => a.samplerId));
-        const resolveSampler = createSamplerResolver(this.samplerRepository, this.getSamplersService);
-        return this.resolveByIds(samplerIds, resolveSampler);
-    }
-
-    private async resolveConnections (assistants: Record<string, Assistant>): Promise<Connection[]> {
-        const connectionIds = this.uniqueIds(Object.values(assistants).map((a) => a.connectionId));
-        return this.resolveByIds(connectionIds, (id) => this.connectionRepository.getConnectionById(id));
-    }
-
-    private async resolveByIds<T extends { id: string; }> (
+    private async resolveByIds<TResponse extends { success: boolean; error?: string; }, TEntity> (
         ids: string[],
-        resolve: (id: string) => Promise<T | undefined>
-    ): Promise<T[]> {
-        const resolved: T[] = [];
+        resolve: (id: string) => Promise<TResponse>,
+        select: (response: TResponse) => TEntity | undefined
+    ): Promise<ResolvedEntities<TEntity>> {
+        const entities: TEntity[] = [];
         for (const id of ids) {
-            const entity = await resolve(id);
-            if (!entity) {
-                throw new Error(`Entity not found for id: ${id}`);
+            const response = await resolve(id);
+            if (!response.success) {
+                return { success: false, error: response.error };
             }
-            resolved.push(entity);
+
+            const entity = select(response);
+            if (!entity) {
+                return { success: false, error: `Entity not found for id: ${id}` };
+            }
+
+            entities.push(entity);
         }
-        return resolved;
+
+        return { success: true, entities };
     }
 
     private collectIds (characters: Character[], field: 'abilityIds' | 'proficiencyIds' | 'statusIds'): string[] {

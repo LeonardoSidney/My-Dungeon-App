@@ -47,7 +47,13 @@ export class CreateSamplerUseCase implements ICreateSamplerUseCase {
         }
 
         const sampler = response.sampler;
-        const samplers = await this.samplerRepository.getSamplers();
+        const samplersResponse = await this.samplerRepository.getSamplers();
+        if (!samplersResponse.success || !samplersResponse.samplers) {
+            this.logger.warning('CreateSamplerUseCase::execute - failed to load samplers', samplersResponse.error);
+            return { success: false, error: samplersResponse.error };
+        }
+
+        const samplers = samplersResponse.samplers;
         const alreadyExists = samplers.find(s => s.name === sampler.name);
         if (alreadyExists) {
             this.logger.warning(`A sampler with name ${sampler.name} already exists`);
@@ -57,11 +63,15 @@ export class CreateSamplerUseCase implements ICreateSamplerUseCase {
             };
         }
 
-        await this.samplerRepository.saveSampler({ sampler });
+        const saveResult = await this.samplerRepository.saveSampler({ sampler });
+        if (!saveResult.success) {
+            this.logger.warning('CreateSamplerUseCase::execute - failed to save sampler', saveResult.error);
+            return { success: false, error: saveResult.error };
+        }
 
         return {
             success: true,
-            sampler: response.sampler
+            id: response.sampler.id
         };
     }
 

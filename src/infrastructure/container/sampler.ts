@@ -3,19 +3,26 @@ import {
     GetSamplersController,
     EditSamplerController,
     EraseSamplerController,
+    GetSamplerController,
 } from '@adapters/controllers';
+import {
+    GetSamplerPresenter,
+    GetSamplersPresenter,
+} from '@adapters/presenters';
 import { CreateSamplerService, EditSamplerService, GetSamplersService } from '@application/services';
 import {
     CreateSamplerUseCase,
     GetSamplersUseCase,
     EditSamplerUseCase,
     EraseSamplerUseCase,
+    GetSamplerByIdUseCase,
 } from '@application/use-cases';
 import {
     ICreateSamplerController,
     IGetSamplersController,
     IEditSamplerController,
     IEraseSamplerController,
+    IGetSamplerController,
 } from '@domain/controllers';
 import { idGenerate, logger, storage } from './shared';
 import { createSamplerRepository } from './repository';
@@ -32,7 +39,7 @@ export function getSamplersController (): IGetSamplersController {
     const samplerRepository = createSamplerRepository(storage, logger);
     const getSamplersService = new GetSamplersService(logger);
     const getSamplersUseCase = new GetSamplersUseCase(logger, getSamplersService, samplerRepository);
-    return new GetSamplersController(logger, getSamplersUseCase);
+    return new GetSamplersController(logger, getSamplersUseCase, new GetSamplersPresenter());
 }
 
 export function editSamplerController (): IEditSamplerController {
@@ -47,4 +54,10 @@ export function eraseSamplerController (): IEraseSamplerController {
     const samplerRepository = createSamplerRepository(storage, logger);
     const eraseSamplerUseCase = new EraseSamplerUseCase(logger, samplerRepository);
     return new EraseSamplerController(logger, eraseSamplerUseCase);
+}
+
+export function getSamplerController (): IGetSamplerController {
+    const samplerRepository = createSamplerRepository(storage, logger);
+    const useCase = new GetSamplerByIdUseCase(logger, samplerRepository, new GetSamplersService(logger));
+    return new GetSamplerController(logger, useCase, new GetSamplerPresenter());
 }

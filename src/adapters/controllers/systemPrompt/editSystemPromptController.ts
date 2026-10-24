@@ -13,12 +13,13 @@ export class EditSystemPromptController implements IEditSystemPromptController {
     ) { }
     async handle (params: EditSystemPromptControllerParams): Promise<EditSystemPromptControllerResponse> {
         this.logger.info('Executing EditSystemPromptController::handle');
+        this.logger.debug('EditSystemPromptController::handle - params', params);
         const response = await this.useCase.execute(params);
 
         return {
             success: response.success,
-            systemPrompt: response.systemPrompt,
-            error: response.error
+            id: response.id,
+            error: response.error,
         };
     }
 }

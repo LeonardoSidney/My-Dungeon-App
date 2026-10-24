@@ -39,7 +39,13 @@ export class CreateProficiencyUseCase implements ICreateProficiencyUseCase {
             };
         }
 
-        const proficiencies = await this.proficiencyRepository.getProficiencies();
+        const proficienciesResponse = await this.proficiencyRepository.getProficiencies();
+        if (!proficienciesResponse.success || !proficienciesResponse.proficiencies) {
+            this.logger.warning('CreateProficiencyUseCase::execute - failed to load proficiencies', proficienciesResponse.error);
+            return { success: false, error: proficienciesResponse.error };
+        }
+
+        const proficiencies = proficienciesResponse.proficiencies;
         this.logger.debug('ProficiencyRepository executed successfully', proficiencies);
         const alreadyExists = proficiencies.find(proficiency => proficiency.name === response.proficiency?.name);
 
@@ -51,11 +57,15 @@ export class CreateProficiencyUseCase implements ICreateProficiencyUseCase {
             };
         }
 
-        await this.proficiencyRepository.saveProficiency({ proficiency: response.proficiency });
+        const saveResult = await this.proficiencyRepository.saveProficiency({ proficiency: response.proficiency });
+        if (!saveResult.success) {
+            this.logger.warning('CreateProficiencyUseCase::execute - failed to save proficiency', saveResult.error);
+            return { success: false, error: saveResult.error };
+        }
 
         return {
             success: true,
-            proficiency: response.proficiency
+            id: response.proficiency.id
         };
     }
 

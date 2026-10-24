@@ -7,20 +7,19 @@ import { ILogger } from '@domain/logger';
 import { IAppendChatAdventureUseCase } from '@domain/use-cases';
 
 export class AppendChatAdventureController implements IAppendChatAdventureController {
-    constructor (private readonly logger: ILogger, private readonly useCase: IAppendChatAdventureUseCase) {}
+    constructor (
+        private readonly logger: ILogger,
+        private readonly useCase: IAppendChatAdventureUseCase
+    ) { }
 
     async handle (request: AppendChatControllerRequest): Promise<AppendChatControllerResponse> {
         this.logger.info('Executing AppendChatAdventureController::handle');
-        const { adventure, message } = request;
-
-        const response = await this.useCase.execute({
-            adventure,
-            message,
-        });
+        this.logger.debug('AppendChatAdventureController::handle - params', request);
+        const response = await this.useCase.execute(request);
 
         return {
             success: response.success,
-            adventure: response.adventure,
+            id: response.id,
             error: response.error,
         };
     }

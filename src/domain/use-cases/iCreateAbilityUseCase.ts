@@ -1,4 +1,3 @@
-import { Ability } from '../entities';
 
 export interface ICreateAbilityUseCase {
     execute(params: CreateAbilityUseCaseParams): Promise<CreateAbilityUseCaseResponse>;
@@ -13,6 +12,6 @@ export type CreateAbilityUseCaseParams = {
 
 export type CreateAbilityUseCaseResponse = {
     success: boolean;
-    ability?: Ability;
+    id?: string;
     error?: string;
 };

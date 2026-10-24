@@ -31,7 +31,7 @@ describe('EraseSystemPromptController', () => {
             success: true
         });
 
-        await controller.handle('1');
+        await controller.handle({ id: '1' });
 
         expect(mockLogger.info).toHaveBeenCalledWith('Executing EraseSystemPromptController::handle');
     });
@@ -41,9 +41,9 @@ describe('EraseSystemPromptController', () => {
             success: true
         });
 
-        await controller.handle('1');
+        await controller.handle({ id: '1' });
 
-        expect(mockUseCase.execute).toHaveBeenCalledWith('1');
+        expect(mockUseCase.execute).toHaveBeenCalledWith({ id: '1' });
     });
 
     it('should return success when use case succeeds', async () => {
@@ -51,7 +51,7 @@ describe('EraseSystemPromptController', () => {
             success: true
         });
 
-        const response = await controller.handle('1');
+        const response = await controller.handle({ id: '1' });
 
         expect(response).toEqual({ success: true });
     });
@@ -62,7 +62,7 @@ describe('EraseSystemPromptController', () => {
             error: 'Failed to erase system prompt'
         });
 
-        const response = await controller.handle('1');
+        const response = await controller.handle({ id: '1' });
 
         expect(response).toEqual({
             success: false,

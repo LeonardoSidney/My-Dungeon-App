@@ -1,8 +1,9 @@
 import { useCallback, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
+import { ListControllerResponse } from '@domain/controllers';
 
 export type UseEntityListParams<T> = {
-    fetch: () => Promise<T[]>;
+    fetch: () => Promise<ListControllerResponse<T>>;
 };
 
 export type UseEntityListReturn<T> = {
@@ -23,13 +24,15 @@ export function useEntityList<T> (params: UseEntityListParams<T>): UseEntityList
     const reload = useCallback(async (): Promise<void> => {
         setIsLoading(true);
         setIsError(false);
-        try {
-            setItems(await paramsRef.current.fetch());
-        } catch {
+        const response = await paramsRef.current.fetch();
+        setIsLoading(false);
+
+        if (!response.success || !response.items) {
             setIsError(true);
-        } finally {
-            setIsLoading(false);
+            return;
         }
+
+        setItems(response.items);
     }, []);
 
     useFocusEffect(

@@ -5,13 +5,18 @@ import {
 } from '@infra/container';
 import { logger } from '@infra/container/shared';
 import { SeedItem } from './types';
-import { nameIndex } from './shared';
+import { nameIndex, listItems, MigrationReturn } from './shared';
 
-export async function seedItems (seeds: SeedItem[]): Promise<void> {
+export async function seedItems (seeds: SeedItem[]): Promise<MigrationReturn> {
     const createItem = createItemController();
     const editItem = editItemController();
     const getItems = getItemsController();
-    const existing = await getItems.handle();
+    const existingResponse = listItems(await getItems.handle(), 'items');
+    if (!existingResponse.success || !existingResponse.items) {
+        return { success: false, error: existingResponse.error };
+    }
+
+    const existing = existingResponse.items;
     const existingIndex = nameIndex(existing);
     logger.info(`Migration: seeding items (${seeds.length} seed(s))`);
 
@@ -20,7 +25,7 @@ export async function seedItems (seeds: SeedItem[]): Promise<void> {
         if (!current) {
             const response = await createItem.handle(seed);
             if (!response.success) {
-                throw new Error(`Migration: failed to create item "${seed.name}": ${response.error}`);
+                return { success: false, error: `Migration: failed to create item "${seed.name}": ${response.error}` };
             }
             continue;
         }
@@ -35,7 +40,9 @@ export async function seedItems (seeds: SeedItem[]): Promise<void> {
             },
         });
         if (!response.success) {
-            throw new Error(`Migration: failed to restore item "${seed.name}": ${response.error}`);
+            return { success: false, error: `Migration: failed to restore item "${seed.name}": ${response.error}` };
         }
     }
+
+    return { success: true };
 }

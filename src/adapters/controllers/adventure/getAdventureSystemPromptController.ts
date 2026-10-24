@@ -1,4 +1,8 @@
-import { IGetAdventureSystemPromptController, GetAdventureSystemPromptControllerParams, GetAdventureSystemPromptControllerResponse } from '@domain/controllers';
+import {
+    GetAdventureSystemPromptControllerParams,
+    GetAdventureSystemPromptControllerResponse,
+    IGetAdventureSystemPromptController,
+} from '@domain/controllers';
 import { ILogger } from '@domain/logger';
 import { IGetAdventureSystemPromptUseCase } from '@domain/use-cases';
 
@@ -12,12 +16,12 @@ export class GetAdventureSystemPromptController implements IGetAdventureSystemPr
         this.logger.info('Executing GetAdventureSystemPromptController::handle');
         this.logger.debug('GetAdventureSystemPromptController::handle - params', params);
 
-        const response = await this.useCase.execute(params);
+        const response = await this.useCase.execute({ adventureId: params.adventureId });
 
         return {
             success: response.success,
-            systemPrompt: response.systemPrompt,
-            error: response.error
+            data: response.systemPrompt,
+            error: response.error,
         };
     }
 }

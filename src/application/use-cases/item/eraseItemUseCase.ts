@@ -1,6 +1,6 @@
 import { ILogger } from '@domain/logger';
 import { IItemRepository } from '@domain/repository';
-import { EraseItemUseCaseReturn, IEraseItemUseCase } from '@domain/use-cases';
+import { EraseItemUseCaseReturn, IEraseItemUseCase, EraseItemUseCaseParams } from '@domain/use-cases';
 
 export class EraseItemUseCase implements IEraseItemUseCase {
     constructor (
@@ -8,11 +8,16 @@ export class EraseItemUseCase implements IEraseItemUseCase {
         private readonly itemRepository: IItemRepository
     ) { }
 
-    async execute (itemId: string): Promise<EraseItemUseCaseReturn> {
+    async execute (params: EraseItemUseCaseParams): Promise<EraseItemUseCaseReturn> {
         this.logger.info('Executing EraseItemUseCase::execute');
-        this.logger.debug('Executing EraseItemUseCase::execute - itemId: ', itemId);
+        this.logger.debug('Executing EraseItemUseCase::execute - params.id: ', params.id);
 
-        const result = await this.itemRepository.eraseItem(itemId);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return { success: false, error: validationError };
+        }
+
+        const result = await this.itemRepository.eraseItem(params.id);
 
         if (!result.success) {
             this.logger.warning('Failed to erase item', result);
@@ -24,5 +29,13 @@ export class EraseItemUseCase implements IEraseItemUseCase {
 
         this.logger.info('Item erased successfully');
         return { success: true };
+    }
+
+    private validate (params: EraseItemUseCaseParams): string | null {
+        if (!params.id) {
+            return 'An item id is required to erase an item';
+        }
+
+        return null;
     }
 }

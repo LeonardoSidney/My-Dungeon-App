@@ -10,11 +10,18 @@ export class CreateSystemPromptController implements ICreateSystemPromptControll
 
     async handle (request: CreateSystemPromptRequest): Promise<CreateSystemPromptResponse> {
         this.logger.info('Executing CreateSystemPromptController::handle');
+        this.logger.debug('CreateSystemPromptController::handle - params', request);
         const { name, content, observation } = request;
-        return this.useCase.execute({
+        const response = await this.useCase.execute({
             name,
             content,
             observation
         });
+
+        return {
+            success: response.success,
+            id: response.id,
+            error: response.error,
+        };
     }
 }

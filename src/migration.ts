@@ -1,6 +1,6 @@
 import {
     getAbilitiesController,
-    getAdventureTextController,
+    getAdventureTemplatedPromptController,
     getAdventuresController,
     getAssistantsController,
     getCharactersController,
@@ -9,7 +9,7 @@ import {
     getProficienciesController,
     getStatusesController,
     getSystemPromptsController,
-    getWorldMasterController,
+    getWorldMastersController,
     getWorldsController,
 } from '@infra/container';
 import { logger } from '@infra/container/shared';
@@ -45,6 +45,7 @@ import {
     parseSeedArray,
 } from './migrations/guards';
 import { seedConnections, resolveActiveConnection } from './migrations/seedConnections';
+import { listItems } from './migrations/shared';
 import { seedSamplers } from './migrations/seedSamplers';
 import { seedAssistants } from './migrations/seedAssistants';
 import { seedAbilities } from './migrations/seedAbilities';
@@ -71,7 +72,18 @@ import locationsData from './migrations/data/locations.json';
 import itemsData from './migrations/data/items.json';
 import adventuresData from './migrations/data/adventures.json';
 
-export async function runSeed (): Promise<string | undefined> {
+type RunSeedReturn = {
+    success: boolean;
+    prompt?: string;
+    error?: string;
+};
+
+function fail (error: string | undefined): RunSeedReturn {
+    logger.error('Migration: seed failed', error);
+    return { success: false, error: error ?? 'Failed to seed data' };
+}
+
+export async function runSeed (): Promise<RunSeedReturn> {
     logger.info('Migration: starting seed');
 
     const connectionSeeds = parseSeedArray<SeedConnection>(connectionsData, 'connections', isSeedConnection);
@@ -88,60 +100,117 @@ export async function runSeed (): Promise<string | undefined> {
     const itemSeeds = parseSeedArray<SeedItem>(itemsData, 'items', isSeedItem);
     const adventureSeeds = parseSeedArray<SeedAdventure>(adventuresData, 'adventures', isSeedAdventure);
 
-    const connections = await seedConnections(connectionSeeds);
-    const { connection, models } = await resolveActiveConnection(connections, assistantSeeds);
-    await seedSamplers(samplerSeeds);
-    await seedAssistants(assistantSeeds, connection, models);
+    if (!connectionSeeds.seeds) return fail(connectionSeeds.error);
+    if (!samplerSeeds.seeds) return fail(samplerSeeds.error);
+    if (!assistantSeeds.seeds) return fail(assistantSeeds.error);
+    if (!abilitySeeds.seeds) return fail(abilitySeeds.error);
+    if (!statusSeeds.seeds) return fail(statusSeeds.error);
+    if (!proficiencySeeds.seeds) return fail(proficiencySeeds.error);
+    if (!characterSeeds.seeds) return fail(characterSeeds.error);
+    if (!worldMasterSeeds.seeds) return fail(worldMasterSeeds.error);
+    if (!systemPromptSeeds.seeds) return fail(systemPromptSeeds.error);
+    if (!worldSeeds.seeds) return fail(worldSeeds.error);
+    if (!locationSeeds.seeds) return fail(locationSeeds.error);
+    if (!itemSeeds.seeds) return fail(itemSeeds.error);
+    if (!adventureSeeds.seeds) return fail(adventureSeeds.error);
 
-    await seedAbilities(abilitySeeds);
-    await seedStatuses(statusSeeds);
-    await seedProficiencies(proficiencySeeds);
+    const connections = await seedConnections(connectionSeeds.seeds);
+    if (!connections.success || !connections.connections) return fail(connections.error);
 
-    const assistants = await getAssistantsController().handle();
-    const abilities = await getAbilitiesController().handle();
-    const statuses = await getStatusesController().handle();
-    const proficiencies = await getProficienciesController().handle();
+    const active = await resolveActiveConnection(connections.connections, assistantSeeds.seeds);
+    if (!active.success || !active.connection || !active.models) return fail(active.error);
 
-    await seedCharacters(characterSeeds, assistants, abilities, proficiencies, statuses);
+    const samplers = await seedSamplers(samplerSeeds.seeds);
+    if (!samplers.success) return fail(samplers.error);
 
-    await seedWorldMasters(worldMasterSeeds, assistants);
-    await seedSystemPrompts(systemPromptSeeds);
-    await seedWorlds(worldSeeds);
-    await seedLocations(locationSeeds);
-    await seedItems(itemSeeds);
+    const seededAssistants = await seedAssistants(assistantSeeds.seeds, active.connection, active.models);
+    if (!seededAssistants.success) return fail(seededAssistants.error);
 
-    const characters = await getCharactersController().handle();
-    const worldMasters = await getWorldMasterController().handle();
-    const systemPrompts = await getSystemPromptsController().handle();
-    const worlds = await getWorldsController().handle();
-    const locations = await getLocationsController().handle();
-    const items = await getItemsController().handle();
+    const seededAbilities = await seedAbilities(abilitySeeds.seeds);
+    if (!seededAbilities.success) return fail(seededAbilities.error);
 
-    await seedAdventures(
-        adventureSeeds,
-        characters,
-        worldMasters,
-        systemPrompts,
-        worlds,
-        locations,
-        items
+    const seededStatuses = await seedStatuses(statusSeeds.seeds);
+    if (!seededStatuses.success) return fail(seededStatuses.error);
+
+    const seededProficiencies = await seedProficiencies(proficiencySeeds.seeds);
+    if (!seededProficiencies.success) return fail(seededProficiencies.error);
+
+    const assistants = listItems(await getAssistantsController().handle(), 'assistants');
+    if (!assistants.items) return fail(assistants.error);
+
+    const abilities = listItems(await getAbilitiesController().handle(), 'abilities');
+    if (!abilities.items) return fail(abilities.error);
+
+    const statuses = listItems(await getStatusesController().handle(), 'statuses');
+    if (!statuses.items) return fail(statuses.error);
+
+    const proficiencies = listItems(await getProficienciesController().handle(), 'proficiencies');
+    if (!proficiencies.items) return fail(proficiencies.error);
+
+    const seededCharacters = await seedCharacters(characterSeeds.seeds, assistants.items, abilities.items, proficiencies.items, statuses.items);
+    if (!seededCharacters.success) return fail(seededCharacters.error);
+
+    const seededWorldMasters = await seedWorldMasters(worldMasterSeeds.seeds, assistants.items);
+    if (!seededWorldMasters.success) return fail(seededWorldMasters.error);
+
+    const seededSystemPrompts = await seedSystemPrompts(systemPromptSeeds.seeds);
+    if (!seededSystemPrompts.success) return fail(seededSystemPrompts.error);
+
+    const seededWorlds = await seedWorlds(worldSeeds.seeds);
+    if (!seededWorlds.success) return fail(seededWorlds.error);
+
+    const seededLocations = await seedLocations(locationSeeds.seeds);
+    if (!seededLocations.success) return fail(seededLocations.error);
+
+    const seededItems = await seedItems(itemSeeds.seeds);
+    if (!seededItems.success) return fail(seededItems.error);
+
+    const characters = listItems(await getCharactersController().handle(), 'characters');
+    if (!characters.items) return fail(characters.error);
+
+    const worldMasters = listItems(await getWorldMastersController().handle(), 'world masters');
+    if (!worldMasters.items) return fail(worldMasters.error);
+
+    const systemPrompts = listItems(await getSystemPromptsController().handle(), 'system prompts');
+    if (!systemPrompts.items) return fail(systemPrompts.error);
+
+    const worlds = listItems(await getWorldsController().handle(), 'worlds');
+    if (!worlds.items) return fail(worlds.error);
+
+    const locations = listItems(await getLocationsController().handle(), 'locations');
+    if (!locations.items) return fail(locations.error);
+
+    const items = listItems(await getItemsController().handle(), 'items');
+    if (!items.items) return fail(items.error);
+
+    const seededAdventures = await seedAdventures(
+        adventureSeeds.seeds,
+        characters.items,
+        worldMasters.items,
+        systemPrompts.items,
+        worlds.items,
+        locations.items,
+        items.items
     );
+    if (!seededAdventures.success) return fail(seededAdventures.error);
 
     const getAdventures = getAdventuresController();
-    const getAdventureText = getAdventureTextController();
-    const adventures = await getAdventures.handle();
-    const firstAdventure = adventures[0];
+    const getAdventureTemplatedPrompt = getAdventureTemplatedPromptController();
+    const adventures = listItems(await getAdventures.handle(), 'adventures');
+    if (!adventures.items) return fail(adventures.error);
+
+    const firstAdventure = adventures.items[0];
     if (!firstAdventure) {
         logger.warning('Migration: finished, but no adventure was found');
-        return undefined;
+        return { success: true };
     }
 
-    const promptResponse = await getAdventureText.handle({ adventure: firstAdventure });
-    if (!promptResponse.success || !promptResponse.prompt) {
+    const promptResponse = await getAdventureTemplatedPrompt.handle({ adventureId: firstAdventure.id });
+    if (!promptResponse.success || !promptResponse.data) {
         logger.warning(`Migration: failed to build adventure prompt: ${promptResponse.error}`);
-        return undefined;
+        return { success: true };
     }
 
     logger.info('Migration: seed finished');
-    return promptResponse.prompt;
+    return { success: true, prompt: promptResponse.data };
 }

@@ -4,21 +4,25 @@ import {
     getCharactersController,
 } from '@infra/container';
 import { logger } from '@infra/container/shared';
-import { Ability, Assistant, Proficiency, Status } from '@domain/entities';
 import { SeedCharacter } from './types';
-import { nameIndex, resolveReferencedIds } from './shared';
+import { nameIndex, resolveReferencedIds, listItems, NamedEntity, MigrationReturn } from './shared';
 
 export async function seedCharacters (
     seeds: SeedCharacter[],
-    assistants: Assistant[],
-    abilities: Ability[],
-    proficiencies: Proficiency[],
-    statuses: Status[]
-): Promise<void> {
+    assistants: NamedEntity[],
+    abilities: NamedEntity[],
+    proficiencies: NamedEntity[],
+    statuses: NamedEntity[]
+): Promise<MigrationReturn> {
     const createCharacter = createCharacterController();
     const editCharacter = editCharacterController();
     const getCharacters = getCharactersController();
-    const existing = await getCharacters.handle();
+    const existingResponse = listItems(await getCharacters.handle(), 'characters');
+    if (!existingResponse.success || !existingResponse.items) {
+        return { success: false, error: existingResponse.error };
+    }
+
+    const existing = existingResponse.items;
     const existingIndex = nameIndex(existing);
     logger.info(`Migration: seeding characters (${seeds.length} seed(s))`);
 
@@ -32,12 +36,27 @@ export async function seedCharacters (
 
         const assistant = assistantIndex.get(seed.assistant);
         if (!assistant) {
-            throw new Error(`Migration: assistant "${seed.assistant}" for ${ownerLabel} does not exist`);
+            return { success: false, error: `Migration: assistant "${seed.assistant}" for ${ownerLabel} does not exist` };
         }
 
-        const abilityIds = resolveReferencedIds(abilityIndex, seed.abilities ?? [], 'ability', ownerLabel);
-        const proficiencyIds = resolveReferencedIds(proficiencyIndex, seed.proficiencies ?? [], 'proficiency', ownerLabel);
-        const statusIds = resolveReferencedIds(statusIndex, seed.statuses ?? [], 'status', ownerLabel);
+        const abilityIdsResponse = resolveReferencedIds(abilityIndex, seed.abilities ?? [], 'ability', ownerLabel);
+        if (!abilityIdsResponse.success || !abilityIdsResponse.ids) {
+            return { success: false, error: abilityIdsResponse.error };
+        }
+
+        const abilityIds = abilityIdsResponse.ids;
+        const proficiencyIdsResponse = resolveReferencedIds(proficiencyIndex, seed.proficiencies ?? [], 'proficiency', ownerLabel);
+        if (!proficiencyIdsResponse.success || !proficiencyIdsResponse.ids) {
+            return { success: false, error: proficiencyIdsResponse.error };
+        }
+
+        const proficiencyIds = proficiencyIdsResponse.ids;
+        const statusIdsResponse = resolveReferencedIds(statusIndex, seed.statuses ?? [], 'status', ownerLabel);
+        if (!statusIdsResponse.success || !statusIdsResponse.ids) {
+            return { success: false, error: statusIdsResponse.error };
+        }
+
+        const statusIds = statusIdsResponse.ids;
 
         const current = existingIndex.get(seed.name);
         if (!current) {
@@ -53,7 +72,7 @@ export async function seedCharacters (
                 attributes: seed.attributes,
             });
             if (!response.success) {
-                throw new Error(`Migration: failed to create character "${seed.name}": ${response.error}`);
+                return { success: false, error: `Migration: failed to create character "${seed.name}": ${response.error}` };
             }
             continue;
         }
@@ -73,7 +92,9 @@ export async function seedCharacters (
             },
         });
         if (!response.success) {
-            throw new Error(`Migration: failed to restore character "${seed.name}": ${response.error}`);
+            return { success: false, error: `Migration: failed to restore character "${seed.name}": ${response.error}` };
         }
     }
+
+    return { success: true };
 }

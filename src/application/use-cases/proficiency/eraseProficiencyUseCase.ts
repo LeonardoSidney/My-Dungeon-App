@@ -1,6 +1,6 @@
 import { ILogger } from '@domain/logger';
 import { IProficiencyRepository } from '@domain/repository';
-import { EraseProficiencyUseCaseReturn, IEraseProficiencyUseCase } from '@domain/use-cases';
+import { EraseProficiencyUseCaseReturn, IEraseProficiencyUseCase, EraseProficiencyUseCaseParams } from '@domain/use-cases';
 
 export class EraseProficiencyUseCase implements IEraseProficiencyUseCase {
     constructor (
@@ -8,11 +8,16 @@ export class EraseProficiencyUseCase implements IEraseProficiencyUseCase {
         private readonly proficiencyRepository: IProficiencyRepository
     ) { }
 
-    async execute (proficiencyId: string): Promise<EraseProficiencyUseCaseReturn> {
+    async execute (params: EraseProficiencyUseCaseParams): Promise<EraseProficiencyUseCaseReturn> {
         this.logger.info('Executing EraseProficiencyUseCase::execute');
-        this.logger.debug('Executing EraseProficiencyUseCase::execute - proficiencyId: ', proficiencyId);
+        this.logger.debug('Executing EraseProficiencyUseCase::execute - params.id: ', params.id);
 
-        const result = await this.proficiencyRepository.eraseProficiency(proficiencyId);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return { success: false, error: validationError };
+        }
+
+        const result = await this.proficiencyRepository.eraseProficiency(params.id);
 
         if (!result.success) {
             this.logger.warning('Failed to erase proficiency', result);
@@ -24,5 +29,13 @@ export class EraseProficiencyUseCase implements IEraseProficiencyUseCase {
 
         this.logger.info('Proficiency erased successfully');
         return { success: true };
+    }
+
+    private validate (params: EraseProficiencyUseCaseParams): string | null {
+        if (!params.id) {
+            return 'A proficiency id is required to erase a proficiency';
+        }
+
+        return null;
     }
 }

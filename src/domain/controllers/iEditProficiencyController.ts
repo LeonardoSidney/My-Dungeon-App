@@ -1,4 +1,3 @@
-import { Proficiency } from '../entities';
 import { ProficiencyEditParams } from '../services';
 
 export interface IEditProficiencyController {
@@ -11,7 +10,7 @@ export type EditProficiencyControllerParams = {
 };
 
 export type EditProficiencyControllerResponse = {
-    proficiency?: Proficiency;
+    id?: string;
     success: boolean;
     error?: string;
 };

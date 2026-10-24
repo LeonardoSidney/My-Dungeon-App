@@ -13,12 +13,13 @@ export class EditProficiencyController implements IEditProficiencyController {
     ) { }
     async handle (params: EditProficiencyControllerParams): Promise<EditProficiencyControllerResponse> {
         this.logger.info('Executing EditProficiencyController::handle');
+        this.logger.debug('EditProficiencyController::handle - params', params);
         const response = await this.useCase.execute(params);
 
         return {
             success: response.success,
-            proficiency: response.proficiency,
-            error: response.error
+            id: response.id,
+            error: response.error,
         };
     }
 }

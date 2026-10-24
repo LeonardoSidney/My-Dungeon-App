@@ -1,7 +1,16 @@
 import { PROFICIENCY_STORAGE_NAMESPACE, STORAGE_NAMESPACE } from '@domain/constants/general';
 import { Proficiency } from '@domain/entities';
 import { ILogger } from '@domain/logger';
-import { IProficiencyRepository, SaveProficiencyParams, EditProficiencyParams, EditProficiencyReturn, EraseProficiencyReturn } from '@domain/repository';
+import {
+    IProficiencyRepository,
+    SaveProficiencyParams,
+    SaveProficiencyRepositoryReturn,
+    GetProficienciesRepositoryReturn,
+    GetProficiencyByIdRepositoryReturn,
+    EditProficiencyParams,
+    EditProficiencyReturn,
+    EraseProficiencyReturn,
+} from '@domain/repository';
 import { IStorage } from '@domain/storage';
 import { ProficiencyDTO } from '@infra/dto';
 
@@ -11,118 +20,126 @@ export class ProficiencyRepository implements IProficiencyRepository {
         private readonly storage: IStorage
     ) { }
 
-    private async findProficiencyIndex (proficiencies: Proficiency[], proficiencyId: string): Promise<number> {
-        return proficiencies.findIndex((p) => p.id === proficiencyId);
+    private get storageKey (): string {
+        return `${STORAGE_NAMESPACE}/${PROFICIENCY_STORAGE_NAMESPACE}`;
     }
 
-    private replaceAt (proficiencies: Proficiency[], index: number, newItem: Proficiency): Proficiency[] {
-        proficiencies[index] = newItem;
-        return proficiencies;
-    }
-
-    private removeAt (proficiencies: Proficiency[], index: number): Proficiency[] {
-        proficiencies.splice(index, 1);
-        return proficiencies;
-    }
-
-    async saveProficiency (params: SaveProficiencyParams): Promise<boolean> {
+    async saveProficiency (params: SaveProficiencyParams): Promise<SaveProficiencyRepositoryReturn> {
         this.logger.info('Executing ProficiencyRepository::saveProficiency');
         this.logger.debug('Executing ProficiencyRepository::saveProficiency - params: ', params);
 
-        try {
-            const { proficiency } = params;
-            const existingData = await this.storage.load<Proficiency[]>(`${STORAGE_NAMESPACE}/${PROFICIENCY_STORAGE_NAMESPACE}`);
-            const proficiencies: Proficiency[] = existingData ? [...existingData, proficiency] : [proficiency];
-            await this.storage.save(`${STORAGE_NAMESPACE}/${PROFICIENCY_STORAGE_NAMESPACE}`, proficiencies);
-        } catch (error) {
-            this.logger.error('Error on ProficiencyRepository::saveProficiency', error);
-            throw error;
+        const loaded = await this.storage.load<Proficiency[]>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('ProficiencyRepository::saveProficiency - failed to load proficiencies', loaded.error);
+            return { success: false, error: 'Failed to save proficiency' };
         }
-        return true;
+
+        const proficiencies = [...(loaded.data ?? []), params.proficiency];
+        const saved = await this.storage.save(this.storageKey, proficiencies);
+        if (!saved.success) {
+            this.logger.warning('ProficiencyRepository::saveProficiency - failed to persist proficiencies', saved.error);
+            return { success: false, error: 'Failed to save proficiency' };
+        }
+
+        return { success: true };
     }
 
-    async getProficiencyById (proficiencyId: string): Promise<Proficiency | undefined> {
+    async getProficiencyById (proficiencyId: string): Promise<GetProficiencyByIdRepositoryReturn> {
         this.logger.info('Executing ProficiencyRepository::getProficiencyById');
-        const proficiencies = await this.getProficiencies();
-        return proficiencies.find((p) => p.id === proficiencyId);
+
+        const response = await this.getProficiencies();
+        if (!response.success || !response.proficiencies) {
+            return { success: false, error: response.error };
+        }
+
+        return { success: true, proficiency: response.proficiencies.find((p) => p.id === proficiencyId) };
     }
 
-    async getProficiencies (): Promise<Proficiency[]> {
+    async getProficiencies (): Promise<GetProficienciesRepositoryReturn> {
         this.logger.info('Executing ProficiencyRepository::getProficiencies');
-        try {
-            const proficiencies: Proficiency[] = [];
-            const rawData = await this.storage.load<unknown[]>(`${STORAGE_NAMESPACE}/${PROFICIENCY_STORAGE_NAMESPACE}`);
-            this.logger.debug('Executing ProficiencyRepository::getProficiencies - rawData: ', rawData);
 
-            if (rawData) {
-                const proficienciesDTO: ProficiencyDTO[] = [];
-                for (const proficiencyUnknown of rawData) {
-                    const proficiency = ProficiencyDTO.fromStorage(proficiencyUnknown);
-                    if (proficiency) {
-                        proficienciesDTO.push(proficiency);
-                    }
-                }
-
-                proficiencies.push(...proficienciesDTO.map(dto => dto.toEntity()));
-
-                if (rawData.length !== proficiencies.length) {
-                    this.logger.warning('Some proficiencies were not converted to entity');
-                }
-            }
-
-            this.logger.debug('Executing ProficiencyRepository::getProficiencies - proficiencies: ', proficiencies);
-
-            return proficiencies;
-        } catch (error) {
-            this.logger.error('Error on ProficiencyRepository getProficiencies', error);
-            throw error;
+        const loaded = await this.storage.load<unknown>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('ProficiencyRepository::getProficiencies - failed to load proficiencies', loaded.error);
+            return { success: false, error: 'Failed to load proficiencies' };
         }
+
+        const rawData = loaded.data ?? [];
+        this.logger.debug('Executing ProficiencyRepository::getProficiencies - rawData: ', rawData);
+
+        if (!Array.isArray(rawData)) {
+            this.logger.warning('ProficiencyRepository::getProficiencies - stored proficiencies are not a list');
+            return { success: false, error: 'Failed to load proficiencies' };
+        }
+
+        const proficiencies: Proficiency[] = [];
+        for (const proficiencyUnknown of rawData) {
+            const dto = ProficiencyDTO.fromStorage(proficiencyUnknown);
+            if (dto) {
+                proficiencies.push(dto.toEntity());
+            }
+        }
+
+        if (rawData.length !== proficiencies.length) {
+            this.logger.warning('Some proficiencies were not converted to entity');
+        }
+
+        this.logger.debug('Executing ProficiencyRepository::getProficiencies - proficiencies: ', proficiencies);
+        return { success: true, proficiencies };
     }
 
     async editProficiency (params: EditProficiencyParams): Promise<EditProficiencyReturn> {
         this.logger.info('Executing ProficiencyRepository::editProficiency');
         this.logger.debug('Executing ProficiencyRepository::editProficiency - params: ', params);
 
-        try {
-            const { proficiency } = params;
-            const existingData = await this.storage.load<Proficiency[]>(`${STORAGE_NAMESPACE}/${PROFICIENCY_STORAGE_NAMESPACE}`);
-            const proficiencies = existingData || [];
-            const index = await this.findProficiencyIndex(proficiencies, proficiency.id);
-
-            if (index === -1) {
-                this.logger.warning(`Proficiency with id ${proficiency.id} not found`);
-                return { success: false, error: `Proficiency with id ${proficiency.id} does not exist` };
-            }
-
-            const updatedProficiencies = this.replaceAt(proficiencies, index, proficiency);
-            await this.storage.save(`${STORAGE_NAMESPACE}/${PROFICIENCY_STORAGE_NAMESPACE}`, updatedProficiencies);
-            return { success: true };
-        } catch (error) {
-            this.logger.error('Error on ProficiencyRepository::editProficiency', error);
+        const { proficiency } = params;
+        const loaded = await this.storage.load<Proficiency[]>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('ProficiencyRepository::editProficiency - failed to load proficiencies', loaded.error);
             return { success: false, error: 'Failed to edit proficiency' };
         }
+
+        const proficiencies = loaded.data ?? [];
+        const index = proficiencies.findIndex((p) => p.id === proficiency.id);
+        if (index === -1) {
+            this.logger.warning(`Proficiency with id ${proficiency.id} not found`);
+            return { success: false, error: `Proficiency with id ${proficiency.id} does not exist` };
+        }
+
+        proficiencies[index] = proficiency;
+        const saved = await this.storage.save(this.storageKey, proficiencies);
+        if (!saved.success) {
+            this.logger.warning('ProficiencyRepository::editProficiency - failed to persist proficiencies', saved.error);
+            return { success: false, error: 'Failed to edit proficiency' };
+        }
+
+        return { success: true };
     }
 
     async eraseProficiency (proficiencyId: string): Promise<EraseProficiencyReturn> {
         this.logger.info('Executing ProficiencyRepository::eraseProficiency');
         this.logger.debug('Executing ProficiencyRepository::eraseProficiency - proficiencyId: ', proficiencyId);
 
-        try {
-            const existingData = await this.storage.load<Proficiency[]>(`${STORAGE_NAMESPACE}/${PROFICIENCY_STORAGE_NAMESPACE}`);
-            const proficiencies = existingData || [];
-            const index = await this.findProficiencyIndex(proficiencies, proficiencyId);
-
-            if (index === -1) {
-                this.logger.warning(`Proficiency with id ${proficiencyId} not found`);
-                return { success: false, error: `Proficiency with id ${proficiencyId} does not exist` };
-            }
-
-            const filteredProficiencies = this.removeAt(proficiencies, index);
-            await this.storage.save(`${STORAGE_NAMESPACE}/${PROFICIENCY_STORAGE_NAMESPACE}`, filteredProficiencies);
-            return { success: true };
-        } catch (error) {
-            this.logger.error('Error on ProficiencyRepository::eraseProficiency', error);
+        const loaded = await this.storage.load<Proficiency[]>(this.storageKey);
+        if (!loaded.success) {
+            this.logger.warning('ProficiencyRepository::eraseProficiency - failed to load proficiencies', loaded.error);
             return { success: false, error: 'Failed to erase proficiency' };
         }
+
+        const proficiencies = loaded.data ?? [];
+        const index = proficiencies.findIndex((p) => p.id === proficiencyId);
+        if (index === -1) {
+            this.logger.warning(`Proficiency with id ${proficiencyId} not found`);
+            return { success: false, error: `Proficiency with id ${proficiencyId} does not exist` };
+        }
+
+        proficiencies.splice(index, 1);
+        const saved = await this.storage.save(this.storageKey, proficiencies);
+        if (!saved.success) {
+            this.logger.warning('ProficiencyRepository::eraseProficiency - failed to persist proficiencies', saved.error);
+            return { success: false, error: 'Failed to erase proficiency' };
+        }
+
+        return { success: true };
     }
 }

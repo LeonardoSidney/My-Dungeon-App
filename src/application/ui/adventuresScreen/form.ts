@@ -1,61 +1,44 @@
-import { Adventure, Character, SystemPrompt, WorldMaster, World, Location, Item } from '@domain/entities';
 import {
+    AdventureDetails,
+    AdventureFormRequest,
     CreateAdventureRequest,
     EditAdventureControllerParams,
+    EntityOption,
     ICreateAdventureController,
     IEditAdventureController,
 } from '@domain/controllers';
 import { AdventureFormData, FormErrors } from './constants';
 import { ControllerResponse } from '@application/ui/hooks';
-import {
-    buildAdventureCharacterIds,
-    summarizeAdventureCharacters,
-    validateAdventureCharacterSelection,
-} from '@application/shared/adventureCharacterRules';
 
-type AdventureFormEntityLists = {
-    characters: Character[];
-    systemPrompts: SystemPrompt[];
-    worldMasters: WorldMaster[];
-    worlds: World[];
-    locations: Location[];
-    items: Item[];
+type AdventureFormOptionLists = {
+    characters: EntityOption[];
+    systemPrompts: EntityOption[];
+    worldMasters: EntityOption[];
+    worlds: EntityOption[];
+    locations: EntityOption[];
+    items: EntityOption[];
 };
 
-export function toAdventureFormState (adventure: Adventure, entities: AdventureFormEntityLists): AdventureFormData {
-    const selectedSystemPrompts = entities.systemPrompts.filter(sp => adventure.systemPromptIds.includes(sp.id));
+function pickOptions (options: EntityOption[], ids: string[]): EntityOption[] {
+    return ids
+        .map(id => options.find(option => option.id === id))
+        .filter((option): option is EntityOption => option !== undefined);
+}
 
-    const characterById = new Map(entities.characters.map(character => [character.id, character]));
-    const summary = summarizeAdventureCharacters(adventure);
-
-    const selectedCharacters = summary.playableCharacterIds
-        .map(id => characterById.get(id))
-        .filter((character): character is Character => character !== undefined);
-
-    const selectedAiCharacters = summary.aiControlledCharacterIds
-        .map(id => characterById.get(id))
-        .filter((character): character is Character => character !== undefined);
-
-    const selectedWorldMaster = adventure.worldMasterId
-        ? entities.worldMasters.find(wm => wm.id === adventure.worldMasterId)
-        : undefined;
-
-    const selectedWorlds = entities.worlds.filter(w => adventure.worldIds.includes(w.id));
-    const selectedLocations = entities.locations.filter(l => adventure.locationIds.includes(l.id));
-    const selectedItems = entities.items.filter(i => adventure.itemIds.includes(i.id));
-
+export function toAdventureFormState (adventure: AdventureDetails, options: AdventureFormOptionLists): AdventureFormData {
     return {
         id: adventure.id,
         name: adventure.name,
-        systemPrompts: selectedSystemPrompts,
-        characters: selectedCharacters,
-        worldMaster: selectedWorldMaster,
-        characterAsWorldMasterId: summary.characterAsWorldMasterId,
-        charactersControlledByAi: selectedAiCharacters.map(character => character.id),
-        worlds: selectedWorlds,
-        locations: selectedLocations,
-        items: selectedItems,
-        chat: adventure.chat,
+        systemPrompts: pickOptions(options.systemPrompts, adventure.systemPromptIds),
+        characters: pickOptions(options.characters, adventure.playableCharacterIds),
+        worldMaster: adventure.worldMasterId
+            ? options.worldMasters.find(worldMaster => worldMaster.id === adventure.worldMasterId)
+            : undefined,
+        characterAsWorldMasterId: adventure.characterAsWorldMasterId,
+        charactersControlledByAi: adventure.aiControlledCharacterIds,
+        worlds: pickOptions(options.worlds, adventure.worldIds),
+        locations: pickOptions(options.locations, adventure.locationIds),
+        items: pickOptions(options.items, adventure.itemIds),
     };
 }
 
@@ -82,49 +65,31 @@ export function initialAdventureForm (): AdventureFormData {
         worlds: [],
         locations: [],
         items: [],
-        chat: [],
     };
 }
 
-export function toCreateParams (form: AdventureFormData): CreateAdventureRequest {
-    const characterIds = buildAdventureCharacterIds({
-        playableCharacterIds: form.characters.map(c => c.id),
-        characterAsWorldMasterId: form.characterAsWorldMasterId,
-        charactersControlledByAi: form.charactersControlledByAi,
-    });
+function toAdventureRequest (form: AdventureFormData): AdventureFormRequest {
     return {
         name: form.name,
         systemPromptIds: form.systemPrompts.map(sp => sp.id),
-        characterIds,
-        worldMasterId: form.worldMaster?.id,
+        playableCharacterIds: form.characters.map(c => c.id),
+        aiControlledCharacterIds: form.charactersControlledByAi,
         characterAsWorldMasterId: form.characterAsWorldMasterId,
-        charactersControlledByAi: form.charactersControlledByAi,
+        worldMasterId: form.worldMaster?.id,
         worldIds: (form.worlds ?? []).map(w => w.id),
         locationIds: (form.locations ?? []).map(l => l.id),
         itemIds: (form.items ?? []).map(i => i.id),
     };
 }
 
+export function toCreateParams (form: AdventureFormData): CreateAdventureRequest {
+    return toAdventureRequest(form);
+}
+
 export function toEditParams (form: AdventureFormData): EditAdventureControllerParams {
-    const characterIds = buildAdventureCharacterIds({
-        playableCharacterIds: form.characters.map(c => c.id),
-        characterAsWorldMasterId: form.characterAsWorldMasterId,
-        charactersControlledByAi: form.charactersControlledByAi,
-    });
     return {
         id: form.id ?? '',
-        editParams: {
-            name: form.name,
-            systemPromptIds: form.systemPrompts.map(sp => sp.id),
-            characterIds,
-            worldMasterId: form.worldMaster?.id,
-            characterAsWorldMasterId: form.characterAsWorldMasterId,
-            charactersControlledByAi: form.charactersControlledByAi,
-            worldIds: (form.worlds ?? []).map(w => w.id),
-            locationIds: (form.locations ?? []).map(l => l.id),
-            itemIds: (form.items ?? []).map(i => i.id),
-            chat: form.chat,
-        },
+        editParams: toAdventureRequest(form),
     };
 }
 
@@ -132,30 +97,6 @@ export function validateAdventureForm (form: AdventureFormData): FormErrors {
     const errors: FormErrors = {};
     if (!form.name.trim()) {
         errors.name = 'Name is required';
-    }
-    if (form.systemPrompts.length < 1) {
-        errors.systemPrompts = 'A system prompt is required';
-    }
-    if (errors.systemPrompts) {
-        return errors;
-    }
-
-    const characterIds = buildAdventureCharacterIds({
-        playableCharacterIds: form.characters.map(c => c.id),
-        characterAsWorldMasterId: form.characterAsWorldMasterId,
-        charactersControlledByAi: form.charactersControlledByAi,
-    });
-    const characterError = validateAdventureCharacterSelection(
-        {
-            characterIds,
-            worldMasterId: form.worldMaster?.id,
-            characterAsWorldMasterId: form.characterAsWorldMasterId,
-            charactersControlledByAi: form.charactersControlledByAi,
-        },
-        form.systemPrompts.length
-    );
-    if (characterError) {
-        errors.characters = characterError;
     }
     return errors;
 }

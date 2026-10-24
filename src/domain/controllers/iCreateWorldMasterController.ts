@@ -1,4 +1,3 @@
-import { WorldMaster } from '../entities';
 
 export interface ICreateWorldMasterController {
     handle (params: CreateWorldMasterControllerParams): Promise<CreateWorldMasterControllerResponse>;
@@ -14,6 +13,6 @@ export type CreateWorldMasterControllerParams = {
 
 export type CreateWorldMasterControllerResponse = {
     success: boolean;
-    worldMaster?: WorldMaster;
+    id?: string;
     error?: string;
 };

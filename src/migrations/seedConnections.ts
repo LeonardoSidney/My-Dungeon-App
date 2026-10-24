@@ -5,15 +5,39 @@ import {
     getModelsFromProviderController,
 } from '@infra/container';
 import { logger } from '@infra/container/shared';
-import { Connection, Model } from '@domain/entities';
+import { ConnectionListItem } from '@domain/controllers';
+import { Model } from '@domain/entities';
 import { SeedAssistant, SeedConnection } from './types';
-import { MODEL_ID_PLACEHOLDER } from './shared';
+import { MODEL_ID_PLACEHOLDER, listItems } from './shared';
 
-export async function fetchConnectionModels (connection: Connection): Promise<Model[]> {
+type FetchConnectionModelsReturn = {
+    success: boolean;
+    models?: Model[];
+    error?: string;
+};
+
+type ResolveActiveConnectionReturn = {
+    success: boolean;
+    connection?: ConnectionListItem;
+    models?: Model[];
+    error?: string;
+};
+
+type SeedConnectionsReturn = {
+    success: boolean;
+    connections?: ConnectionListItem[];
+    error?: string;
+};
+
+export async function fetchConnectionModels (connection: ConnectionListItem): Promise<FetchConnectionModelsReturn> {
     const getModels = getModelsFromProviderController();
-    const response = await getModels.handle({ connection });
-    if (!response.success || !response.models) {
-        return [];
+    const response = await getModels.handle({ connectionId: connection.id });
+    if (!response.success) {
+        return { success: false, error: response.error };
+    }
+
+    if (!response.models) {
+        return { success: true, models: [] };
     }
 
     const loadedModels = response.models.filter(model => model.loaded === true);
@@ -22,22 +46,21 @@ export async function fetchConnectionModels (connection: Connection): Promise<Mo
         logger.debug(`Migration: connection "${connection.name}" reports ${unloadedCount} unloaded model(s), filtered out`);
     }
 
-    return loadedModels;
+    return { success: true, models: loadedModels };
 }
 
 export async function resolveActiveConnection (
-    connections: Connection[],
+    connections: ConnectionListItem[],
     assistantSeeds: SeedAssistant[]
-): Promise<{ connection: Connection; models: Model[]; }> {
+): Promise<ResolveActiveConnectionReturn> {
     for (const connection of connections) {
-        let models: Model[];
-        try {
-            models = await fetchConnectionModels(connection);
-        } catch (error) {
-            const reason = error instanceof Error ? error.message : 'unknown error';
-            logger.warning(`Migration: connection "${connection.name}" unreachable: ${reason}`);
+        const modelsResponse = await fetchConnectionModels(connection);
+        if (!modelsResponse.success || !modelsResponse.models) {
+            logger.warning(`Migration: connection "${connection.name}" unreachable: ${modelsResponse.error ?? 'unknown error'}`);
             continue;
         }
+
+        const models = modelsResponse.models;
 
         const hasModel = models.length > 0;
         if (!hasModel) {
@@ -63,28 +86,33 @@ export async function resolveActiveConnection (
         }
 
         logger.info(`Migration: active connection resolved - "${connection.name}" with ${models.length} model(s)`);
-        return { connection, models };
+        return { success: true, connection, models };
     }
 
-    throw new Error('Migration: no valid connection found - assistants require a connection serving their models');
+    return { success: false, error: 'Migration: no valid connection found - assistants require a connection serving their models' };
 }
 
-export async function seedConnections (seeds: SeedConnection[]): Promise<Connection[]> {
+export async function seedConnections (seeds: SeedConnection[]): Promise<SeedConnectionsReturn> {
     const createConnection = createConnectionConfigController();
     const editConnection = editConnectionController();
     const getConnections = getConnectionsController();
-    const existing = await getConnections.handle();
-    const connectionsByName = new Map<string, Connection>(existing.map(connection => [connection.name, connection]));
+    const existingResponse = listItems(await getConnections.handle(), 'connections');
+    if (!existingResponse.success || !existingResponse.items) {
+        return { success: false, error: existingResponse.error };
+    }
+
+    const existing = existingResponse.items;
+    const connectionsByName = new Map<string, ConnectionListItem>(existing.map(connection => [connection.name, connection]));
     logger.info(`Migration: seeding connections (${seeds.length} seed(s))`);
 
     for (const seed of seeds) {
         const current = connectionsByName.get(seed.name);
         if (!current) {
             const response = await createConnection.handle(seed);
-            if (!response.success || !response.connection) {
-                throw new Error(`Migration: failed to create connection "${seed.name}": ${response.error}`);
+            if (!response.success || !response.id) {
+                return { success: false, error: `Migration: failed to create connection "${seed.name}": ${response.error}` };
             }
-            connectionsByName.set(response.connection.name, response.connection);
+            connectionsByName.set(seed.name, { id: response.id, name: seed.name, ip: seed.ip, port: seed.port });
             continue;
         }
 
@@ -97,11 +125,11 @@ export async function seedConnections (seeds: SeedConnection[]): Promise<Connect
                 auth: seed.auth,
             },
         });
-        if (!response.success || !response.connection) {
-            throw new Error(`Migration: failed to restore connection "${seed.name}": ${response.error}`);
+        if (!response.success) {
+            return { success: false, error: `Migration: failed to restore connection "${seed.name}": ${response.error}` };
         }
-        connectionsByName.set(response.connection.name, response.connection);
+        connectionsByName.set(seed.name, { id: current.id, name: seed.name, ip: seed.ip, port: seed.port });
     }
 
-    return Array.from(connectionsByName.values());
+    return { success: true, connections: Array.from(connectionsByName.values()) };
 }

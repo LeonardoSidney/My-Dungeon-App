@@ -2,30 +2,27 @@ import { useCallback } from 'react';
 import { UseThinkActionsParams } from './constants';
 
 export function useThinkActions ({
-    currentAdventure,
-    setCurrentAdventure,
-    deleteThinkAdventure,
+    adventureId,
+    messages,
+    reloadMessages,
+    deleteThinkVersion,
     alert,
 }: UseThinkActionsParams) {
     const onDeleteThink = useCallback(
         async (chatId: string) => {
-            const targetChat = currentAdventure.chat.find(c => c.id === chatId);
-            if (!targetChat?.think) return;
+            const think = messages.find(entry => entry.id === chatId)?.think;
+            if (!think) return;
 
-            const response = await deleteThinkAdventure.handle({
-                adventure: currentAdventure,
-                chatId,
-                index: targetChat.thinkIndex,
-            });
+            const response = await deleteThinkVersion.handle({ adventureId, chatId, versionIndex: think.index });
 
-            if (!response.success || !response.adventure) {
+            if (!response.success) {
                 alert.handle({ title: 'Erro', message: response.error ?? 'Failed to delete think' });
                 return;
             }
 
-            setCurrentAdventure(response.adventure);
+            await reloadMessages();
         },
-        [currentAdventure, setCurrentAdventure, deleteThinkAdventure, alert]
+        [adventureId, messages, reloadMessages, deleteThinkVersion, alert]
     );
 
     return { onDeleteThink };

@@ -1,6 +1,6 @@
 import { ILogger } from '@domain/logger';
 import { IAdventureRepository } from '@domain/repository';
-import { IEraseAdventuresUseCase } from '@domain/use-cases';
+import { EraseAdventuresUseCaseReturn, IEraseAdventuresUseCase } from '@domain/use-cases';
 
 export class EraseAdventuresUseCase implements IEraseAdventuresUseCase {
     constructor (
@@ -8,8 +8,15 @@ export class EraseAdventuresUseCase implements IEraseAdventuresUseCase {
         private readonly adventureRepository: IAdventureRepository
     ) { }
 
-    async execute (): Promise<void> {
+    async execute (): Promise<EraseAdventuresUseCaseReturn> {
         this.logger.info('Executing EraseAdventuresUseCase::execute');
-        await this.adventureRepository.eraseAdventures();
+
+        const eraseResult = await this.adventureRepository.eraseAdventures();
+        if (!eraseResult.success) {
+            this.logger.warning('EraseAdventuresUseCase::execute - failed to erase adventures', eraseResult.error);
+            return { success: false, error: eraseResult.error };
+        }
+
+        return { success: true };
     }
 }

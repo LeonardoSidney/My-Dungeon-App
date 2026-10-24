@@ -8,6 +8,7 @@ import {
 } from '@domain/repository';
 import { CharacterEditParams, IEditCharacterService } from '@domain/services';
 import { EditCharacterParams, EditCharacterReturn, IEditCharacterUseCase } from '@domain/use-cases';
+import { REFERENCED_ENTITIES } from '@domain/constants/referencedEntities';
 import { checkReferencedId, checkReferencedIds } from '@application/shared/validateReferencedIds';
 
 export class EditCharacterUseCase implements IEditCharacterUseCase {
@@ -27,7 +28,6 @@ export class EditCharacterUseCase implements IEditCharacterUseCase {
         if (validationError) {
             return {
                 success: false,
-                character: undefined,
                 error: validationError
             };
         }
@@ -35,17 +35,21 @@ export class EditCharacterUseCase implements IEditCharacterUseCase {
         if (missingIdError) {
             return {
                 success: false,
-                character: undefined,
                 error: missingIdError
             };
         }
 
         const { id, editParams } = params;
-        const character = await this.characterRepository.getCharacterById(id);
+        const characterResponse = await this.characterRepository.getCharacterById(id);
+        if (!characterResponse.success) {
+            this.logger.warning('EditCharacterUseCase::execute - failed to load character', characterResponse.error);
+            return { success: false, error: characterResponse.error };
+        }
+
+        const character = characterResponse.character;
         if (!character) {
             return {
                 success: false,
-                character: undefined,
                 error: `Character with id ${id} not found`
             };
         }
@@ -57,7 +61,6 @@ export class EditCharacterUseCase implements IEditCharacterUseCase {
         if (!response.success) {
             return {
                 success: false,
-                character: undefined,
                 error: response.error || 'An unknown error occurred on EditCharacterService'
             };
         }
@@ -65,13 +68,18 @@ export class EditCharacterUseCase implements IEditCharacterUseCase {
         if (!response.character) {
             return {
                 success: false,
-                character: undefined,
                 error: 'Success is true but does not have a character'
             };
         }
 
         const editedCharacter = response.character;
-        const existingCharacters = await this.characterRepository.getCharacters();
+        const existingCharactersResponse = await this.characterRepository.getCharacters();
+        if (!existingCharactersResponse.success || !existingCharactersResponse.characters) {
+            this.logger.warning('EditCharacterUseCase::execute - failed to load characters', existingCharactersResponse.error);
+            return { success: false, error: existingCharactersResponse.error };
+        }
+
+        const existingCharacters = existingCharactersResponse.characters;
         const duplicateCharacter = existingCharacters.find(
             (c) => c.name === editedCharacter.name && c.id !== editedCharacter.id
         );
@@ -80,7 +88,6 @@ export class EditCharacterUseCase implements IEditCharacterUseCase {
             this.logger.warning(`Character with name ${editedCharacter.name} already exists`);
             return {
                 success: false,
-                character: undefined,
                 error: `Character with name ${editedCharacter.name} already exists`
             };
         }
@@ -89,13 +96,12 @@ export class EditCharacterUseCase implements IEditCharacterUseCase {
         if (!editResult.success) {
             return {
                 success: false,
-                character: undefined,
                 error: editResult.error || 'Failed to edit character'
             };
         }
 
         return {
-            character: editedCharacter,
+            id: editedCharacter.id,
             success: true
         };
     }
@@ -122,33 +128,33 @@ export class EditCharacterUseCase implements IEditCharacterUseCase {
 
     private async validateReferencedIds (editParams: CharacterEditParams): Promise<string | null> {
         const assistantError = await checkReferencedId(
-            (id) => this.assistantRepository.getAssistantById(id),
-            editParams.assistantId,
-            'Assistant'
+            (id: string) => this.assistantRepository.getAssistantById(id),
+            REFERENCED_ENTITIES.ASSISTANT,
+            editParams.assistantId
         );
         if (assistantError) {
             return assistantError;
         }
         const abilityError = await checkReferencedIds(
-            (id) => this.abilityRepository.getAbilityById(id),
-            editParams.abilityIds ?? [],
-            'Ability'
+            (id: string) => this.abilityRepository.getAbilityById(id),
+            REFERENCED_ENTITIES.ABILITY,
+            editParams.abilityIds ?? []
         );
         if (abilityError) {
             return abilityError;
         }
         const proficiencyError = await checkReferencedIds(
-            (id) => this.proficiencyRepository.getProficiencyById(id),
-            editParams.proficiencyIds ?? [],
-            'Proficiency'
+            (id: string) => this.proficiencyRepository.getProficiencyById(id),
+            REFERENCED_ENTITIES.PROFICIENCY,
+            editParams.proficiencyIds ?? []
         );
         if (proficiencyError) {
             return proficiencyError;
         }
         const statusError = await checkReferencedIds(
-            (id) => this.statusRepository.getStatusById(id),
-            editParams.statusIds ?? [],
-            'Status'
+            (id: string) => this.statusRepository.getStatusById(id),
+            REFERENCED_ENTITIES.STATUS,
+            editParams.statusIds ?? []
         );
         if (statusError) {
             return statusError;

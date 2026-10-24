@@ -5,6 +5,7 @@ import {
 } from '@domain/repository';
 import { IEditWorldMasterService, WorldMasterEditParams } from '@domain/services';
 import { EditWorldMasterParams, EditWorldMasterReturn, IEditWorldMasterUseCase } from '@domain/use-cases';
+import { REFERENCED_ENTITIES } from '@domain/constants/referencedEntities';
 import { checkReferencedId } from '@application/shared/validateReferencedIds';
 
 export class EditWorldMasterUseCase implements IEditWorldMasterUseCase {
@@ -21,16 +22,20 @@ export class EditWorldMasterUseCase implements IEditWorldMasterUseCase {
         if (validationError) {
             return {
                 success: false,
-                worldMaster: undefined,
                 error: validationError
             };
         }
         const { id, editParams } = params;
-        const worldMaster = await this.worldMasterRepository.getWorldMasterById(id);
+        const worldMasterResponse = await this.worldMasterRepository.getWorldMasterById(id);
+        if (!worldMasterResponse.success) {
+            this.logger.warning('EditWorldMasterUseCase::execute - failed to load world master', worldMasterResponse.error);
+            return { success: false, error: worldMasterResponse.error };
+        }
+
+        const worldMaster = worldMasterResponse.worldMaster;
         if (!worldMaster) {
             return {
                 success: false,
-                worldMaster: undefined,
                 error: `World master with id ${id} not found`
             };
         }
@@ -38,7 +43,6 @@ export class EditWorldMasterUseCase implements IEditWorldMasterUseCase {
         if (missingIdError) {
             return {
                 success: false,
-                worldMaster: undefined,
                 error: missingIdError
             };
         }
@@ -50,7 +54,6 @@ export class EditWorldMasterUseCase implements IEditWorldMasterUseCase {
         if (!response.success) {
             return {
                 success: false,
-                worldMaster: undefined,
                 error: response.error || 'An unknown error occurred on EditWorldMasterService'
             };
         }
@@ -58,13 +61,18 @@ export class EditWorldMasterUseCase implements IEditWorldMasterUseCase {
         if (!response.worldMaster) {
             return {
                 success: false,
-                worldMaster: undefined,
                 error: 'Success is true but does not have a worldMaster'
             };
         }
 
         const editedWorldMaster = response.worldMaster;
-        const existingWorldMasters = await this.worldMasterRepository.getWorldMasters();
+        const existingWorldMastersResponse = await this.worldMasterRepository.getWorldMasters();
+        if (!existingWorldMastersResponse.success || !existingWorldMastersResponse.worldMasters) {
+            this.logger.warning('EditWorldMasterUseCase::execute - failed to load world masters', existingWorldMastersResponse.error);
+            return { success: false, error: existingWorldMastersResponse.error };
+        }
+
+        const existingWorldMasters = existingWorldMastersResponse.worldMasters;
         const duplicateWorldMaster = existingWorldMasters.find(
             (wm) => wm.name === editedWorldMaster.name && wm.id !== editedWorldMaster.id
         );
@@ -73,7 +81,6 @@ export class EditWorldMasterUseCase implements IEditWorldMasterUseCase {
             this.logger.warning(`World master with name ${editedWorldMaster.name} already exists`);
             return {
                 success: false,
-                worldMaster: undefined,
                 error: `World master with name ${editedWorldMaster.name} already exists`
             };
         }
@@ -82,13 +89,12 @@ export class EditWorldMasterUseCase implements IEditWorldMasterUseCase {
         if (!editResult.success) {
             return {
                 success: false,
-                worldMaster: undefined,
                 error: editResult.error || 'Failed to edit world master'
             };
         }
 
         return {
-            worldMaster: editedWorldMaster,
+            id: editedWorldMaster.id,
             success: true
         };
     }
@@ -115,9 +121,9 @@ export class EditWorldMasterUseCase implements IEditWorldMasterUseCase {
 
     private async validateReferencedIds (editParams: WorldMasterEditParams): Promise<string | null> {
         return checkReferencedId(
-            (id) => this.assistantRepository.getAssistantById(id),
-            editParams.assistantId,
-            'Assistant'
+            (id: string) => this.assistantRepository.getAssistantById(id),
+            REFERENCED_ENTITIES.ASSISTANT,
+            editParams.assistantId
         );
     }
 }

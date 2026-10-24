@@ -1,5 +1,7 @@
-import { Proficiency } from '../entities';
+import { ListControllerResponse, ActivationPromptListItem } from './iCrudControllerResponses';
 
 export interface IGetProficienciesController {
-    handle(): Promise<Proficiency[]>;
+    handle (): Promise<GetProficienciesControllerResponse>;
 }
+
+export type GetProficienciesControllerResponse = ListControllerResponse<ActivationPromptListItem>;

@@ -1,6 +1,6 @@
 import { ILogger } from '@domain/logger';
 import { ILocationRepository } from '@domain/repository';
-import { EraseLocationUseCaseReturn, IEraseLocationUseCase } from '@domain/use-cases';
+import { EraseLocationUseCaseReturn, IEraseLocationUseCase, EraseLocationUseCaseParams } from '@domain/use-cases';
 
 export class EraseLocationUseCase implements IEraseLocationUseCase {
     constructor (
@@ -8,11 +8,16 @@ export class EraseLocationUseCase implements IEraseLocationUseCase {
         private readonly locationRepository: ILocationRepository
     ) { }
 
-    async execute (locationId: string): Promise<EraseLocationUseCaseReturn> {
+    async execute (params: EraseLocationUseCaseParams): Promise<EraseLocationUseCaseReturn> {
         this.logger.info('Executing EraseLocationUseCase::execute');
-        this.logger.debug('Executing EraseLocationUseCase::execute - locationId: ', locationId);
+        this.logger.debug('Executing EraseLocationUseCase::execute - params.id: ', params.id);
 
-        const result = await this.locationRepository.eraseLocation(locationId);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return { success: false, error: validationError };
+        }
+
+        const result = await this.locationRepository.eraseLocation(params.id);
 
         if (!result.success) {
             this.logger.warning('Failed to erase location', result);
@@ -24,5 +29,13 @@ export class EraseLocationUseCase implements IEraseLocationUseCase {
 
         this.logger.info('Location erased successfully');
         return { success: true };
+    }
+
+    private validate (params: EraseLocationUseCaseParams): string | null {
+        if (!params.id) {
+            return 'A location id is required to erase a location';
+        }
+
+        return null;
     }
 }

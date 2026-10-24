@@ -3,19 +3,26 @@ import {
     GetSystemPromptsController,
     EditSystemPromptController,
     EraseSystemPromptController,
+    GetSystemPromptController,
 } from '@adapters/controllers';
+import {
+    GetSystemPromptPresenter,
+    GetSystemPromptsPresenter,
+} from '@adapters/presenters';
 import { CreateSystemPromptService, EditSystemPromptService } from '@application/services';
 import {
     CreateSystemPromptUseCase,
     GetSystemPromptsUseCase,
     EditSystemPromptUseCase,
     EraseSystemPromptUseCase,
+    GetSystemPromptByIdUseCase,
 } from '@application/use-cases';
 import {
     ICreateSystemPromptController,
     IGetSystemPromptsController,
     IEditSystemPromptController,
     IEraseSystemPromptController,
+    IGetSystemPromptController,
 } from '@domain/controllers';
 import { idGenerate, logger, storage } from './shared';
 import { createSystemPromptRepository } from './repository';
@@ -34,7 +41,7 @@ export function createSystemPromptController (): ICreateSystemPromptController {
 export function getSystemPromptsController (): IGetSystemPromptsController {
     const systemPromptRepository = createSystemPromptRepository(storage, logger);
     const getSystemPromptsUseCase = new GetSystemPromptsUseCase(logger, systemPromptRepository);
-    return new GetSystemPromptsController(logger, getSystemPromptsUseCase);
+    return new GetSystemPromptsController(logger, getSystemPromptsUseCase, new GetSystemPromptsPresenter());
 }
 
 export function editSystemPromptController (): IEditSystemPromptController {
@@ -52,4 +59,9 @@ export function eraseSystemPromptController (): IEraseSystemPromptController {
     const systemPromptRepository = createSystemPromptRepository(storage, logger);
     const eraseSystemPromptUseCase = new EraseSystemPromptUseCase(logger, systemPromptRepository);
     return new EraseSystemPromptController(logger, eraseSystemPromptUseCase);
+}
+
+export function getSystemPromptController (): IGetSystemPromptController {
+    const useCase = new GetSystemPromptByIdUseCase(logger, createSystemPromptRepository(storage, logger));
+    return new GetSystemPromptController(logger, useCase, new GetSystemPromptPresenter());
 }

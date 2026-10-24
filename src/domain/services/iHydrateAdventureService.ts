@@ -51,3 +51,15 @@ export type HydrateAdventureServiceResponse = {
     hydrated?: HydratedAdventure;
     error?: string;
 };
+
+export type ResolvedEntities<TEntity> = {
+    success: boolean;
+    entities?: TEntity[];
+    error?: string;
+};
+
+export type ResolvedAssistants = {
+    success: boolean;
+    assistants?: Record<string, Assistant>;
+    error?: string;
+};

@@ -16,17 +16,21 @@ export class EditItemUseCase implements IEditItemUseCase {
         if (validationError) {
             return {
                 success: false,
-                item: undefined,
                 error: validationError
             };
         }
 
         const { id, editParams } = params;
-        const item = await this.itemRepository.getItemById(id);
+        const itemResponse = await this.itemRepository.getItemById(id);
+        if (!itemResponse.success) {
+            this.logger.warning('EditItemUseCase::execute - failed to load item', itemResponse.error);
+            return { success: false, error: itemResponse.error };
+        }
+
+        const item = itemResponse.item;
         if (!item) {
             return {
                 success: false,
-                item: undefined,
                 error: `Item with id ${id} not found`
             };
         }
@@ -38,7 +42,6 @@ export class EditItemUseCase implements IEditItemUseCase {
         if (!response.success) {
             return {
                 success: false,
-                item: undefined,
                 error: response.error || 'An unknown error occurred on EditItemService'
             };
         }
@@ -46,13 +49,18 @@ export class EditItemUseCase implements IEditItemUseCase {
         if (!response.item) {
             return {
                 success: false,
-                item: undefined,
                 error: 'Success is true but does not have an item'
             };
         }
 
         const editedItem = response.item;
-        const existingItems = await this.itemRepository.getItems();
+        const existingItemsResponse = await this.itemRepository.getItems();
+        if (!existingItemsResponse.success || !existingItemsResponse.items) {
+            this.logger.warning('EditItemUseCase::execute - failed to load items', existingItemsResponse.error);
+            return { success: false, error: existingItemsResponse.error };
+        }
+
+        const existingItems = existingItemsResponse.items;
         const duplicateItem = existingItems.find(
             (i) => i.name === editedItem.name && i.id !== editedItem.id
         );
@@ -61,7 +69,6 @@ export class EditItemUseCase implements IEditItemUseCase {
             this.logger.warning(`Item with name ${editedItem.name} already exists`);
             return {
                 success: false,
-                item: undefined,
                 error: `Item with name ${editedItem.name} already exists`
             };
         }
@@ -70,13 +77,12 @@ export class EditItemUseCase implements IEditItemUseCase {
         if (!editResult.success) {
             return {
                 success: false,
-                item: undefined,
                 error: editResult.error || 'Failed to edit item'
             };
         }
 
         return {
-            item: editedItem,
+            id: editedItem.id,
             success: true
         };
     }

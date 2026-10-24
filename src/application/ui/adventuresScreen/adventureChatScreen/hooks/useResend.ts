@@ -3,31 +3,29 @@ import { onResend } from '../onResend';
 import { UseResendParams } from './constants';
 
 export function useResend ({
-    currentAdventure,
-    setCurrentAdventure,
+    adventureId,
     setMessage,
-    handleStreamResponse,
+    streamReply,
     editingChatIdRef,
     message,
     clearEditing,
-    editChatAdventure,
+    addChatVersion,
     resendChat,
     alert,
 }: UseResendParams) {
     const handleResend = useCallback(async () => {
         await onResend({
-            currentAdventure,
-            setCurrentAdventure,
+            adventureId,
             setMessage,
-            handleStreamResponse,
+            streamReply,
             editingChatIdRef,
             message,
             clearEditing,
-            editChatAdventure,
+            addChatVersion,
             resendChat,
             alert,
         });
-    }, [currentAdventure, setCurrentAdventure, setMessage, handleStreamResponse, editingChatIdRef, message, clearEditing, editChatAdventure, resendChat, alert]);
+    }, [adventureId, setMessage, streamReply, editingChatIdRef, message, clearEditing, addChatVersion, resendChat, alert]);
 
     return { handleResend };
 }

@@ -16,17 +16,21 @@ export class EditConnectionUseCase implements IEditConnectionUseCase {
         if (validationError) {
             return {
                 success: false,
-                connection: undefined,
                 error: validationError
             };
         }
 
         const { id, editParams } = params;
-        const connection = await this.connectionRepository.getConnectionById(id);
+        const connectionResponse = await this.connectionRepository.getConnectionById(id);
+        if (!connectionResponse.success) {
+            this.logger.warning('EditConnectionUseCase::execute - failed to load connection', connectionResponse.error);
+            return { success: false, error: connectionResponse.error };
+        }
+
+        const connection = connectionResponse.connection;
         if (!connection) {
             return {
                 success: false,
-                connection: undefined,
                 error: `Connection with id ${id} not found`
             };
         }
@@ -38,7 +42,6 @@ export class EditConnectionUseCase implements IEditConnectionUseCase {
         if (!response.success) {
             return {
                 success: false,
-                connection: undefined,
                 error: response.error || 'An unknown error occurred on EditConnectionConfigService'
             };
         }
@@ -46,20 +49,24 @@ export class EditConnectionUseCase implements IEditConnectionUseCase {
         if (!response.connection) {
             return {
                 success: false,
-                connection: undefined,
                 error: 'Success is true but does not have a connection'
             };
         }
 
         const editedConnection = response.connection;
-        const connections = await this.connectionRepository.getConnections();
+        const connectionsResponse = await this.connectionRepository.getConnections();
+        if (!connectionsResponse.success || !connectionsResponse.connections) {
+            this.logger.warning('EditConnectionUseCase::execute - failed to load connections', connectionsResponse.error);
+            return { success: false, error: connectionsResponse.error };
+        }
+
+        const connections = connectionsResponse.connections;
         const alreadyExists = connections.some((c) => c.name === editedConnection.name && c.id !== editedConnection.id);
 
         if (alreadyExists) {
             this.logger.warning(`Connection with name ${editedConnection.name} already exists`);
             return {
                 success: false,
-                connection: undefined,
                 error: `Connection with name ${editedConnection.name} already exists`
             };
         }
@@ -68,13 +75,12 @@ export class EditConnectionUseCase implements IEditConnectionUseCase {
         if (!editResult.success) {
             return {
                 success: false,
-                connection: undefined,
                 error: editResult.error || 'Failed to edit connection'
             };
         }
 
         return {
-            connection: editedConnection,
+            id: editedConnection.id,
             success: true
         };
     }

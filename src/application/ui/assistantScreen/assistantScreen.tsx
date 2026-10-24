@@ -1,21 +1,17 @@
 import React from 'react';
 import { Text, View } from 'react-native';
-import { Assistant, Model, Sampler } from '@domain/entities';
+import { AssistantDetails, EntityOption, ModelOption } from '@domain/controllers';
 import { styles } from './styles';
 import { ActivationPromptForm, CrudEntityList, SelectField, SingleSelect } from '@application/ui/components';
 import { useEntityList, useEntityScreen } from '@application/ui/hooks';
 import { useControllers } from '@application/ui/providers/controllersProvider';
 import { AssistantFormData, assistantFormConfig } from './constants';
-import { loadModels } from './loadModels';
 import { initialAssistantForm, submitAssistant, toAssistantFormState, validateAssistantForm } from './form';
 
 export function AssistantScreen () {
-  const { getAssistants, getConnections, getModelsFromProvider, getSamplers, createAssistant, editAssistant, eraseAssistant, alert } = useControllers();
-  const models = useEntityList({ fetch: () => loadModels(getConnections, getModelsFromProvider) });
+  const { getAssistants, getAssistant, getModels, getSamplers, createAssistant, editAssistant, eraseAssistant, alert } = useControllers();
+  const models = useEntityList({ fetch: () => getModels.handle() });
   const samplers = useEntityList({ fetch: () => getSamplers.handle() });
-  const connections = useEntityList({ fetch: () => getConnections.handle() });
-
-  const getConnectionName = (connectionId: string) => connections.items.find((c) => c.id === connectionId)?.name ?? connectionId;
 
   const {
     entities,
@@ -30,10 +26,11 @@ export function AssistantScreen () {
     formErrors,
     save,
     eraseEntity,
-  } = useEntityScreen<Assistant, AssistantFormData>({
+  } = useEntityScreen<EntityOption, AssistantFormData, AssistantDetails>({
     fetch: () => getAssistants.handle(),
+    load: (id) => getAssistant.handle({ id }),
     submit: (assistantForm) => submitAssistant(assistantForm, createAssistant, editAssistant),
-    erase: (id) => eraseAssistant.handle(id),
+    erase: (id) => eraseAssistant.handle({ id }),
     toFormState: (assistant) => toAssistantFormState(assistant, models.items, samplers.items),
     initialForm: initialAssistantForm,
     validate: validateAssistantForm,
@@ -55,11 +52,11 @@ export function AssistantScreen () {
               <SingleSelect
                 items={models.items}
                 selectedId={form.model ? `${form.model.id}-${form.model.connectionId}` : undefined}
-                itemKey={(model: Model) => `${model.id}-${model.connectionId}`}
-                renderLabel={(model: Model) => `${model.name} (${getConnectionName(model.connectionId)})`}
+                itemKey={(model: ModelOption) => `${model.id}-${model.connectionId}`}
+                renderLabel={(model: ModelOption) => `${model.name} (${model.connectionName})`}
                 hasError={!!formErrors.model}
                 emptyMessage="No models available"
-                onSelect={(model: Model) => updateField('model', model)}
+                onSelect={(model: ModelOption) => updateField('model', model)}
               />
             </SelectField>
           )}
@@ -72,7 +69,7 @@ export function AssistantScreen () {
                 selectedId={form.sampler?.id}
                 hasError={!!formErrors.sampler}
                 emptyMessage="No samplers available"
-                onSelect={(sampler: Sampler) => updateField('sampler', sampler)}
+                onSelect={(sampler: EntityOption) => updateField('sampler', sampler)}
               />
             </SelectField>
           )}

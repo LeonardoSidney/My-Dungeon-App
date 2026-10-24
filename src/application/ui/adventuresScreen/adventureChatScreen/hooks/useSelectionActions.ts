@@ -1,28 +1,17 @@
 import { useCallback } from 'react';
 import { Dispatch, SetStateAction } from 'react';
-import { Adventure, Character } from '@domain/entities';
+import { AdventureChatCharacter } from '@domain/controllers';
 import { handleCharacterSelect } from '../handleCharacterSelect';
-import { handleWorldMasterSelect } from '../handleWorldMasterSelect';
 
 interface UseSelectionActionsParams {
-    setCurrentAdventure: Dispatch<SetStateAction<Adventure>>;
-    setSelectedCharacter: Dispatch<SetStateAction<Character>>;
+    setSelectedCharacter: Dispatch<SetStateAction<AdventureChatCharacter>>;
 }
 
 export function useSelectionActions ({
-    setCurrentAdventure,
     setSelectedCharacter
 }: UseSelectionActionsParams) {
-    const handleWorldMasterSelectCallback = useCallback(
-        (adventure: Adventure) => {
-            const selectWorldMaster = handleWorldMasterSelect(setCurrentAdventure);
-            selectWorldMaster(adventure);
-        },
-        [setCurrentAdventure]
-    );
-
     const handleCharacterSelectCallback = useCallback(
-        (character: Character) => {
+        (character: AdventureChatCharacter) => {
             const selectCharacter = handleCharacterSelect(setSelectedCharacter);
             selectCharacter(character);
         },
@@ -30,7 +19,6 @@ export function useSelectionActions ({
     );
 
     return {
-        handleWorldMasterSelect: handleWorldMasterSelectCallback,
         handleCharacterSelect: handleCharacterSelectCallback
     };
 }

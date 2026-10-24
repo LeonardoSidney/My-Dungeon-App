@@ -28,68 +28,68 @@ export class NativeStreamCompletionUseCase implements INativeStreamCompletionUse
             hasHydrated: Boolean(params.hydrated),
         });
 
-        try {
-            this.validate(params);
+        const validationError = this.validate(params);
+        if (validationError) {
+            return { success: false, error: validationError };
+        }
 
-            const connection = await this.connectionRepository.getConnectionById(params.connectionId);
+        const connectionResponse = await this.connectionRepository.getConnectionById(params.connectionId);
+        if (!connectionResponse.success) {
+            this.logger.warning('NativeStreamCompletionUseCase::execute - failed to load connection', connectionResponse.error);
+            return { success: false, error: connectionResponse.error };
+        }
 
-            if (!connection) {
-                return {
-                    success: false,
-                    error: `Connection not found: ${params.connectionId}`,
-                };
-            }
+        const connection = connectionResponse.connection;
 
-            const resolveSampler = createSamplerResolver(this.samplerRepository, this.getSamplersService);
-            const sampler = await resolveSampler(params.samplerId);
-
-            if (!sampler) {
-                return {
-                    success: false,
-                    error: `Sampler not found: ${params.samplerId}`,
-                };
-            }
-
-            const { stream, abort } = this.gateway.streamCompletion({
-                connection,
-                sampler,
-                modelId: params.modelId,
-                prompt: params.prompt
-            });
-
-            return {
-                success: true,
-                stream,
-                abort,
-            };
-        } catch (error) {
-            if (error instanceof Error) {
-                this.logger.error('Error in NativeStreamCompletionUseCase::execute', error);
-                return {
-                    success: false,
-                    error: error.message || 'Native stream completion failed',
-                };
-            }
-
-            this.logger.error('Error in NativeStreamCompletionUseCase::execute', error);
+        if (!connection) {
             return {
                 success: false,
-                error: 'Native stream completion failed',
+                error: `Connection not found: ${params.connectionId}`,
             };
         }
+
+        const resolveSampler = createSamplerResolver(this.samplerRepository, this.getSamplersService);
+        const samplerResponse = await resolveSampler(params.samplerId);
+        if (!samplerResponse.success) {
+            this.logger.warning('NativeStreamCompletionUseCase::execute - failed to load sampler', samplerResponse.error);
+            return { success: false, error: samplerResponse.error };
+        }
+
+        const sampler = samplerResponse.sampler;
+        if (!sampler) {
+            return {
+                success: false,
+                error: `Sampler not found: ${params.samplerId}`,
+            };
+        }
+
+        const { stream, abort } = this.gateway.streamCompletion({
+            connection,
+            sampler,
+            modelId: params.modelId,
+            prompt: params.prompt
+        });
+
+        return {
+            success: true,
+            stream,
+            abort,
+        };
     }
 
-    private validate (params: NativeStreamCompletionUseCaseParams): void {
+    private validate (params: NativeStreamCompletionUseCaseParams): string | null {
         if (!params.connectionId?.trim()) {
-            throw new Error('Connection id is required');
+            return 'Connection id is required';
         }
 
         if (!params.samplerId?.trim()) {
-            throw new Error('Sampler id is required');
+            return 'Sampler id is required';
         }
 
         if (!params.prompt?.trim()) {
-            throw new Error('Prompt is required');
+            return 'Prompt is required';
         }
+
+        return null;
     }
 }

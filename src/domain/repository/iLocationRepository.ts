@@ -1,9 +1,9 @@
 import { Location } from '../entities';
 
 export interface ILocationRepository {
-    saveLocation (params: SaveLocationParams): Promise<boolean>;
-    getLocations (): Promise<Location[]>;
-    getLocationById (locationId: string): Promise<Location | undefined>;
+    saveLocation (params: SaveLocationParams): Promise<SaveLocationRepositoryReturn>;
+    getLocations (): Promise<GetLocationsRepositoryReturn>;
+    getLocationById (locationId: string): Promise<GetLocationByIdRepositoryReturn>;
     editLocation (params: EditLocationParams): Promise<EditLocationReturn>;
     eraseLocation (locationId: string): Promise<EraseLocationReturn>;
 }
@@ -14,6 +14,23 @@ export type SaveLocationParams = {
 
 export type EditLocationParams = {
     location: Location;
+};
+
+export type SaveLocationRepositoryReturn = {
+    success: boolean;
+    error?: string;
+};
+
+export type GetLocationsRepositoryReturn = {
+    success: boolean;
+    locations?: Location[];
+    error?: string;
+};
+
+export type GetLocationByIdRepositoryReturn = {
+    success: boolean;
+    location?: Location;
+    error?: string;
 };
 
 export type EditLocationReturn = {

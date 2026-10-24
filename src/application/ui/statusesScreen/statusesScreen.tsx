@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Status } from '@domain/entities';
+import { ActivationPromptDetails, ActivationPromptListItem } from '@domain/controllers';
 import { styles } from './styles';
 import { ActivationPromptForm, CrudEntityList, type ActivationPromptFormData } from '@application/ui/components';
 import { useEntityScreen } from '@application/ui/hooks';
@@ -9,7 +9,7 @@ import { statusFormConfig } from './constants';
 import { initialStatusForm, submitStatus, toFormState, validateStatusForm } from './form';
 
 export function StatusesScreen () {
-  const { getStatuses, createStatus, editStatus, eraseStatus, alert } = useControllers();
+  const { getStatuses, getStatus, createStatus, editStatus, eraseStatus, alert } = useControllers();
 
   const {
     entities,
@@ -24,10 +24,11 @@ export function StatusesScreen () {
     formErrors,
     save,
     eraseEntity,
-  } = useEntityScreen<Status, ActivationPromptFormData>({
+  } = useEntityScreen<ActivationPromptListItem, ActivationPromptFormData, ActivationPromptDetails>({
     fetch: () => getStatuses.handle(),
+    load: (id) => getStatus.handle({ id }),
     submit: (statusForm) => submitStatus(statusForm, createStatus, editStatus),
-    erase: (id) => eraseStatus.handle(id),
+    erase: (id) => eraseStatus.handle({ id }),
     toFormState,
     initialForm: initialStatusForm,
     validate: validateStatusForm,

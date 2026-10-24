@@ -1,4 +1,3 @@
-import { Connection } from '../entities';
 
 export interface ICreateConnectionConfigController {
     handle(request: CreateConnectionConfigControllerRequest): Promise<CreateConnectionConfigControllerResponse>;
@@ -13,6 +12,6 @@ export type CreateConnectionConfigControllerRequest = {
 
 export type CreateConnectionConfigControllerResponse = {
     success: boolean;
-    connection?: Connection;
+    id?: string;
     error?: string;
 };

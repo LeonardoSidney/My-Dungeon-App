@@ -5,13 +5,18 @@ import {
 } from '@infra/container';
 import { logger } from '@infra/container/shared';
 import { SeedProficiency } from './types';
-import { nameIndex } from './shared';
+import { nameIndex, listItems, MigrationReturn } from './shared';
 
-export async function seedProficiencies (seeds: SeedProficiency[]): Promise<void> {
+export async function seedProficiencies (seeds: SeedProficiency[]): Promise<MigrationReturn> {
     const createProficiency = createProficiencyController();
     const editProficiency = editProficiencyController();
     const getProficiencies = getProficienciesController();
-    const existing = await getProficiencies.handle();
+    const existingResponse = listItems(await getProficiencies.handle(), 'proficiencies');
+    if (!existingResponse.success || !existingResponse.items) {
+        return { success: false, error: existingResponse.error };
+    }
+
+    const existing = existingResponse.items;
     const existingIndex = nameIndex(existing);
     logger.info(`Migration: seeding proficiencies (${seeds.length} seed(s))`);
 
@@ -20,7 +25,7 @@ export async function seedProficiencies (seeds: SeedProficiency[]): Promise<void
         if (!current) {
             const response = await createProficiency.handle(seed);
             if (!response.success) {
-                throw new Error(`Migration: failed to create proficiency "${seed.name}": ${response.error}`);
+                return { success: false, error: `Migration: failed to create proficiency "${seed.name}": ${response.error}` };
             }
             continue;
         }
@@ -35,7 +40,9 @@ export async function seedProficiencies (seeds: SeedProficiency[]): Promise<void
             },
         });
         if (!response.success) {
-            throw new Error(`Migration: failed to restore proficiency "${seed.name}": ${response.error}`);
+            return { success: false, error: `Migration: failed to restore proficiency "${seed.name}": ${response.error}` };
         }
     }
+
+    return { success: true };
 }

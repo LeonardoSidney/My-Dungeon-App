@@ -1,4 +1,3 @@
-import { SystemPrompt } from '../entities';
 
 export interface ICreateSystemPromptController {
     handle(request: CreateSystemPromptRequest): Promise<CreateSystemPromptResponse>;
@@ -12,6 +11,6 @@ export type CreateSystemPromptRequest = {
 
 export type CreateSystemPromptResponse = {
     success: boolean;
-    systemPrompt?: SystemPrompt;
+    id?: string;
     error?: string;
 };

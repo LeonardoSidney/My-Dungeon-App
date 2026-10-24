@@ -2,33 +2,49 @@ import {
     CreateAdventureController,
     EditAdventureController,
     GetAdventuresController,
+    GetAdventureController,
     AppendChatAdventureController,
-    EditChatAdventureController,
+    AddChatVersionController,
     DeleteChatAdventureController,
-    EditThinkAdventureController,
-    DeleteThinkAdventureController,
+    DeleteChatVersionController,
+    AddThinkVersionController,
+    DeleteThinkVersionController,
     ContinueFromChatController,
     RegenerateFromChatController,
     ResendChatController,
-    CreateChatAdventureController,
     EraseAdventuresController,
     EraseAdventureController,
-    GetAdventureTextController,
     GetAdventureSystemPromptController,
-    StartStreamingChatController,
-    UpdateStreamingChatController,
-    FinishStreamingChatController,
-    IsAdventureStreamingController,
-    HydrateAdventureController,
+    GetAdventureTemplatedPromptController,
+    SelectChatVersionController,
+    SetAdventureWorldMasterController,
+    GetAdventureCharactersController,
+    GetAdventureWorldMasterController,
+    GetAdventureSummaryController,
+    GetChatMessagesController,
+    GetChatMessageController,
+    GenerateChatReplyController,
+    StopChatReplyController,
+    SubscribeChatReplyController,
+    RecoverInterruptedRepliesController,
 } from '@adapters/controllers';
+import {
+    ChatMessagesPresenter,
+    GetAdventureCharactersPresenter,
+    GetAdventureWorldMasterPresenter,
+    GetAdventureSummaryPresenter,
+    GetAdventurePresenter,
+    GetAdventuresPresenter,
+} from '@adapters/presenters';
 import {
     CreateAdventureService,
     EditAdventureService,
     AppendChatAdventureService,
-    EditChatAdventureService,
+    AddChatVersionService,
     DeleteChatAdventureService,
-    EditThinkAdventureService,
-    DeleteThinkAdventureService,
+    DeleteChatVersionService,
+    AddThinkVersionService,
+    DeleteThinkVersionService,
     ContinueFromChatService,
     RegenerateFromChatService,
     ResendChatService,
@@ -36,60 +52,80 @@ import {
     StartStreamingChatService,
     UpdateStreamingChatService,
     FinishStreamingChatService,
-    IsAdventureStreamingService,
     GetSamplersService,
     TextGenerationTemplatesService,
     HydrateAdventureService,
+    SelectChatVersionService,
+    SetAdventureWorldMasterService,
+    RecoverInterruptedChatsService,
 } from '@application/services';
 import {
     CreateAdventureUseCase,
     EditAdventureUseCase,
-    GetAdventureUseCase,
-    GetAdventureTextUseCase,
+    GetAdventuresUseCase,
+    GetAdventureByIdUseCase,
+    GetAdventureTemplatedPromptUseCase,
     GetAdventureSystemPromptUseCase,
     AppendChatAdventureUseCase,
-    EditChatAdventureUseCase,
+    AddChatVersionUseCase,
     DeleteChatAdventureUseCase,
-    EditThinkAdventureUseCase,
-    DeleteThinkAdventureUseCase,
+    DeleteChatVersionUseCase,
+    AddThinkVersionUseCase,
+    DeleteThinkVersionUseCase,
     ContinueFromChatUseCase,
     RegenerateFromChatUseCase,
     ResendChatUseCase,
-    CreateChatAdventureUseCase,
     EraseAdventuresUseCase,
     EraseAdventureUseCase,
     StartStreamingChatUseCase,
     UpdateStreamingChatUseCase,
     FinishStreamingChatUseCase,
-    IsAdventureStreamingUseCase,
     HydrateAdventureUseCase,
+    SelectChatVersionUseCase,
+    SetAdventureWorldMasterUseCase,
+    GetAdventureCharactersUseCase,
+    GetAdventureWorldMasterUseCase,
+    GetChatMessagesUseCase,
+    GetChatByIdUseCase,
+    GenerateChatReplyUseCase,
+    StopChatReplyUseCase,
+    SubscribeChatReplyUseCase,
+    RecoverInterruptedRepliesUseCase,
+    NativeStreamCompletionUseCase,
 } from '@application/use-cases';
 import {
     ICreateAdventureController,
     IEditAdventureController,
     IGetAdventuresController,
+    IGetAdventureController,
     IAppendChatAdventureController,
-    IEditChatAdventureController,
+    IAddChatVersionController,
     IDeleteChatAdventureController,
-    IEditThinkAdventureController,
-    IDeleteThinkAdventureController,
+    IDeleteChatVersionController,
+    IAddThinkVersionController,
+    IDeleteThinkVersionController,
     IContinueFromChatController,
     IRegenerateFromChatController,
     IResendChatController,
-    ICreateChatAdventureController,
     IEraseAdventuresController,
     IEraseAdventureController,
-    IGetAdventureTextController,
     IGetAdventureSystemPromptController,
-    IStartStreamingChatController,
-    IUpdateStreamingChatController,
-    IFinishStreamingChatController,
-    IIsAdventureStreamingController,
-    IHydrateAdventureController,
+    IGetAdventureTemplatedPromptController,
+    ISelectChatVersionController,
+    ISetAdventureWorldMasterController,
+    IGetAdventureCharactersController,
+    IGetAdventureWorldMasterController,
+    IGetAdventureSummaryController,
+    IGetChatMessagesController,
+    IGetChatMessageController,
+    IGenerateChatReplyController,
+    IStopChatReplyController,
+    ISubscribeChatReplyController,
+    IRecoverInterruptedRepliesController,
 } from '@domain/controllers';
 import { IHydrateAdventureUseCase } from '@domain/use-cases';
 import { IHydrateAdventureService } from '@domain/services';
-import { idGenerate, logger, storage, getStreamProvider } from './shared';
+import { idGenerate, logger, storage, getStreamProvider, chatReplyBus, chatReplyRegistry } from './shared';
 import {
     createAbilityRepository,
     createAdventureRepository,
@@ -105,7 +141,7 @@ import {
     createWorldMasterRepository,
     createWorldRepository,
 } from './repository';
-import { LlamaCppOAGateway } from '../http/llama-cpp';
+import { LlamaCppOAGateway, LlamaCppNativeGateway } from '../http/llama-cpp';
 import { TextGeneration } from '../providers/textGeneration';
 
 export function createHydrateAdventureService (): IHydrateAdventureService {
@@ -128,8 +164,10 @@ export function createHydrateAdventureService (): IHydrateAdventureService {
 }
 
 export function createHydrateAdventureUseCase (): IHydrateAdventureUseCase {
+    const adventureRepository = createAdventureRepository(storage, logger);
     return new HydrateAdventureUseCase(
         logger,
+        adventureRepository,
         createHydrateAdventureService()
     );
 }
@@ -170,8 +208,14 @@ export function editAdventureController (): IEditAdventureController {
 
 export function getAdventuresController (): IGetAdventuresController {
     const adventureRepository = createAdventureRepository(storage, logger);
-    const getAdventuresUseCase = new GetAdventureUseCase(logger, adventureRepository);
-    return new GetAdventuresController(logger, getAdventuresUseCase);
+    const getAdventuresUseCase = new GetAdventuresUseCase(logger, adventureRepository);
+    return new GetAdventuresController(logger, getAdventuresUseCase, new GetAdventuresPresenter());
+}
+
+export function getAdventureController (): IGetAdventureController {
+    const adventureRepository = createAdventureRepository(storage, logger);
+    const getAdventureUseCase = new GetAdventureByIdUseCase(logger, adventureRepository);
+    return new GetAdventureController(logger, getAdventureUseCase, new GetAdventurePresenter());
 }
 
 export function appendChatAdventureController (): IAppendChatAdventureController {
@@ -180,31 +224,32 @@ export function appendChatAdventureController (): IAppendChatAdventureController
     const appendChatAdventureUseCase = new AppendChatAdventureUseCase(
         logger,
         adventureRepository,
-        appendChatAdventureService
+        appendChatAdventureService,
+        new CreateChatService(logger, idGenerate)
     );
     return new AppendChatAdventureController(logger, appendChatAdventureUseCase);
 }
 
-export function editChatAdventureController (): IEditChatAdventureController {
+export function addChatVersionController (): IAddChatVersionController {
     const adventureRepository = createAdventureRepository(storage, logger);
-    const editChatAdventureService = new EditChatAdventureService(logger);
-    const editChatAdventureUseCase = new EditChatAdventureUseCase(
+    const addChatVersionService = new AddChatVersionService(logger);
+    const addChatVersionUseCase = new AddChatVersionUseCase(
         logger,
-        editChatAdventureService,
+        addChatVersionService,
         adventureRepository
     );
-    return new EditChatAdventureController(logger, editChatAdventureUseCase);
+    return new AddChatVersionController(logger, addChatVersionUseCase);
 }
 
-export function editThinkAdventureController (): IEditThinkAdventureController {
+export function addThinkVersionController (): IAddThinkVersionController {
     const adventureRepository = createAdventureRepository(storage, logger);
-    const editThinkAdventureService = new EditThinkAdventureService(logger, idGenerate);
-    const editThinkAdventureUseCase = new EditThinkAdventureUseCase(
+    const addThinkVersionService = new AddThinkVersionService(logger, idGenerate);
+    const addThinkVersionUseCase = new AddThinkVersionUseCase(
         logger,
-        editThinkAdventureService,
+        addThinkVersionService,
         adventureRepository
     );
-    return new EditThinkAdventureController(logger, editThinkAdventureUseCase);
+    return new AddThinkVersionController(logger, addThinkVersionUseCase);
 }
 
 export function deleteChatAdventureController (): IDeleteChatAdventureController {
@@ -218,15 +263,21 @@ export function deleteChatAdventureController (): IDeleteChatAdventureController
     return new DeleteChatAdventureController(logger, deleteChatAdventureUseCase);
 }
 
-export function deleteThinkAdventureController (): IDeleteThinkAdventureController {
+export function deleteThinkVersionController (): IDeleteThinkVersionController {
     const adventureRepository = createAdventureRepository(storage, logger);
-    const deleteThinkAdventureService = new DeleteThinkAdventureService(logger);
-    const deleteThinkAdventureUseCase = new DeleteThinkAdventureUseCase(
+    const deleteThinkVersionService = new DeleteThinkVersionService(logger);
+    const deleteThinkVersionUseCase = new DeleteThinkVersionUseCase(
         logger,
-        deleteThinkAdventureService,
+        deleteThinkVersionService,
         adventureRepository
     );
-    return new DeleteThinkAdventureController(logger, deleteThinkAdventureUseCase);
+    return new DeleteThinkVersionController(logger, deleteThinkVersionUseCase);
+}
+
+export function deleteChatVersionController (): IDeleteChatVersionController {
+    const adventureRepository = createAdventureRepository(storage, logger);
+    const useCase = new DeleteChatVersionUseCase(logger, new DeleteChatVersionService(logger), adventureRepository);
+    return new DeleteChatVersionController(logger, useCase);
 }
 
 export function continueFromChatController (): IContinueFromChatController {
@@ -262,12 +313,6 @@ export function resendChatController (): IResendChatController {
     return new ResendChatController(logger, resendChatUseCase);
 }
 
-export function createChatAdventureController (): ICreateChatAdventureController {
-    const createChatService = new CreateChatService(logger, idGenerate);
-    const createChatAdventureUseCase = new CreateChatAdventureUseCase(logger, createChatService);
-    return new CreateChatAdventureController(logger, createChatAdventureUseCase);
-}
-
 export function eraseAdventuresController (): IEraseAdventuresController {
     const adventureRepository = createAdventureRepository(storage, logger);
     const eraseAdventuresUseCase = new EraseAdventuresUseCase(logger, adventureRepository);
@@ -280,51 +325,123 @@ export function eraseAdventureController (): IEraseAdventureController {
     return new EraseAdventureController(logger, eraseAdventureUseCase);
 }
 
-export function getAdventureTextController (): IGetAdventureTextController {
-    const textGenerationTemplatesService = new TextGenerationTemplatesService(logger);
-    const textGeneration = new TextGeneration(logger, textGenerationTemplatesService);
-    const llamaCppOAGateway = new LlamaCppOAGateway(logger, getStreamProvider());
-    const hydrateAdventureService = createHydrateAdventureService();
-    const getAdventureTextUseCase = new GetAdventureTextUseCase(logger, textGeneration, llamaCppOAGateway, hydrateAdventureService);
-    return new GetAdventureTextController(logger, getAdventureTextUseCase);
-}
-
 export function getAdventureSystemPromptController (): IGetAdventureSystemPromptController {
+    const textGeneration = new TextGeneration(logger, new TextGenerationTemplatesService(logger));
+    const useCase = new GetAdventureSystemPromptUseCase(logger, textGeneration, createHydrateAdventureService(), createAdventureRepository(storage, logger));
+    return new GetAdventureSystemPromptController(logger, useCase);
+}
+
+export function getAdventureTemplatedPromptController (): IGetAdventureTemplatedPromptController {
+    const textGeneration = new TextGeneration(logger, new TextGenerationTemplatesService(logger));
+    const useCase = new GetAdventureTemplatedPromptUseCase(
+        logger,
+        textGeneration,
+        new LlamaCppOAGateway(logger, getStreamProvider()),
+        createHydrateAdventureService(),
+        createAdventureRepository(storage, logger)
+    );
+    return new GetAdventureTemplatedPromptController(logger, useCase);
+}
+
+export function selectChatVersionController (): ISelectChatVersionController {
+    const adventureRepository = createAdventureRepository(storage, logger);
+    const service = new SelectChatVersionService(logger);
+    const useCase = new SelectChatVersionUseCase(logger, service, adventureRepository);
+    return new SelectChatVersionController(logger, useCase);
+}
+
+export function setAdventureWorldMasterController (): ISetAdventureWorldMasterController {
+    const adventureRepository = createAdventureRepository(storage, logger);
+    const worldMasterRepository = createWorldMasterRepository(storage, logger);
+    const service = new SetAdventureWorldMasterService(logger);
+    const useCase = new SetAdventureWorldMasterUseCase(logger, service, adventureRepository, worldMasterRepository);
+    return new SetAdventureWorldMasterController(logger, useCase);
+}
+
+export function getAdventureCharactersController (): IGetAdventureCharactersController {
+    const useCase = new GetAdventureCharactersUseCase(
+        logger,
+        createAdventureRepository(storage, logger),
+        createCharacterRepository(storage, logger)
+    );
+    return new GetAdventureCharactersController(logger, useCase, new GetAdventureCharactersPresenter());
+}
+
+export function getAdventureWorldMasterController (): IGetAdventureWorldMasterController {
+    const useCase = new GetAdventureWorldMasterUseCase(
+        logger,
+        createAdventureRepository(storage, logger),
+        createWorldMasterRepository(storage, logger)
+    );
+    return new GetAdventureWorldMasterController(logger, useCase, new GetAdventureWorldMasterPresenter());
+}
+
+export function getAdventureSummaryController (): IGetAdventureSummaryController {
+    const useCase = new GetAdventureByIdUseCase(logger, createAdventureRepository(storage, logger));
+    return new GetAdventureSummaryController(logger, useCase, new GetAdventureSummaryPresenter());
+}
+
+export function generateChatReplyController (): IGenerateChatReplyController {
+    const adventureRepository = createAdventureRepository(storage, logger);
     const textGenerationTemplatesService = new TextGenerationTemplatesService(logger);
     const textGeneration = new TextGeneration(logger, textGenerationTemplatesService);
     const hydrateAdventureService = createHydrateAdventureService();
-    const getAdventureSystemPromptUseCase = new GetAdventureSystemPromptUseCase(logger, textGeneration, hydrateAdventureService);
-    return new GetAdventureSystemPromptController(logger, getAdventureSystemPromptUseCase);
+    const getAdventureTemplatedPromptUseCase = new GetAdventureTemplatedPromptUseCase(
+        logger,
+        textGeneration,
+        new LlamaCppOAGateway(logger, getStreamProvider()),
+        hydrateAdventureService,
+        adventureRepository
+    );
+    const nativeStreamCompletionUseCase = new NativeStreamCompletionUseCase(
+        logger,
+        new LlamaCppNativeGateway(logger, getStreamProvider()),
+        createConnectionRepository(storage, logger),
+        createSamplerRepository(storage, logger),
+        new GetSamplersService(logger)
+    );
+    const useCase = new GenerateChatReplyUseCase(
+        logger,
+        idGenerate,
+        createHydrateAdventureUseCase(),
+        getAdventureTemplatedPromptUseCase,
+        nativeStreamCompletionUseCase,
+        new StartStreamingChatUseCase(logger, new StartStreamingChatService(logger, idGenerate), adventureRepository),
+        new UpdateStreamingChatUseCase(logger, new UpdateStreamingChatService(logger), adventureRepository),
+        new FinishStreamingChatUseCase(logger, new FinishStreamingChatService(logger), adventureRepository),
+        new DeleteChatAdventureUseCase(logger, new DeleteChatAdventureService(logger), adventureRepository),
+        new DeleteChatVersionUseCase(logger, new DeleteChatVersionService(logger), adventureRepository),
+        chatReplyBus,
+        chatReplyRegistry
+    );
+    return new GenerateChatReplyController(logger, useCase);
 }
 
-export function hydrateAdventureController (): IHydrateAdventureController {
-    const hydrateAdventureUseCase = createHydrateAdventureUseCase();
-    return new HydrateAdventureController(logger, hydrateAdventureUseCase);
+export function getChatMessagesController (): IGetChatMessagesController {
+    const useCase = new GetChatMessagesUseCase(logger, createAdventureRepository(storage, logger));
+    return new GetChatMessagesController(logger, useCase, new ChatMessagesPresenter());
 }
 
-export function startStreamingChatController (): IStartStreamingChatController {
-    const adventureRepository = createAdventureRepository(storage, logger);
-    const startStreamingChatService = new StartStreamingChatService(logger, idGenerate);
-    const startStreamingChatUseCase = new StartStreamingChatUseCase(logger, startStreamingChatService, adventureRepository);
-    return new StartStreamingChatController(logger, startStreamingChatUseCase);
+export function getChatMessageController (): IGetChatMessageController {
+    const useCase = new GetChatByIdUseCase(logger, createAdventureRepository(storage, logger));
+    return new GetChatMessageController(logger, useCase, new ChatMessagesPresenter());
 }
 
-export function updateStreamingChatController (): IUpdateStreamingChatController {
-    const adventureRepository = createAdventureRepository(storage, logger);
-    const updateStreamingChatService = new UpdateStreamingChatService(logger);
-    const updateStreamingChatUseCase = new UpdateStreamingChatUseCase(logger, updateStreamingChatService, adventureRepository);
-    return new UpdateStreamingChatController(logger, updateStreamingChatUseCase);
+export function stopChatReplyController (): IStopChatReplyController {
+    return new StopChatReplyController(logger, new StopChatReplyUseCase(logger, chatReplyRegistry));
 }
 
-export function finishStreamingChatController (): IFinishStreamingChatController {
-    const adventureRepository = createAdventureRepository(storage, logger);
-    const finishStreamingChatService = new FinishStreamingChatService(logger);
-    const finishStreamingChatUseCase = new FinishStreamingChatUseCase(logger, finishStreamingChatService, adventureRepository);
-    return new FinishStreamingChatController(logger, finishStreamingChatUseCase);
+export function subscribeChatReplyController (): ISubscribeChatReplyController {
+    return new SubscribeChatReplyController(logger, new SubscribeChatReplyUseCase(logger, chatReplyBus, chatReplyRegistry));
 }
 
-export function isAdventureStreamingController (): IIsAdventureStreamingController {
-    const isAdventureStreamingService = new IsAdventureStreamingService(logger);
-    const isAdventureStreamingUseCase = new IsAdventureStreamingUseCase(logger, isAdventureStreamingService);
-    return new IsAdventureStreamingController(logger, isAdventureStreamingUseCase);
+export function recoverInterruptedRepliesController (): IRecoverInterruptedRepliesController {
+    const service = new RecoverInterruptedChatsService(
+        logger,
+        new FinishStreamingChatService(logger),
+        new DeleteChatVersionService(logger),
+        new DeleteChatAdventureService(logger)
+    );
+    const useCase = new RecoverInterruptedRepliesUseCase(logger, createAdventureRepository(storage, logger), service, chatReplyRegistry);
+    return new RecoverInterruptedRepliesController(logger, useCase);
 }

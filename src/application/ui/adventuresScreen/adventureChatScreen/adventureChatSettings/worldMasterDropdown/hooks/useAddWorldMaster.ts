@@ -8,16 +8,16 @@ export function useAddWorldMaster ({
     getWorldMasters
 }: UseAddWorldMasterParams) {
     const handleAddWorldMaster = useCallback(async () => {
-        try {
-            const response = await getWorldMasters.handle();
-            if (Array.isArray(response)) {
-                const filteredMasters = response.filter(wm => wm.id !== adventureWorldMasterId);
-                setWorldMasters(filteredMasters);
-                startAdding();
-            }
-        } catch (error) {
-            console.error('Error loading world masters:', error);
+        const response = await getWorldMasters.handle();
+        if (!response.success || !response.items) {
+            console.error('Error loading world masters:', response.error);
+            return;
         }
+
+        setWorldMasters(response.items
+            .filter(wm => wm.id !== adventureWorldMasterId)
+            .map(wm => ({ id: wm.id, name: wm.name })));
+        startAdding();
     }, [adventureWorldMasterId, setWorldMasters, startAdding, getWorldMasters]);
 
     return { handleAddWorldMaster };

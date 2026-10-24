@@ -10,12 +10,19 @@ export class CreateWorldController implements ICreateWorldController {
 
     async handle (request: CreateWorldRequest): Promise<CreateWorldResponse> {
         this.logger.info('Executing CreateWorldController::handle');
+        this.logger.debug('CreateWorldController::handle - params', request);
         const { name, activationWord, prompt, observation } = request;
-        return this.useCase.execute({
+        const response = await this.useCase.execute({
             name,
             activationWord,
             prompt,
             observation
         });
+
+        return {
+            success: response.success,
+            id: response.id,
+            error: response.error,
+        };
     }
 }

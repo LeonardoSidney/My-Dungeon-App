@@ -1,4 +1,3 @@
-import { Ability } from '../entities';
 import { AbilityEditParams } from '../services';
 
 export interface IEditAbilityController {
@@ -11,7 +10,7 @@ export type EditAbilityControllerParams = {
 };
 
 export type EditAbilityControllerResponse = {
-    ability?: Ability;
+    id?: string;
     success: boolean;
     error?: string;
 };

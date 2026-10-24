@@ -3,9 +3,9 @@ import { useMessageState } from './useMessageState';
 import { useCharacterSelection } from './useCharacterSelection';
 import { useSettingsVisibility } from './useSettingsVisibility';
 
-export function useAdventureChatState ({ hydratedCharacters }: UseAdventureChatStateParams) {
+export function useAdventureChatState ({ characters }: UseAdventureChatStateParams) {
     const { message, setMessage } = useMessageState();
-    const { selectedCharacter, setSelectedCharacter } = useCharacterSelection({ characters: hydratedCharacters });
+    const { selectedCharacter, setSelectedCharacter } = useCharacterSelection({ characters });
     const { showSettings, setShowSettings } = useSettingsVisibility();
 
     return {

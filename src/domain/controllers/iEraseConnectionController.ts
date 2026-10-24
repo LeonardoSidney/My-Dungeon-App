@@ -4,5 +4,9 @@ export type EraseConnectionControllerResponse = {
 };
 
 export interface IEraseConnectionController {
-    handle(connectionId: string): Promise<EraseConnectionControllerResponse>;
+    handle (request: EraseConnectionControllerRequest): Promise<EraseConnectionControllerResponse>;
 }
+
+export type EraseConnectionControllerRequest = {
+    id: string;
+};

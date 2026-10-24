@@ -4,3 +4,7 @@ export * from './iIdGenerator';
 export * from './ITextGeneration';
 export * from './iStreamProvider';
 export * from './iSseLineParser';
+export * from './iChatReplyChannel';
+export * from './iKeyedEventChannel';
+export * from './iStreamSessionRegistry';
+export * from './iDraftChannel';

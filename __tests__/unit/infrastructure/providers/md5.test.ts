@@ -56,4 +56,20 @@ describe('MD5Provider', () => {
     it('hashes "aoctofeiradotio"', () => {
         expect(provider.md5('aoctofeiradotio')).toBe('e69ee959977f55dd35fc6d4fd9285d0a');
     });
+
+    it('hashes characters encoded as three utf-8 bytes', () => {
+        expect(provider.md5('日本語')).toBe('00110af8b4393ef3f72c50be5b332bec');
+    });
+
+    it('hashes characters outside the basic multilingual plane as four utf-8 bytes', () => {
+        expect(provider.md5('😀')).toBe('2a02eac39d716a70ecf37579185927b6');
+    });
+
+    it('hashes input mixing every utf-8 byte length', () => {
+        expect(provider.md5('a€😀')).toBe('68d93cee5a09f233b10b4f32a0b91a20');
+    });
+
+    it('hashes lone surrogates as the utf-8 replacement character', () => {
+        expect(provider.md5('a\uD800b')).toBe('ff6405018d5ab2642e35fdba389b7c51');
+    });
 });

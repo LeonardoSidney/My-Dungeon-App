@@ -3,19 +3,26 @@ import {
     GetCharactersController,
     EditCharacterController,
     EraseCharacterController,
+    GetCharacterController,
 } from '@adapters/controllers';
+import {
+    GetCharacterPresenter,
+    GetCharactersPresenter,
+} from '@adapters/presenters';
 import { CreateCharacterService, EditCharacterService } from '@application/services';
 import {
     CreateCharacterUseCase,
     GetCharactersUseCase,
     EditCharacterUseCase,
     EraseCharacterUseCase,
+    GetCharacterByIdUseCase,
 } from '@application/use-cases';
 import {
     ICreateCharacterController,
     IGetCharactersController,
     IEditCharacterController,
     IEraseCharacterController,
+    IGetCharacterController,
 } from '@domain/controllers';
 import { idGenerate, logger, storage } from './shared';
 import {
@@ -44,7 +51,7 @@ export function createCharacterController (): ICreateCharacterController {
 export function getCharactersController (): IGetCharactersController {
     const characterRepository = createCharacterRepository(storage, logger);
     const getCharactersUseCase = new GetCharactersUseCase(logger, characterRepository);
-    return new GetCharactersController(logger, getCharactersUseCase);
+    return new GetCharactersController(logger, getCharactersUseCase, new GetCharactersPresenter());
 }
 
 export function editCharacterController (): IEditCharacterController {
@@ -66,4 +73,9 @@ export function eraseCharacterController (): IEraseCharacterController {
     const characterRepository = createCharacterRepository(storage, logger);
     const eraseCharacterUseCase = new EraseCharacterUseCase(logger, characterRepository);
     return new EraseCharacterController(logger, eraseCharacterUseCase);
+}
+
+export function getCharacterController (): IGetCharacterController {
+    const useCase = new GetCharacterByIdUseCase(logger, createCharacterRepository(storage, logger));
+    return new GetCharacterController(logger, useCase, new GetCharacterPresenter());
 }
