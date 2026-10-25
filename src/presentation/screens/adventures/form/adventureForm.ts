@@ -11,10 +11,8 @@ export type AdventureFormData = {
     id: string;
     name: string;
     systemPrompts: EntityOption[];
-    /** Characters controlled by the player. */
     characters: EntityOption[];
     worldMaster?: EntityOption;
-    /** A character acting as world master, used when no world master is selected. */
     characterAsWorldMasterId?: string;
     charactersControlledByAi: string[];
     worlds: EntityOption[];

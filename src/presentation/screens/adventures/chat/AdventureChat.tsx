@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { AdventureChatCharacter, AdventureChatWorldMaster, ChatMessageView } from '@domain/controllers';
 import { useKeyboardHeight } from '@presentation/hooks';
@@ -42,7 +42,6 @@ export function AdventureChat ({
   const [editingChatId, setEditingChatId] = useState<string | null>(null);
   const [editingThinkChatId, setEditingThinkChatId] = useState<string | null>(null);
 
-  // Derived instead of stored, so it stays valid when the character list changes.
   const selectedCharacter = characters.find(character => character.id === selectedCharacterId) ?? characters[0];
 
   const characterNameById = useMemo(() => {
@@ -53,6 +52,11 @@ export function AdventureChat ({
     }
     return names;
   }, [characters, worldMaster]);
+
+  const clearEditing = useCallback(() => setEditingChatId(null), []);
+  const handleCharacterSelect = useCallback((character: AdventureChatCharacter) => {
+    setSelectedCharacterId(character.id);
+  }, []);
 
   const replies = useChatReplies({
     adventureId,
@@ -70,7 +74,7 @@ export function AdventureChat ({
     adventureId,
     selectedCharacter,
     editingChatId,
-    clearEditing: () => setEditingChatId(null),
+    clearEditing,
     reloadMessages: replies.reloadMessages,
     streamReply: replies.streamReply,
     appendChatAdventure: controllers.appendChatAdventure,
@@ -137,7 +141,7 @@ export function AdventureChat ({
         onResend={composer.resend}
         characters={characters}
         selectedCharacter={selectedCharacter}
-        onCharacterSelect={character => setSelectedCharacterId(character.id)}
+        onCharacterSelect={handleCharacterSelect}
       />
     </View>
   );

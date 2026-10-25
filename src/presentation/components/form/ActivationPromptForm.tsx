@@ -19,9 +19,7 @@ export type ActivationPromptFormErrors = {
 export type ActivationPromptFormConfig = {
   entityName: string;
   namePlaceholder: string;
-  /** Omit to hide the activation word field. */
   activationPlaceholder?: string;
-  /** Omit to hide the prompt field. */
   promptPlaceholder?: string;
 };
 
@@ -32,7 +30,6 @@ type ActivationPromptFormProps = {
   onChange: (field: keyof ActivationPromptFormData, value: string) => void;
   onCancel: () => void;
   onSave: () => void;
-  /** Entity specific fields rendered after the common ones. */
   children?: ReactNode;
 };
 

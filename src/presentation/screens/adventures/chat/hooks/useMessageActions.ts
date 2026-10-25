@@ -24,16 +24,10 @@ type UseMessageActionsParams = {
     streamReply: StreamReply;
     setEditingChatId: (chatId: string | null) => void;
     setEditingThinkChatId: (chatId: string | null) => void;
-    /** Puts text back into the input, used when a deleted message is offered for rewriting. */
     setComposerMessage: (message: string) => void;
     controllers: MessageControllers;
 };
 
-/**
- * Builds the actions of every chat message. The object is memoized and does
- * not depend on the message list, so a streaming update does not re-render
- * the messages that did not change.
- */
 export function useMessageActions ({
     adventureId,
     reloadMessages,
@@ -74,7 +68,6 @@ export function useMessageActions ({
 
         return {
             deleteMessage: async (message: ChatMessageView) => {
-                // Deleting the only version removes the message and hands its text back to the input.
                 const hasOtherVersions = message.contentCount > 1;
                 const response = hasOtherVersions
                     ? await deleteChatVersion.handle({ adventureId, chatId: message.id, versionIndex: message.contentIndex })

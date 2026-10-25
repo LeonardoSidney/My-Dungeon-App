@@ -25,7 +25,6 @@ export function useWorldMasterPicker ({
     alert,
 }: UseWorldMasterPickerParams) {
     const [isOpen, setIsOpen] = useState(false);
-    /** The world masters offered as replacement; `null` until the user asks for them. */
     const [candidates, setCandidates] = useState<AdventureChatWorldMaster[] | null>(null);
 
     const toggle = useCallback(() => setIsOpen(open => !open), []);

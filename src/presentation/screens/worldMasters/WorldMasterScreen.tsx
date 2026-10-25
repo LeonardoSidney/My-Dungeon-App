@@ -25,6 +25,8 @@ const worldMasterFormConfig: ActivationPromptFormConfig = {
   promptPlaceholder: 'Enter the world master prompt...',
 };
 
+const getActivationWord = (entity: ActivationPromptListItem) => entity.activationWord;
+
 export function WorldMasterScreen () {
   const { getWorldMasters, getWorldMaster, getAssistants, createWorldMaster, editWorldMaster, eraseWorldMaster, alert } = useControllers();
   const assistants = useEntityList({ fetch: () => getAssistants.handle() });
@@ -54,7 +56,7 @@ export function WorldMasterScreen () {
         onAdd={screen.openAdd}
         onEdit={screen.openEdit}
         onDelete={screen.eraseEntity}
-        getDetailText={worldMaster => worldMaster.activationWord}
+        getDetailText={getActivationWord}
         form={screen.showForm && (
           <ActivationPromptForm
             formData={form}

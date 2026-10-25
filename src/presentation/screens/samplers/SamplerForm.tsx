@@ -13,7 +13,6 @@ type NumberField = {
   keyboardType: KeyboardTypeOptions;
 };
 
-/** Fields rendered side by side; a row with a single field takes the full width. */
 type FieldRow = NumberField[];
 
 const decimal = (key: TextFieldKey, label: string, placeholder: string): NumberField => ({ key, label, placeholder, keyboardType: 'decimal-pad' });

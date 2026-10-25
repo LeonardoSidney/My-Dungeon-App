@@ -13,19 +13,12 @@ type MultiSelectProps<T extends SelectItem> = {
   onToggle: (item: T) => void;
   /** Applies the error border (form validation). */
   hasError?: boolean;
-  /** Renders the selected items as removable tags below the list. */
   showTags?: boolean;
-  /** Tags to render when they differ from `selectedItems`. Defaults to `selectedItems`. */
   tagItems?: T[];
   /** Message displayed when there are no items. */
   emptyMessage?: string;
 };
 
-/**
- * Multi-selection list: renders the available items, highlights the
- * selected ones and reports every toggle via `onToggle`.
- * Controlled component — it owns no state.
- */
 export function MultiSelect<T extends SelectItem> ({
   items,
   selectedItems,

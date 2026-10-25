@@ -68,11 +68,11 @@ function RenderInlineElement ({ element }: RenderInlineElementProps): ReactNode 
   return null;
 }
 
-function RenderBlockElement ({ element }: RenderBlockElementProps): ReactNode {
+function RenderBlockElement ({ element, textStyle }: RenderBlockElementProps): ReactNode {
   switch (element.type) {
     case 'paragraph':
       return (
-        <Text key={element.key} style={[styles.text, styles.paragraph]}>
+        <Text key={element.key} style={[styles.text, styles.paragraph, textStyle]}>
           {element.children.map((child: InlineElement) => (
             <RenderInlineElement key={child.key} element={child} />
           ))}
@@ -82,7 +82,7 @@ function RenderBlockElement ({ element }: RenderBlockElementProps): ReactNode {
     case 'heading': {
       const levelStyle = headingStylesMap[element.level];
       const hasLevelStyle = Boolean(levelStyle);
-      const headingStyle = hasLevelStyle ? [styles.text, styles.heading, levelStyle] : [styles.text, styles.heading];
+      const headingStyle = hasLevelStyle ? [styles.text, textStyle, styles.heading, levelStyle] : [styles.text, textStyle, styles.heading];
       return (
         <Text key={element.key} style={headingStyle}>
           {element.children.map((child: InlineElement) => (
@@ -117,7 +117,7 @@ function RenderBlockElement ({ element }: RenderBlockElementProps): ReactNode {
             const markerNumber = String(index + 1) + '. ';
             const listMarker = isOrdered ? markerNumber : '- ';
             return (
-              <Text key={item.key} style={[styles.text, styles.listItem]}>
+              <Text key={item.key} style={[styles.text, styles.listItem, textStyle]}>
                 <Text style={styles.listMarker}>{listMarker}</Text>
                 {item.children.map((child: InlineElement) => (
                   <RenderInlineElement key={child.key} element={child} />
@@ -134,7 +134,7 @@ function RenderBlockElement ({ element }: RenderBlockElementProps): ReactNode {
           <View style={styles.tableRow}>
             {element.headers.map((header) => (
               <View key={header.key} style={styles.tableHeaderCell}>
-                <Text style={[styles.text, styles.tableHeaderText]}>
+                <Text style={[styles.text, textStyle, styles.tableHeaderText]}>
                   {header.children.map((child: InlineElement) => (
                     <RenderInlineElement key={child.key} element={child} />
                   ))}
@@ -146,7 +146,7 @@ function RenderBlockElement ({ element }: RenderBlockElementProps): ReactNode {
             <View key={row.key} style={styles.tableRow}>
               {row.cells.map((cell) => (
                 <View key={cell.key} style={styles.tableCell}>
-                  <Text style={styles.text}>
+                  <Text style={[styles.text, textStyle]}>
                     {cell.children.map((child: InlineElement) => (
                       <RenderInlineElement key={child.key} element={child} />
                     ))}
@@ -163,13 +163,13 @@ function RenderBlockElement ({ element }: RenderBlockElementProps): ReactNode {
   }
 }
 
-function TextMarkdownBase ({ content, style: _style }: TextMarkdownProps) {
+function TextMarkdownBase ({ content, style }: TextMarkdownProps) {
   const blocks = parseMarkdown(content);
 
   return (
     <>
       {blocks.map(block => (
-        <RenderBlockElement key={block.key} element={block} />
+        <RenderBlockElement key={block.key} element={block} textStyle={style} />
       ))}
     </>
   );

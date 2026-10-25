@@ -24,10 +24,6 @@ type UseChatRepliesParams = {
     alert: IAlertController;
 };
 
-/**
- * Owns the conversation with the backend: listens to the reply stream,
- * refreshes the messages it touches, and starts or stops a reply.
- */
 export function useChatReplies ({
     adventureId,
     subscribeChatReply,

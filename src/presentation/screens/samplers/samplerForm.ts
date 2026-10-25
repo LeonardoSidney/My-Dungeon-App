@@ -7,7 +7,6 @@ import {
 import { MirostatEnum } from '@domain/entities';
 import { ControllerResponse } from '@presentation/hooks';
 
-/** Numeric fields are kept as strings while editing and parsed on submit. */
 export type SamplerFormData = {
     id: string;
     name: string;

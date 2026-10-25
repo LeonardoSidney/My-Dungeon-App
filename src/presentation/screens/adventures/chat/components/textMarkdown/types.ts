@@ -1,6 +1,8 @@
+import type { StyleProp, TextStyle } from 'react-native';
+
 export interface TextMarkdownProps {
     content: string;
-    style?: object;
+    style?: StyleProp<TextStyle>;
 }
 
 export interface TextElement {
@@ -136,4 +138,5 @@ export interface RenderInlineElementProps {
 
 export interface RenderBlockElementProps {
     element: BlockElement;
+    textStyle?: StyleProp<TextStyle>;
 }

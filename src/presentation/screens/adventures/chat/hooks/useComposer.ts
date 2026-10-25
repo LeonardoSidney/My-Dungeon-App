@@ -13,7 +13,6 @@ import type { StreamReply } from '../types';
 type UseComposerParams = {
     adventureId: string;
     selectedCharacter?: AdventureChatCharacter;
-    /** While a message is being edited, sending saves the typed text as a new version of it. */
     editingChatId: string | null;
     clearEditing: () => void;
     reloadMessages: () => Promise<void>;
@@ -24,7 +23,6 @@ type UseComposerParams = {
     alert: IAlertController;
 };
 
-/** The message input: its text, and what Send, Resend and the Enter key do with it. */
 export function useComposer ({
     adventureId,
     selectedCharacter,
@@ -97,7 +95,6 @@ export function useComposer ({
         await streamReply();
     }, [adventureId, message, editingChatId, clearEditing, saveEditedVersion, streamReply, resendChat, alert]);
 
-    /** Enter sends; Shift+Enter breaks the line (web and hardware keyboards). */
     const handleKeyPress = useCallback((event: TextInputKeyPressEvent) => {
         if (event.nativeEvent.key !== 'Enter') {
             return;

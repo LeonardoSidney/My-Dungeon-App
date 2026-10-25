@@ -12,7 +12,6 @@ type UseDraftParams = {
     alert: IAlertController;
 };
 
-/** Keeps the text area in sync with the stored draft while a completion streams into it. */
 export function useDraft ({ draftId, getDraft, subscribeDraft, setPrompt, alert }: UseDraftParams) {
     const [isStreaming, setIsStreaming] = useState(false);
     const [guard] = useState(createLatestRequestGuard);

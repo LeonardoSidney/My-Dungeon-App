@@ -11,7 +11,6 @@ import { ControllerResponse } from '@presentation/hooks';
 export type AssistantFormData = {
     id: string;
     name: string;
-    // The assistant reuses ActivationPromptForm, which edits these fields; they stay empty.
     activationWord: string;
     prompt: string;
     observation: string;
@@ -25,7 +24,6 @@ export type AssistantFormErrors = {
     sampler?: string;
 };
 
-/** Models are selected by id + connection: the same model id can exist on two servers. */
 export function modelKey (model: Pick<ModelOption, 'id' | 'connectionId'>): string {
     return `${model.id}-${model.connectionId}`;
 }

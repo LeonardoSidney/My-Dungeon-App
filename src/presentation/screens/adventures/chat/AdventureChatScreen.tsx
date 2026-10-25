@@ -12,7 +12,6 @@ import { styles } from './AdventureChatScreen.styles';
 
 type AdventureChatScreenProps = NativeStackScreenProps<RootParamList, 'adventureChat'>;
 
-/** Loads everything the chat needs, then hands over to `AdventureChat`. */
 export function AdventureChatScreen ({ route, navigation }: AdventureChatScreenProps) {
   const { adventureId } = route.params;
   const controllers = useControllers();

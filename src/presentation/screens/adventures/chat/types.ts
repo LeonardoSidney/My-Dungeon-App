@@ -6,10 +6,6 @@ export type SetMessages = (messages: ChatMessageView[]) => void;
 export type UpdateMessages = (update: (messages: ChatMessageView[]) => ChatMessageView[]) => void;
 export type StreamReply = (replyChatId?: string) => Promise<void>;
 
-/**
- * Everything a message can do, grouped in one object so the list passes a
- * single stable prop down instead of one callback per action.
- */
 export type ChatMessageActions = {
     deleteMessage: (message: ChatMessageView) => void;
     startEdit: (chatId: string) => void;

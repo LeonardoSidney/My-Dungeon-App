@@ -1,7 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { colors } from '@presentation/theme';
 
-/** Inline editor shared by a message and its reasoning. */
 export const { editInputStyle } = StyleSheet.create({
     editInputStyle: {
         backgroundColor: colors.background,

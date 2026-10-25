@@ -1,11 +1,6 @@
 import { EntityOption } from '@domain/controllers';
 import type { AdventureFormData } from './adventureForm';
 
-/**
- * A character fills at most one role in an adventure: playable, AI controlled
- * or world master. These rules move a character between roles and return the
- * form fields that change.
- */
 type Roster = Pick<AdventureFormData, 'characters' | 'charactersControlledByAi' | 'characterAsWorldMasterId' | 'worldMaster'>;
 export type RosterChange = Partial<Roster>;
 
@@ -17,7 +12,6 @@ function removeFromAllRoles (roster: Roster, id: string) {
     };
 }
 
-/** Moves the character to the end of the playable list, when it is in it. */
 function moveToEnd (characters: EntityOption[], id: string): EntityOption[] {
     const character = characters.find(entry => entry.id === id);
     if (!character) {

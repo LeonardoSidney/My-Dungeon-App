@@ -29,7 +29,6 @@ export type UseEntityScreenReturn<Entity extends { id: string; }, Form> = {
     reload: () => Promise<void>;
     form: Form;
     updateField: <K extends keyof Form>(field: K, value: Form[K]) => void;
-    /** Changes several fields at once, for edits where one user action touches more than one field. */
     updateFields: (changes: Partial<Form>) => void;
     showForm: boolean;
     openAdd: () => void;

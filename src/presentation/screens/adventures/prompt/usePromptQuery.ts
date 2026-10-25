@@ -12,7 +12,6 @@ type PromptState = {
     error?: string;
 };
 
-/** Loads a prompt on the first `request()` call only, so switching tabs back and forth does not refetch it. */
 export function usePromptQuery (load: () => Promise<PromptResponse>) {
     const [state, setState] = useState<PromptState>({ isLoading: false });
     const requestedRef = useRef(false);

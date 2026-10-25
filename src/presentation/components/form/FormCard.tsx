@@ -11,7 +11,6 @@ type FormCardProps = {
   children: ReactNode;
 };
 
-/** Frame shared by every entity form: title, close button, fields and the cancel/save actions. */
 export function FormCard ({ title, saveLabel, onCancel, onSave, isSaving = false, children }: FormCardProps) {
   return (
     <View style={formStyles.container}>

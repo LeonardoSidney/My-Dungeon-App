@@ -5,9 +5,7 @@ import { formStyles } from './formStyles';
 
 type FormFieldProps = {
   label: string;
-  /** Validation message shown below the field. */
   error?: string;
-  /** Shown instead of the whole field when its options could not be loaded. */
   loadError?: string;
   children: ReactNode;
 };

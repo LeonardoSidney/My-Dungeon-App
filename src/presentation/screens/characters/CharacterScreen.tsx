@@ -28,6 +28,8 @@ const characterFormConfig: ActivationPromptFormConfig = {
   promptPlaceholder: 'Enter the character prompt...',
 };
 
+const getActivationWord = (entity: ActivationPromptListItem) => entity.activationWord;
+
 export function CharacterScreen () {
   const {
     getAssistants,
@@ -76,7 +78,7 @@ export function CharacterScreen () {
         onAdd={screen.openAdd}
         onEdit={screen.openEdit}
         onDelete={screen.eraseEntity}
-        getDetailText={character => character.activationWord}
+        getDetailText={getActivationWord}
         form={screen.showForm && (
           <ActivationPromptForm
             formData={form}

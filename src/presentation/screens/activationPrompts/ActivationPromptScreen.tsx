@@ -18,7 +18,6 @@ import {
 } from './activationPromptForm';
 
 export type ActivationPromptScreenConfig = ActivationPromptFormConfig & {
-  /** Lowercase plural used in the list messages, e.g. "abilities". */
   pluralName: string;
 };
 
@@ -27,7 +26,8 @@ type ActivationPromptScreenProps = {
   controllers: ActivationPromptControllers;
 };
 
-/** List + add/edit form for every entity made of name, activation word, prompt and observation. */
+const getActivationWord = (entity: ActivationPromptListItem) => entity.activationWord;
+
 export function ActivationPromptScreen ({ config, controllers }: ActivationPromptScreenProps) {
   const { alert } = useControllers();
 
@@ -55,7 +55,7 @@ export function ActivationPromptScreen ({ config, controllers }: ActivationPromp
         onAdd={screen.openAdd}
         onEdit={screen.openEdit}
         onDelete={screen.eraseEntity}
-        getDetailText={entity => entity.activationWord}
+        getDetailText={getActivationWord}
         form={screen.showForm && (
           <ActivationPromptForm
             formData={screen.form}

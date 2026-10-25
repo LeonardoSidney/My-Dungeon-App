@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MessageSquare, Pencil, Scroll, Trash2 } from 'lucide-react-native';
@@ -14,6 +15,8 @@ import {
   type AdventureFormData,
 } from './form/adventureForm';
 import { useAdventureFormOptions } from './form/useAdventureFormOptions';
+
+const getCreatedAtText = (adventure: AdventureListItem) => `Created: ${new Date(adventure.createdAt).toLocaleDateString()}`;
 
 export function AdventuresScreen () {
   const navigation = useNavigation();
@@ -33,7 +36,8 @@ export function AdventuresScreen () {
     alert,
   });
 
-  const renderActions = (adventure: AdventureListItem) => (
+  const { openEdit, eraseEntity } = screen;
+  const renderActions = useCallback((adventure: AdventureListItem) => (
     <>
       <IconButton
         icon={MessageSquare}
@@ -45,10 +49,10 @@ export function AdventuresScreen () {
         accessibilityLabel="View prompt"
         onPress={() => navigation.navigate('adventurePrompt', { adventureId: adventure.id })}
       />
-      <IconButton icon={Pencil} accessibilityLabel="Edit" onPress={() => screen.openEdit(adventure)} />
-      <IconButton icon={Trash2} accessibilityLabel="Delete" onPress={() => screen.eraseEntity(adventure)} />
+      <IconButton icon={Pencil} accessibilityLabel="Edit" onPress={() => openEdit(adventure)} />
+      <IconButton icon={Trash2} accessibilityLabel="Delete" onPress={() => eraseEntity(adventure)} />
     </>
-  );
+  ), [navigation, openEdit, eraseEntity]);
 
   return (
     <View style={screenStyles.container}>
@@ -62,7 +66,7 @@ export function AdventuresScreen () {
         onAdd={screen.openAdd}
         onEdit={screen.openEdit}
         onDelete={screen.eraseEntity}
-        getDetailText={adventure => `Created: ${new Date(adventure.createdAt).toLocaleDateString()}`}
+        getDetailText={getCreatedAtText}
         renderActions={renderActions}
         form={screen.showForm && (
           <AdventureForm

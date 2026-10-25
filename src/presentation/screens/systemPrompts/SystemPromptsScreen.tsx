@@ -1,9 +1,12 @@
 import { View } from 'react-native';
+import { SystemPromptListItem } from '@domain/controllers';
 import { CrudEntityList, screenStyles } from '@presentation/components';
 import { useEntityScreen } from '@presentation/hooks';
 import { useControllers } from '@presentation/providers/ControllersProvider';
 import { SystemPromptForm } from './SystemPromptForm';
 import { initialSystemPromptForm, submitSystemPrompt, toSystemPromptFormState, validateSystemPromptForm } from './systemPromptForm';
+
+const getSystemPromptContent = (systemPrompt: SystemPromptListItem) => systemPrompt.content;
 
 export function SystemPromptsScreen () {
   const { getSystemPrompts, getSystemPrompt, createSystemPrompt, editSystemPrompt, eraseSystemPrompt, alert } = useControllers();
@@ -32,7 +35,7 @@ export function SystemPromptsScreen () {
         onAdd={screen.openAdd}
         onEdit={screen.openEdit}
         onDelete={screen.eraseEntity}
-        getDetailText={systemPrompt => systemPrompt.content}
+        getDetailText={getSystemPromptContent}
         detailLines={1}
         form={screen.showForm && (
           <SystemPromptForm

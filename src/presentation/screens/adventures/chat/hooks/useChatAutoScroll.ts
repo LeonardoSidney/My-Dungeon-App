@@ -4,13 +4,8 @@ import { ChatMessageView } from '@domain/controllers';
 
 const BOTTOM_THRESHOLD = 20;
 
-/**
- * Keeps the chat pinned to the bottom while a reply streams, unless the user
- * scrolled up to read; then offers a "scroll to bottom" button instead.
- */
 export function useChatAutoScroll (messages: ChatMessageView[]) {
     const scrollViewRef = useRef<ScrollView | null>(null);
-    // Refs, not state: these values steer the scroll handler but never change what is rendered.
     const isScrollingProgrammatically = useRef(false);
     const lastContentHeight = useRef(0);
     const previousLastChatId = useRef<string | null>(null);
@@ -36,7 +31,6 @@ export function useChatAutoScroll (messages: ChatMessageView[]) {
             return;
         }
 
-        // Growing content (a streaming reply) is not the user scrolling away.
         if (contentSize.height > lastContentHeight.current) {
             lastContentHeight.current = contentSize.height;
             return;

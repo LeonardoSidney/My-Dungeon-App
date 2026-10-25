@@ -16,7 +16,6 @@ type ThinkBlockProps = {
   actions: ChatMessageActions;
 };
 
-/** The model's reasoning, shown above its reply, with its own versions and actions. */
 function ThinkBlockBase ({ chatId, think, isStreaming, editingThinkChatId, actions }: ThinkBlockProps) {
   const content = think.content ?? '';
   const isEditing = !isStreaming && editingThinkChatId === chatId;

@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { memo, useEffect, useRef, type ReactNode } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { Pencil, Trash2 } from 'lucide-react-native';
 import { IconButton } from '../IconButton';
@@ -24,11 +24,37 @@ export type CrudEntityListProps<T extends CrudEntityListItem> = {
   onDelete: (item: T) => void;
   getDetailText?: (item: T) => string;
   detailLines?: number;
-  /** Replaces the default edit/delete buttons of each item. */
   renderActions?: (item: T) => ReactNode;
-  /** The add/edit form, rendered below the list. Omit (or pass `null`) when it is closed. */
   form?: ReactNode;
 };
+
+type CrudEntityRowProps<T extends CrudEntityListItem> =
+  Pick<CrudEntityListProps<T>, 'onEdit' | 'onDelete' | 'getDetailText' | 'detailLines' | 'renderActions'> & { item: T; };
+
+function CrudEntityRowBase<T extends CrudEntityListItem> ({
+  item,
+  onEdit,
+  onDelete,
+  getDetailText,
+  detailLines,
+  renderActions,
+}: CrudEntityRowProps<T>) {
+  return (
+    <EntityItem
+      name={item.name}
+      details={getDetailText?.(item)}
+      detailLines={detailLines}
+      actions={renderActions ? renderActions(item) : (
+        <>
+          <IconButton icon={Pencil} accessibilityLabel="Edit" onPress={() => onEdit(item)} />
+          <IconButton icon={Trash2} accessibilityLabel="Delete" onPress={() => onDelete(item)} />
+        </>
+      )}
+    />
+  );
+}
+
+const CrudEntityRow = memo(CrudEntityRowBase) as typeof CrudEntityRowBase;
 
 export function CrudEntityList<T extends CrudEntityListItem> ({
   items,
@@ -49,7 +75,6 @@ export function CrudEntityList<T extends CrudEntityListItem> ({
   const isFormOpen = Boolean(form);
   const wasFormOpen = useRef(isFormOpen);
 
-  // Brings a freshly opened form into view, since it renders at the end of the list.
   useEffect(() => {
     const formJustOpened = isFormOpen && !wasFormOpen.current;
     wasFormOpen.current = isFormOpen;
@@ -61,16 +86,13 @@ export function CrudEntityList<T extends CrudEntityListItem> ({
   }, [isFormOpen]);
 
   const renderItem = ({ item }: { item: T; }) => (
-    <EntityItem
-      name={item.name}
-      details={getDetailText?.(item)}
+    <CrudEntityRow
+      item={item}
+      onEdit={onEdit}
+      onDelete={onDelete}
+      getDetailText={getDetailText}
       detailLines={detailLines}
-      actions={renderActions ? renderActions(item) : (
-        <>
-          <IconButton icon={Pencil} accessibilityLabel="Edit" onPress={() => onEdit(item)} />
-          <IconButton icon={Trash2} accessibilityLabel="Delete" onPress={() => onDelete(item)} />
-        </>
-      )}
+      renderActions={renderActions}
     />
   );
 

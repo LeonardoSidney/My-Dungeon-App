@@ -9,7 +9,6 @@ type TextFieldProps = {
   onChangeText: (value: string) => void;
   placeholder?: string;
   error?: string;
-  /** `multiline` grows the input for observations; `tall` makes it taller for prompts. */
   variant?: 'singleLine' | 'multiline' | 'tall';
   keyboardType?: KeyboardTypeOptions;
 };

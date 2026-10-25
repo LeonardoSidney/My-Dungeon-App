@@ -4,7 +4,6 @@ import type { AppControllers } from '@presentation/providers/appControllers';
 import { showError } from '@presentation/utils/showError';
 import { runSeed } from './migration';
 
-/** Seeds the first-run data and resumes the chat replies an app restart interrupted. */
 export function useAppBootstrap (controllers: AppControllers): void {
     const { alert, recoverInterruptedReplies, saveDraft } = controllers;
 

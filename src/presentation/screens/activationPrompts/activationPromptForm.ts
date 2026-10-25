@@ -16,10 +16,6 @@ export type ActivationPromptRequest = {
     observation?: string;
 };
 
-/**
- * What the screen needs from the backend. Abilities, items, locations,
- * proficiencies, statuses and worlds controllers all fit this shape.
- */
 export type ActivationPromptControllers = {
     list: { handle: () => Promise<ListControllerResponse<ActivationPromptListItem>>; };
     get: { handle: (params: GetByIdControllerParams) => Promise<DetailControllerResponse<ActivationPromptDetails>>; };

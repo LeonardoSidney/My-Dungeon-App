@@ -9,8 +9,6 @@ import {
 import { showError } from '@presentation/utils/showError';
 import type { StreamReply, VersionDirection } from './types';
 
-/** Pure chat steps, kept out of the hooks so they can be tested without rendering. */
-
 type RequestChatReplyParams = {
     adventureId: string;
     replyChatId?: string;
@@ -70,7 +68,6 @@ type HandleReplyActionParams = {
     alert: IAlertController;
 };
 
-/** Runs a command that prepares a reply slot (regenerate, continue...) and streams the reply into it. */
 export async function handleReplyAction ({ prepare, fallbackError, streamReply, alert }: HandleReplyActionParams): Promise<void> {
     const response = await prepare();
 

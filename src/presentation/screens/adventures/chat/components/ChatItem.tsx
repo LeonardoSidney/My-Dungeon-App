@@ -23,7 +23,6 @@ function ChatItemBase ({ message, characterName, editingChatId, editingThinkChat
   const isUserMessage = message.role === RoleEnum.USER;
   const isEditing = !isStreaming && editingChatId === id;
   const [draft, setDraft] = useEditDraft(content, isEditing);
-  // While any message is being edited, the other actions step aside.
   const canAct = editingChatId === null;
 
   const buttons: MessageAction[] = [];

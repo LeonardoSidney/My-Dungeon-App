@@ -1,7 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { colors } from '@presentation/theme';
 
-/** Layout and feedback styles shared by the list screens. */
 export const screenStyles = StyleSheet.create({
     container: {
         flex: 1,

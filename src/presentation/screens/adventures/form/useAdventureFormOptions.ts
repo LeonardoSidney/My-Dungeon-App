@@ -10,7 +10,6 @@ export type AdventureFormOptions = AdventureOptionLists & {
 
 type OptionControllers = Pick<AppControllers, 'getCharacters' | 'getSystemPrompts' | 'getWorldMasters' | 'getWorlds' | 'getLocations' | 'getItems'>;
 
-/** Loads every catalog the adventure form picks from. */
 export function useAdventureFormOptions (controllers: OptionControllers): AdventureFormOptions {
     const { getCharacters, getSystemPrompts, getWorldMasters, getWorlds, getLocations, getItems } = controllers;
     const characters = useEntityList({ fetch: () => getCharacters.handle() });

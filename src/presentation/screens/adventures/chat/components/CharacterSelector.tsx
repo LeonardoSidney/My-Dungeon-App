@@ -10,7 +10,6 @@ type CharacterSelectorProps = {
   style?: ViewStyle;
 };
 
-/** Picks which character the player speaks as. The list opens upwards, above the input. */
 export function CharacterSelector ({ characters, selectedCharacter, onSelect, style }: CharacterSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
 

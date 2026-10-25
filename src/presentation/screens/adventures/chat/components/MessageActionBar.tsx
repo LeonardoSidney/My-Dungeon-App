@@ -23,7 +23,6 @@ export type VersionNavigation = {
 };
 
 type MessageActionBarProps = {
-  /** Previous/next version arrows, rendered around the actions. */
   versions?: VersionNavigation;
   actions: MessageAction[];
 };

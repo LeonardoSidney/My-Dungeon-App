@@ -46,7 +46,6 @@ export const menuItems: MenuItem[] = [
     { id: 'settings', label: 'Settings' },
 ];
 
-/** Adventure detail routes take the whole screen and belong to the "Adventures" menu entry. */
 const adventureDetailRoutes: ReadonlySet<RootRoute> = new Set(['adventureChat', 'adventureSettings', 'adventurePrompt']);
 
 export function isFullScreenRoute (route: RootRoute): boolean {
@@ -58,7 +57,6 @@ export function toMenuRoute (route: RootRoute): MenuRoute {
 }
 
 declare global {
-    // Types `useNavigation()` and `useRoute()` across the app.
     namespace ReactNavigation {
         interface RootParamList extends RootParamListBase {}
     }

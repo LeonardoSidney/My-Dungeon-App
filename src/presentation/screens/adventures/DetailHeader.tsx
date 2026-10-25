@@ -5,11 +5,9 @@ import { colors } from '@presentation/theme';
 type DetailHeaderProps = {
   title: string;
   onBack: () => void;
-  /** Optional action rendered on the right side. */
   right?: ReactNode;
 };
 
-/** Header of the full screen adventure routes: back button, title and an optional action. */
 export function DetailHeader ({ title, onBack, right }: DetailHeaderProps) {
   return (
     <View style={styles.header}>
