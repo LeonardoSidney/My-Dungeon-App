@@ -1,13 +1,13 @@
 import { ILogger } from '@domain/logger';
 import { ITextGeneration } from '@domain/providers';
 import { IModelProviderGateway } from '@domain/gateways';
-import { IAdventureRepository } from '@domain/repository';
-import { IHydrateAdventureService } from '@domain/services';
 import {
     GetAdventureTemplatedPromptUseCaseParams,
     GetAdventureTemplatedPromptUseCaseResponse,
+    HYDRATED_PARAM_KEY,
     HydratedAdventure,
     IGetAdventureTemplatedPromptUseCase,
+    IHydrateAdventureUseCase,
     ResolveHydratedReturn,
     WorldMasterRuntimeReturn,
 } from '@domain/use-cases';
@@ -17,22 +17,16 @@ export class GetAdventureTemplatedPromptUseCase implements IGetAdventureTemplate
         private readonly logger: ILogger,
         private readonly provider: ITextGeneration,
         private readonly gateway: IModelProviderGateway,
-        private readonly hydrateAdventureService: IHydrateAdventureService,
-        private readonly adventureRepository: IAdventureRepository
+        private readonly hydrateAdventureUseCase: IHydrateAdventureUseCase
     ) { }
 
     async execute (params: GetAdventureTemplatedPromptUseCaseParams): Promise<GetAdventureTemplatedPromptUseCaseResponse> {
         this.logger.info('Executing GetAdventureTemplatedPromptUseCase::execute');
         this.logger.debug('Executing GetAdventureTemplatedPromptUseCase::execute - params', params);
 
-        const validationError = this.validate(params);
-        if (validationError) {
-            return { success: false, error: validationError };
-        }
-
         const hydratedResponse = await this.resolveHydrated(params);
         if (!hydratedResponse.success || !hydratedResponse.hydrated) {
-            return { success: false, error: hydratedResponse.error };
+            return { success: false, error: hydratedResponse.error ?? 'Failed to hydrate adventure' };
         }
 
         const hydrated = hydratedResponse.hydrated;
@@ -75,38 +69,12 @@ export class GetAdventureTemplatedPromptUseCase implements IGetAdventureTemplate
         };
     }
 
-    private validate (params: GetAdventureTemplatedPromptUseCaseParams): string | null {
-        if ('adventureId' in params && !params.adventureId.trim()) {
-            return 'Adventure id is required';
-        }
-
-        return null;
-    }
-
     private async resolveHydrated (params: GetAdventureTemplatedPromptUseCaseParams): Promise<ResolveHydratedReturn> {
-        if ('hydrated' in params) {
+        if (HYDRATED_PARAM_KEY in params) {
             return { success: true, hydrated: params.hydrated };
         }
 
-        const adventureResponse = await this.adventureRepository.getAdventureById(params.adventureId);
-        if (!adventureResponse.success) {
-            this.logger.warning('GetAdventureTemplatedPromptUseCase::resolveHydrated - failed to load adventure', adventureResponse.error);
-            return { success: false, error: adventureResponse.error };
-        }
-
-        const adventure = adventureResponse.adventure;
-        if (!adventure) {
-            return { success: false, error: 'Failed to hydrate adventure' };
-        }
-
-        const hydrateResponse = await this.hydrateAdventureService.hydrate({ adventure });
-
-        if (!hydrateResponse.success || !hydrateResponse.hydrated) {
-            this.logger.warning('GetAdventureTemplatedPromptUseCase::resolveHydrated - failed to hydrate adventure', hydrateResponse.error);
-            return { success: false, error: 'Failed to hydrate adventure' };
-        }
-
-        return { success: true, hydrated: hydrateResponse.hydrated };
+        return this.hydrateAdventureUseCase.execute({ adventureId: params.adventureId });
     }
 
     private getWorldMasterRuntime (hydrated: HydratedAdventure): WorldMasterRuntimeReturn {

@@ -327,7 +327,7 @@ export function eraseAdventureController (): IEraseAdventureController {
 
 export function getAdventureSystemPromptController (): IGetAdventureSystemPromptController {
     const textGeneration = new TextGeneration(logger, new TextGenerationTemplatesService(logger));
-    const useCase = new GetAdventureSystemPromptUseCase(logger, textGeneration, createHydrateAdventureService(), createAdventureRepository(storage, logger));
+    const useCase = new GetAdventureSystemPromptUseCase(logger, textGeneration, createHydrateAdventureUseCase());
     return new GetAdventureSystemPromptController(logger, useCase);
 }
 
@@ -337,8 +337,7 @@ export function getAdventureTemplatedPromptController (): IGetAdventureTemplated
         logger,
         textGeneration,
         new LlamaCppOAGateway(logger, getStreamProvider()),
-        createHydrateAdventureService(),
-        createAdventureRepository(storage, logger)
+        createHydrateAdventureUseCase()
     );
     return new GetAdventureTemplatedPromptController(logger, useCase);
 }
@@ -385,13 +384,12 @@ export function generateChatReplyController (): IGenerateChatReplyController {
     const adventureRepository = createAdventureRepository(storage, logger);
     const textGenerationTemplatesService = new TextGenerationTemplatesService(logger);
     const textGeneration = new TextGeneration(logger, textGenerationTemplatesService);
-    const hydrateAdventureService = createHydrateAdventureService();
+    const hydrateAdventureUseCase = createHydrateAdventureUseCase();
     const getAdventureTemplatedPromptUseCase = new GetAdventureTemplatedPromptUseCase(
         logger,
         textGeneration,
         new LlamaCppOAGateway(logger, getStreamProvider()),
-        hydrateAdventureService,
-        adventureRepository
+        hydrateAdventureUseCase
     );
     const nativeStreamCompletionUseCase = new NativeStreamCompletionUseCase(
         logger,
@@ -403,7 +401,7 @@ export function generateChatReplyController (): IGenerateChatReplyController {
     const useCase = new GenerateChatReplyUseCase(
         logger,
         idGenerate,
-        createHydrateAdventureUseCase(),
+        hydrateAdventureUseCase,
         getAdventureTemplatedPromptUseCase,
         nativeStreamCompletionUseCase,
         new StartStreamingChatUseCase(logger, new StartStreamingChatService(logger, idGenerate), adventureRepository),

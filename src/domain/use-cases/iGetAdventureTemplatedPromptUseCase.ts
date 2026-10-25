@@ -7,7 +7,13 @@ export interface IGetAdventureTemplatedPromptUseCase {
 
 export type GetAdventureTemplatedPromptUseCaseParams =
     | { adventureId: string; }
-    | { hydrated: HydratedAdventure; };
+    | GetAdventureTemplatedPromptFromHydratedParams;
+
+export type GetAdventureTemplatedPromptFromHydratedParams = {
+    hydrated: HydratedAdventure;
+};
+
+export const HYDRATED_PARAM_KEY = 'hydrated' satisfies keyof GetAdventureTemplatedPromptFromHydratedParams;
 
 export type GetAdventureTemplatedPromptUseCaseResponse = {
     success: boolean;

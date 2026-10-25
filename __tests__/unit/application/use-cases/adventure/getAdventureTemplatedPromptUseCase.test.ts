@@ -1,8 +1,7 @@
 import { GetAdventureTemplatedPromptUseCase } from '@application/use-cases';
 import { ITextGeneration } from '@domain/providers';
 import { IModelProviderGateway } from '@domain/gateways';
-import { IHydrateAdventureService } from '@domain/services';
-import { IAdventureRepository } from '@domain/repository';
+import { IHydrateAdventureUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { createAdventureHelper, createHydratedAdventureHelper } from '@test/helpers';
 
@@ -14,8 +13,8 @@ const mockLogger: ILogger = {
     log: jest.fn()
 };
 
-const mockHydrateAdventureService = {
-    hydrate: jest.fn()
+const mockHydrateAdventureUseCase = {
+    execute: jest.fn()
 };
 
 const mockTextGeneration = {
@@ -26,17 +25,12 @@ const mockGateway = {
     applyTemplate: jest.fn()
 };
 
-const mockAdventureRepository = {
-    getAdventureById: jest.fn()
-};
-
 function buildUseCase (): GetAdventureTemplatedPromptUseCase {
     return new GetAdventureTemplatedPromptUseCase(
         mockLogger,
         mockTextGeneration as unknown as ITextGeneration,
         mockGateway as unknown as IModelProviderGateway,
-        mockHydrateAdventureService as unknown as IHydrateAdventureService,
-        mockAdventureRepository as unknown as IAdventureRepository
+        mockHydrateAdventureUseCase as unknown as IHydrateAdventureUseCase
     );
 }
 
@@ -55,8 +49,7 @@ describe('GetAdventureTemplatedPromptUseCase', () => {
         const response = await buildUseCase().execute({ hydrated });
 
         expect(response).toEqual({ success: true, prompt: 'final prompt' });
-        expect(mockAdventureRepository.getAdventureById).not.toHaveBeenCalled();
-        expect(mockHydrateAdventureService.hydrate).not.toHaveBeenCalled();
+        expect(mockHydrateAdventureUseCase.execute).not.toHaveBeenCalled();
         expect(mockTextGeneration.buildAdventureTextSystemPrompt).toHaveBeenCalledWith(hydrated);
         expect(mockGateway.applyTemplate).toHaveBeenCalledWith({
             connection: expect.objectContaining({ id: '1' }),
@@ -64,23 +57,6 @@ describe('GetAdventureTemplatedPromptUseCase', () => {
             systemPrompt: 'system prompt',
             chat: adventure.chat
         });
-    });
-
-    it('fails when the adventure loaded by id cannot be hydrated', async () => {
-        mockAdventureRepository.getAdventureById.mockResolvedValue({ success: true, adventure: createAdventureHelper() });
-        mockHydrateAdventureService.hydrate.mockResolvedValue({
-            success: false,
-            error: 'Some characters were not found'
-        });
-
-        const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
-
-        expect(response).toEqual({
-            success: false,
-            error: 'Failed to hydrate adventure'
-        });
-        expect(mockTextGeneration.buildAdventureTextSystemPrompt).not.toHaveBeenCalled();
-        expect(mockGateway.applyTemplate).not.toHaveBeenCalled();
     });
 
     it('fails when the gateway does not return a prompt', async () => {
@@ -96,22 +72,6 @@ describe('GetAdventureTemplatedPromptUseCase', () => {
             success: false,
             error: 'Model did not return a prompt'
         });
-    });
-
-    it('fails when the adventure id is blank', async () => {
-        const response = await buildUseCase().execute({ adventureId: ' ' });
-
-        expect(response).toEqual({ success: false, error: 'Adventure id is required' });
-        expect(mockAdventureRepository.getAdventureById).not.toHaveBeenCalled();
-    });
-
-    it('fails when the hydrate service succeeds without a hydrated adventure', async () => {
-        mockAdventureRepository.getAdventureById.mockResolvedValue({ success: true, adventure: createAdventureHelper() });
-        mockHydrateAdventureService.hydrate.mockResolvedValue({ success: true });
-
-        const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
-
-        expect(response).toEqual({ success: false, error: 'Failed to hydrate adventure' });
     });
 
     it.each([
@@ -187,32 +147,34 @@ describe('GetAdventureTemplatedPromptUseCase', () => {
         });
     });
 
-    describe('when loading the adventure by id', () => {
-        it('hydrates the adventure loaded from the repository', async () => {
+    describe('when hydrating the adventure by id', () => {
+        it('hydrates the adventure through the hydrate use case', async () => {
             const adventure = createAdventureHelper();
-            mockAdventureRepository.getAdventureById.mockResolvedValue({ success: true, adventure });
-            mockHydrateAdventureService.hydrate.mockResolvedValue({ success: true, hydrated: createHydratedAdventureHelper({ adventure }) });
+            mockHydrateAdventureUseCase.execute.mockResolvedValue({ success: true, hydrated: createHydratedAdventureHelper({ adventure }) });
             mockTextGeneration.buildAdventureTextSystemPrompt.mockReturnValue({ success: true, systemPrompt: 'system prompt' });
             mockGateway.applyTemplate.mockResolvedValue({ success: true, prompt: 'final prompt' });
 
             const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
 
             expect(response).toEqual({ success: true, prompt: 'final prompt' });
-            expect(mockAdventureRepository.getAdventureById).toHaveBeenCalledWith('adventure-1');
-            expect(mockHydrateAdventureService.hydrate).toHaveBeenCalledWith({ adventure });
+            expect(mockHydrateAdventureUseCase.execute).toHaveBeenCalledWith({ adventureId: 'adventure-1' });
         });
 
-        it('returns the repository error when loading fails', async () => {
-            mockAdventureRepository.getAdventureById.mockResolvedValue({ success: false, error: 'Database error' });
+        it('returns the hydration error without building the prompt', async () => {
+            mockHydrateAdventureUseCase.execute.mockResolvedValue({ success: false, error: 'Some characters were not found' });
 
             const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
 
-            expect(response).toEqual({ success: false, error: 'Database error' });
-            expect(mockHydrateAdventureService.hydrate).not.toHaveBeenCalled();
+            expect(response).toEqual({ success: false, error: 'Some characters were not found' });
+            expect(mockTextGeneration.buildAdventureTextSystemPrompt).not.toHaveBeenCalled();
+            expect(mockGateway.applyTemplate).not.toHaveBeenCalled();
         });
 
-        it('fails when the repository does not find the adventure', async () => {
-            mockAdventureRepository.getAdventureById.mockResolvedValue({ success: true, adventure: undefined });
+        it.each([
+            [{ success: false }],
+            [{ success: true }]
+        ])('fails with a generic error when hydration answers %j', async (hydrateResponse) => {
+            mockHydrateAdventureUseCase.execute.mockResolvedValue(hydrateResponse);
 
             const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
 
