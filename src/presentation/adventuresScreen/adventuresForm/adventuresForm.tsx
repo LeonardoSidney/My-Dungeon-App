@@ -2,7 +2,8 @@ import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { styles } from './styles';
 import { colors } from '../../theme';
 import { AdventuresFormProps } from './constants';
-import { CharacterRoster, SelectListSection } from '@presentation/components';
+import { CharacterRoster } from '@presentation/components/characterRoster';
+import { SelectListSection } from '@presentation/components/selectListSection';
 import { useAdventureFormLogic } from './useAdventureFormLogic';
 
 export function AdventuresForm ({

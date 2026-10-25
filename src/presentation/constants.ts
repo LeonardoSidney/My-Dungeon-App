@@ -1,4 +1,4 @@
-import { type SidebarMenuItem } from '@presentation';
+import { type SidebarMenuItem } from './sidebarPanel';
 
 export const sidebarMenuItems: SidebarMenuItem[] = [
     { id: 'home', label: 'Sandbox' },

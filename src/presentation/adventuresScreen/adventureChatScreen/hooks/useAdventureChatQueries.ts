@@ -5,7 +5,7 @@ import {
     IGetAdventureSummaryController,
     IGetChatMessagesController,
 } from '@domain/controllers';
-import { useFocusedQuery } from './useFocusedQuery';
+import { useFocusedQuery } from '@presentation/hooks';
 
 export function useAdventureSummary (adventureId: string, getAdventureSummary: IGetAdventureSummaryController) {
     const load = useCallback(async () => {

@@ -1,1 +1,0 @@
-export { CharacterScreen } from './characterScreen';

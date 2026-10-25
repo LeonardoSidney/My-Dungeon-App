@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '../theme';
+import { colors } from '@presentation/theme';
 
+/** Layout and feedback styles shared by the list screens. */
 export const screenStyles = StyleSheet.create({
     container: {
         flex: 1,
@@ -13,11 +14,6 @@ export const screenStyles = StyleSheet.create({
         borderRadius: 6,
         marginTop: 8,
         alignItems: 'center',
-    },
-    actionButton: {
-        padding: 8,
-        backgroundColor: colors.surfaceRaised,
-        borderRadius: 6,
     },
     addButtonText: {
         fontSize: 14,

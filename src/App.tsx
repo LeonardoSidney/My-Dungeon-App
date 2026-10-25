@@ -5,25 +5,25 @@ import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import type { NavigationHelpers, StackNavigationState } from '@react-navigation/native';
 import { colors } from '@presentation/theme';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { ControllersProvider } from '@presentation/providers/controllersProvider';
-import { WebAlertProvider } from '@presentation/providers/webAlertProvider';
+import { ControllersProvider } from '@presentation/providers/ControllersProvider';
+import { WebAlertProvider } from '@presentation/providers/WebAlertProvider';
 import { buildControllers } from '@composition/controllers';
+import { AdventuresScreen } from '@presentation/adventuresScreen';
+import { HomeScreen } from '@presentation/screens/home/HomeScreen';
+import { CharacterScreen } from '@presentation/screens/characters/CharacterScreen';
 import {
-  SettingsScreen,
-  WorldScreen,
-  WorldMasterScreen,
-  AssistantScreen,
-  SamplerScreen,
-  CharacterScreen,
-  ProficiencyScreen,
   AbilitiesScreen,
+  ItemsScreen,
+  LocationsScreen,
+  ProficienciesScreen,
   StatusesScreen,
-  ItemScreen,
-  LocationScreen,
-  SystemPromptsScreen,
-  AdventuresScreen,
-  HomeScreen
-} from '@presentation';
+  WorldsScreen,
+} from '@presentation/screens/activationPrompts/activationPromptScreens';
+import { SystemPromptsScreen } from '@presentation/screens/systemPrompts/SystemPromptsScreen';
+import { AssistantScreen } from '@presentation/screens/assistants/AssistantScreen';
+import { SamplerScreen } from '@presentation/screens/samplers/SamplerScreen';
+import { WorldMasterScreen } from '@presentation/screens/worldMasters/WorldMasterScreen';
+import { SettingsScreen } from '@presentation/screens/settings/SettingsScreen';
 import type { SidebarRoute } from '@presentation/sidebarPanel';
 import { RootLayout, type RootParamList } from '@presentation/navigation';
 import { runSeed } from './migration';
@@ -50,7 +50,6 @@ type RootNavigatorLayoutProps = {
 };
 
 function App () {
-  const [prompt, setPrompt] = useState<string>('Seélokomeu');
   const [isChatVisible, setIsChatVisible] = useState(false);
   const controllers = useMemo(() => buildControllers(), []);
   const { alert, recoverInterruptedReplies, saveDraft } = controllers;
@@ -82,13 +81,6 @@ function App () {
 
     seed().then(recoverReplies);
   }, [alert, recoverInterruptedReplies, saveDraft]);
-
-  const renderHome = useCallback(() => (
-    <HomeScreen
-      prompt={prompt}
-      setPrompt={setPrompt}
-    />
-  ), [prompt, setPrompt]);
 
   const renderAdventures = useCallback(() => (
     <AdventuresScreen onChatVisibleChange={setIsChatVisible} />
@@ -125,19 +117,19 @@ function App () {
                 screenOptions={{ headerShown: false }}
                 layout={renderLayout}
               >
-                <Screen name="home" children={renderHome} />
+                <Screen name="home" component={HomeScreen} />
                 <Screen name="adventures" children={renderAdventures} />
                 <Screen name="characters" component={CharacterScreen} />
                 <Screen name="abilities" component={AbilitiesScreen} />
                 <Screen name="statuses" component={StatusesScreen} />
-                <Screen name="items" component={ItemScreen} />
-                <Screen name="locations" component={LocationScreen} />
+                <Screen name="items" component={ItemsScreen} />
+                <Screen name="locations" component={LocationsScreen} />
                 <Screen name="systemPrompts" component={SystemPromptsScreen} />
-                <Screen name="proficiencies" component={ProficiencyScreen} />
+                <Screen name="proficiencies" component={ProficienciesScreen} />
                 <Screen name="assistants" component={AssistantScreen} />
                 <Screen name="samplers" component={SamplerScreen} />
                 <Screen name="worldMasters" component={WorldMasterScreen} />
-                <Screen name="worlds" component={WorldScreen} />
+                <Screen name="worlds" component={WorldsScreen} />
                 <Screen name="settings" component={SettingsScreen} />
               </Navigator>
             </NavigationContainer>

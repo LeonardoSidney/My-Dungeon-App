@@ -1,1 +1,0 @@
-export { WorldScreen } from './worldScreen';

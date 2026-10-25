@@ -1,1 +1,0 @@
-export { AssistantScreen } from './assistantScreen';

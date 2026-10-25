@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, View } from 'react-native';
+import { View } from 'react-native';
 import { MessageSquare, Scroll, Pencil, Trash2 } from 'lucide-react-native';
 import { AdventureDetails, AdventureListItem } from '@domain/controllers';
-import { useControllers } from '@presentation/providers/controllersProvider';
+import { useControllers } from '@presentation/providers/ControllersProvider';
 import { styles } from './styles';
-import { colors } from '../theme';
-import { CrudEntityList, screenStyles } from '@presentation/components';
+import { CrudEntityList, IconButton } from '@presentation/components';
 import { AdventureChatScreen } from './adventureChatScreen';
 import { SystemPromptViewer } from './systemPromptViewer';
 import { AdventuresForm } from './adventuresForm';
@@ -101,22 +100,14 @@ export function AdventuresScreen ({ onChatVisibleChange }: AdventuresScreenProps
 
   const renderActions = (adventure: AdventureListItem) => (
     <>
-      <TouchableOpacity style={screenStyles.actionButton} onPress={() => handleChat(adventure)}>
-        <MessageSquare size={16} color={colors.text} />
-      </TouchableOpacity>
-      <TouchableOpacity style={screenStyles.actionButton} onPress={() => handleViewSystemPrompt(adventure)}>
-        <Scroll size={16} color={colors.text} />
-      </TouchableOpacity>
-      <TouchableOpacity style={screenStyles.actionButton} onPress={() => openEdit(adventure)}>
-        <Pencil size={16} color={colors.text} />
-      </TouchableOpacity>
-      <TouchableOpacity style={screenStyles.actionButton} onPress={() => eraseEntity(adventure)}>
-        <Trash2 size={16} color={colors.text} />
-      </TouchableOpacity>
+      <IconButton icon={MessageSquare} accessibilityLabel="Open chat" onPress={() => handleChat(adventure)} />
+      <IconButton icon={Scroll} accessibilityLabel="View prompt" onPress={() => handleViewSystemPrompt(adventure)} />
+      <IconButton icon={Pencil} accessibilityLabel="Edit" onPress={() => openEdit(adventure)} />
+      <IconButton icon={Trash2} accessibilityLabel="Delete" onPress={() => eraseEntity(adventure)} />
     </>
   );
 
-  const renderForm = () => (
+  const formElement = showForm && (
     <AdventuresForm
       showForm={showForm}
       adventureStateFormData={form}
@@ -148,8 +139,7 @@ export function AdventuresScreen ({ onChatVisibleChange }: AdventuresScreenProps
         onDelete={eraseEntity}
         getDetailText={(adventure) => `Created: ${new Date(adventure.createdAt).toLocaleDateString()}`}
         renderActions={renderActions}
-        isFormOpen={showForm}
-        renderForm={renderForm}
+        form={formElement}
       />
 
       {showChat && selectedAdventureId && (

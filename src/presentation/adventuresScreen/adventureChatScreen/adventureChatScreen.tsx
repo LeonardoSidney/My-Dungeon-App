@@ -15,7 +15,7 @@ import { useThinkEditing } from './hooks/useThinkEditing';
 import { useThinkActions } from './hooks/useThinkActions';
 import { useReloadMessages } from './hooks/useReloadMessages';
 import { useSelectionActions } from './hooks/useSelectionActions';
-import { useKeyboardLift } from './hooks/useKeyboardLift';
+import { useKeyboardHeight } from '@presentation/hooks';
 import { useAdventureStreaming } from './useAdventureStreaming';
 import { useAdventureChatScreenLogic } from './useAdventureChatScreenLogic';
 import { AdventureChatContentProps, AdventureChatScreenProps } from './constants';
@@ -23,7 +23,7 @@ import { colors } from '../../theme';
 
 function AdventureChatContent ({ adventureId, adventureName, characters, worldMaster, messages, setMessages, updateMessages, reloadWorldMaster, onBack, controllers }: AdventureChatContentProps) {
   const { appendChatAdventure, addChatVersion, deleteChatAdventure, deleteChatVersion, continueFromChat, regenerateFromChat, resendChat, generateChatReply, getChatMessages, getChatMessage, stopChatReply, subscribeChatReply, alert, addThinkVersion, deleteThinkVersion, selectChatVersion } = controllers;
-  const keyboardHeight = useKeyboardLift();
+  const keyboardHeight = useKeyboardHeight();
 
   const characterNameById = useMemo(() => {
     const map: Record<string, string> = {};

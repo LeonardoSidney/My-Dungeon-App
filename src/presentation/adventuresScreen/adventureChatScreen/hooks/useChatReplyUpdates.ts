@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { createLatestRequestGuard } from '@presentation/shared/createLatestRequestGuard';
+import { createLatestRequestGuard } from '@presentation/utils/createLatestRequestGuard';
 import { handleChatReplyUpdate } from '../handleChatReplyUpdate';
 import { upsertChatMessage } from '../upsertChatMessage';
 import { UseChatReplyUpdatesParams } from './constants';

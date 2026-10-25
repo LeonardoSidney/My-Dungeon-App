@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import { DetailControllerResponse, IAlertController, ListControllerResponse } from '@domain/controllers';
+import { showError } from '../utils/showError';
 import { useEntityList } from './useEntityList';
 
 export type ControllerResponse = {
@@ -28,6 +29,8 @@ export type UseEntityScreenReturn<Entity extends { id: string; }, Form> = {
     reload: () => Promise<void>;
     form: Form;
     updateField: <K extends keyof Form>(field: K, value: Form[K]) => void;
+    /** Changes several fields at once, for edits where one user action touches more than one field. */
+    updateFields: (changes: Partial<Form>) => void;
     showForm: boolean;
     openAdd: () => void;
     openEdit: (entity: Entity) => Promise<void>;
@@ -54,17 +57,22 @@ export function useEntityScreen<Entity extends { id: string; }, Form, Details = 
     const [showForm, setShowForm] = useState(false);
     const [formErrors, setFormErrors] = useState<EntityFormErrors<Form>>({});
 
-    const updateField = useCallback(<K extends keyof Form> (field: K, value: Form[K]): void => {
-        setForm((prev) => ({ ...prev, [field]: value }));
+    const updateFields = useCallback((changes: Partial<Form>): void => {
+        setForm((prev) => ({ ...prev, ...changes }));
         setFormErrors((prev) => {
-            if (!prev[field]) {
+            const clearedFields = (Object.keys(changes) as (keyof Form)[]).filter(field => prev[field]);
+            if (clearedFields.length === 0) {
                 return prev;
             }
             const next = { ...prev };
-            delete next[field];
+            clearedFields.forEach(field => delete next[field]);
             return next;
         });
     }, []);
+
+    const updateField = useCallback(<K extends keyof Form> (field: K, value: Form[K]): void => {
+        updateFields({ [field]: value } as unknown as Partial<Form>);
+    }, [updateFields]);
 
     const openAdd = useCallback((): void => {
         setForm(paramsRef.current.initialForm());
@@ -75,7 +83,7 @@ export function useEntityScreen<Entity extends { id: string; }, Form, Details = 
     const openEdit = useCallback(async (entity: Entity): Promise<void> => {
         const response = await paramsRef.current.load(entity.id);
         if (!response.success || !response.data) {
-            paramsRef.current.alert.handle({ title: 'Erro', message: response.error ?? `Failed to load ${paramsRef.current.entityName}` });
+            showError(paramsRef.current.alert, response.error, `Failed to load ${paramsRef.current.entityName}`);
             return;
         }
         setForm(paramsRef.current.toFormState(response.data));
@@ -99,7 +107,7 @@ export function useEntityScreen<Entity extends { id: string; }, Form, Details = 
 
         const response = await paramsRef.current.submit(form);
         if (!response.success) {
-            paramsRef.current.alert.handle({ title: 'Erro', message: response.error ?? `Failed to save ${paramsRef.current.entityName}` });
+            showError(paramsRef.current.alert, response.error, `Failed to save ${paramsRef.current.entityName}`);
             return;
         }
 
@@ -111,7 +119,7 @@ export function useEntityScreen<Entity extends { id: string; }, Form, Details = 
     const eraseEntity = useCallback(async (entity: Entity): Promise<void> => {
         const response = await paramsRef.current.erase(entity.id);
         if (!response.success) {
-            paramsRef.current.alert.handle({ title: 'Erro', message: response.error ?? `Failed to erase ${paramsRef.current.entityName}` });
+            showError(paramsRef.current.alert, response.error, `Failed to erase ${paramsRef.current.entityName}`);
             return;
         }
         await reload();
@@ -124,6 +132,7 @@ export function useEntityScreen<Entity extends { id: string; }, Form, Details = 
         reload,
         form,
         updateField,
+        updateFields,
         showForm,
         openAdd,
         openEdit,
