@@ -3,10 +3,10 @@ import { StyleSheet } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import type { NavigationHelpers, StackNavigationState } from '@react-navigation/native';
-import { colors } from '@application/ui/theme';
+import { colors } from '@presentation/theme';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { ControllersProvider } from '@application/ui/providers/controllersProvider';
-import { WebAlertProvider } from '@application/ui/providers/webAlertProvider';
+import { ControllersProvider } from '@presentation/providers/controllersProvider';
+import { WebAlertProvider } from '@presentation/providers/webAlertProvider';
 import { buildControllers } from '@composition/controllers';
 import {
   SettingsScreen,
@@ -23,9 +23,9 @@ import {
   SystemPromptsScreen,
   AdventuresScreen,
   HomeScreen
-} from '@application/ui';
-import type { SidebarRoute } from '@application/ui/sidebarPanel';
-import { RootLayout, type RootParamList } from '@application/ui/navigation';
+} from '@presentation';
+import type { SidebarRoute } from '@presentation/sidebarPanel';
+import { RootLayout, type RootParamList } from '@presentation/navigation';
 import { runSeed } from './migration';
 import { HOME_DRAFT_ID } from '@domain/constants/draft';
 

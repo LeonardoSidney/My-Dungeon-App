@@ -11,6 +11,12 @@
       "@application/*": [
         "./src/application/*"
       ],
+      "@presentation": [
+        "./src/presentation"
+      ],
+      "@presentation/*": [
+        "./src/presentation/*"
+      ],
       "@adapters/*": [
         "./src/adapters/*"
       ],

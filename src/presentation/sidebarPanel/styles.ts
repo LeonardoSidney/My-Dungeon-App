@@ -1,0 +1,90 @@
+import { SIDEBAR_WIDTH } from '@presentation/sidebarPanel/constants';
+import { StyleSheet } from 'react-native';
+import { colors } from '../theme';
+import { HEADER_HEIGHT } from './screenHeader';
+
+const TOGGLE_BUTTON_SIZE = 44;
+
+export const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        height: '100%',
+        position: 'relative',
+    },
+    panel: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        bottom: 0,
+        width: SIDEBAR_WIDTH,
+        backgroundColor: '#1a1a2e',
+        borderRightWidth: 1,
+        borderRightColor: '#0f3460',
+        zIndex: 999,
+    },
+    panelTitle: {
+        height: HEADER_HEIGHT,
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingLeft: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: '#0f3460',
+    },
+    panelTitleText: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: '#e94560',
+    },
+    menu: {
+        paddingVertical: 8,
+    },
+    menuItem: {
+        paddingVertical: 14,
+        paddingHorizontal: 20,
+    },
+    menuItemActive: {
+        backgroundColor: '#0f3460',
+        borderLeftWidth: 3,
+        borderLeftColor: '#e94560',
+    },
+    menuItemText: {
+        fontSize: 16,
+        color: '#a8a8b3',
+        fontWeight: '500',
+    },
+    menuItemTextActive: {
+        color: colors.text,
+        fontWeight: '600',
+    },
+    toggleButton: {
+        position: 'absolute',
+        top: (HEADER_HEIGHT - TOGGLE_BUTTON_SIZE) / 2,
+        left: 12,
+        width: TOGGLE_BUTTON_SIZE,
+        height: TOGGLE_BUTTON_SIZE,
+        borderRadius: 8,
+        backgroundColor: '#1a1a2e',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1000,
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3,
+    },
+    toggleButtonOpen: {
+        backgroundColor: '#16213e',
+    },
+    toggleButtonText: {
+        color: colors.text,
+        fontSize: 22,
+        fontWeight: 'bold',
+    },
+    contentColumn: {
+        flex: 1,
+    },
+    contentArea: {
+        flex: 1,
+    },
+});

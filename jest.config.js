@@ -6,6 +6,8 @@ module.exports = {
     moduleNameMapper: {
         '^@domain/(.*)$': '<rootDir>/src/domain/$1',
         '^@application/(.*)$': '<rootDir>/src/application/$1',
+        '^@presentation$': '<rootDir>/src/presentation',
+        '^@presentation/(.*)$': '<rootDir>/src/presentation/$1',
         '^@adapters/(.*)$': '<rootDir>/src/adapters/$1',
         '^@composition/(.*)$': '<rootDir>/src/composition/$1',
         '^@infra/(.*)$': '<rootDir>/src/infrastructure/$1',
@@ -24,7 +26,7 @@ module.exports = {
         '!src/**/types/**',
         '!src/**/generated/**',
         '!src/**/*.web.{ts,tsx}',
-        '!src/**/ui/**',
+        '!src/presentation/**',
         '!src/**/styles.ts',
         '!src/**/constants.ts',
         '!src/domain/constants/**',

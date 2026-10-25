@@ -95,7 +95,7 @@ import {
     eraseWorldMasterController,
     createAlertController,
 } from '@infra/container';
-import type { AppControllers } from '@application/ui/providers/appControllers';
+import type { AppControllers } from '@presentation/providers/appControllers';
 
 export function buildControllers (): AppControllers {
     return {
