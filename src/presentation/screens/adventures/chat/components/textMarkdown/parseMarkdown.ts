@@ -235,7 +235,7 @@ export function parseMarkdown (input: string): BlockElement[] {
             blocks.push({
                 type: 'paragraph',
                 key: `paragraph-${blocks.length}`,
-                children: parseInlineMarkdown(paragraphLines.join(' '))
+                children: parseInlineMarkdown(paragraphLines.join('\n'))
             });
         }
     }
