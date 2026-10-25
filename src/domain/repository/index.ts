@@ -13,3 +13,4 @@ export * from './iItemRepository';
 export * from './iSystemPromptRepository';
 export * from './iModelTemplateRepository';
 export * from './iDraftRepository';
+export * from './iSettingsRepository';

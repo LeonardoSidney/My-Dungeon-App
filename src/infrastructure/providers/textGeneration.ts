@@ -9,7 +9,13 @@ import {
     WorldMaster,
 } from '@domain/entities';
 import { ILogger } from '@domain/logger';
-import { AdventureTemplates, BuildAdventureTextSystemPromptReturn, ITextGeneration, ResolveTemplatesReturn } from '@domain/providers';
+import {
+    AdventureTemplates,
+    BuildAdventureTextSystemPromptReturn,
+    EnabledCharacterReferences,
+    ITextGeneration,
+    ResolveTemplatesReturn,
+} from '@domain/providers';
 import { ITextGenerationTemplatesService } from '@domain/services';
 import { HydratedAdventure, HydratedCharacter } from '@domain/use-cases';
 
@@ -19,7 +25,7 @@ export class TextGeneration implements ITextGeneration {
         private readonly templatesService: ITextGenerationTemplatesService
     ) { }
 
-    buildAdventureTextSystemPrompt (hydrated: HydratedAdventure): BuildAdventureTextSystemPromptReturn {
+    buildAdventureTextSystemPrompt (hydrated: HydratedAdventure, loadOrder: string): BuildAdventureTextSystemPromptReturn {
         this.logger.info('TextGeneration::buildAdventureText');
         this.logger.debug(`Building adventure text for: ${hydrated.adventure.name}`);
 
@@ -31,6 +37,7 @@ export class TextGeneration implements ITextGeneration {
 
         const templates = templatesResponse.templates;
         const { systemPrompts, worldMaster, worlds, locations, items, characters } = hydrated;
+        const enabledReferences = this.resolveEnabledCharacterReferences(loadOrder);
         const systemPromptTemplate = this.buildSystemPromptTemplate(systemPrompts, templates.systemPrompt);
         this.logger.debug('System prompt template built', systemPromptTemplate);
 
@@ -55,14 +62,14 @@ export class TextGeneration implements ITextGeneration {
         const statusesTemplate = this.buildStatusesTemplate(characters, templates.statuses);
         this.logger.debug('Statuses template built', statusesTemplate);
 
-        const iaControlledCharacterTemplate = this.buildIaControlledCharacterTemplate(characters, templates.iaControlledCharacter);
+        const iaControlledCharacterTemplate = this.buildIaControlledCharacterTemplate(characters, templates.iaControlledCharacter, enabledReferences);
         this.logger.debug('IA-controlled character template built', iaControlledCharacterTemplate);
 
-        const charactersTemplate = this.buildCharactersTemplate(characters, templates.characters);
+        const charactersTemplate = this.buildCharactersTemplate(characters, templates.characters, enabledReferences);
         this.logger.debug('Characters template built', charactersTemplate);
 
         this.logger.debug('Adventure text built successfully');
-        const systemPrompt = templates.root.replace('{systemPrompt}', systemPromptTemplate)
+        const systemPrompt = loadOrder.replace('{systemPrompt}', systemPromptTemplate)
             .replace('{worldMaster}', worldMasterTemplate)
             .replace('{characterAsWorldMaster}', iaControlledCharacterTemplate)
             .replace('{worlds}', worldsTemplate)
@@ -78,7 +85,6 @@ export class TextGeneration implements ITextGeneration {
 
     private resolveTemplates (): ResolveTemplatesReturn {
         const responses: Record<keyof AdventureTemplates, { success: boolean; template?: string; error?: string; }> = {
-            root: this.templatesService.getRootTemplate(),
             systemPrompt: this.templatesService.getSystemPromptTemplate(),
             worldMaster: this.templatesService.getWorldMasterTemplate(),
             iaControlledCharacter: this.templatesService.getIaControlledCharacterTemplate(),
@@ -103,13 +109,21 @@ export class TextGeneration implements ITextGeneration {
         return { success: true, templates };
     }
 
-    private buildCharacterResourceReferences (character: HydratedCharacter): string {
+    private resolveEnabledCharacterReferences (loadOrder: string): EnabledCharacterReferences {
+        return {
+            abilities: loadOrder.includes('{abilities}'),
+            proficiencies: loadOrder.includes('{proficiencies}'),
+            statuses: loadOrder.includes('{statuses}'),
+        };
+    }
+
+    private buildCharacterResourceReferences (character: HydratedCharacter, enabledReferences: EnabledCharacterReferences): string {
         this.logger.info('TextGeneration::buildCharacterResourceReferences');
         this.logger.debug(`Building resource references for character: ${character.name}`);
 
         let references = '';
 
-        if (character.abilities.length > 0) {
+        if (enabledReferences.abilities && character.abilities.length > 0) {
             this.logger.debug(`Character ${character.name} has ${character.abilities.length} abilities`);
             references += '### ABILITIES\n';
             for (const ability of character.abilities) {
@@ -118,7 +132,7 @@ export class TextGeneration implements ITextGeneration {
             references += '\n';
         }
 
-        if (character.proficiencies.length > 0) {
+        if (enabledReferences.proficiencies && character.proficiencies.length > 0) {
             this.logger.debug(`Character ${character.name} has ${character.proficiencies.length} proficiencies`);
             references += '### PROFICIENCIES\n';
             for (const proficiency of character.proficiencies) {
@@ -127,7 +141,7 @@ export class TextGeneration implements ITextGeneration {
             references += '\n';
         }
 
-        if (character.statuses.length > 0) {
+        if (enabledReferences.statuses && character.statuses.length > 0) {
             this.logger.debug(`Character ${character.name} has ${character.statuses.length} statuses`);
             references += '### STATUSES\n';
             for (const status of character.statuses) {
@@ -139,7 +153,11 @@ export class TextGeneration implements ITextGeneration {
         return references;
     }
 
-    private buildIaControlledCharacterTemplate (characters: HydratedCharacter[], template: string): string {
+    private buildIaControlledCharacterTemplate (
+        characters: HydratedCharacter[],
+        template: string,
+        enabledReferences: EnabledCharacterReferences
+    ): string {
         const iaControlledCharacter = characters.find(c => c.worldMaster === true);
         if (!iaControlledCharacter) {
             return '';
@@ -147,7 +165,7 @@ export class TextGeneration implements ITextGeneration {
 
         this.logger.debug(`Building IA-controlled character template for: ${iaControlledCharacter.name}`);
         const characterHeader = `## ${iaControlledCharacter.name.toUpperCase()}\n`;
-        const characterReferences = this.buildCharacterResourceReferences(iaControlledCharacter);
+        const characterReferences = this.buildCharacterResourceReferences(iaControlledCharacter, enabledReferences);
         const characterBlock = `${characterHeader}${iaControlledCharacter.prompt}\n${characterReferences}`;
         return template.replace('{characterAsWorldMaster}', characterBlock);
     }
@@ -284,7 +302,11 @@ export class TextGeneration implements ITextGeneration {
         return template.replace('{statuses}', statuses);
     }
 
-    private buildCharactersTemplate (characters: HydratedCharacter[], template: string): string {
+    private buildCharactersTemplate (
+        characters: HydratedCharacter[],
+        template: string,
+        enabledReferences: EnabledCharacterReferences
+    ): string {
         let charactersText = '';
         for (const character of characters) {
             if (character.worldMaster === true) {
@@ -294,7 +316,7 @@ export class TextGeneration implements ITextGeneration {
 
             this.logger.debug(`Processing character: ${character.name}`);
             charactersText += `## ${character.name.toUpperCase()}\n${character.prompt}\n`;
-            charactersText += this.buildCharacterResourceReferences(character);
+            charactersText += this.buildCharacterResourceReferences(character, enabledReferences);
         }
 
         const playableCharacters = characters.filter(c => c.worldMaster !== true);

@@ -1,6 +1,6 @@
 import { GetAdventureSystemPromptUseCase } from '@application/use-cases';
 import { ITextGeneration } from '@domain/providers';
-import { IHydrateAdventureUseCase } from '@domain/use-cases';
+import { IGetSystemPromptLoadOrderUseCase, IHydrateAdventureUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { createAdventureHelper, createHydratedAdventureHelper } from '@test/helpers';
 
@@ -20,13 +20,18 @@ const mockTextGeneration = {
     buildAdventureTextSystemPrompt: jest.fn()
 };
 
+const mockGetSystemPromptLoadOrderUseCase = {
+    execute: jest.fn()
+};
+
 const adventure = createAdventureHelper();
 
 function buildUseCase (): GetAdventureSystemPromptUseCase {
     return new GetAdventureSystemPromptUseCase(
         mockLogger,
         mockTextGeneration as unknown as ITextGeneration,
-        mockHydrateAdventureUseCase as unknown as IHydrateAdventureUseCase
+        mockHydrateAdventureUseCase as unknown as IHydrateAdventureUseCase,
+        mockGetSystemPromptLoadOrderUseCase as unknown as IGetSystemPromptLoadOrderUseCase
     );
 }
 
@@ -34,6 +39,7 @@ describe('GetAdventureSystemPromptUseCase', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         mockHydrateAdventureUseCase.execute.mockResolvedValue({ success: true, hydrated: createHydratedAdventureHelper({ adventure }) });
+        mockGetSystemPromptLoadOrderUseCase.execute.mockResolvedValue({ success: true, loadOrder: '{worldMaster}' });
     });
 
     it('should return the system prompt composed from the adventure hydrated by id', async () => {
@@ -43,7 +49,20 @@ describe('GetAdventureSystemPromptUseCase', () => {
 
         expect(response).toEqual({ success: true, systemPrompt: '# WORLD MASTER\nprompt here' });
         expect(mockHydrateAdventureUseCase.execute).toHaveBeenCalledWith({ adventureId: 'adventure-1' });
-        expect(mockTextGeneration.buildAdventureTextSystemPrompt).toHaveBeenCalledTimes(1);
+        expect(mockTextGeneration.buildAdventureTextSystemPrompt).toHaveBeenCalledWith(expect.objectContaining({ adventure }), '{worldMaster}');
+    });
+
+    it.each([
+        [{ success: false, error: 'Failed to load settings' }, 'Failed to load settings'],
+        [{ success: false }, 'Failed to load system prompt load order'],
+        [{ success: true }, 'Failed to load system prompt load order']
+    ])('should fail without building the system prompt when the load order answers %j', async (loadOrderResponse, error) => {
+        mockGetSystemPromptLoadOrderUseCase.execute.mockResolvedValue(loadOrderResponse);
+
+        const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
+
+        expect(response).toEqual({ success: false, error });
+        expect(mockTextGeneration.buildAdventureTextSystemPrompt).not.toHaveBeenCalled();
     });
 
     it('should return the hydration error without building the system prompt', async () => {

@@ -70,6 +70,8 @@ Every turn the app assembles the prompt by joining the table's sections:
 
 Only what the adventure has goes in — the injection is on demand, precisely to keep a useful context without blowing the window.
 
+That order is the default **System Prompt Load Order**, editable in Settings: reorder the tags or remove the ones you don't want injected (an empty load order injects nothing). Only the tags above are accepted, each one at most once; spaces and line breaks are ignored, and _Restore default_ brings the string above back.
+
 The answer arrives **streaming** straight from the server, and reasoning models can _think_: the _thinking_ is recorded with the message in the chat and can be edited or removed. On your turn you decree actions and speak for the characters you control in the adventure chat; on the AI's turn the world master and the characters it controls answer — and every message can be regenerated, resent or continued.
 
 ## The server: llama.cpp

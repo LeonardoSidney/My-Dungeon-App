@@ -1,5 +1,4 @@
 export interface ITextGenerationTemplatesService {
-    getRootTemplate (): RootTemplateServiceResponse;
     getSystemPromptTemplate (): SystemPromptTemplateServiceResponse;
     getWorldMasterTemplate (): WorldMasterTemplateServiceResponse;
     getIaControlledCharacterTemplate (): IaControlledCharacterTemplateServiceResponse;
@@ -12,7 +11,6 @@ export interface ITextGenerationTemplatesService {
     getCharactersTemplate (): CharactersTemplateServiceResponse;
 }
 
-export type RootTemplateServiceResponse = { success: boolean; template?: string; error?: string; };
 export type SystemPromptTemplateServiceResponse = { success: boolean; template?: string; error?: string; };
 export type WorldMasterTemplateServiceResponse = { success: boolean; template?: string; error?: string; };
 export type IaControlledCharacterTemplateServiceResponse = { success: boolean; template?: string; error?: string; };

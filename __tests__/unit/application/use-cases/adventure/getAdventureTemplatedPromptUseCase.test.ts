@@ -1,7 +1,7 @@
 import { GetAdventureTemplatedPromptUseCase } from '@application/use-cases';
 import { ITextGeneration } from '@domain/providers';
 import { IModelProviderGateway } from '@domain/gateways';
-import { IHydrateAdventureUseCase } from '@domain/use-cases';
+import { IGetSystemPromptLoadOrderUseCase, IHydrateAdventureUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { createAdventureHelper, createHydratedAdventureHelper } from '@test/helpers';
 
@@ -25,18 +25,24 @@ const mockGateway = {
     applyTemplate: jest.fn()
 };
 
+const mockGetSystemPromptLoadOrderUseCase = {
+    execute: jest.fn()
+};
+
 function buildUseCase (): GetAdventureTemplatedPromptUseCase {
     return new GetAdventureTemplatedPromptUseCase(
         mockLogger,
         mockTextGeneration as unknown as ITextGeneration,
         mockGateway as unknown as IModelProviderGateway,
-        mockHydrateAdventureUseCase as unknown as IHydrateAdventureUseCase
+        mockHydrateAdventureUseCase as unknown as IHydrateAdventureUseCase,
+        mockGetSystemPromptLoadOrderUseCase as unknown as IGetSystemPromptLoadOrderUseCase
     );
 }
 
 describe('GetAdventureTemplatedPromptUseCase', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        mockGetSystemPromptLoadOrderUseCase.execute.mockResolvedValue({ success: true, loadOrder: '{systemPrompt}{characters}' });
     });
 
     it('reuses the provided hydrated adventure without loading or hydrating it', async () => {
@@ -50,13 +56,27 @@ describe('GetAdventureTemplatedPromptUseCase', () => {
 
         expect(response).toEqual({ success: true, prompt: 'final prompt' });
         expect(mockHydrateAdventureUseCase.execute).not.toHaveBeenCalled();
-        expect(mockTextGeneration.buildAdventureTextSystemPrompt).toHaveBeenCalledWith(hydrated);
+        expect(mockTextGeneration.buildAdventureTextSystemPrompt).toHaveBeenCalledWith(hydrated, '{systemPrompt}{characters}');
         expect(mockGateway.applyTemplate).toHaveBeenCalledWith({
             connection: expect.objectContaining({ id: '1' }),
             modelId: '1',
             systemPrompt: 'system prompt',
             chat: adventure.chat
         });
+    });
+
+    it.each([
+        [{ success: false, error: 'Failed to load settings' }, 'Failed to load settings'],
+        [{ success: false }, 'Failed to load system prompt load order'],
+        [{ success: true }, 'Failed to load system prompt load order']
+    ])('fails without building the system prompt when the load order answers %j', async (loadOrderResponse, error) => {
+        mockGetSystemPromptLoadOrderUseCase.execute.mockResolvedValue(loadOrderResponse);
+
+        const response = await buildUseCase().execute({ hydrated: createHydratedAdventureHelper() });
+
+        expect(response).toEqual({ success: false, error });
+        expect(mockTextGeneration.buildAdventureTextSystemPrompt).not.toHaveBeenCalled();
+        expect(mockGateway.applyTemplate).not.toHaveBeenCalled();
     });
 
     it('fails when the gateway does not return a prompt', async () => {

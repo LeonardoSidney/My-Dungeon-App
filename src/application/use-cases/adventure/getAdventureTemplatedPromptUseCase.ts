@@ -7,6 +7,7 @@ import {
     HYDRATED_PARAM_KEY,
     HydratedAdventure,
     IGetAdventureTemplatedPromptUseCase,
+    IGetSystemPromptLoadOrderUseCase,
     IHydrateAdventureUseCase,
     ResolveHydratedReturn,
     WorldMasterRuntimeReturn,
@@ -17,7 +18,8 @@ export class GetAdventureTemplatedPromptUseCase implements IGetAdventureTemplate
         private readonly logger: ILogger,
         private readonly provider: ITextGeneration,
         private readonly gateway: IModelProviderGateway,
-        private readonly hydrateAdventureUseCase: IHydrateAdventureUseCase
+        private readonly hydrateAdventureUseCase: IHydrateAdventureUseCase,
+        private readonly getSystemPromptLoadOrderUseCase: IGetSystemPromptLoadOrderUseCase
     ) { }
 
     async execute (params: GetAdventureTemplatedPromptUseCaseParams): Promise<GetAdventureTemplatedPromptUseCaseResponse> {
@@ -29,8 +31,13 @@ export class GetAdventureTemplatedPromptUseCase implements IGetAdventureTemplate
             return { success: false, error: hydratedResponse.error ?? 'Failed to hydrate adventure' };
         }
 
+        const loadOrderResponse = await this.getSystemPromptLoadOrderUseCase.execute();
+        if (!loadOrderResponse.success || loadOrderResponse.loadOrder === undefined) {
+            return { success: false, error: loadOrderResponse.error ?? 'Failed to load system prompt load order' };
+        }
+
         const hydrated = hydratedResponse.hydrated;
-        const systemPromptResponse = this.provider.buildAdventureTextSystemPrompt(hydrated);
+        const systemPromptResponse = this.provider.buildAdventureTextSystemPrompt(hydrated, loadOrderResponse.loadOrder);
         if (!systemPromptResponse.success || systemPromptResponse.systemPrompt === undefined) {
             this.logger.warning('GetAdventureTemplatedPromptUseCase::execute - failed to build system prompt', systemPromptResponse.error);
             return { success: false, error: systemPromptResponse.error };

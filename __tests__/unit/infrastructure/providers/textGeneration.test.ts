@@ -23,8 +23,9 @@ const mockLogger: ILogger = {
     log: jest.fn()
 };
 
+const LOAD_ORDER = '{systemPrompt}|{worldMaster}|{characterAsWorldMaster}|{worlds}|{locations}|{items}|{abilities}|{proficiencies}|{statuses}|{characters}';
+
 const TEMPLATES = {
-    getRootTemplate: '{systemPrompt}|{worldMaster}|{characterAsWorldMaster}|{worlds}|{locations}|{items}|{abilities}|{proficiencies}|{statuses}|{characters}',
     getSystemPromptTemplate: 'SP<{systemPrompt}>',
     getWorldMasterTemplate: 'WM<{worldMaster}>',
     getIaControlledCharacterTemplate: 'IA<{characterAsWorldMaster}>',
@@ -87,7 +88,7 @@ describe('TextGeneration', () => {
                 items: [createItemHelper({ name: 'Sword', prompt: 'Item prompt' })]
             };
 
-            const result = buildTextGeneration().buildAdventureTextSystemPrompt(hydrated);
+            const result = buildTextGeneration().buildAdventureTextSystemPrompt(hydrated, LOAD_ORDER);
 
             expect(result.success).toBe(true);
             expect(result.systemPrompt?.split('|')).toEqual([
@@ -117,7 +118,7 @@ describe('TextGeneration', () => {
                 items: []
             };
 
-            const result = buildTextGeneration().buildAdventureTextSystemPrompt(hydrated);
+            const result = buildTextGeneration().buildAdventureTextSystemPrompt(hydrated, LOAD_ORDER);
 
             expect(result).toEqual({ success: true, systemPrompt: 'SP<>|||||||||CHARACTERS<>' });
         });
@@ -125,7 +126,7 @@ describe('TextGeneration', () => {
         it('keeps the world master section with an empty prompt', () => {
             const hydrated = createHydratedAdventureHelper({ worldMaster: createWorldMasterHelper({ prompt: '' }) });
 
-            const sections = buildTextGeneration().buildAdventureTextSystemPrompt(hydrated).systemPrompt?.split('|');
+            const sections = buildTextGeneration().buildAdventureTextSystemPrompt(hydrated, LOAD_ORDER).systemPrompt?.split('|');
 
             expect(sections?.[1]).toBe('WM<>');
         });
@@ -138,10 +139,101 @@ describe('TextGeneration', () => {
                 ]
             });
 
-            const sections = buildTextGeneration().buildAdventureTextSystemPrompt(hydrated).systemPrompt?.split('|');
+            const sections = buildTextGeneration().buildAdventureTextSystemPrompt(hydrated, LOAD_ORDER).systemPrompt?.split('|');
 
             expect(sections?.[7]).toBe('PROFICIENCIES<## SWORDS\nFights with swords\n>');
             expect(sections?.[8]).toBe('STATUSES<## HEALTHY\nFeels fine\n>');
+        });
+
+        describe('load order', () => {
+            const hydrated = {
+                ...createHydratedAdventureHelper({
+                    worldMaster: createWorldMasterHelper({ prompt: 'Master prompt' }),
+                    characters: [character({ name: 'Hero', prompt: 'Hero prompt' })]
+                }),
+                systemPrompts: [createSystemPromptHelper({ content: 'Rules' })],
+                worlds: [createWorldHelper({ name: 'Aether', prompt: 'World prompt' })]
+            };
+
+            it('injects the sections in the order of the load order', () => {
+                const result = buildTextGeneration().buildAdventureTextSystemPrompt(hydrated, '{characters}|{worlds}|{systemPrompt}');
+
+                expect(result).toEqual({
+                    success: true,
+                    systemPrompt: 'CHARACTERS<## HERO\nHero prompt\n>|WORLDS<## AETHER\nWorld prompt\n>|SP<Rules\n>'
+                });
+            });
+
+            it('leaves out the sections whose tags were removed', () => {
+                const result = buildTextGeneration().buildAdventureTextSystemPrompt(hydrated, '{systemPrompt}|{characters}');
+
+                expect(result.systemPrompt).toBe('SP<Rules\n>|CHARACTERS<## HERO\nHero prompt\n>');
+                expect(result.systemPrompt).not.toContain('Master prompt');
+                expect(result.systemPrompt).not.toContain('World prompt');
+            });
+
+            describe('character references', () => {
+                const referencesHydrated = createHydratedAdventureHelper({
+                    characters: [
+                        character({
+                            name: 'Narrator',
+                            prompt: 'Narrator prompt',
+                            worldMaster: true,
+                            abilities: [fireball],
+                            proficiencies: [swords],
+                            statuses: [healthy]
+                        }),
+                        character({ name: 'Hero', prompt: 'Hero prompt', abilities: [fireball], proficiencies: [swords], statuses: [healthy] })
+                    ]
+                });
+                const abilitiesReference = '### ABILITIES\n- **Fireball**\n\n';
+                const proficienciesReference = '### PROFICIENCIES\n- **Swords**\n\n';
+                const statusesReference = '### STATUSES\n- **Healthy**\n\n';
+
+                function buildSections (loadOrder: string) {
+                    const systemPrompt = buildTextGeneration().buildAdventureTextSystemPrompt(referencesHydrated, loadOrder).systemPrompt ?? '';
+                    const [iaControlledCharacter, characters] = systemPrompt.split('|');
+                    return { iaControlledCharacter, characters };
+                }
+
+                it('lists every reference when all of their tags are in the load order', () => {
+                    const sections = buildSections('{characterAsWorldMaster}|{characters}{abilities}{proficiencies}{statuses}');
+
+                    for (const section of [sections.iaControlledCharacter, sections.characters]) {
+                        expect(section).toContain(abilitiesReference);
+                        expect(section).toContain(proficienciesReference);
+                        expect(section).toContain(statusesReference);
+                    }
+                });
+
+                it('lists no reference when none of their tags is in the load order', () => {
+                    const sections = buildSections('{characterAsWorldMaster}|{characters}');
+
+                    expect(sections.iaControlledCharacter).toBe('IA<## NARRATOR\nNarrator prompt\n>');
+                    expect(sections.characters).toBe('CHARACTERS<## HERO\nHero prompt\n>');
+                });
+
+                it.each([
+                    ['{abilities}', abilitiesReference, [proficienciesReference, statusesReference]],
+                    ['{proficiencies}', proficienciesReference, [abilitiesReference, statusesReference]],
+                    ['{statuses}', statusesReference, [abilitiesReference, proficienciesReference]],
+                ])('lists only the %s references when only that tag is in the load order', (tag, kept, removed) => {
+                    const sections = buildSections(`{characterAsWorldMaster}|{characters}${tag}`);
+
+                    for (const section of [sections.iaControlledCharacter, sections.characters]) {
+                        expect(section).toContain(kept);
+                        for (const reference of removed) {
+                            expect(section).not.toContain(reference);
+                        }
+                    }
+                });
+            });
+
+            it('injects nothing when the load order is empty', () => {
+                const result = buildTextGeneration().buildAdventureTextSystemPrompt(hydrated, '');
+
+                expect(result).toEqual({ success: true, systemPrompt: '' });
+            });
         });
 
         it.each([
@@ -152,7 +244,7 @@ describe('TextGeneration', () => {
             const templatesService = buildTemplatesService();
             templatesService.getWorldsTemplate.mockReturnValue(templateResponse);
 
-            const result = buildTextGeneration(templatesService).buildAdventureTextSystemPrompt(createHydratedAdventureHelper());
+            const result = buildTextGeneration(templatesService).buildAdventureTextSystemPrompt(createHydratedAdventureHelper(), LOAD_ORDER);
 
             expect(result).toEqual({ success: false, error });
             expect(mockLogger.warning).toHaveBeenCalled();

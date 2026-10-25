@@ -16,3 +16,4 @@ export * from './thinkDTO';
 export * from './ModelDTO';
 export * from './modelTemplateDTO';
 export * from './draftDTO';
+export * from './settingsDTO';

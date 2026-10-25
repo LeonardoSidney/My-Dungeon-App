@@ -14,6 +14,7 @@ import {
     WorldRepository,
     WorldMasterRepository,
     DraftRepository,
+    SettingsRepository,
 } from '../repository';
 import {
     IAbilityRepository,
@@ -31,6 +32,7 @@ import {
     IWorldRepository,
     IWorldMasterRepository,
     IDraftRepository,
+    ISettingsRepository,
 } from '@domain/repository';
 import { ILogger } from '@domain/logger';
 import { IStorage } from '@domain/storage';
@@ -93,4 +95,8 @@ export function createWorldMasterRepository (storage: IStorage, logger: ILogger)
 
 export function createDraftRepository (storage: IStorage, logger: ILogger): IDraftRepository {
     return new DraftRepository(logger, storage);
+}
+
+export function createSettingsRepository (storage: IStorage, logger: ILogger): ISettingsRepository {
+    return new SettingsRepository(logger, storage);
 }

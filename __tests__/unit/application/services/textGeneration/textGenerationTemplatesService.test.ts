@@ -8,7 +8,6 @@ import {
     DEFAULT_TEXT_ADVENTURE_PROFICIENCIES_TEMPLATE,
     DEFAULT_TEXT_ADVENTURE_STATUSES_TEMPLATE,
     DEFAULT_TEXT_ADVENTURE_SYSTEM_PROMPT_TEMPLATE,
-    DEFAULT_TEXT_ADVENTURE_TEMPLATE,
     DEFAULT_TEXT_ADVENTURE_WORLD_MASTER_TEMPLATE,
     DEFAULT_TEXT_ADVENTURE_WORLDS_TEMPLATE,
 } from '@domain/constants/textGeneration';
@@ -41,7 +40,6 @@ describe('TextGenerationTemplatesService', () => {
         run: () => { success: boolean; template?: string; error?: string; };
         expected: string;
     }> = [
-        { name: 'getRootTemplate', run: () => service.getRootTemplate(), expected: DEFAULT_TEXT_ADVENTURE_TEMPLATE },
         { name: 'getSystemPromptTemplate', run: () => service.getSystemPromptTemplate(), expected: DEFAULT_TEXT_ADVENTURE_SYSTEM_PROMPT_TEMPLATE },
         { name: 'getWorldMasterTemplate', run: () => service.getWorldMasterTemplate(), expected: DEFAULT_TEXT_ADVENTURE_WORLD_MASTER_TEMPLATE },
         { name: 'getIaControlledCharacterTemplate', run: () => service.getIaControlledCharacterTemplate(), expected: DEFAULT_TEXT_ADVENTURE_IA_CONTROLLED_CHARACTER_TEMPLATE },

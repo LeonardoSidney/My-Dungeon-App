@@ -94,6 +94,9 @@ import {
     editWorldMasterController,
     eraseWorldMasterController,
     createAlertController,
+    getSystemPromptLoadOrderController,
+    saveSystemPromptLoadOrderController,
+    resetSystemPromptLoadOrderController,
 } from '@infra/container';
 import type { AppControllers } from '@presentation/providers/appControllers';
 
@@ -194,5 +197,8 @@ export function buildControllers (): AppControllers {
         editWorldMaster: editWorldMasterController(),
         eraseWorldMaster: eraseWorldMasterController(),
         alert: createAlertController(),
+        getSystemPromptLoadOrder: getSystemPromptLoadOrderController(),
+        saveSystemPromptLoadOrder: saveSystemPromptLoadOrderController(),
+        resetSystemPromptLoadOrder: resetSystemPromptLoadOrderController(),
     };
 }

@@ -70,6 +70,8 @@ Em cada turno o app monta o prompt juntando as seções da mesa:
 
 Só entra o que a aventura tem — a injeção é sob demanda, justamente para preservar um contexto útil sem estourar a janela.
 
+Essa ordem é o padrão da **System Prompt Load Order**, editável nas Configurações: reordene as tags ou remova as que não quer injetar (uma load order vazia não injeta nada). Só as tags acima são aceitas, cada uma no máximo uma vez; espaços e quebras de linha são ignorados, e o _Restore default_ traz a string acima de volta.
+
 A resposta chega em **streaming** direto do servidor, e modelos de raciocínio podem _pensar_: o _thinking_ fica gravado junto da mensagem no chat e pode ser editado ou removido. No seu turno você decreta ações e fala dos personagens que controla no chat da aventura; no turno da IA, o world master e os personagens sob controle dela respondem — e cada mensagem pode ser regenerada, reenviada ou continuada.
 
 ## O servidor: llama.cpp

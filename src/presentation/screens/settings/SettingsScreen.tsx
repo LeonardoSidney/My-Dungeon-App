@@ -7,10 +7,23 @@ import { showError } from '@presentation/utils/showError';
 import { ConnectionForm } from './ConnectionForm';
 import { ConnectionPanel } from './ConnectionPanel';
 import { DangerZone } from './DangerZone';
+import { SystemPromptLoadOrderPanel } from './SystemPromptLoadOrderPanel';
 import { initialConnectionForm, submitConnection, toConnectionFormState, validateConnectionForm } from './connectionForm';
+import { useSystemPromptLoadOrder } from './useSystemPromptLoadOrder';
 
 export function SettingsScreen () {
-  const { createConnectionConfig, editConnection, eraseAdventures, eraseConnection, getConnections, getConnection, alert } = useControllers();
+  const {
+    createConnectionConfig,
+    editConnection,
+    eraseAdventures,
+    eraseConnection,
+    getConnections,
+    getConnection,
+    getSystemPromptLoadOrder,
+    saveSystemPromptLoadOrder,
+    resetSystemPromptLoadOrder,
+    alert,
+  } = useControllers();
   const [isErasing, setIsErasing] = useState(false);
 
   const connections = useEntityScreen({
@@ -22,6 +35,13 @@ export function SettingsScreen () {
     initialForm: initialConnectionForm,
     validate: validateConnectionForm,
     entityName: 'connection',
+    alert,
+  });
+
+  const systemPromptLoadOrder = useSystemPromptLoadOrder({
+    getSystemPromptLoadOrder,
+    saveSystemPromptLoadOrder,
+    resetSystemPromptLoadOrder,
     alert,
   });
 
@@ -54,6 +74,17 @@ export function SettingsScreen () {
             onSave={connections.save}
           />
         )}
+        <SystemPromptLoadOrderPanel
+          loadOrder={systemPromptLoadOrder.loadOrder}
+          error={systemPromptLoadOrder.error}
+          loadError={systemPromptLoadOrder.loadError}
+          isLoading={systemPromptLoadOrder.isLoading}
+          isSaving={systemPromptLoadOrder.isSaving}
+          hasUnsavedChanges={systemPromptLoadOrder.hasUnsavedChanges}
+          onChange={systemPromptLoadOrder.changeLoadOrder}
+          onSave={systemPromptLoadOrder.save}
+          onRestoreDefault={systemPromptLoadOrder.restoreDefault}
+        />
         <DangerZone isErasing={isErasing} onErase={eraseAllAdventures} />
       </ScrollView>
     </View>

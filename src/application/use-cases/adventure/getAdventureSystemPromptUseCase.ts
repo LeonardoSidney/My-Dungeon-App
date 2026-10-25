@@ -4,6 +4,7 @@ import {
     GetAdventureSystemPromptUseCaseParams,
     GetAdventureSystemPromptUseCaseResponse,
     IGetAdventureSystemPromptUseCase,
+    IGetSystemPromptLoadOrderUseCase,
     IHydrateAdventureUseCase,
 } from '@domain/use-cases';
 
@@ -11,7 +12,8 @@ export class GetAdventureSystemPromptUseCase implements IGetAdventureSystemPromp
     constructor (
         private readonly logger: ILogger,
         private readonly provider: ITextGeneration,
-        private readonly hydrateAdventureUseCase: IHydrateAdventureUseCase
+        private readonly hydrateAdventureUseCase: IHydrateAdventureUseCase,
+        private readonly getSystemPromptLoadOrderUseCase: IGetSystemPromptLoadOrderUseCase
     ) { }
 
     async execute (params: GetAdventureSystemPromptUseCaseParams): Promise<GetAdventureSystemPromptUseCaseResponse> {
@@ -26,7 +28,12 @@ export class GetAdventureSystemPromptUseCase implements IGetAdventureSystemPromp
             };
         }
 
-        const systemPromptResponse = this.provider.buildAdventureTextSystemPrompt(hydrateResponse.hydrated);
+        const loadOrderResponse = await this.getSystemPromptLoadOrderUseCase.execute();
+        if (!loadOrderResponse.success || loadOrderResponse.loadOrder === undefined) {
+            return { success: false, error: loadOrderResponse.error ?? 'Failed to load system prompt load order' };
+        }
+
+        const systemPromptResponse = this.provider.buildAdventureTextSystemPrompt(hydrateResponse.hydrated, loadOrderResponse.loadOrder);
         if (!systemPromptResponse.success || systemPromptResponse.systemPrompt === undefined) {
             this.logger.warning('GetAdventureSystemPromptUseCase::execute - failed to build system prompt', systemPromptResponse.error);
             return { success: false, error: systemPromptResponse.error };

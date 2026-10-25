@@ -99,3 +99,6 @@ export * from './iSaveDraftController';
 export * from './iStartDraftCompletionController';
 export * from './iStopDraftCompletionController';
 export * from './iSubscribeDraftController';
+export * from './iGetSystemPromptLoadOrderController';
+export * from './iSaveSystemPromptLoadOrderController';
+export * from './iResetSystemPromptLoadOrderController';

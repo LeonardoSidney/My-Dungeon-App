@@ -1,7 +1,7 @@
 import { HydratedAdventure } from '@domain/use-cases';
 
 export interface ITextGeneration {
-    buildAdventureTextSystemPrompt (hydrated: HydratedAdventure): BuildAdventureTextSystemPromptReturn;
+    buildAdventureTextSystemPrompt (hydrated: HydratedAdventure, loadOrder: string): BuildAdventureTextSystemPromptReturn;
 }
 
 export type BuildAdventureTextSystemPromptReturn = {
@@ -11,7 +11,6 @@ export type BuildAdventureTextSystemPromptReturn = {
 };
 
 export type AdventureTemplates = {
-    root: string;
     systemPrompt: string;
     worldMaster: string;
     iaControlledCharacter: string;
@@ -22,6 +21,12 @@ export type AdventureTemplates = {
     proficiencies: string;
     statuses: string;
     characters: string;
+};
+
+export type EnabledCharacterReferences = {
+    abilities: boolean;
+    proficiencies: boolean;
+    statuses: boolean;
 };
 
 export type ResolveTemplatesReturn = {

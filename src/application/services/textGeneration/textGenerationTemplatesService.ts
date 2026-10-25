@@ -7,7 +7,6 @@ import {
     DEFAULT_TEXT_ADVENTURE_PROFICIENCIES_TEMPLATE,
     DEFAULT_TEXT_ADVENTURE_STATUSES_TEMPLATE,
     DEFAULT_TEXT_ADVENTURE_SYSTEM_PROMPT_TEMPLATE,
-    DEFAULT_TEXT_ADVENTURE_TEMPLATE,
     DEFAULT_TEXT_ADVENTURE_WORLD_MASTER_TEMPLATE,
     DEFAULT_TEXT_ADVENTURE_WORLDS_TEMPLATE,
 } from '@domain/constants/textGeneration';
@@ -19,7 +18,6 @@ import {
     ItemsTemplateServiceResponse,
     LocationsTemplateServiceResponse,
     ProficienciesTemplateServiceResponse,
-    RootTemplateServiceResponse,
     StatusesTemplateServiceResponse,
     SystemPromptTemplateServiceResponse,
     ITextGenerationTemplatesService,
@@ -31,11 +29,6 @@ export class TextGenerationTemplatesService implements ITextGenerationTemplatesS
     constructor (
         private readonly logger: ILogger
     ) { }
-
-    getRootTemplate (): RootTemplateServiceResponse {
-        this.logger.info('Executing TextGenerationTemplatesService::getRootTemplate');
-        return { success: true, template: DEFAULT_TEXT_ADVENTURE_TEMPLATE };
-    }
 
     getSystemPromptTemplate (): SystemPromptTemplateServiceResponse {
         this.logger.info('Executing TextGenerationTemplatesService::getSystemPromptTemplate');

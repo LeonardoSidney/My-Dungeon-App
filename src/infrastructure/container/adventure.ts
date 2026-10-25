@@ -143,6 +143,7 @@ import {
 } from './repository';
 import { LlamaCppOAGateway, LlamaCppNativeGateway } from '../http/llama-cpp';
 import { TextGeneration } from '../providers/textGeneration';
+import { createGetSystemPromptLoadOrderUseCase } from './settings';
 
 export function createHydrateAdventureService (): IHydrateAdventureService {
     return new HydrateAdventureService(
@@ -327,7 +328,12 @@ export function eraseAdventureController (): IEraseAdventureController {
 
 export function getAdventureSystemPromptController (): IGetAdventureSystemPromptController {
     const textGeneration = new TextGeneration(logger, new TextGenerationTemplatesService(logger));
-    const useCase = new GetAdventureSystemPromptUseCase(logger, textGeneration, createHydrateAdventureUseCase());
+    const useCase = new GetAdventureSystemPromptUseCase(
+        logger,
+        textGeneration,
+        createHydrateAdventureUseCase(),
+        createGetSystemPromptLoadOrderUseCase()
+    );
     return new GetAdventureSystemPromptController(logger, useCase);
 }
 
@@ -337,7 +343,8 @@ export function getAdventureTemplatedPromptController (): IGetAdventureTemplated
         logger,
         textGeneration,
         new LlamaCppOAGateway(logger, getStreamProvider()),
-        createHydrateAdventureUseCase()
+        createHydrateAdventureUseCase(),
+        createGetSystemPromptLoadOrderUseCase()
     );
     return new GetAdventureTemplatedPromptController(logger, useCase);
 }
@@ -389,7 +396,8 @@ export function generateChatReplyController (): IGenerateChatReplyController {
         logger,
         textGeneration,
         new LlamaCppOAGateway(logger, getStreamProvider()),
-        hydrateAdventureUseCase
+        hydrateAdventureUseCase,
+        createGetSystemPromptLoadOrderUseCase()
     );
     const nativeStreamCompletionUseCase = new NativeStreamCompletionUseCase(
         logger,
