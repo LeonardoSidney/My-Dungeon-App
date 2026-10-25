@@ -4,6 +4,7 @@ import { SaveDraftUseCase } from '@application/use-cases';
 import { Draft } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { DraftStatusEnum } from '@domain/providers';
+import { createBackgroundExecutionHelper } from '@test/helpers';
 
 const logger = {
     debug: jest.fn(),
@@ -31,7 +32,7 @@ describe('SaveDraftUseCase', () => {
     function build (draft: Draft | null = storedDraft) {
         const repository = createRepository(draft);
         const channel = { publish: jest.fn(), subscribe: jest.fn() };
-        const registry = new StreamSessionRegistry();
+        const registry = new StreamSessionRegistry(createBackgroundExecutionHelper());
         const useCase = new SaveDraftUseCase(logger, repository, new WriteDraftService(logger), channel, registry);
         return { useCase, repository, channel, registry };
     }

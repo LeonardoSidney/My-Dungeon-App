@@ -1,6 +1,7 @@
 import { StreamSessionRegistry } from '@application/streaming';
 import { StopDraftCompletionUseCase } from '@application/use-cases';
 import { ILogger } from '@domain/logger';
+import { createBackgroundExecutionHelper } from '@test/helpers';
 
 const logger = {
     debug: jest.fn(),
@@ -16,7 +17,7 @@ describe('StopDraftCompletionUseCase', () => {
     });
 
     it('aborts the streaming completion of the draft', () => {
-        const registry = new StreamSessionRegistry();
+        const registry = new StreamSessionRegistry(createBackgroundExecutionHelper());
         const abort = jest.fn();
         registry.start('home', abort);
 
@@ -27,13 +28,13 @@ describe('StopDraftCompletionUseCase', () => {
     });
 
     it('requires a draft id', () => {
-        const response = new StopDraftCompletionUseCase(logger, new StreamSessionRegistry()).execute({ draftId: '' });
+        const response = new StopDraftCompletionUseCase(logger, new StreamSessionRegistry(createBackgroundExecutionHelper())).execute({ draftId: '' });
 
         expect(response).toEqual({ success: false, error: 'Draft id is required' });
     });
 
     it('succeeds and warns when no completion is streaming into the draft', () => {
-        const response = new StopDraftCompletionUseCase(logger, new StreamSessionRegistry()).execute({ draftId: 'home' });
+        const response = new StopDraftCompletionUseCase(logger, new StreamSessionRegistry(createBackgroundExecutionHelper())).execute({ draftId: 'home' });
 
         expect(response).toEqual({ success: true });
         expect(logger.warning).toHaveBeenCalled();

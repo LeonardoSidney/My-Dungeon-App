@@ -1,7 +1,7 @@
 import { GetChatByIdUseCase, StopChatReplyUseCase, SubscribeChatReplyUseCase } from '@application/use-cases';
 import { KeyedEventBus, StreamSessionRegistry } from '@application/streaming';
 import { ILogger } from '@domain/logger';
-import { createAdventureHelper, createChatHelper } from '@test/helpers';
+import { createAdventureHelper, createChatHelper, createBackgroundExecutionHelper } from '@test/helpers';
 import { ChatReplyEvent, ChatReplyStatusEnum } from '@domain/providers';
 
 const logger = {
@@ -67,7 +67,7 @@ describe('GetChatByIdUseCase', () => {
 
 describe('StopChatReplyUseCase', () => {
     it('aborts the active reply of the adventure', () => {
-        const registry = new StreamSessionRegistry();
+        const registry = new StreamSessionRegistry(createBackgroundExecutionHelper());
         const abort = jest.fn();
         registry.start('adventure-1', abort);
 
@@ -78,13 +78,13 @@ describe('StopChatReplyUseCase', () => {
     });
 
     it('succeeds when there is nothing to stop', () => {
-        const response = new StopChatReplyUseCase(logger, new StreamSessionRegistry()).execute({ adventureId: 'adventure-1' });
+        const response = new StopChatReplyUseCase(logger, new StreamSessionRegistry(createBackgroundExecutionHelper())).execute({ adventureId: 'adventure-1' });
 
         expect(response).toEqual({ success: true });
     });
 
     it('requires an adventure id', () => {
-        const response = new StopChatReplyUseCase(logger, new StreamSessionRegistry()).execute({ adventureId: '' });
+        const response = new StopChatReplyUseCase(logger, new StreamSessionRegistry(createBackgroundExecutionHelper())).execute({ adventureId: '' });
 
         expect(response).toEqual({ success: false, error: 'Adventure id is required' });
     });
@@ -93,7 +93,7 @@ describe('StopChatReplyUseCase', () => {
 describe('SubscribeChatReplyUseCase', () => {
     it('subscribes the listener to the adventure and tells whether a reply is running', () => {
         const bus = new KeyedEventBus<ChatReplyEvent>(logger, event => event.adventureId);
-        const registry = new StreamSessionRegistry();
+        const registry = new StreamSessionRegistry(createBackgroundExecutionHelper());
         registry.start('adventure-1', jest.fn());
         const listener = jest.fn();
 
@@ -109,7 +109,7 @@ describe('SubscribeChatReplyUseCase', () => {
         const bus = new KeyedEventBus<ChatReplyEvent>(logger, event => event.adventureId);
         const listener = jest.fn();
 
-        const response = new SubscribeChatReplyUseCase(logger, bus, new StreamSessionRegistry()).execute({ adventureId: 'adventure-1', listener });
+        const response = new SubscribeChatReplyUseCase(logger, bus, new StreamSessionRegistry(createBackgroundExecutionHelper())).execute({ adventureId: 'adventure-1', listener });
         response.unsubscribe!();
         bus.publish({ adventureId: 'adventure-1', chatId: 'chat-1', status: ChatReplyStatusEnum.FINISHED });
 
@@ -121,7 +121,7 @@ describe('SubscribeChatReplyUseCase', () => {
         const bus = new KeyedEventBus<ChatReplyEvent>(logger, event => event.adventureId);
         const subscribe = jest.spyOn(bus, 'subscribe');
 
-        const response = new SubscribeChatReplyUseCase(logger, bus, new StreamSessionRegistry()).execute({ adventureId: '', listener: jest.fn() });
+        const response = new SubscribeChatReplyUseCase(logger, bus, new StreamSessionRegistry(createBackgroundExecutionHelper())).execute({ adventureId: '', listener: jest.fn() });
 
         expect(response).toEqual({ success: false, error: 'Adventure id is required' });
         expect(subscribe).not.toHaveBeenCalled();

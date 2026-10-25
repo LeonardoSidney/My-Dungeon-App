@@ -4,6 +4,7 @@ import { StartDraftCompletionUseCase } from '@application/use-cases';
 import { Draft } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { DraftEvent, DraftStatusEnum } from '@domain/providers';
+import { createBackgroundExecutionHelper } from '@test/helpers';
 
 const logger = {
     debug: jest.fn(),
@@ -72,7 +73,7 @@ function buildMocks (tokens: AsyncIterable<string> = asyncTokens([' and', ' then
         events,
         settled,
         abortStream,
-        registry: new StreamSessionRegistry(),
+        registry: new StreamSessionRegistry(createBackgroundExecutionHelper()),
         repository: {
             getDraftById: jest.fn().mockResolvedValue({ success: true, draft: existing }),
             saveDraft: jest.fn().mockResolvedValue({ success: true })

@@ -1,7 +1,11 @@
-import { IStreamSessionRegistry } from '@domain/providers';
+import { IBackgroundExecutionProvider, IStreamSessionRegistry } from '@domain/providers';
 
 export class StreamSessionRegistry implements IStreamSessionRegistry {
     private active = new Map<string, () => void>();
+
+    constructor (
+        private readonly backgroundExecution: IBackgroundExecutionProvider
+    ) { }
 
     start (key: string, abort: () => void): boolean {
         if (this.active.has(key)) {
@@ -9,6 +13,7 @@ export class StreamSessionRegistry implements IStreamSessionRegistry {
         }
 
         this.active.set(key, abort);
+        this.backgroundExecution.acquire();
         return true;
     }
 
@@ -27,6 +32,10 @@ export class StreamSessionRegistry implements IStreamSessionRegistry {
     }
 
     release (key: string): void {
-        this.active.delete(key);
+        if (!this.active.delete(key)) {
+            return;
+        }
+
+        this.backgroundExecution.release();
     }
 }

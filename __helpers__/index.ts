@@ -19,3 +19,4 @@ export * from './createTestNavigationHelper';
 export * from './createAdventureRequestHelper';
 export * from './createAdventureHelper';
 export * from './createHydratedAdventureHelper';
+export * from './createBackgroundExecutionHelper';

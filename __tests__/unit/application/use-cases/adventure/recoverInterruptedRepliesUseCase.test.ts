@@ -1,7 +1,7 @@
 import { RecoverInterruptedRepliesUseCase } from '@application/use-cases';
 import { StreamSessionRegistry } from '@application/streaming';
 import { ILogger } from '@domain/logger';
-import { createAdventureHelper, createChatHelper } from '@test/helpers';
+import { createAdventureHelper, createChatHelper, createBackgroundExecutionHelper } from '@test/helpers';
 
 const logger = {
     debug: jest.fn(),
@@ -15,7 +15,7 @@ const interrupted = createAdventureHelper({ id: 'interrupted', chat: [createChat
 const healthy = createAdventureHelper({ id: 'healthy', chat: [createChatHelper({ id: 'done' })] });
 const recoveredAdventure = createAdventureHelper({ id: 'interrupted', chat: [createChatHelper({ id: 'reply', isStreaming: false })] });
 
-function build (adventures = [interrupted, healthy], registry = new StreamSessionRegistry()) {
+function build (adventures = [interrupted, healthy], registry = new StreamSessionRegistry(createBackgroundExecutionHelper())) {
     const repository = {
         getAdventures: jest.fn().mockResolvedValue({ success: true, adventures }),
         updateAdventure: jest.fn().mockResolvedValue({ success: true })
@@ -38,7 +38,7 @@ describe('RecoverInterruptedRepliesUseCase', () => {
     });
 
     it('skips an adventure whose reply is still being generated', async () => {
-        const registry = new StreamSessionRegistry();
+        const registry = new StreamSessionRegistry(createBackgroundExecutionHelper());
         registry.start('interrupted', jest.fn());
         const { useCase, service, repository } = build([interrupted], registry);
 

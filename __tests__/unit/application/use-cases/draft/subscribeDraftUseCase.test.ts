@@ -2,6 +2,7 @@ import { KeyedEventBus, StreamSessionRegistry } from '@application/streaming';
 import { SubscribeDraftUseCase } from '@application/use-cases';
 import { ILogger } from '@domain/logger';
 import { DraftEvent, DraftStatusEnum } from '@domain/providers';
+import { createBackgroundExecutionHelper } from '@test/helpers';
 
 const logger = {
     debug: jest.fn(),
@@ -14,7 +15,7 @@ const logger = {
 describe('SubscribeDraftUseCase', () => {
     it('subscribes to the draft events and tells whether a completion is streaming', () => {
         const bus = new KeyedEventBus<DraftEvent>(logger, event => event.draftId);
-        const registry = new StreamSessionRegistry();
+        const registry = new StreamSessionRegistry(createBackgroundExecutionHelper());
         registry.start('home', jest.fn());
         const listener = jest.fn();
 
@@ -28,7 +29,7 @@ describe('SubscribeDraftUseCase', () => {
     it('requires a draft id', () => {
         const bus = new KeyedEventBus<DraftEvent>(logger, event => event.draftId);
 
-        const response = new SubscribeDraftUseCase(logger, bus, new StreamSessionRegistry()).execute({ draftId: '', listener: jest.fn() });
+        const response = new SubscribeDraftUseCase(logger, bus, new StreamSessionRegistry(createBackgroundExecutionHelper())).execute({ draftId: '', listener: jest.fn() });
 
         expect(response).toEqual({ success: false, error: 'Draft id is required' });
     });

@@ -8,3 +8,4 @@ export * from './iChatReplyChannel';
 export * from './iKeyedEventChannel';
 export * from './iStreamSessionRegistry';
 export * from './iDraftChannel';
+export * from './iBackgroundExecutionProvider';

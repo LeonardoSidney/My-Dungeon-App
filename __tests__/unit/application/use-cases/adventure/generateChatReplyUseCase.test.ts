@@ -3,7 +3,7 @@ import { Chat, RoleEnum } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { ChatReplyEvent, ChatReplyStatusEnum } from '@domain/providers';
 import { StreamSessionRegistry } from '@application/streaming';
-import { createAdventureHelper, createHydratedAdventureHelper } from '@test/helpers';
+import { createAdventureHelper, createHydratedAdventureHelper, createBackgroundExecutionHelper } from '@test/helpers';
 
 const mockLogger: ILogger = {
     debug: jest.fn(),
@@ -105,7 +105,7 @@ function buildMocks (tokens: string[] = ['Hello', ' world'], chat: Chat = create
         events,
         settled,
         channel,
-        registry: new StreamSessionRegistry(),
+        registry: new StreamSessionRegistry(createBackgroundExecutionHelper()),
         hydrate: { execute: jest.fn().mockResolvedValue({ success: true, hydrated: createHydratedAdventureHelper() }) },
         getTemplatedPrompt: { execute: jest.fn().mockResolvedValue({ success: true, prompt: 'prompt' }) },
         nativeStream: {
