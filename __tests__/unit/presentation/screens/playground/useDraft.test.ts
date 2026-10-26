@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { DraftUpdateView } from '@domain/controllers';
-import { useDraft } from '@presentation/screens/home/useDraft';
+import { useDraft } from '@presentation/screens/playground/useDraft';
 
 async function setup ({ isStreaming = false, draft = { id: 'home', content: 'stored text' } as { id: string; content: string; } | null } = {}) {
     let onUpdate: (update: DraftUpdateView) => void = () => undefined;

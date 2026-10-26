@@ -13,6 +13,7 @@ And all of it under a free software license ([AGPL v3](./LICENSE.md)), giving yo
 - An app for **Android**, **iOS** and **Web**, built with React Native + TypeScript
 - A catalog of reusable components saved on the device itself: worlds, world masters, characters, assistants, samplers, system prompts, locations, items, abilities, proficiencies and statuses
 - **Adventure**: where everything meets and the table happens
+- A **home** that takes you back to your last adventure and sums up your table: what you created, how much you played, your highlights and the server status — plus a **Playground** to test models and samplers on free text
 - Connectivity with a [llama.cpp](https://github.com/ggml-org/llama.cpp) server in router mode: model listing, prompt building, streaming generation and _thinking_ from reasoning models
 - A UI-independent backend (use cases, services, storage and friends), covered by unit and API tests
 

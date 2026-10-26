@@ -9,6 +9,7 @@ export type StartStreamingChatServiceParams = {
     role: Role;
     characterId: string;
     chatId?: string;
+    modelId?: string;
 };
 
 export type StartStreamingChatServiceReturn = {

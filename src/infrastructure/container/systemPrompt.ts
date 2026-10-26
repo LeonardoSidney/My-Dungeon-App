@@ -24,6 +24,7 @@ import {
     IEraseSystemPromptController,
     IGetSystemPromptController,
 } from '@domain/controllers';
+import { IGetSystemPromptsUseCase } from '@domain/use-cases';
 import { idGenerate, logger, storage } from './shared';
 import { createSystemPromptRepository } from './repository';
 
@@ -38,9 +39,13 @@ export function createSystemPromptController (): ICreateSystemPromptController {
     return new CreateSystemPromptController(logger, createSystemPromptUseCase);
 }
 
-export function getSystemPromptsController (): IGetSystemPromptsController {
+export function createGetSystemPromptsUseCase (): IGetSystemPromptsUseCase {
     const systemPromptRepository = createSystemPromptRepository(storage, logger);
-    const getSystemPromptsUseCase = new GetSystemPromptsUseCase(logger, systemPromptRepository);
+    return new GetSystemPromptsUseCase(logger, systemPromptRepository);
+}
+
+export function getSystemPromptsController (): IGetSystemPromptsController {
+    const getSystemPromptsUseCase = createGetSystemPromptsUseCase();
     return new GetSystemPromptsController(logger, getSystemPromptsUseCase, new GetSystemPromptsPresenter());
 }
 

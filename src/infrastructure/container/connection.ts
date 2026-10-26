@@ -24,6 +24,7 @@ import {
     IEditConnectionController,
     IGetConnectionController,
 } from '@domain/controllers';
+import { IGetConnectionsUseCase } from '@domain/use-cases';
 import { idGenerate, logger, storage } from './shared';
 import { createConnectionRepository } from './repository';
 
@@ -38,9 +39,13 @@ export function createConnectionConfigController (): ICreateConnectionConfigCont
     return new CreateConnectionConfigController(logger, createConnectionConfigUseCase);
 }
 
-export function getConnectionsController (): IGetConnectionsController {
+export function createGetConnectionsUseCase (): IGetConnectionsUseCase {
     const connectionRepository = createConnectionRepository(storage, logger);
-    const getConnectionsUseCase = new GetConnectionsUseCase(logger, connectionRepository);
+    return new GetConnectionsUseCase(logger, connectionRepository);
+}
+
+export function getConnectionsController (): IGetConnectionsController {
+    const getConnectionsUseCase = createGetConnectionsUseCase();
     return new GetConnectionsController(logger, getConnectionsUseCase, new GetConnectionsPresenter());
 }
 

@@ -17,10 +17,10 @@ export class StartStreamingChatService implements IStartStreamingChatService {
         this.logger.info('Executing StartStreamingChatService::startStreamingChat');
         this.logger.debug('StartStreamingChatService::startStreamingChat - params', params);
 
-        const { adventure, role, characterId } = params;
+        const { adventure, role, characterId, modelId } = params;
 
         if (params.chatId) {
-            return this.startExistingChat(adventure, params.chatId);
+            return this.startExistingChat(adventure, params.chatId, modelId);
         }
 
         const now = new Date();
@@ -34,6 +34,7 @@ export class StartStreamingChatService implements IStartStreamingChatService {
             content: [''],
             think: undefined,
             characterId,
+            modelId,
             isStreaming: true,
             createdAt: now,
             updatedAt: now,
@@ -54,7 +55,7 @@ export class StartStreamingChatService implements IStartStreamingChatService {
         };
     }
 
-    private startExistingChat (adventure: Adventure, chatId: string): StartStreamingChatServiceReturn {
+    private startExistingChat (adventure: Adventure, chatId: string, modelId: string | undefined): StartStreamingChatServiceReturn {
         const chatIndex = adventure.chat.findIndex(c => c.id === chatId);
         if (chatIndex === -1) {
             this.logger.warning('StartStreamingChatService::startExistingChat - chat not found');
@@ -67,6 +68,7 @@ export class StartStreamingChatService implements IStartStreamingChatService {
         const chat = adventure.chat[chatIndex];
         const updatedChat = {
             ...chat,
+            modelId: modelId ?? chat.modelId,
             isStreaming: true,
             updatedAt: new Date(),
         };

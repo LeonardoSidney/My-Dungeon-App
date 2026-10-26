@@ -24,6 +24,7 @@ import {
     IEraseLocationController,
     IGetLocationController,
 } from '@domain/controllers';
+import { IGetLocationsUseCase } from '@domain/use-cases';
 import { idGenerate, logger, storage } from './shared';
 import { createLocationRepository } from './repository';
 
@@ -34,9 +35,13 @@ export function createLocationController (): ICreateLocationController {
     return new CreateLocationController(logger, createLocationUseCase);
 }
 
-export function getLocationsController (): IGetLocationsController {
+export function createGetLocationsUseCase (): IGetLocationsUseCase {
     const locationRepository = createLocationRepository(storage, logger);
-    const getLocationsUseCase = new GetLocationsUseCase(logger, locationRepository);
+    return new GetLocationsUseCase(logger, locationRepository);
+}
+
+export function getLocationsController (): IGetLocationsController {
+    const getLocationsUseCase = createGetLocationsUseCase();
     return new GetLocationsController(logger, getLocationsUseCase, new GetLocationsPresenter());
 }
 

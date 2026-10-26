@@ -32,6 +32,23 @@ const responses: Record<string, unknown> = {
   getAbilities: { success: true, items: [{ id: 'ab1', name: 'Fireball', activationWord: 'fire' }] },
   getSamplers: { success: true, items: [{ id: 's1', name: 'Default', systemDefault: true }] },
   getDraft: { success: true, draft: { id: 'home', content: 'draft text' } },
+  getHomeSummary: {
+    success: true,
+    data: {
+      counts: {
+        adventures: 1, characters: 1, worldMasters: 1, worlds: 0, locations: 0, items: 0, abilities: 1,
+        proficiencies: 0, statuses: 0, systemPrompts: 1, assistants: 1, samplers: 1, connections: 1,
+      },
+      adventures: [{
+        id: 'a1', name: 'Lost Kingdom', createdAt: '2026-01-01T00:00:00.000Z', lastActivityAt: '2026-01-02T00:00:00.000Z',
+        messageCount: 2, lastMessage: 'It creaks',
+      }],
+      story: { linesWritten: 1, repliesGenerated: 1, wordsGenerated: 2, rerolls: 0 },
+      dailyActivity: [{ date: '2026-01-02T00:00:00.000Z', messageCount: 2 }],
+      streak: 1,
+      highlights: { topModel: { modelId: 'qwen3', replyCount: 1 } },
+    },
+  },
   appendChatAdventure: { success: true },
   generateChatReply: { success: true },
 };
@@ -63,12 +80,18 @@ describe('RootNavigator', () => {
       </ControllersProvider>,
     );
 
-    await waitFor(() => expect(screen.getByDisplayValue('draft text')).toBeDefined());
+    await waitFor(() => expect(screen.getByText('Your world')).toBeDefined());
+    expect(screen.queryByLabelText('Adventure settings')).toBeNull();
+    await fireEvent.press(screen.getByText('Continue'));
+    await waitFor(() => expect(screen.getAllByText('Continue')).toHaveLength(2));
 
-    for (const label of ['Characters', 'Abilities', 'Statuses', 'Items', 'Locations', 'System Prompts', 'Proficiencies', 'Assistants', 'Samplers', 'World Masters', 'Worlds', 'Settings']) {
+    for (const label of ['Characters', 'Abilities', 'Statuses', 'Items', 'Locations', 'System Prompts', 'Proficiencies', 'Assistants', 'Samplers', 'World Masters', 'Worlds', 'Playground', 'Settings']) {
       await fireEvent.press(screen.getAllByText(label)[0]);
       await waitFor(() => expect(screen.getAllByText(label).length).toBeGreaterThan(1));
     }
+
+    await fireEvent.press(screen.getAllByText('Playground')[0]);
+    await waitFor(() => expect(screen.getByDisplayValue('draft text')).toBeDefined());
 
     await fireEvent.press(screen.getByText('Abilities'));
     await waitFor(() => expect(screen.getByText('Fireball')).toBeDefined());

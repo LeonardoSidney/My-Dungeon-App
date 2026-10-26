@@ -24,7 +24,7 @@ import {
     IEraseCharacterController,
     IGetCharacterController,
 } from '@domain/controllers';
-import { IEditCharacterUseCase, IGetCharacterByIdUseCase } from '@domain/use-cases';
+import { IEditCharacterUseCase, IGetCharacterByIdUseCase, IGetCharactersUseCase } from '@domain/use-cases';
 import { idGenerate, logger, storage } from './shared';
 import {
     createAbilityRepository,
@@ -49,9 +49,13 @@ export function createCharacterController (): ICreateCharacterController {
     return new CreateCharacterController(logger, createCharacterUseCase);
 }
 
-export function getCharactersController (): IGetCharactersController {
+export function createGetCharactersUseCase (): IGetCharactersUseCase {
     const characterRepository = createCharacterRepository(storage, logger);
-    const getCharactersUseCase = new GetCharactersUseCase(logger, characterRepository);
+    return new GetCharactersUseCase(logger, characterRepository);
+}
+
+export function getCharactersController (): IGetCharactersController {
+    const getCharactersUseCase = createGetCharactersUseCase();
     return new GetCharactersController(logger, getCharactersUseCase, new GetCharactersPresenter());
 }
 

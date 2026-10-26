@@ -1,5 +1,6 @@
 export type MenuRoute =
     | 'home'
+    | 'playground'
     | 'adventures'
     | 'characters'
     | 'abilities'
@@ -30,7 +31,7 @@ export type MenuItem = {
 };
 
 export const menuItems: MenuItem[] = [
-    { id: 'home', label: 'Sandbox' },
+    { id: 'home', label: 'Home' },
     { id: 'adventures', label: 'Adventures' },
     { id: 'characters', label: 'Characters' },
     { id: 'abilities', label: 'Abilities' },
@@ -43,6 +44,7 @@ export const menuItems: MenuItem[] = [
     { id: 'samplers', label: 'Samplers' },
     { id: 'worldMasters', label: 'World Masters' },
     { id: 'worlds', label: 'Worlds' },
+    { id: 'playground', label: 'Playground' },
     { id: 'settings', label: 'Settings' },
 ];
 

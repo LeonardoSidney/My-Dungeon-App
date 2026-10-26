@@ -9,6 +9,7 @@ export type StartStreamingChatUseCaseParams = {
     role: Role;
     characterId: string;
     chatId?: string;
+    modelId?: string;
 };
 
 export type StartStreamingChatUseCaseReturn = {

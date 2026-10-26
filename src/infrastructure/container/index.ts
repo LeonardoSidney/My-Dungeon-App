@@ -15,3 +15,4 @@ export * from './draft';
 export * from './world';
 export * from './worldMaster';
 export * from './settings';
+export * from './home';

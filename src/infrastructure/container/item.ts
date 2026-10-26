@@ -24,6 +24,7 @@ import {
     IEraseItemController,
     IGetItemController,
 } from '@domain/controllers';
+import { IGetItemsUseCase } from '@domain/use-cases';
 import { idGenerate, logger, storage } from './shared';
 import { createItemRepository } from './repository';
 
@@ -34,9 +35,13 @@ export function createItemController (): ICreateItemController {
     return new CreateItemController(logger, createItemUseCase);
 }
 
-export function getItemsController (): IGetItemsController {
+export function createGetItemsUseCase (): IGetItemsUseCase {
     const itemRepository = createItemRepository(storage, logger);
-    const getItemsUseCase = new GetItemsUseCase(logger, itemRepository);
+    return new GetItemsUseCase(logger, itemRepository);
+}
+
+export function getItemsController (): IGetItemsController {
+    const getItemsUseCase = createGetItemsUseCase();
     return new GetItemsController(logger, getItemsUseCase, new GetItemsPresenter());
 }
 

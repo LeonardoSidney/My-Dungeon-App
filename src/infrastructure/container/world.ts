@@ -18,6 +18,7 @@ import {
     IEditWorldController,
     IGetWorldController,
 } from '@domain/controllers';
+import { IGetWorldsUseCase } from '@domain/use-cases';
 import { idGenerate, logger, storage } from './shared';
 import { createWorldRepository } from './repository';
 
@@ -28,9 +29,13 @@ export function createWorldController (): ICreateWorldController {
     return new CreateWorldController(logger, createWorldUseCase);
 }
 
-export function getWorldsController (): IGetWorldsController {
+export function createGetWorldsUseCase (): IGetWorldsUseCase {
     const worldRepository = createWorldRepository(storage, logger);
-    const getWorldsUseCase = new GetWorldsUseCase(logger, worldRepository);
+    return new GetWorldsUseCase(logger, worldRepository);
+}
+
+export function getWorldsController (): IGetWorldsController {
+    const getWorldsUseCase = createGetWorldsUseCase();
     return new GetWorldsController(logger, getWorldsUseCase, new GetWorldsPresenter());
 }
 

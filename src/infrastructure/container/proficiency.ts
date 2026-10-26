@@ -24,6 +24,7 @@ import {
     IEraseProficiencyController,
     IGetProficiencyController,
 } from '@domain/controllers';
+import { IGetProficienciesUseCase } from '@domain/use-cases';
 import { idGenerate, logger, storage } from './shared';
 import { createProficiencyRepository } from './repository';
 
@@ -38,9 +39,13 @@ export function createProficiencyController (): ICreateProficiencyController {
     return new CreateProficiencyController(logger, createProficiencyUseCase);
 }
 
-export function getProficienciesController (): IGetProficienciesController {
+export function createGetProficienciesUseCase (): IGetProficienciesUseCase {
     const proficiencyRepository = createProficiencyRepository(storage, logger);
-    const getProficienciesUseCase = new GetProficienciesUseCase(logger, proficiencyRepository);
+    return new GetProficienciesUseCase(logger, proficiencyRepository);
+}
+
+export function getProficienciesController (): IGetProficienciesController {
+    const getProficienciesUseCase = createGetProficienciesUseCase();
     return new GetProficienciesController(logger, getProficienciesUseCase, new GetProficienciesPresenter());
 }
 

@@ -126,7 +126,7 @@ import {
     IRecoverInterruptedRepliesController,
     IApplyAdventureSettingsController,
 } from '@domain/controllers';
-import { IEditAdventureUseCase, IHydrateAdventureUseCase } from '@domain/use-cases';
+import { IEditAdventureUseCase, IGetAdventuresUseCase, IHydrateAdventureUseCase } from '@domain/use-cases';
 import { IHydrateAdventureService } from '@domain/services';
 import { idGenerate, logger, storage, getStreamProvider, chatReplyBus, chatReplyRegistry } from './shared';
 import {
@@ -249,9 +249,13 @@ export function applyAdventureSettingsController (): IApplyAdventureSettingsCont
     return new ApplyAdventureSettingsController(logger, applyAdventureSettingsUseCase);
 }
 
-export function getAdventuresController (): IGetAdventuresController {
+export function createGetAdventuresUseCase (): IGetAdventuresUseCase {
     const adventureRepository = createAdventureRepository(storage, logger);
-    const getAdventuresUseCase = new GetAdventuresUseCase(logger, adventureRepository);
+    return new GetAdventuresUseCase(logger, adventureRepository);
+}
+
+export function getAdventuresController (): IGetAdventuresController {
+    const getAdventuresUseCase = createGetAdventuresUseCase();
     return new GetAdventuresController(logger, getAdventuresUseCase, new GetAdventuresPresenter());
 }
 

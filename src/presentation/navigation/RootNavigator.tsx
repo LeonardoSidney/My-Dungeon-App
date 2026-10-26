@@ -3,6 +3,7 @@ import { DarkTheme, NavigationContainer, type NavigationHelpers, type StackNavig
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { colors } from '@presentation/theme';
 import { HomeScreen } from '../screens/home/HomeScreen';
+import { PlaygroundScreen } from '../screens/playground/PlaygroundScreen';
 import { AdventuresScreen } from '../screens/adventures/AdventuresScreen';
 import { AdventureChatScreen } from '../screens/adventures/chat/AdventureChatScreen';
 import { AdventureSettingsScreen } from '../screens/adventures/settings/AdventureSettingsScreen';
@@ -76,6 +77,7 @@ export function RootNavigator () {
         <Stack.Screen name="samplers" component={SamplerScreen} />
         <Stack.Screen name="worldMasters" component={WorldMasterScreen} />
         <Stack.Screen name="worlds" component={WorldsScreen} />
+        <Stack.Screen name="playground" component={PlaygroundScreen} />
         <Stack.Screen name="settings" component={SettingsScreen} />
       </Stack.Navigator>
     </NavigationContainer>

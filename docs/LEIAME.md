@@ -13,6 +13,7 @@ E tudo sob uma licença de código livre ([AGPL v3](../LICENSE.md)), permitindo 
 - App para **Android**, **iOS** e **Web**, construído com React Native + TypeScript
 - Catálogo de componentes reutilizáveis salvos no próprio dispositivo: mundos, world masters, personagens, assistentes, samplers, system prompts, locations, itens, abilities, proficiências e statuses
 - **Aventura**: onde tudo se encontra e a mesa acontece
+- Uma **home** que leva de volta à sua última aventura e resume a sua mesa: o que você criou, o quanto jogou, seus destaques e o status do servidor — e um **Playground** para testar modelos e samplers em texto livre
 - Conectividade com um servidor [llama.cpp](https://github.com/ggml-org/llama.cpp) em modo router: listagem de modelos, montagem do prompt, geração com streaming e _thinking_ de modelos de raciocínio
 - Backend independente da UI (use cases, services, storage e afins), coberto por testes de unidade e de API
 

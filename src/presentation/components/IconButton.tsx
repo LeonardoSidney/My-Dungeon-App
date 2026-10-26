@@ -4,8 +4,10 @@ import { colors } from '@presentation/theme';
 
 type IconProps = { size?: number; color?: string; };
 
+export type IconComponent = ComponentType<IconProps>;
+
 type IconButtonProps = {
-  icon: ComponentType<IconProps>;
+  icon: IconComponent;
   accessibilityLabel: string;
   onPress: () => void;
 };

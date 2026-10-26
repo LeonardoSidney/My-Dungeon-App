@@ -95,6 +95,7 @@ export class GenerateChatReplyUseCase implements IGenerateChatReplyUseCase {
             role: RoleEnum.ASSISTANT,
             characterId: runtime.characterId,
             chatId: params.chatId,
+            modelId: runtime.modelId,
         });
         if (!started.success || !started.chat) {
             this.registry.release(params.adventureId);

@@ -11,6 +11,7 @@ export class ChatDTO {
         private readonly content: string[],
         private readonly think: Think[] | undefined,
         private readonly characterId: string,
+        private readonly modelId: string | undefined,
         private readonly createdAt: Date,
         private readonly updatedAt: Date
     ) { }
@@ -24,6 +25,7 @@ export class ChatDTO {
             content: this.content,
             think: this.think,
             characterId: this.characterId,
+            modelId: this.modelId,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
         };
@@ -53,8 +55,9 @@ export class ChatDTO {
         }
 
         const thinkIndex = typeof data.thinkIndex === 'number' ? data.thinkIndex : data.index;
+        const modelId = typeof data.modelId === 'string' ? data.modelId : undefined;
 
-        return new ChatDTO(data.id, role, data.index, thinkIndex, content, think, data.characterId, createdAt, updatedAt);
+        return new ChatDTO(data.id, role, data.index, thinkIndex, content, think, data.characterId, modelId, createdAt, updatedAt);
     }
 
     private static toRole (role: unknown): Role | undefined {

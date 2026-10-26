@@ -21,6 +21,11 @@ describe('ChatDTO', () => {
         expect(ChatDTO.fromStorage(STORED)?.toEntity()).toEqual({ ...STORED, createdAt, updatedAt });
     });
 
+    it('keeps the model that generated the reply and ignores a model id that is not text', () => {
+        expect(ChatDTO.fromStorage({ ...STORED, modelId: 'qwen3' })?.toEntity().modelId).toBe('qwen3');
+        expect(ChatDTO.fromStorage({ ...STORED, modelId: 42 })?.toEntity().modelId).toBeUndefined();
+    });
+
     it('falls back to the content index when the think index was not stored', () => {
         expect(ChatDTO.fromStorage({ ...STORED, thinkIndex: undefined })?.toEntity().thinkIndex).toBe(1);
     });

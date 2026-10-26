@@ -47,3 +47,4 @@ export * from './iDeleteChatVersionService';
 export * from './iRecoverInterruptedChatsService';
 export * from './iWriteDraftService';
 export * from './iValidateSystemPromptLoadOrderService';
+export * from './iActivitySummaryService';

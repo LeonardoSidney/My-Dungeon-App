@@ -1,4 +1,4 @@
-import { handleDraftUpdate, saveDraftEdit, toggleDraftCompletion } from '@presentation/screens/home/draftActions';
+import { handleDraftUpdate, saveDraftEdit, toggleDraftCompletion } from '@presentation/screens/playground/draftActions';
 
 describe('handleDraftUpdate', () => {
     function buildParams (update: { isStreaming: boolean; error?: string; }) {

@@ -98,6 +98,7 @@ import {
     getSystemPromptLoadOrderController,
     saveSystemPromptLoadOrderController,
     resetSystemPromptLoadOrderController,
+    getHomeSummaryController,
 } from '@infra/container';
 import type { AppControllers } from '@presentation/providers/appControllers';
 
@@ -199,6 +200,7 @@ export function buildControllers (): AppControllers {
         editWorldMaster: editWorldMasterController(),
         eraseWorldMaster: eraseWorldMasterController(),
         alert: createAlertController(),
+        getHomeSummary: getHomeSummaryController(),
         getSystemPromptLoadOrder: getSystemPromptLoadOrderController(),
         saveSystemPromptLoadOrder: saveSystemPromptLoadOrderController(),
         resetSystemPromptLoadOrder: resetSystemPromptLoadOrderController(),

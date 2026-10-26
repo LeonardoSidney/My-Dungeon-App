@@ -30,3 +30,4 @@ export * from './iGetAdventureSummaryPresenter';
 export * from './iGetAdventureCharactersPresenter';
 export * from './iGetAdventureWorldMasterPresenter';
 export * from './iDraftPresenter';
+export * from './iGetHomeSummaryPresenter';

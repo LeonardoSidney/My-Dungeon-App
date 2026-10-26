@@ -24,6 +24,7 @@ import {
     IGetAbilitiesController,
     IGetAbilityController,
 } from '@domain/controllers';
+import { IGetAbilitiesUseCase } from '@domain/use-cases';
 import { idGenerate, logger, storage } from './shared';
 import { createAbilityRepository } from './repository';
 
@@ -34,9 +35,13 @@ export function createAbilityController (): ICreateAbilityController {
     return new CreateAbilityController(logger, createAbilityUseCase);
 }
 
-export function getAbilitiesController (): IGetAbilitiesController {
+export function createGetAbilitiesUseCase (): IGetAbilitiesUseCase {
     const abilityRepository = createAbilityRepository(storage, logger);
-    const getAbilitiesUseCase = new GetAbilitiesUseCase(logger, abilityRepository);
+    return new GetAbilitiesUseCase(logger, abilityRepository);
+}
+
+export function getAbilitiesController (): IGetAbilitiesController {
+    const getAbilitiesUseCase = createGetAbilitiesUseCase();
     return new GetAbilitiesController(logger, getAbilitiesUseCase, new GetAbilitiesPresenter());
 }
 

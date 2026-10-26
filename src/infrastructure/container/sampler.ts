@@ -24,7 +24,7 @@ import {
     IEraseSamplerController,
     IGetSamplerController,
 } from '@domain/controllers';
-import { IEditSamplerUseCase, IGetSamplerByIdUseCase } from '@domain/use-cases';
+import { IEditSamplerUseCase, IGetSamplerByIdUseCase, IGetSamplersUseCase } from '@domain/use-cases';
 import { idGenerate, logger, storage } from './shared';
 import { createSamplerRepository } from './repository';
 
@@ -36,10 +36,14 @@ export function createSamplerController (): ICreateSamplerController {
     return new CreateSamplerController(logger, createSamplerUseCase);
 }
 
-export function getSamplersController (): IGetSamplersController {
-    const samplerRepository = createSamplerRepository(storage, logger);
+export function createGetSamplersUseCase (): IGetSamplersUseCase {
     const getSamplersService = new GetSamplersService(logger);
-    const getSamplersUseCase = new GetSamplersUseCase(logger, getSamplersService, samplerRepository);
+    const samplerRepository = createSamplerRepository(storage, logger);
+    return new GetSamplersUseCase(logger, getSamplersService, samplerRepository);
+}
+
+export function getSamplersController (): IGetSamplersController {
+    const getSamplersUseCase = createGetSamplersUseCase();
     return new GetSamplersController(logger, getSamplersUseCase, new GetSamplersPresenter());
 }
 

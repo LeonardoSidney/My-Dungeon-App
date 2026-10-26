@@ -95,6 +95,7 @@ import {
     IEditWorldMasterController,
     IEraseWorldMasterController,
     IAlertController,
+    IGetHomeSummaryController,
     IGetSystemPromptLoadOrderController,
     ISaveSystemPromptLoadOrderController,
     IResetSystemPromptLoadOrderController,
@@ -197,6 +198,7 @@ export type AppControllers = {
     editWorldMaster: IEditWorldMasterController;
     eraseWorldMaster: IEraseWorldMasterController;
     alert: IAlertController;
+    getHomeSummary: IGetHomeSummaryController;
     getSystemPromptLoadOrder: IGetSystemPromptLoadOrderController;
     saveSystemPromptLoadOrder: ISaveSystemPromptLoadOrderController;
     resetSystemPromptLoadOrder: IResetSystemPromptLoadOrderController;

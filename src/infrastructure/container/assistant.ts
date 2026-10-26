@@ -24,7 +24,7 @@ import {
     IEraseAssistantController,
     IGetAssistantController,
 } from '@domain/controllers';
-import { IEditAssistantUseCase, IGetAssistantByIdUseCase } from '@domain/use-cases';
+import { IEditAssistantUseCase, IGetAssistantByIdUseCase, IGetAssistantsUseCase } from '@domain/use-cases';
 import { idGenerate, logger, storage } from './shared';
 import {
     createAssistantRepository,
@@ -47,9 +47,13 @@ export function createAssistantController (): ICreateAssistantController {
     return new CreateAssistantController(logger, createAssistantUseCase);
 }
 
-export function getAssistantsController (): IGetAssistantsController {
+export function createGetAssistantsUseCase (): IGetAssistantsUseCase {
     const assistantRepository = createAssistantRepository(storage, logger);
-    const getAssistantsUseCase = new GetAssistantsUseCase(logger, assistantRepository);
+    return new GetAssistantsUseCase(logger, assistantRepository);
+}
+
+export function getAssistantsController (): IGetAssistantsController {
+    const getAssistantsUseCase = createGetAssistantsUseCase();
     return new GetAssistantsController(logger, getAssistantsUseCase, new GetAssistantsPresenter());
 }
 

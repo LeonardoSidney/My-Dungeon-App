@@ -24,6 +24,7 @@ import {
     IEraseStatusController,
     IGetStatusController,
 } from '@domain/controllers';
+import { IGetStatusesUseCase } from '@domain/use-cases';
 import { idGenerate, logger, storage } from './shared';
 import { createStatusRepository } from './repository';
 
@@ -34,9 +35,13 @@ export function createStatusController (): ICreateStatusController {
     return new CreateStatusController(logger, createStatusUseCase);
 }
 
-export function getStatusesController (): IGetStatusesController {
+export function createGetStatusesUseCase (): IGetStatusesUseCase {
     const statusRepository = createStatusRepository(storage, logger);
-    const getStatusesUseCase = new GetStatusesUseCase(logger, statusRepository);
+    return new GetStatusesUseCase(logger, statusRepository);
+}
+
+export function getStatusesController (): IGetStatusesController {
+    const getStatusesUseCase = createGetStatusesUseCase();
     return new GetStatusesController(logger, getStatusesUseCase, new GetStatusesPresenter());
 }
 

@@ -39,6 +39,7 @@ export class StartStreamingChatUseCase implements IStartStreamingChatUseCase {
             role: params.role,
             characterId: params.characterId,
             chatId: params.chatId,
+            modelId: params.modelId,
         });
 
         if (!response.success) {

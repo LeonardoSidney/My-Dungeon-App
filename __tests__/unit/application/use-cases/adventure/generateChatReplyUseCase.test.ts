@@ -162,7 +162,8 @@ describe('GenerateChatReplyUseCase', () => {
             adventureId: 'adventure-1',
             role: RoleEnum.ASSISTANT,
             characterId: '1',
-            chatId: undefined
+            chatId: undefined,
+            modelId: '1'
         });
         expect(mocks.updateStreaming.execute).toHaveBeenCalledTimes(1);
         expect(mocks.updateStreaming.execute).toHaveBeenCalledWith({
