@@ -14,6 +14,7 @@ export * from './iEditAbilityController';
 export * from './iEraseAbilityController';
 export * from './iCreateAdventureController';
 export * from './iEditAdventureController';
+export * from './iApplyAdventureSettingsController';
 export * from './iCreateAssitantController';
 export * from './iCreateCharacterController';
 export * from './iEditCharacterController';

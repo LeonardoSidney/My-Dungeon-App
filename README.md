@@ -60,6 +60,8 @@ And the backend won't let the table go live without the minimum:
 - without a dedicated world master, **at least 2 characters**, with at least one of them outside AI control;
 - every AI-controlled character must be part of the adventure.
 
+Everything above can be changed mid-game from the chat's **settings**: name, narrator, cast, story context and **generation** — the assistant, sampler and sampler values of the world master and of each AI-controlled character (**Generation**) and of each character you play (**Your Characters**). Generation changes are saved to the characters, assistants and samplers themselves, so they apply to every adventure that uses them; want a variation just for one table? Create a separate assistant or sampler for it. Each card warns when an assistant or sampler is shared with other characters. System samplers can't be edited, and changes apply from the next reply. Today only the world master generates replies, so the settings of the other characters take effect once they reply on their own.
+
 ## Gameplay
 
 Every turn the app assembles the prompt by joining the table's sections:

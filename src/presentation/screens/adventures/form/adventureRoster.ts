@@ -52,6 +52,55 @@ export function toggleCharacterAsWorldMaster (roster: Roster, character: EntityO
     };
 }
 
+export enum CharacterRoleEnum {
+    OFF = 'off',
+    PLAYER = 'player',
+    AI = 'ai',
+    NARRATOR = 'narrator',
+}
+
+export type CharacterRole =
+    | CharacterRoleEnum.OFF
+    | CharacterRoleEnum.PLAYER
+    | CharacterRoleEnum.AI
+    | CharacterRoleEnum.NARRATOR;
+
+export function getCharacterRole (roster: Roster, id: string): CharacterRole {
+    if (roster.characterAsWorldMasterId === id) {
+        return CharacterRoleEnum.NARRATOR;
+    }
+    if (roster.charactersControlledByAi.includes(id)) {
+        return CharacterRoleEnum.AI;
+    }
+    if (roster.characters.some(character => character.id === id)) {
+        return CharacterRoleEnum.PLAYER;
+    }
+    return CharacterRoleEnum.OFF;
+}
+
+export function assignCharacterRole (roster: Roster, character: EntityOption, role: CharacterRole): RosterChange {
+    if (getCharacterRole(roster, character.id) === role) {
+        return {};
+    }
+    if (role === CharacterRoleEnum.PLAYER) {
+        return togglePlayableCharacter(roster, character);
+    }
+    if (role === CharacterRoleEnum.AI) {
+        return toggleAiCharacter(roster, character);
+    }
+    if (role === CharacterRoleEnum.NARRATOR) {
+        return toggleCharacterAsWorldMaster(roster, character);
+    }
+    return removeFromAllRoles(roster, character.id);
+}
+
+export function selectWorldMaster (roster: Roster, worldMaster: EntityOption): RosterChange {
+    if (roster.worldMaster?.id === worldMaster.id) {
+        return {};
+    }
+    return toggleWorldMaster(roster, worldMaster);
+}
+
 export function toggleWorldMaster (roster: Roster, worldMaster: EntityOption): RosterChange {
     if (roster.worldMaster?.id === worldMaster.id) {
         return { worldMaster: undefined };

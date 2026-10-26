@@ -29,3 +29,4 @@ export * from './subscribeChatReplyUseCase';
 export * from './recoverInterruptedRepliesUseCase';
 export * from './getAdventureCharactersUseCase';
 export * from './getAdventureWorldMasterUseCase';
+export * from './applyAdventureSettingsUseCase';

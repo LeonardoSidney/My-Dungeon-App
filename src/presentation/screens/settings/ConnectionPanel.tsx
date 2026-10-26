@@ -1,8 +1,7 @@
 import { Text, TouchableOpacity } from 'react-native';
 import { Pencil, Trash2 } from 'lucide-react-native';
 import { ConnectionListItem } from '@domain/controllers';
-import { EntityItem, IconButton, screenStyles } from '@presentation/components';
-import { CollapsibleSection } from './CollapsibleSection';
+import { CollapsibleSection, EntityItem, IconButton, screenStyles } from '@presentation/components';
 
 type ConnectionPanelProps = {
   connections: ConnectionListItem[];

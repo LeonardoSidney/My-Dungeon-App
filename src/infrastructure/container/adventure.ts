@@ -27,6 +27,7 @@ import {
     StopChatReplyController,
     SubscribeChatReplyController,
     RecoverInterruptedRepliesController,
+    ApplyAdventureSettingsController,
 } from '@adapters/controllers';
 import {
     ChatMessagesPresenter,
@@ -92,6 +93,7 @@ import {
     SubscribeChatReplyUseCase,
     RecoverInterruptedRepliesUseCase,
     NativeStreamCompletionUseCase,
+    ApplyAdventureSettingsUseCase,
 } from '@application/use-cases';
 import {
     ICreateAdventureController,
@@ -122,8 +124,9 @@ import {
     IStopChatReplyController,
     ISubscribeChatReplyController,
     IRecoverInterruptedRepliesController,
+    IApplyAdventureSettingsController,
 } from '@domain/controllers';
-import { IHydrateAdventureUseCase } from '@domain/use-cases';
+import { IEditAdventureUseCase, IHydrateAdventureUseCase } from '@domain/use-cases';
 import { IHydrateAdventureService } from '@domain/services';
 import { idGenerate, logger, storage, getStreamProvider, chatReplyBus, chatReplyRegistry } from './shared';
 import {
@@ -144,6 +147,10 @@ import {
 import { LlamaCppOAGateway, LlamaCppNativeGateway } from '../http/llama-cpp';
 import { TextGeneration } from '../providers/textGeneration';
 import { createGetSystemPromptLoadOrderUseCase } from './settings';
+import { createEditCharacterUseCase, createGetCharacterByIdUseCase } from './character';
+import { createEditWorldMasterUseCase, createGetWorldMasterByIdUseCase } from './worldMaster';
+import { createEditAssistantUseCase, createGetAssistantByIdUseCase } from './assistant';
+import { createEditSamplerUseCase, createGetSamplerByIdUseCase } from './sampler';
 
 export function createHydrateAdventureService (): IHydrateAdventureService {
     return new HydrateAdventureService(
@@ -190,21 +197,56 @@ export function createAdventureController (): ICreateAdventureController {
     return new CreateAdventureController(logger, createAdventureUseCase);
 }
 
-export function editAdventureController (): IEditAdventureController {
-    const adventureRepository = createAdventureRepository(storage, logger);
+function createEditAdventureUseCase (): IEditAdventureUseCase {
     const editAdventureService = new EditAdventureService(logger);
-    const editAdventureUseCase = new EditAdventureUseCase(
+    const adventureRepository = createAdventureRepository(storage, logger);
+    const characterRepository = createCharacterRepository(storage, logger);
+    const systemPromptRepository = createSystemPromptRepository(storage, logger);
+    const worldRepository = createWorldRepository(storage, logger);
+    const locationRepository = createLocationRepository(storage, logger);
+    const itemRepository = createItemRepository(storage, logger);
+    const worldMasterRepository = createWorldMasterRepository(storage, logger);
+    return new EditAdventureUseCase(
         logger,
         editAdventureService,
         adventureRepository,
-        createCharacterRepository(storage, logger),
-        createSystemPromptRepository(storage, logger),
-        createWorldRepository(storage, logger),
-        createLocationRepository(storage, logger),
-        createItemRepository(storage, logger),
-        createWorldMasterRepository(storage, logger)
+        characterRepository,
+        systemPromptRepository,
+        worldRepository,
+        locationRepository,
+        itemRepository,
+        worldMasterRepository
     );
+}
+
+export function editAdventureController (): IEditAdventureController {
+    const editAdventureUseCase = createEditAdventureUseCase();
     return new EditAdventureController(logger, editAdventureUseCase);
+}
+
+export function applyAdventureSettingsController (): IApplyAdventureSettingsController {
+    const editAdventureUseCase = createEditAdventureUseCase();
+    const getCharacterByIdUseCase = createGetCharacterByIdUseCase();
+    const editCharacterUseCase = createEditCharacterUseCase();
+    const getWorldMasterByIdUseCase = createGetWorldMasterByIdUseCase();
+    const editWorldMasterUseCase = createEditWorldMasterUseCase();
+    const getAssistantByIdUseCase = createGetAssistantByIdUseCase();
+    const editAssistantUseCase = createEditAssistantUseCase();
+    const getSamplerByIdUseCase = createGetSamplerByIdUseCase();
+    const editSamplerUseCase = createEditSamplerUseCase();
+    const applyAdventureSettingsUseCase = new ApplyAdventureSettingsUseCase(
+        logger,
+        editAdventureUseCase,
+        getCharacterByIdUseCase,
+        editCharacterUseCase,
+        getWorldMasterByIdUseCase,
+        editWorldMasterUseCase,
+        getAssistantByIdUseCase,
+        editAssistantUseCase,
+        getSamplerByIdUseCase,
+        editSamplerUseCase
+    );
+    return new ApplyAdventureSettingsController(logger, applyAdventureSettingsUseCase);
 }
 
 export function getAdventuresController (): IGetAdventuresController {

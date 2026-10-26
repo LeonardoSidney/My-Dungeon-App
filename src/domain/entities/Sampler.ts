@@ -32,6 +32,8 @@ export type Sampler = {
     updatedAt: Date;
 };
 
+export type SamplerParameters = Omit<Sampler, 'id' | 'name' | 'observation' | 'systemDefault' | 'createdAt' | 'updatedAt'>;
+
 export enum MirostatEnum {
     DEFAULT,
     MIROSTAT1,

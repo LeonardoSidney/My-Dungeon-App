@@ -25,7 +25,7 @@ const generationRows: FieldRow[] = [
   [decimal('frequencyPenalty', 'Frequency Penalty', '0.0'), decimal('presencePenalty', 'Presence Penalty', '0.0')],
 ];
 
-const mirostatRow: FieldRow = [decimal('mirostatEnt', 'Mirostat Eta', '0.1'), decimal('mirostatLr', 'Mirostat Tau', '5.0')];
+const mirostatRow: FieldRow = [decimal('mirostatEnt', 'Mirostat Tau', '5.0'), decimal('mirostatLr', 'Mirostat Eta', '0.1')];
 
 const advancedRows: FieldRow[] = [
   [integer('dryAllowedLenght', 'Dry Allowed Length', '3'), decimal('dryBase', 'Dry Base', '1.7')],

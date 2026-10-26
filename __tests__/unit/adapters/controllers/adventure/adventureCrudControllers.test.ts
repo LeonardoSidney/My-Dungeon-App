@@ -1,4 +1,5 @@
 import {
+    ApplyAdventureSettingsController,
     CreateAdventureController,
     EditAdventureController,
     GetAdventureController,
@@ -80,5 +81,24 @@ describe('adventure read controllers', () => {
         }));
         expect(response.data).not.toHaveProperty('chat');
         expect(response.data).not.toHaveProperty('characterIds');
+    });
+});
+
+describe('ApplyAdventureSettingsController', () => {
+    it('forwards the settings to the use case and returns its result', async () => {
+        const execute = jest.fn().mockResolvedValue({ success: false, error: 'Assistant not found: as-9' });
+        const params = {
+            adventureId: 'adv-1',
+            adventure: REQUEST,
+            characterAssistants: { hero: 'as-9' },
+            worldMasterAssistants: {},
+            assistantSamplers: {},
+            samplerParameters: {},
+        };
+
+        const response = await new ApplyAdventureSettingsController(logger, { execute }).handle(params);
+
+        expect(execute).toHaveBeenCalledWith(params);
+        expect(response).toEqual({ success: false, error: 'Assistant not found: as-9' });
     });
 });

@@ -24,6 +24,7 @@ import {
     IEraseSamplerController,
     IGetSamplerController,
 } from '@domain/controllers';
+import { IEditSamplerUseCase, IGetSamplerByIdUseCase } from '@domain/use-cases';
 import { idGenerate, logger, storage } from './shared';
 import { createSamplerRepository } from './repository';
 
@@ -42,11 +43,15 @@ export function getSamplersController (): IGetSamplersController {
     return new GetSamplersController(logger, getSamplersUseCase, new GetSamplersPresenter());
 }
 
-export function editSamplerController (): IEditSamplerController {
-    const samplerRepository = createSamplerRepository(storage, logger);
+export function createEditSamplerUseCase (): IEditSamplerUseCase {
     const editSamplerService = new EditSamplerService(logger);
+    const samplerRepository = createSamplerRepository(storage, logger);
     const getSamplersService = new GetSamplersService(logger);
-    const editSamplerUseCase = new EditSamplerUseCase(logger, editSamplerService, samplerRepository, getSamplersService);
+    return new EditSamplerUseCase(logger, editSamplerService, samplerRepository, getSamplersService);
+}
+
+export function editSamplerController (): IEditSamplerController {
+    const editSamplerUseCase = createEditSamplerUseCase();
     return new EditSamplerController(logger, editSamplerUseCase);
 }
 
@@ -56,8 +61,13 @@ export function eraseSamplerController (): IEraseSamplerController {
     return new EraseSamplerController(logger, eraseSamplerUseCase);
 }
 
-export function getSamplerController (): IGetSamplerController {
+export function createGetSamplerByIdUseCase (): IGetSamplerByIdUseCase {
     const samplerRepository = createSamplerRepository(storage, logger);
-    const useCase = new GetSamplerByIdUseCase(logger, samplerRepository, new GetSamplersService(logger));
-    return new GetSamplerController(logger, useCase, new GetSamplerPresenter());
+    const getSamplersService = new GetSamplersService(logger);
+    return new GetSamplerByIdUseCase(logger, samplerRepository, getSamplersService);
+}
+
+export function getSamplerController (): IGetSamplerController {
+    const getSamplerByIdUseCase = createGetSamplerByIdUseCase();
+    return new GetSamplerController(logger, getSamplerByIdUseCase, new GetSamplerPresenter());
 }

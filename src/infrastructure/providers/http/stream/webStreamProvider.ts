@@ -67,10 +67,6 @@ export class WebStreamProvider implements IStreamProvider {
                         break;
                     }
 
-                    if (streamDone) {
-                        break;
-                    }
-
                     const text = decoder.decode(value, {
                         stream: true,
                     });

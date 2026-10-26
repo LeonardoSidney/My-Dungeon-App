@@ -6,6 +6,7 @@ import {
     IEraseAbilityController,
     ICreateAdventureController,
     IEditAdventureController,
+    IApplyAdventureSettingsController,
     IGetAdventuresController,
     IGetAdventureController,
     IEraseAdventuresController,
@@ -107,6 +108,7 @@ export type AppControllers = {
     eraseAbility: IEraseAbilityController;
     createAdventure: ICreateAdventureController;
     editAdventure: IEditAdventureController;
+    applyAdventureSettings: IApplyAdventureSettingsController;
     getAdventures: IGetAdventuresController;
     getAdventure: IGetAdventureController;
     eraseAdventures: IEraseAdventuresController;

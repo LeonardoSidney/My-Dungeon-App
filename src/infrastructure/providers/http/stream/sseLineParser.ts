@@ -9,9 +9,10 @@ export class SseLineParser implements ISseLineParser {
     process (newText: string, queue: string[], onDone: () => void): void {
         this.pendingLine += newText;
         const parts = this.pendingLine.split('\n');
-        this.pendingLine = parts.pop() ?? '';
+        const completeLines = parts.slice(0, -1);
+        this.pendingLine = parts[parts.length - 1];
 
-        for (const part of parts) {
+        for (const part of completeLines) {
             const dataValue = this.parseDataLine(part);
             if (dataValue === undefined) {
                 continue;

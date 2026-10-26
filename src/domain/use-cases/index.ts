@@ -11,6 +11,7 @@ export * from './iEditAbilityUseCase';
 export * from './iEraseAbilityUseCase';
 export * from './iCreateAdventureUseCase';
 export * from './iEditAdventureUseCase';
+export * from './iApplyAdventureSettingsUseCase';
 export * from './iCreateAssistantUseCase';
 export * from './iCreateCharacterUseCase';
 export * from './iEditCharacterUseCase';

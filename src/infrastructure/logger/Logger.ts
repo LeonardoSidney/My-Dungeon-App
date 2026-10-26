@@ -1,9 +1,13 @@
-import { ILogger, LogLevel, LogLevelEnum } from '@domain/logger';
+import { ILogger, LOG_LEVEL_SEVERITY, LogLevel, LogLevelEnum } from '@domain/logger';
 
 export class Logger implements ILogger {
     private logLevel: LogLevel;
-    constructor () {
-        this.logLevel = LogLevelEnum.DEBUG;
+    constructor (logLevel: LogLevel = LogLevelEnum.DEBUG) {
+        this.logLevel = logLevel;
+    }
+
+    private isEnabled (level: LogLevel): boolean {
+        return LOG_LEVEL_SEVERITY[level] >= LOG_LEVEL_SEVERITY[this.logLevel];
     }
 
     private serializeArgs (args: unknown[]): unknown[] {
@@ -20,32 +24,30 @@ export class Logger implements ILogger {
     }
 
     debug (message: string, ...args: unknown[]): void {
-        if (this.logLevel <= LogLevelEnum.DEBUG) {
+        if (this.isEnabled(LogLevelEnum.DEBUG)) {
             console.info(`[DEBUG] ${message}`, ...this.serializeArgs(args));
         }
     }
 
     info (message: string, ...args: unknown[]): void {
-        if (this.logLevel <= LogLevelEnum.INFO) {
+        if (this.isEnabled(LogLevelEnum.INFO)) {
             console.info(`[INFO] ${message}`, ...this.serializeArgs(args));
         }
     }
 
     warning (message: string, ...args: unknown[]): void {
-        if (this.logLevel <= LogLevelEnum.WARN) {
+        if (this.isEnabled(LogLevelEnum.WARN)) {
             console.info(`[WARN] ${message}`, ...this.serializeArgs(args));
         }
     }
 
     error (message: string, ...args: unknown[]): void {
-        if (this.logLevel <= LogLevelEnum.ERROR) {
+        if (this.isEnabled(LogLevelEnum.ERROR)) {
             console.error(`[ERROR] ${message}`, ...this.serializeArgs(args));
         }
     }
 
     log (message: string, ...args: unknown[]): void {
-        if (this.logLevel <= LogLevelEnum.LOG) {
-            console.log(`[LOG] ${message}`, ...this.serializeArgs(args));
-        }
+        console.log(`[LOG] ${message}`, ...this.serializeArgs(args));
     }
 }

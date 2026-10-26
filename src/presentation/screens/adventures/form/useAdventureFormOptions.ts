@@ -6,6 +6,7 @@ export type AdventureOptionErrors = Partial<Record<keyof AdventureOptionLists, s
 
 export type AdventureFormOptions = AdventureOptionLists & {
     errors: AdventureOptionErrors;
+    isLoading: boolean;
 };
 
 type OptionControllers = Pick<AppControllers, 'getCharacters' | 'getSystemPrompts' | 'getWorldMasters' | 'getWorlds' | 'getLocations' | 'getItems'>;
@@ -18,6 +19,7 @@ export function useAdventureFormOptions (controllers: OptionControllers): Advent
     const worlds = useEntityList({ fetch: () => getWorlds.handle() });
     const locations = useEntityList({ fetch: () => getLocations.handle() });
     const items = useEntityList({ fetch: () => getItems.handle() });
+    const lists = [characters, systemPrompts, worldMasters, worlds, locations, items];
 
     return {
         characters: characters.items,
@@ -26,6 +28,7 @@ export function useAdventureFormOptions (controllers: OptionControllers): Advent
         worlds: worlds.items,
         locations: locations.items,
         items: items.items,
+        isLoading: lists.some(list => list.isLoading),
         errors: {
             characters: characters.isError ? 'Failed to load characters.' : undefined,
             systemPrompts: systemPrompts.isError ? 'Failed to load system prompts.' : undefined,

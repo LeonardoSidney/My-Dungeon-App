@@ -8,6 +8,7 @@ export * from './addThinkVersionController';
 export * from './deleteThinkVersionController';
 export * from './createAdventureController';
 export * from './editAdventureController';
+export * from './applyAdventureSettingsController';
 export * from './selectChatVersionController';
 export * from './setAdventureWorldMasterController';
 export * from './getAdventuresController';

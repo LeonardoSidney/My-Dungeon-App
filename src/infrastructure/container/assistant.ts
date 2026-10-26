@@ -24,6 +24,7 @@ import {
     IEraseAssistantController,
     IGetAssistantController,
 } from '@domain/controllers';
+import { IEditAssistantUseCase, IGetAssistantByIdUseCase } from '@domain/use-cases';
 import { idGenerate, logger, storage } from './shared';
 import {
     createAssistantRepository,
@@ -52,18 +53,24 @@ export function getAssistantsController (): IGetAssistantsController {
     return new GetAssistantsController(logger, getAssistantsUseCase, new GetAssistantsPresenter());
 }
 
-export function editAssistantController (): IEditAssistantController {
-    const assistantRepository = createAssistantRepository(storage, logger);
+export function createEditAssistantUseCase (): IEditAssistantUseCase {
     const editAssistantService = new EditAssistantService(logger);
+    const assistantRepository = createAssistantRepository(storage, logger);
+    const samplerRepository = createSamplerRepository(storage, logger);
     const getSamplersService = new GetSamplersService(logger);
-    const editAssistantUseCase = new EditAssistantUseCase(
+    const connectionRepository = createConnectionRepository(storage, logger);
+    return new EditAssistantUseCase(
         logger,
         editAssistantService,
         assistantRepository,
-        createSamplerRepository(storage, logger),
+        samplerRepository,
         getSamplersService,
-        createConnectionRepository(storage, logger)
+        connectionRepository
     );
+}
+
+export function editAssistantController (): IEditAssistantController {
+    const editAssistantUseCase = createEditAssistantUseCase();
     return new EditAssistantController(logger, editAssistantUseCase);
 }
 
@@ -73,7 +80,12 @@ export function eraseAssistantController (): IEraseAssistantController {
     return new EraseAssistantController(logger, eraseAssistantUseCase);
 }
 
+export function createGetAssistantByIdUseCase (): IGetAssistantByIdUseCase {
+    const assistantRepository = createAssistantRepository(storage, logger);
+    return new GetAssistantByIdUseCase(logger, assistantRepository);
+}
+
 export function getAssistantController (): IGetAssistantController {
-    const useCase = new GetAssistantByIdUseCase(logger, createAssistantRepository(storage, logger));
-    return new GetAssistantController(logger, useCase, new GetAssistantPresenter());
+    const getAssistantByIdUseCase = createGetAssistantByIdUseCase();
+    return new GetAssistantController(logger, getAssistantByIdUseCase, new GetAssistantPresenter());
 }

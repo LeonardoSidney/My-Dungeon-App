@@ -18,6 +18,13 @@ const message = (id: string, role: RoleEnum, content: string) => ({
 const responses: Record<string, unknown> = {
   getAdventures: { success: true, items: [{ id: 'a1', name: 'Lost Kingdom', createdAt: '2026-01-01' }] },
   getAdventureSummary: { success: true, data: { name: 'Lost Kingdom' } },
+  getAdventure: {
+    success: true,
+    data: {
+      id: 'a1', name: 'Lost Kingdom', systemPromptIds: [], playableCharacterIds: [], aiControlledCharacterIds: [],
+      worldIds: [], locationIds: [], itemIds: [],
+    },
+  },
   getAdventureCharacters: { success: true, items: [{ id: 'c1', name: 'Hero' }] },
   getAdventureWorldMaster: { success: true, data: { id: 'wm1', name: 'Narrator' } },
   getChatMessages: { success: true, messages: [message('m1', RoleEnum.USER, 'I open the door'), message('m2', RoleEnum.ASSISTANT, 'It creaks')] },
@@ -97,9 +104,12 @@ describe('RootNavigator', () => {
     await waitFor(() => expect(calls.generateChatReply).toEqual([{ adventureId: 'a1', chatId: undefined }]));
 
     await fireEvent.press(screen.getByText('settings'));
-    await waitFor(() => expect(screen.getByText('Lost Kingdom Settings')).toBeDefined());
-    await fireEvent.press(screen.getByText('World Master'));
-    await waitFor(() => expect(screen.getByText('Narrator')).toBeDefined());
+    await waitFor(() => expect(screen.getByText('Lost Kingdom · Settings')).toBeDefined());
+    await fireEvent.press(screen.getByText('General'));
+    await fireEvent.changeText(screen.getByDisplayValue('Lost Kingdom'), 'Found Kingdom');
+    await waitFor(() => expect(screen.getByText('Discard')).toBeDefined());
+    await fireEvent.press(screen.getByText('Discard'));
+    await waitFor(() => expect(screen.queryByText('Discard')).toBeNull());
     await fireEvent.press(screen.getByLabelText('Back'));
     await waitFor(() => expect(screen.getByText('It creaks')).toBeDefined());
 

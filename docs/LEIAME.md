@@ -60,6 +60,8 @@ E o backend não deixa a mesa ir ao ar sem o mínimo:
 - sem world master dedicado, **ao menos 2 personagens**, com ao menos um deles fora do controle da IA;
 - todo personagem controlado pela IA precisa fazer parte da aventura.
 
+Tudo isso pode ser trocado no meio do jogo pelas **settings** do chat: nome, narrador, elenco, contexto da história e **geração** — o assistente, o sampler e os valores do sampler do world master e de cada personagem controlado pela IA (**Generation**) e de cada personagem que você joga (**Your Characters**). As mudanças de geração são salvas nos próprios personagens, assistentes e samplers, então valem em toda aventura que os usa; quer uma variação só para uma mesa? Crie um assistente ou sampler separado para ela. Cada card avisa quando um assistente ou sampler é compartilhado com outros personagens. Samplers do sistema não podem ser editados, e as mudanças valem a partir da próxima resposta. Hoje só o world master gera respostas, então a configuração dos outros personagens passa a valer quando eles responderem por conta própria.
+
 ## Gameplay
 
 Em cada turno o app monta o prompt juntando as seções da mesa:

@@ -1,7 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { formStyles, screenStyles, TextField } from '@presentation/components';
+import { CollapsibleSection, formStyles, screenStyles, TextField } from '@presentation/components';
 import { colors } from '@presentation/theme';
-import { CollapsibleSection } from './CollapsibleSection';
 
 type SystemPromptLoadOrderPanelProps = {
   loadOrder: string;

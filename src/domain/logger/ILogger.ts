@@ -15,3 +15,11 @@ export enum LogLevelEnum {
     ERROR = 'error',
     LOG = 'log'
 }
+
+export const LOG_LEVEL_SEVERITY: Record<LogLevel, number> = {
+    [LogLevelEnum.DEBUG]: 0,
+    [LogLevelEnum.INFO]: 1,
+    [LogLevelEnum.WARN]: 2,
+    [LogLevelEnum.ERROR]: 3,
+    [LogLevelEnum.LOG]: 4,
+};

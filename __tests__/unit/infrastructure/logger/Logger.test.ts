@@ -1,3 +1,4 @@
+import { LogLevelEnum } from '@domain/logger';
 import { Logger } from '@infra/logger';
 
 describe('Logger', () => {
@@ -40,5 +41,39 @@ describe('Logger', () => {
         new Logger().info('payload', circular);
 
         expect(info).toHaveBeenCalledWith('[INFO] payload', '[object Object]');
+    });
+
+    it('only writes the messages at or above the configured level', () => {
+        const logger = new Logger(LogLevelEnum.ERROR);
+
+        logger.debug('debug message');
+        logger.info('info message');
+        logger.warning('warning message');
+        logger.error('error message');
+        logger.log('log message');
+
+        expect(info).not.toHaveBeenCalled();
+        expect(error).toHaveBeenCalledWith('[ERROR] error message');
+        expect(log).toHaveBeenCalledWith('[LOG] log message');
+    });
+
+    it('always writes log messages, even when errors are filtered out', () => {
+        const logger = new Logger(LogLevelEnum.LOG);
+
+        logger.error('error message');
+        logger.log('log message');
+
+        expect(error).not.toHaveBeenCalled();
+        expect(log).toHaveBeenCalledWith('[LOG] log message');
+    });
+
+    it('keeps the errors when the level is info', () => {
+        const logger = new Logger(LogLevelEnum.INFO);
+
+        logger.debug('debug message');
+        logger.error('error message');
+
+        expect(info).not.toHaveBeenCalled();
+        expect(error).toHaveBeenCalledWith('[ERROR] error message');
     });
 });

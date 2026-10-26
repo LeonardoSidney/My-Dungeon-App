@@ -1,6 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { CollapsibleSection } from '@presentation/components';
 import { colors } from '@presentation/theme';
-import { CollapsibleSection } from './CollapsibleSection';
 
 type DangerZoneProps = {
   isErasing: boolean;

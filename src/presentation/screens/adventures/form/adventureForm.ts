@@ -80,7 +80,7 @@ export function initialAdventureForm (): AdventureFormData {
 
 const toIds = (options: EntityOption[]) => options.map(option => option.id);
 
-function toAdventureRequest (form: AdventureFormData): AdventureFormRequest {
+export function toAdventureRequest (form: AdventureFormData): AdventureFormRequest {
     return {
         name: form.name,
         systemPromptIds: toIds(form.systemPrompts),

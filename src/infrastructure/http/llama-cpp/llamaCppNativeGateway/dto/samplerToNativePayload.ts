@@ -141,9 +141,7 @@ export function mapSamplerToNativePayload (
         }
     }
 
-    if (seed !== undefined) {
-        body.seed = seed;
-    }
+    body.seed = seed;
 
     if (ignoreEos !== undefined) {
         body.ignore_eos = ignoreEos;

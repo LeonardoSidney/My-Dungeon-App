@@ -124,13 +124,16 @@ describe('SaveSystemPromptLoadOrderUseCase', () => {
         expect(repository.saveSettings).not.toHaveBeenCalled();
     });
 
-    it('fails without saving when the settings cannot be loaded', async () => {
+    it.each([
+        [{ success: false, error: 'Storage unavailable' }, 'Storage unavailable'],
+        [{ success: false }, 'Failed to load settings'],
+    ])('fails without saving when the settings load answers %j', async (loaded, error) => {
         const repository = createRepository();
-        repository.getSettings.mockResolvedValue({ success: false, error: 'Failed to load settings' });
+        repository.getSettings.mockResolvedValue(loaded);
 
         const response = await buildUseCase(repository).execute({ loadOrder: '{items}' });
 
-        expect(response).toEqual({ success: false, error: 'Failed to load settings' });
+        expect(response).toEqual({ success: false, error });
         expect(repository.saveSettings).not.toHaveBeenCalled();
     });
 

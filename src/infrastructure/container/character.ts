@@ -24,6 +24,7 @@ import {
     IEraseCharacterController,
     IGetCharacterController,
 } from '@domain/controllers';
+import { IEditCharacterUseCase, IGetCharacterByIdUseCase } from '@domain/use-cases';
 import { idGenerate, logger, storage } from './shared';
 import {
     createAbilityRepository,
@@ -54,18 +55,26 @@ export function getCharactersController (): IGetCharactersController {
     return new GetCharactersController(logger, getCharactersUseCase, new GetCharactersPresenter());
 }
 
-export function editCharacterController (): IEditCharacterController {
-    const characterRepository = createCharacterRepository(storage, logger);
+export function createEditCharacterUseCase (): IEditCharacterUseCase {
     const editCharacterService = new EditCharacterService(logger);
-    const editCharacterUseCase = new EditCharacterUseCase(
+    const characterRepository = createCharacterRepository(storage, logger);
+    const assistantRepository = createAssistantRepository(storage, logger);
+    const abilityRepository = createAbilityRepository(storage, logger);
+    const proficiencyRepository = createProficiencyRepository(storage, logger);
+    const statusRepository = createStatusRepository(storage, logger);
+    return new EditCharacterUseCase(
         logger,
         editCharacterService,
         characterRepository,
-        createAssistantRepository(storage, logger),
-        createAbilityRepository(storage, logger),
-        createProficiencyRepository(storage, logger),
-        createStatusRepository(storage, logger)
+        assistantRepository,
+        abilityRepository,
+        proficiencyRepository,
+        statusRepository
     );
+}
+
+export function editCharacterController (): IEditCharacterController {
+    const editCharacterUseCase = createEditCharacterUseCase();
     return new EditCharacterController(logger, editCharacterUseCase);
 }
 
@@ -75,7 +84,12 @@ export function eraseCharacterController (): IEraseCharacterController {
     return new EraseCharacterController(logger, eraseCharacterUseCase);
 }
 
+export function createGetCharacterByIdUseCase (): IGetCharacterByIdUseCase {
+    const characterRepository = createCharacterRepository(storage, logger);
+    return new GetCharacterByIdUseCase(logger, characterRepository);
+}
+
 export function getCharacterController (): IGetCharacterController {
-    const useCase = new GetCharacterByIdUseCase(logger, createCharacterRepository(storage, logger));
-    return new GetCharacterController(logger, useCase, new GetCharacterPresenter());
+    const getCharacterByIdUseCase = createGetCharacterByIdUseCase();
+    return new GetCharacterController(logger, getCharacterByIdUseCase, new GetCharacterPresenter());
 }

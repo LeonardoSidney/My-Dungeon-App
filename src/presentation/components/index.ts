@@ -13,6 +13,9 @@ export type { CrudEntityListItem, CrudEntityListProps } from './crudEntityList/C
 export { EntityItem } from './crudEntityList/EntityItem';
 export { SingleSelect } from './select/SingleSelect';
 export { MultiSelect } from './select/MultiSelect';
+export { SegmentedControl } from './select/SegmentedControl';
+export type { SegmentOption } from './select/SegmentedControl';
+export { CollapsibleSection } from './CollapsibleSection';
 export { IconButton } from './IconButton';
 export { WebAlertModal } from './WebAlertModal';
 export { screenStyles } from './screenStyles';
