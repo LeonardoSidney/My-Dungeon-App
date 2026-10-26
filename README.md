@@ -16,6 +16,8 @@ And all of it under a free software license ([AGPL v3](./LICENSE.md)), giving yo
 - Connectivity with a [llama.cpp](https://github.com/ggml-org/llama.cpp) server in router mode: model listing, prompt building, streaming generation and _thinking_ from reasoning models
 - A UI-independent backend (use cases, services, storage and friends), covered by unit and API tests
 
+Ideas still being studied for the project's future, such as multi-character turns, live in [docs/future-prototypes](./docs/future-prototypes/). They are proposals, not features yet.
+
 ## How it works
 
 My dungeon app is, first of all, a little notebook of reusable components: you think of each one with the care and the dedication you see fit, because they stay saved waiting for their moment to be called — and they are called when it's convenient for the current moment in the story, saving context and letting the narrative stay coherent.

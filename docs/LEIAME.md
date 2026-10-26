@@ -16,6 +16,8 @@ E tudo sob uma licença de código livre ([AGPL v3](../LICENSE.md)), permitindo 
 - Conectividade com um servidor [llama.cpp](https://github.com/ggml-org/llama.cpp) em modo router: listagem de modelos, montagem do prompt, geração com streaming e _thinking_ de modelos de raciocínio
 - Backend independente da UI (use cases, services, storage e afins), coberto por testes de unidade e de API
 
+Ideias que ainda estão sendo estudadas para o futuro do projeto, como turnos com vários personagens, ficam em [docs/future-prototypes](./future-prototypes/). São propostas, ainda não funcionalidades.
+
 ## Como o projeto funciona
 
 My dungeon app é, primeiramente, um caderninho de componentes reutilizáveis: você pensa em cada um com o carinho e a dedicação que achar necessários, pois eles ficam salvos esperando a hora de serem chamados — e são chamados quando convenientes para o momento atual da história, economizando contexto e permitindo que a narrativa se mantenha coerente.
