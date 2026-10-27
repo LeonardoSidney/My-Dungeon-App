@@ -234,6 +234,43 @@ describe('TextGeneration', () => {
 
                 expect(result).toEqual({ success: true, systemPrompt: '' });
             });
+
+            it('keeps a tag it does not know', () => {
+                const result = buildTextGeneration().buildAdventureTextSystemPrompt(hydrated, '{systemPrompt}|{unknown}');
+
+                expect(result.systemPrompt).toBe('SP<Rules\n>|{unknown}');
+            });
+        });
+
+        describe('text written by the player', () => {
+            function buildWithRules (rules: string): string | undefined {
+                const hydrated = {
+                    ...createHydratedAdventureHelper({ characters: [character({ name: 'Hero', prompt: 'Hero prompt' })] }),
+                    systemPrompts: [createSystemPromptHelper({ content: rules })],
+                };
+
+                return buildTextGeneration().buildAdventureTextSystemPrompt(hydrated, '{systemPrompt}|{characters}').systemPrompt;
+            }
+
+            it('keeps a dollar sign followed by a quote as written', () => {
+                expect(buildWithRules('Prices look like $\' here')).toBe('SP<Prices look like $\' here\n>|CHARACTERS<## HERO\nHero prompt\n>');
+            });
+
+            it('keeps a dollar sign followed by a backtick as written', () => {
+                expect(buildWithRules('Prices look like $` here')).toBe('SP<Prices look like $` here\n>|CHARACTERS<## HERO\nHero prompt\n>');
+            });
+
+            it('keeps a dollar sign followed by an ampersand as written', () => {
+                expect(buildWithRules('Prices look like $& here')).toBe('SP<Prices look like $& here\n>|CHARACTERS<## HERO\nHero prompt\n>');
+            });
+
+            it('keeps a double dollar sign as written', () => {
+                expect(buildWithRules('Costs $$100')).toBe('SP<Costs $$100\n>|CHARACTERS<## HERO\nHero prompt\n>');
+            });
+
+            it('keeps a tag written inside a section without filling it', () => {
+                expect(buildWithRules('Use {characters} sparingly')).toBe('SP<Use {characters} sparingly\n>|CHARACTERS<## HERO\nHero prompt\n>');
+            });
         });
 
         it.each([

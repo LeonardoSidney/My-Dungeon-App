@@ -23,3 +23,11 @@ export const LOG_LEVEL_SEVERITY: Record<LogLevel, number> = {
     [LogLevelEnum.ERROR]: 3,
     [LogLevelEnum.LOG]: 4,
 };
+
+export const DEVELOPMENT_LOG_LEVEL: LogLevel = LogLevelEnum.DEBUG;
+
+export const RELEASE_LOG_LEVEL: LogLevel = LogLevelEnum.WARN;
+
+export const SENSITIVE_LOG_KEYS = ['auth', 'authorization'];
+
+export const MASKED_LOG_VALUE = '***';

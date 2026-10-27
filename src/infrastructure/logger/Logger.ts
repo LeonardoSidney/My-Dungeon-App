@@ -1,4 +1,4 @@
-import { ILogger, LOG_LEVEL_SEVERITY, LogLevel, LogLevelEnum } from '@domain/logger';
+import { ILogger, LOG_LEVEL_SEVERITY, LogLevel, LogLevelEnum, MASKED_LOG_VALUE, SENSITIVE_LOG_KEYS } from '@domain/logger';
 
 export class Logger implements ILogger {
     private logLevel: LogLevel;
@@ -14,13 +14,22 @@ export class Logger implements ILogger {
         return args.map(arg => {
             if (typeof arg === 'object' && arg !== null) {
                 try {
-                    return JSON.stringify(arg);
+                    return JSON.stringify(arg, (key, value) => this.maskSensitiveValue(key, value));
                 } catch {
                     return String(arg);
                 }
             }
             return arg;
         });
+    }
+
+    private maskSensitiveValue (key: string, value: unknown): unknown {
+        const isSensitive = SENSITIVE_LOG_KEYS.includes(key.toLowerCase());
+        if (!isSensitive || typeof value !== 'string') {
+            return value;
+        }
+
+        return MASKED_LOG_VALUE;
     }
 
     debug (message: string, ...args: unknown[]): void {

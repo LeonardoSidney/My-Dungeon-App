@@ -13,7 +13,7 @@ export class CreateConnectionConfigController implements ICreateConnectionConfig
     ) { }
     async handle (request: CreateConnectionConfigControllerRequest): Promise<CreateConnectionConfigControllerResponse> {
         this.logger.info('Executing CreateConnectionConfigController::handle');
-        this.logger.debug('CreateConnectionConfigController::handle - params', { ...request, auth: request.auth ? '***' : undefined });
+        this.logger.debug('CreateConnectionConfigController::handle - params', request);
         const { name, ip, port, auth } = request;
         const response = await this.useCase.execute({
             name,

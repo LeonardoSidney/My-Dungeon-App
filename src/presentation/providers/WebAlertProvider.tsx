@@ -48,7 +48,8 @@ export function WebAlertProvider (params: WebAlertProviderProps) {
         <WebAlertModal
           title={currentAlert.title}
           message={currentAlert.message}
-          onConfirm={removeCurrentAlert}
+          actions={currentAlert.actions}
+          onDismiss={removeCurrentAlert}
         />
       )}
     </>

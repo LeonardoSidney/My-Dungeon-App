@@ -14,10 +14,7 @@ export class EditConnectionController implements IEditConnectionController {
 
     async handle (params: EditConnectionControllerParams): Promise<EditConnectionControllerResponse> {
         this.logger.info('Executing EditConnectionController::handle');
-        this.logger.debug('EditConnectionController::handle - params', {
-            ...params,
-            editParams: { ...params.editParams, auth: params.editParams.auth ? '***' : undefined },
-        });
+        this.logger.debug('EditConnectionController::handle - params', params);
         const response = await this.useCase.execute(params);
 
         return {

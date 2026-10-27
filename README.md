@@ -135,12 +135,25 @@ Don't ask me how to do it on nvidia, I don't know. You can find the instructions
 
 ### Starting the server
 
-The server must be run in the llama.cpp router mode:
+The server must be run in the llama.cpp router mode. The `--host` depends on where the app runs.
+
+**App on the phone** (the server machine spends its VRAM only on the model):
 
 ```sh
-./build/bin/llama-server --models-preset llama-cpp-models-presets.ini --host 0.0.0.0 --no-models-autoload
+./build/bin/llama-server --models-preset llama-cpp-models-presets.ini --host 0.0.0.0 --api-key "your-secret-key" --no-models-autoload
 
 ```
+
+`--host 0.0.0.0` makes the server reachable by every device on your network, so protect it with `--api-key`. Generate a key with `openssl rand -hex 32` and paste the same value in the connection's **Auth token** field, without the `Bearer` prefix: the app adds it to every request.
+
+**Web app on the server machine itself** (the web version spends little VRAM):
+
+```sh
+./build/bin/llama-server --models-preset llama-cpp-models-presets.ini --host 127.0.0.1 --no-models-autoload
+
+```
+
+`--host 127.0.0.1` only accepts connections from the machine itself, so nobody on the network reaches the server and `--api-key` becomes optional.
 
 Below is an example of how to configure an ini file in router mode:
 
@@ -202,15 +215,19 @@ With the server up and running, all that's left is to get the app running.
 Prerequisites:
 
 - [Node.js](https://nodejs.org) 22.11 or newer
-- For device/emulator: follow the React Native [environment setup guide](https://reactnative.dev/docs/set-up-your-environment) (Android Studio for Android; Xcode + CocoaPods for iOS). For Web, Node.js only.
+- For the phone: follow the React Native [environment setup guide](https://reactnative.dev/docs/set-up-your-environment) (Android Studio for Android; Xcode + CocoaPods for iOS). For Web, Node.js only.
+
+The app is meant to run on your phone, on the same network as the server: that way the machine hosting `llama-server` spends its VRAM only on the model. The web version spends little VRAM, so it can also run on the server machine itself. To install the app on the phone, connect the phone through USB with USB debugging enabled before running `npm run android` or `npm run android:release`.
 
 ```sh
 cd my_dungeon_ai
 
-npm install
+npm ci
 
 npm start
 ```
+
+`npm ci` installs exactly the versions recorded in `package-lock.json`, so no dependency gets updated on its own.
 
 With Metro running, in another terminal:
 
@@ -227,11 +244,23 @@ npm run ios
 npm run web
 ```
 
+Those are development builds. To play, use the release builds, which go without the development flags (the logs only keep warnings and errors):
+
+```sh
+# Android: installs a standalone build on the phone, no Metro needed
+npm run android:release
+
+# Web: builds a fresh release version and serves it at http://127.0.0.1:3000, reachable only from this machine
+npm run prod
+```
+
 ## Configuration
 
 With the app open, the configuration happens right inside it:
 
-1. **Settings → Connections**: add your server — Name, IP address (on the Android emulator, `10.0.2.2` points to the machine hosting the server), Port and, if the server asks for it, the Auth token.
+1. **Settings → Connections**: add your server — Name, IP address (on the phone, the local network IP of the machine running `llama-server`, such as `http://192.168.0.10`, with the phone on the same network; on the web app running on that machine, `http://127.0.0.1`), Port and the Auth token (the same value passed to `--api-key`, if any).
+
+   An address without a scheme uses `https://` by default, which keeps the Auth token from traveling in plain text to a server outside your network. `llama-server` on your network answers plain HTTP, so LAN connections must start with `http://`.
 2. Create an **assistant**, linking model, sampler and connection; the server's models show up in the assistant's model picker.
 3. Write the components: world(s), world master, characters, system prompts — and, if the campaign calls for it, locations, items, abilities, proficiencies and statuses.
 4. Build the **adventure** and play.
@@ -241,6 +270,8 @@ With the app open, the configuration happens right inside it:
 ```sh
 npm start           # Metro (Android/iOS)
 npm run web         # web dev server
+npm run prod        # fresh release web build, served at 127.0.0.1:3000
+npm run build:web   # release web build in dist/
 npm run lint        # eslint
 npm test            # backend unit tests (no UI)
 npm run test:api    # integration against a real llama.cpp server

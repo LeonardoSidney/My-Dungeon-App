@@ -34,6 +34,30 @@ describe('Logger', () => {
         expect(info).toHaveBeenCalledWith('[INFO] payload', '{"id":"adv-1"}', '["a"]', null);
     });
 
+    it('masks the auth token of a logged connection', () => {
+        new Logger().debug('saving', { id: 'conn-1', ip: '192.168.0.2', auth: 'secret-key' });
+
+        expect(info).toHaveBeenCalledWith('[DEBUG] saving', '{"id":"conn-1","ip":"192.168.0.2","auth":"***"}');
+    });
+
+    it('masks the auth tokens of every connection in a saved list', () => {
+        new Logger().debug('saving', [{ id: 'conn-1', auth: 'first-key' }, { id: 'conn-2', auth: 'second-key' }]);
+
+        expect(info).toHaveBeenCalledWith('[DEBUG] saving', '[{"id":"conn-1","auth":"***"},{"id":"conn-2","auth":"***"}]');
+    });
+
+    it('masks an authorization header inside a request', () => {
+        new Logger().debug('request', { url: 'http://localhost/models', headers: { Authorization: 'Bearer secret-key' } });
+
+        expect(info).toHaveBeenCalledWith('[DEBUG] request', '{"url":"http://localhost/models","headers":{"Authorization":"***"}}');
+    });
+
+    it('keeps a sensitive key whose value is not text', () => {
+        new Logger().debug('connection', { id: 'conn-1', auth: null });
+
+        expect(info).toHaveBeenCalledWith('[DEBUG] connection', '{"id":"conn-1","auth":null}');
+    });
+
     it('falls back to String for objects that cannot be serialized', () => {
         const circular: Record<string, unknown> = {};
         circular.self = circular;

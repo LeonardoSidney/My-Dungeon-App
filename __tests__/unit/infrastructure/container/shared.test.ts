@@ -1,5 +1,6 @@
 import { Platform } from 'react-native';
-import { chatReplyBus, createSseLineParser, draftBus, getStreamProvider } from '@infra/container/shared';
+import { chatReplyBus, createSseLineParser, draftBus, getStreamProvider, logger } from '@infra/container/shared';
+import { ILogger } from '@domain/logger';
 import { ChatReplyStatusEnum, DraftStatusEnum } from '@domain/providers';
 import { ReactNativeStreamProvider, SseLineParser, WebStreamProvider } from '@infra/providers/http/stream';
 
@@ -8,9 +9,45 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
     setItem: jest.fn(),
 }));
 
+const globals = globalThis as typeof globalThis & { __DEV__: boolean };
+
+function loadReleaseLogger (): ILogger {
+    const developmentFlag = globals.__DEV__;
+    globals.__DEV__ = false;
+
+    let releaseLogger: ILogger | undefined;
+    jest.isolateModules(() => {
+        releaseLogger = require('@infra/container/shared').logger;
+    });
+
+    globals.__DEV__ = developmentFlag;
+    return releaseLogger as ILogger;
+}
+
 describe('container shared', () => {
     afterEach(() => {
         jest.restoreAllMocks();
+    });
+
+    it('logs debug messages in development builds', () => {
+        const info = jest.spyOn(console, 'info').mockImplementation(() => undefined);
+
+        logger.debug('prompt built');
+
+        expect(info).toHaveBeenCalledWith('[DEBUG] prompt built');
+    });
+
+    it('only logs warnings and errors in release builds', () => {
+        const info = jest.spyOn(console, 'info').mockImplementation(() => undefined);
+        const releaseLogger = loadReleaseLogger();
+
+        releaseLogger.debug('prompt built');
+        releaseLogger.info('reply generated');
+        releaseLogger.warning('server is slow');
+
+        expect(info).not.toHaveBeenCalledWith('[DEBUG] prompt built');
+        expect(info).not.toHaveBeenCalledWith('[INFO] reply generated');
+        expect(info).toHaveBeenCalledWith('[WARN] server is slow');
     });
 
     it('creates a new SSE line parser on each call', () => {

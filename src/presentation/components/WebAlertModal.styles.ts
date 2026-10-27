@@ -47,4 +47,7 @@ export const styles = StyleSheet.create({
         fontWeight: '600',
         color: colors.primary,
     },
+    cancelButtonText: {
+        color: colors.textSecondary,
+    },
 });

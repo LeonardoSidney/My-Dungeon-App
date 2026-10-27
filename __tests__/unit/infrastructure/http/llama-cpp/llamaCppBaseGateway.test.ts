@@ -72,7 +72,7 @@ describe('LlamaCppBaseGateway', () => {
         it('should report fetch network errors', async () => {
             globalThis.fetch = jest.fn().mockRejectedValue(new Error('ECONNREFUSED'));
 
-            const result = await createGateway().getModels(createConnectionHelper({ ip: '192.168.0.1', port: 8080 }));
+            const result = await createGateway().getModels(createConnectionHelper({ ip: 'http://192.168.0.1', port: 8080 }));
 
             expect(result).toEqual({ success: false, error: 'Error fetching models from http://192.168.0.1:8080/models: ECONNREFUSED' });
         });
@@ -80,7 +80,7 @@ describe('LlamaCppBaseGateway', () => {
         it('should report non Error rejections as strings', async () => {
             globalThis.fetch = jest.fn().mockRejectedValue('socket hang up');
 
-            const result = await createGateway().getModels(createConnectionHelper({ ip: '192.168.0.1', port: 8080 }));
+            const result = await createGateway().getModels(createConnectionHelper({ ip: 'http://192.168.0.1', port: 8080 }));
 
             expect(result).toEqual({ success: false, error: 'Error fetching models from http://192.168.0.1:8080/models: socket hang up' });
         });
@@ -88,9 +88,65 @@ describe('LlamaCppBaseGateway', () => {
         it('should keep an ip that already has a scheme and omit a missing port', async () => {
             globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ data: [] }));
 
-            await createGateway().getModels(createConnectionHelper({ ip: 'https://llama.example.com', port: undefined }));
+            await createGateway().getModels(createConnectionHelper({ ip: 'https://llama.example.com', port: undefined, auth: undefined }));
 
-            expect(globalThis.fetch).toHaveBeenCalledWith('https://llama.example.com/models', undefined);
+            expect(globalThis.fetch).toHaveBeenCalledWith('https://llama.example.com/models', { headers: {} });
+        });
+
+        it('should default to https when the address has no scheme', async () => {
+            globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ data: [] }));
+
+            await createGateway().getModels(createConnectionHelper({ ip: 'api.example.com', port: undefined, auth: undefined }));
+
+            expect(globalThis.fetch).toHaveBeenCalledWith('https://api.example.com/models', { headers: {} });
+        });
+
+        it('should default to https for a lan address without scheme', async () => {
+            globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ data: [] }));
+
+            await createGateway().getModels(createConnectionHelper({ ip: '192.168.0.1', port: 8080, auth: undefined }));
+
+            expect(globalThis.fetch).toHaveBeenCalledWith('https://192.168.0.1:8080/models', { headers: {} });
+        });
+
+        it('should keep an explicit http scheme', async () => {
+            globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ data: [] }));
+
+            await createGateway().getModels(createConnectionHelper({ ip: 'http://192.168.0.1', port: 8080, auth: undefined }));
+
+            expect(globalThis.fetch).toHaveBeenCalledWith('http://192.168.0.1:8080/models', { headers: {} });
+        });
+
+        it('should keep a scheme written in uppercase', async () => {
+            globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ data: [] }));
+
+            await createGateway().getModels(createConnectionHelper({ ip: 'HTTP://192.168.0.1', port: 8080, auth: undefined }));
+
+            expect(globalThis.fetch).toHaveBeenCalledWith('HTTP://192.168.0.1:8080/models', { headers: {} });
+        });
+
+        it('should treat a host that starts with http as an address without scheme', async () => {
+            globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ data: [] }));
+
+            await createGateway().getModels(createConnectionHelper({ ip: 'httpbin.org', port: undefined, auth: undefined }));
+
+            expect(globalThis.fetch).toHaveBeenCalledWith('https://httpbin.org/models', { headers: {} });
+        });
+
+        it('should send the auth token as a bearer authorization header', async () => {
+            globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ data: [] }));
+
+            await createGateway().getModels(createConnectionHelper({ ip: 'http://192.168.0.1', port: 8080, auth: 'secret-key' }));
+
+            expect(globalThis.fetch).toHaveBeenCalledWith('http://192.168.0.1:8080/models', { headers: { Authorization: 'Bearer secret-key' } });
+        });
+
+        it('should not send an authorization header when the connection has no auth token', async () => {
+            globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ data: [] }));
+
+            await createGateway().getModels(createConnectionHelper({ ip: 'http://192.168.0.1', port: 8080, auth: undefined }));
+
+            expect(globalThis.fetch).toHaveBeenCalledWith('http://192.168.0.1:8080/models', { headers: {} });
         });
 
         it('should fail on a non-ok response', async () => {
@@ -108,7 +164,7 @@ describe('LlamaCppBaseGateway', () => {
                 json: jest.fn().mockRejectedValue(new Error('not json'))
             } as unknown as Response);
 
-            const result = await createGateway().getModels(createConnectionHelper({ ip: '192.168.0.1', port: 8080 }));
+            const result = await createGateway().getModels(createConnectionHelper({ ip: 'http://192.168.0.1', port: 8080 }));
 
             expect(result).toEqual({ success: false, error: 'Error reading models from http://192.168.0.1:8080/models: not json' });
         });
@@ -144,7 +200,30 @@ describe('LlamaCppBaseGateway', () => {
     });
 
     describe('applyTemplate', () => {
-        const connection = createConnectionHelper({ ip: '192.168.0.1', port: 8080 });
+        const connection = createConnectionHelper({ ip: 'http://192.168.0.1', port: 8080, auth: undefined });
+
+        it('should send only the json content type when the connection has no auth token', async () => {
+            globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ prompt: 'templated prompt' }));
+
+            await createGateway().applyTemplate({ connection, modelId: 'model-a', systemPrompt: 'system', chat: [] });
+
+            expect(globalThis.fetch).toHaveBeenCalledWith(
+                'http://192.168.0.1:8080/apply-template',
+                expect.objectContaining({ headers: { 'Content-Type': 'application/json' } })
+            );
+        });
+
+        it('should send the auth token as a bearer authorization header', async () => {
+            globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ prompt: 'templated prompt' }));
+            const authenticated = createConnectionHelper({ ip: 'http://192.168.0.1', port: 8080, auth: 'secret-key' });
+
+            await createGateway().applyTemplate({ connection: authenticated, modelId: 'model-a', systemPrompt: 'system', chat: [] });
+
+            expect(globalThis.fetch).toHaveBeenCalledWith(
+                'http://192.168.0.1:8080/apply-template',
+                expect.objectContaining({ headers: { 'Content-Type': 'application/json', Authorization: 'Bearer secret-key' } })
+            );
+        });
 
         it('should return prompt from successful response', async () => {
             globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ prompt: 'templated prompt' }));
@@ -403,7 +482,19 @@ describe('LlamaCppBaseGateway', () => {
     });
 
     describe('getProps', () => {
-        const connection = createConnectionHelper({ ip: '192.168.0.1', port: 8080 });
+        const connection = createConnectionHelper({ ip: 'http://192.168.0.1', port: 8080, auth: undefined });
+
+        it('should send the auth token as a bearer authorization header', async () => {
+            globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ chat_template: 't' }));
+            const authenticated = createConnectionHelper({ ip: 'http://192.168.0.1', port: 8080, auth: 'secret-key' });
+
+            await createGateway().getProps({ connection: authenticated, modelId: 'model-a' });
+
+            expect(globalThis.fetch).toHaveBeenCalledWith(
+                'http://192.168.0.1:8080/props?model=model-a&autoload=false',
+                { headers: { Authorization: 'Bearer secret-key' } }
+            );
+        });
 
         it('should map chat_template and model_alias from the response', async () => {
             globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({
@@ -416,7 +507,7 @@ describe('LlamaCppBaseGateway', () => {
             const result = await createGateway().getProps({ connection, modelId: 'model-a' });
 
             expect(result).toEqual({ success: true, props: { chatTemplate: 'jinja {{ messages }}', modelAlias: 'model-a', isSleeping: true } });
-            expect(globalThis.fetch).toHaveBeenCalledWith('http://192.168.0.1:8080/props?model=model-a&autoload=false', undefined);
+            expect(globalThis.fetch).toHaveBeenCalledWith('http://192.168.0.1:8080/props?model=model-a&autoload=false', { headers: {} });
         });
 
         it('should return null for missing optional fields', async () => {
@@ -432,7 +523,7 @@ describe('LlamaCppBaseGateway', () => {
 
             await createGateway().getProps({ connection, modelId: 'my/model name' });
 
-            expect(globalThis.fetch).toHaveBeenCalledWith('http://192.168.0.1:8080/props?model=my%2Fmodel%20name&autoload=false', undefined);
+            expect(globalThis.fetch).toHaveBeenCalledWith('http://192.168.0.1:8080/props?model=my%2Fmodel%20name&autoload=false', { headers: {} });
         });
 
         it('should fail with the server error message on non-ok response', async () => {

@@ -1,5 +1,6 @@
 import { InlineElement, ParseMarkerResult } from './types';
 import { createKey } from './parseInlineCore';
+import { toOpenableLink } from './openableLink';
 
 export function parseLink (
     remaining: string,
@@ -33,14 +34,22 @@ export function parseLink (
     const linkText = remaining.slice(match.index + 1, closeBracket);
     const url = remaining.slice(closeBracket + 2, closeParen);
     const children = recursiveParse(linkText, counter);
+    const rest = remaining.slice(closeParen + 1);
+    const consumed = remaining.length - rest.length;
+
+    const link = toOpenableLink(url);
+    if (!link) {
+        elements.push(...children);
+        return { elements, rest, consumed };
+    }
 
     elements.push({
         key: createKey('link', counter),
         type: 'link',
-        url,
+        url: link.url,
+        host: link.host,
         children
     });
 
-    const rest = remaining.slice(closeParen + 1);
-    return { elements, rest, consumed: remaining.length - rest.length };
+    return { elements, rest, consumed };
 }

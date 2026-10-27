@@ -23,6 +23,8 @@ export type AdventureTemplates = {
     characters: string;
 };
 
+export type LoadOrderSections = Map<string, string>;
+
 export type EnabledCharacterReferences = {
     abilities: boolean;
     proficiencies: boolean;

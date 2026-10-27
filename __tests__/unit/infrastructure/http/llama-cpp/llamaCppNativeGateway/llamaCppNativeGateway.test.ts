@@ -41,7 +41,7 @@ describe('LlamaCppNativeGateway', () => {
 
     describe('streamCompletion', () => {
         const params = {
-            connection: createConnectionHelper({ ip: '192.168.0.1', port: 8080 }),
+            connection: createConnectionHelper({ ip: 'http://192.168.0.1', port: 8080, auth: undefined }),
             sampler: createSamplerHelper({ temperature: 0.5 }),
             modelId: 'model-a',
             prompt: 'Once upon'
@@ -59,6 +59,18 @@ describe('LlamaCppNativeGateway', () => {
                 body: expect.objectContaining({ model: 'model-a', prompt: 'Once upon', temperature: 0.5, stream: true })
             });
             expect(result.abort).toBe(abort);
+        });
+
+        it('sends the auth token as a bearer authorization header', () => {
+            const { gateway, streamProvider } = buildGateway([]);
+            const connection = createConnectionHelper({ ip: 'http://192.168.0.1', port: 8080, auth: 'secret-key' });
+
+            gateway.streamCompletion({ ...params, connection });
+
+            expect(streamProvider.stream).toHaveBeenCalledWith(expect.objectContaining({
+                url: 'http://192.168.0.1:8080/completion',
+                headers: { 'Content-Type': 'application/json', Authorization: 'Bearer secret-key' }
+            }));
         });
 
         it('skips chunks without content, the stop chunk and chunks that are not JSON', async () => {

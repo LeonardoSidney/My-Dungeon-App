@@ -81,3 +81,6 @@ yarn-error.log
 
 #MCP
 .mcp.json
+
+# web build
+dist/

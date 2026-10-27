@@ -1,14 +1,31 @@
-import { Alert } from 'react-native';
+import { Alert, AlertButton } from 'react-native';
 import { ILogger } from '@domain/logger';
-import { IAlertUseCase } from '@domain/use-cases';
+import { AlertAction, AlertActionStyle, AlertActionStyleEnum, AlertUseCaseParams, IAlertUseCase } from '@domain/use-cases';
 
 export class AlertNativeUseCase implements IAlertUseCase {
     constructor (
         private readonly logger: ILogger
     ) { }
 
-    execute (params: { title: string; message: string; }): void {
+    execute (params: AlertUseCaseParams): void {
         this.logger.info('Executing AlertNativeUseCase::execute');
-        Alert.alert(params.title, params.message);
+        const buttons = params.actions?.map(action => this.toButton(action));
+        Alert.alert(params.title, params.message, buttons);
+    }
+
+    private toButton (action: AlertAction): AlertButton {
+        return {
+            text: action.label,
+            style: this.toButtonStyle(action.style),
+            onPress: action.onPress,
+        };
+    }
+
+    private toButtonStyle (style?: AlertActionStyle): AlertButton['style'] {
+        if (style === AlertActionStyleEnum.CANCEL) {
+            return 'cancel';
+        }
+
+        return 'default';
     }
 }

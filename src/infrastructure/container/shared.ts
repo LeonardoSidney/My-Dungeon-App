@@ -5,9 +5,12 @@ import { ReactNativeStreamProvider, WebStreamProvider, SseLineParser } from '@in
 import { BackgroundExecutionProvider } from '@infra/providers/backgroundExecution';
 import { Platform } from 'react-native';
 import { ChatReplyEvent, DraftEvent, IStreamProvider, ISseLineParser } from '@domain/providers';
+import { DEVELOPMENT_LOG_LEVEL, RELEASE_LOG_LEVEL } from '@domain/logger';
 import { KeyedEventBus, StreamSessionRegistry } from '@application/streaming';
 
-export const logger = new Logger();
+const logLevel = __DEV__ ? DEVELOPMENT_LOG_LEVEL : RELEASE_LOG_LEVEL;
+
+export const logger = new Logger(logLevel);
 export const idGenerate = new UUIDGenerator();
 export const hashProvider = new MD5Provider();
 export const storage = new MobileStorage(logger);

@@ -22,6 +22,7 @@ export class LlamaCppOAGateway extends LlamaCppBaseGateway implements IModelProv
             method: 'POST' as const,
             headers: {
                 'Content-Type': 'application/json',
+                ...this.buildAuthHeaders(connection),
             },
             body,
         };

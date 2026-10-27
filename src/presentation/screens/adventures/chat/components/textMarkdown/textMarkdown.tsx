@@ -1,10 +1,11 @@
 import React, { memo, ReactNode } from 'react';
-import { Linking, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { styles } from './styles';
 import { LatexRendererBlock } from './latexRendererBlock';
 import { LatexRendererInline } from './latexRendererInline';
 import { parseMarkdown } from './parseMarkdown';
-import { TextMarkdownProps, InlineElement, RenderInlineElementProps, RenderBlockElementProps } from './types';
+import { useOpenLink } from './useOpenLink';
+import { TextMarkdownProps, InlineElement, MarkdownLinkProps, RenderInlineElementProps, RenderBlockElementProps } from './types';
 
 const headingStylesMap: Record<number, object> = {
   1: styles.heading1,
@@ -14,6 +15,25 @@ const headingStylesMap: Record<number, object> = {
   5: styles.heading5,
   6: styles.heading6,
 };
+
+function MarkdownLink ({ element }: MarkdownLinkProps) {
+  const openLink = useOpenLink();
+
+  return (
+    <TouchableOpacity
+      accessibilityRole="link"
+      onPress={() => {
+        openLink(element);
+      }}
+    >
+      <Text style={styles.link}>
+        {element.children.map((child: InlineElement) => (
+          <RenderInlineElement key={child.key} element={child} />
+        ))}
+      </Text>
+    </TouchableOpacity>
+  );
+}
 
 function RenderInlineElement ({ element }: RenderInlineElementProps): ReactNode {
   if (element.type === 'text') {
@@ -37,20 +57,7 @@ function RenderInlineElement ({ element }: RenderInlineElementProps): ReactNode 
   }
 
   if (element.type === 'link') {
-    return (
-      <TouchableOpacity
-        key={element.key}
-        onPress={() => {
-          Linking.openURL(element.url);
-        }}
-      >
-        <Text style={styles.link}>
-          {element.children.map((child: InlineElement) => (
-            <RenderInlineElement key={child.key} element={child} />
-          ))}
-        </Text>
-      </TouchableOpacity>
-    );
+    return <MarkdownLink key={element.key} element={element} />;
   }
 
   if (element.type === 'bold' || element.type === 'italic') {

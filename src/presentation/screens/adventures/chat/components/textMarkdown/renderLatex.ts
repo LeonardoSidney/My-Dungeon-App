@@ -7,7 +7,7 @@ export function renderLatexWeb (
     const rendered = katex.renderToString(latex, {
         displayMode,
         throwOnError: false,
-        trust: true,
+        trust: false,
     });
 
     return rendered;

@@ -14,9 +14,10 @@ import {
     BuildAdventureTextSystemPromptReturn,
     EnabledCharacterReferences,
     ITextGeneration,
+    LoadOrderSections,
     ResolveTemplatesReturn,
 } from '@domain/providers';
-import { ITextGenerationTemplatesService } from '@domain/services';
+import { ITextGenerationTemplatesService, LOAD_ORDER_TAG_PATTERN } from '@domain/services';
 import { HydratedAdventure, HydratedCharacter } from '@domain/use-cases';
 
 export class TextGeneration implements ITextGeneration {
@@ -69,16 +70,19 @@ export class TextGeneration implements ITextGeneration {
         this.logger.debug('Characters template built', charactersTemplate);
 
         this.logger.debug('Adventure text built successfully');
-        const systemPrompt = loadOrder.replace('{systemPrompt}', systemPromptTemplate)
-            .replace('{worldMaster}', worldMasterTemplate)
-            .replace('{characterAsWorldMaster}', iaControlledCharacterTemplate)
-            .replace('{worlds}', worldsTemplate)
-            .replace('{locations}', locationsTemplate)
-            .replace('{items}', itemsTemplate)
-            .replace('{abilities}', abilitiesTemplate)
-            .replace('{proficiencies}', proficienciesTemplate)
-            .replace('{statuses}', statusesTemplate)
-            .replace('{characters}', charactersTemplate);
+        const sections: LoadOrderSections = new Map([
+            ['systemPrompt', systemPromptTemplate],
+            ['worldMaster', worldMasterTemplate],
+            ['characterAsWorldMaster', iaControlledCharacterTemplate],
+            ['worlds', worldsTemplate],
+            ['locations', locationsTemplate],
+            ['items', itemsTemplate],
+            ['abilities', abilitiesTemplate],
+            ['proficiencies', proficienciesTemplate],
+            ['statuses', statusesTemplate],
+            ['characters', charactersTemplate],
+        ]);
+        const systemPrompt = this.fillLoadOrder(loadOrder, sections);
 
         return { success: true, systemPrompt };
     }
@@ -107,6 +111,10 @@ export class TextGeneration implements ITextGeneration {
         }
 
         return { success: true, templates };
+    }
+
+    private fillLoadOrder (loadOrder: string, sections: LoadOrderSections): string {
+        return loadOrder.replace(LOAD_ORDER_TAG_PATTERN, (tag: string, name: string) => sections.get(name) ?? tag);
     }
 
     private resolveEnabledCharacterReferences (loadOrder: string): EnabledCharacterReferences {
@@ -167,7 +175,7 @@ export class TextGeneration implements ITextGeneration {
         const characterHeader = `## ${iaControlledCharacter.name.toUpperCase()}\n`;
         const characterReferences = this.buildCharacterResourceReferences(iaControlledCharacter, enabledReferences);
         const characterBlock = `${characterHeader}${iaControlledCharacter.prompt}\n${characterReferences}`;
-        return template.replace('{characterAsWorldMaster}', characterBlock);
+        return template.replace('{characterAsWorldMaster}', () => characterBlock);
     }
 
     private buildSystemPromptTemplate (systemPrompts: SystemPrompt[], template: string): string {
@@ -177,7 +185,7 @@ export class TextGeneration implements ITextGeneration {
         }
 
         this.logger.debug(`Found ${systemPrompts.length} system prompts`);
-        return template.replace('{systemPrompt}', systemPromptsText);
+        return template.replace('{systemPrompt}', () => systemPromptsText);
     }
 
     private buildWorldMasterTemplate (worldMaster: WorldMaster | undefined, template: string): string {
@@ -187,7 +195,7 @@ export class TextGeneration implements ITextGeneration {
 
         const promptPresence = worldMaster.prompt ? 'present' : 'empty';
         this.logger.debug(`WorldMaster prompt: ${promptPresence}`);
-        return template.replace('{worldMaster}', `${worldMaster.prompt}`);
+        return template.replace('{worldMaster}', () => `${worldMaster.prompt}`);
     }
 
     private buildWorldsTemplate (worlds: World[], template: string): string {
@@ -201,7 +209,7 @@ export class TextGeneration implements ITextGeneration {
         }
 
         this.logger.debug(`Found ${worlds.length} worlds`);
-        return template.replace('{worlds}', worldsText);
+        return template.replace('{worlds}', () => worldsText);
     }
 
     private buildLocationsTemplate (locations: Location[], template: string): string {
@@ -214,7 +222,7 @@ export class TextGeneration implements ITextGeneration {
             locationsText += `## ${location.name.toUpperCase()}\n${location.prompt}\n`;
         }
         this.logger.debug(`Found ${locations.length} locations`);
-        return template.replace('{locations}', locationsText);
+        return template.replace('{locations}', () => locationsText);
     }
 
     private buildItemsTemplate (items: Item[], template: string): string {
@@ -227,7 +235,7 @@ export class TextGeneration implements ITextGeneration {
             itemsText += `## ${item.name.toUpperCase()}\n${item.prompt}\n`;
         }
         this.logger.debug(`Found ${items.length} items`);
-        return template.replace('{items}', itemsText);
+        return template.replace('{items}', () => itemsText);
     }
 
     private buildAbilitiesTemplate (characters: HydratedCharacter[], template: string): string {
@@ -251,7 +259,7 @@ export class TextGeneration implements ITextGeneration {
         for (const ability of uniqueAbilities.values()) {
             abilities += `## ${ability.name.toUpperCase()}\n${ability.prompt}\n`;
         }
-        return template.replace('{abilities}', abilities);
+        return template.replace('{abilities}', () => abilities);
     }
 
     private buildProficienciesTemplate (characters: HydratedCharacter[], template: string): string {
@@ -275,7 +283,7 @@ export class TextGeneration implements ITextGeneration {
         for (const proficiency of uniqueProficiencies.values()) {
             proficiencies += `## ${proficiency.name.toUpperCase()}\n${proficiency.prompt}\n`;
         }
-        return template.replace('{proficiencies}', proficiencies);
+        return template.replace('{proficiencies}', () => proficiencies);
     }
 
     private buildStatusesTemplate (characters: HydratedCharacter[], template: string): string {
@@ -299,7 +307,7 @@ export class TextGeneration implements ITextGeneration {
         for (const status of uniqueStatuses.values()) {
             statuses += `## ${status.name.toUpperCase()}\n${status.prompt}\n`;
         }
-        return template.replace('{statuses}', statuses);
+        return template.replace('{statuses}', () => statuses);
     }
 
     private buildCharactersTemplate (
@@ -321,6 +329,6 @@ export class TextGeneration implements ITextGeneration {
 
         const playableCharacters = characters.filter(c => c.worldMaster !== true);
         this.logger.debug(`Found ${playableCharacters.length} playable characters`);
-        return template.replace('{characters}', charactersText);
+        return template.replace('{characters}', () => charactersText);
     }
 }

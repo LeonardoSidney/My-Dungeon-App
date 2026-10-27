@@ -26,8 +26,25 @@ export abstract class LlamaCppBaseGateway {
 
     protected buildUrl (connection: Connection, endpoint: string): string {
         const port = connection.port ? `:${connection.port}` : '';
-        const ip = connection.ip.startsWith('http') ? connection.ip : `http://${connection.ip}`;
-        return `${ip}${port}${endpoint}`;
+        const address = this.withScheme(connection.ip);
+        return `${address}${port}${endpoint}`;
+    }
+
+    private withScheme (address: string): string {
+        const hasScheme = /^https?:\/\//i.test(address);
+        if (hasScheme) {
+            return address;
+        }
+
+        return `https://${address}`;
+    }
+
+    protected buildAuthHeaders (connection: Connection): Record<string, string> {
+        if (connection.auth === undefined) {
+            return {};
+        }
+
+        return { Authorization: `Bearer ${connection.auth}` };
     }
 
     async getModels (connection: Connection): Promise<ModelProviderGateway.GetModelsResult> {
@@ -35,7 +52,7 @@ export abstract class LlamaCppBaseGateway {
         const url = this.buildUrl(connection, '/models');
         this.logger.debug('Executing LlamaCppBaseGateway::getModels - url: ', url);
 
-        const response = await this.request(url);
+        const response = await this.request(url, { headers: this.buildAuthHeaders(connection) });
         if (!response.success || !response.response) {
             return { success: false, error: `Error fetching models from ${url}: ${response.error}` };
         }
@@ -69,7 +86,7 @@ export abstract class LlamaCppBaseGateway {
         const url = this.buildUrl(connection, endpoint);
         this.logger.debug('Executing LlamaCppBaseGateway::getProps - url: ', url);
 
-        const response = await this.request(url);
+        const response = await this.request(url, { headers: this.buildAuthHeaders(connection) });
         if (!response.success || !response.response) {
             return { success: false, error: `Error calling getProps on ${url}: ${response.error}` };
         }
@@ -185,7 +202,7 @@ export abstract class LlamaCppBaseGateway {
 
         const response = await this.request(url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', ...this.buildAuthHeaders(connection) },
             body: JSON.stringify(body),
         });
         if (!response.success || !response.response) {

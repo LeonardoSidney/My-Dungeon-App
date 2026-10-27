@@ -11,9 +11,10 @@ type TextFieldProps = {
   error?: string;
   variant?: 'singleLine' | 'multiline' | 'tall';
   keyboardType?: KeyboardTypeOptions;
+  secureTextEntry?: boolean;
 };
 
-export function TextField ({ label, value, onChangeText, placeholder, error, variant = 'singleLine', keyboardType }: TextFieldProps) {
+export function TextField ({ label, value, onChangeText, placeholder, error, variant = 'singleLine', keyboardType, secureTextEntry }: TextFieldProps) {
   const isMultiline = variant !== 'singleLine';
 
   return (
@@ -31,6 +32,7 @@ export function TextField ({ label, value, onChangeText, placeholder, error, var
         onChangeText={onChangeText}
         multiline={isMultiline}
         keyboardType={keyboardType}
+        secureTextEntry={secureTextEntry}
       />
     </FormField>
   );

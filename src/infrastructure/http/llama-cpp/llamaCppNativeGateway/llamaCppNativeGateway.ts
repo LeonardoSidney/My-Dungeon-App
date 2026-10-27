@@ -22,6 +22,7 @@ export class LlamaCppNativeGateway extends LlamaCppBaseGateway implements IModel
             method: 'POST' as const,
             headers: {
                 'Content-Type': 'application/json',
+                ...this.buildAuthHeaders(connection),
             },
             body,
         };

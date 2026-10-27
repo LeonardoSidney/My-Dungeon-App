@@ -33,7 +33,13 @@ export interface LinkElement {
     key: string;
     type: 'link';
     url: string;
+    host: string;
     children: InlineElement[];
+}
+
+export interface OpenableLink {
+    url: string;
+    host: string;
 }
 
 export interface InlineMathElement {
@@ -134,6 +140,10 @@ export function initHandlers (handlers: Record<string, MarkerHandler>): void {
 
 export interface RenderInlineElementProps {
     element: InlineElement;
+}
+
+export interface MarkdownLinkProps {
+    element: LinkElement;
 }
 
 export interface RenderBlockElementProps {
