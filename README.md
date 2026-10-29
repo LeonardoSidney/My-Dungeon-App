@@ -276,3 +276,17 @@ npm run lint        # eslint
 npm test            # backend unit tests (no UI)
 npm run test:api    # integration against a real llama.cpp server
 ```
+
+The `[STORAGE]` logs print everything read from and written to storage, and they are off by default. To turn them on, start Metro or the web dev server with `STORAGE=true`:
+
+```sh
+STORAGE=true npm start
+STORAGE=true npm run web
+```
+
+The `[STREAMING]` logs print every intermediate save of a reply while it streams, and they are off by default as well. Turn them on the same way, with `STREAMING=true`:
+
+```sh
+STREAMING=true npm start
+STREAMING=true npm run web
+```

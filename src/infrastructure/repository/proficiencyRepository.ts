@@ -26,7 +26,7 @@ export class ProficiencyRepository implements IProficiencyRepository {
 
     async saveProficiency (params: SaveProficiencyParams): Promise<SaveProficiencyRepositoryReturn> {
         this.logger.info('Executing ProficiencyRepository::saveProficiency');
-        this.logger.debug('Executing ProficiencyRepository::saveProficiency - params: ', params);
+        this.logger.storage('Executing ProficiencyRepository::saveProficiency - params: ', params);
 
         const loaded = await this.storage.load<Proficiency[]>(this.storageKey);
         if (!loaded.success) {
@@ -65,7 +65,7 @@ export class ProficiencyRepository implements IProficiencyRepository {
         }
 
         const rawData = loaded.data ?? [];
-        this.logger.debug('Executing ProficiencyRepository::getProficiencies - rawData: ', rawData);
+        this.logger.storage('Executing ProficiencyRepository::getProficiencies - rawData: ', rawData);
 
         if (!Array.isArray(rawData)) {
             this.logger.warning('ProficiencyRepository::getProficiencies - stored proficiencies are not a list');
@@ -84,13 +84,13 @@ export class ProficiencyRepository implements IProficiencyRepository {
             this.logger.warning('Some proficiencies were not converted to entity');
         }
 
-        this.logger.debug('Executing ProficiencyRepository::getProficiencies - proficiencies: ', proficiencies);
+        this.logger.storage('Executing ProficiencyRepository::getProficiencies - proficiencies: ', proficiencies);
         return { success: true, proficiencies };
     }
 
     async editProficiency (params: EditProficiencyParams): Promise<EditProficiencyReturn> {
         this.logger.info('Executing ProficiencyRepository::editProficiency');
-        this.logger.debug('Executing ProficiencyRepository::editProficiency - params: ', params);
+        this.logger.storage('Executing ProficiencyRepository::editProficiency - params: ', params);
 
         const { proficiency } = params;
         const loaded = await this.storage.load<Proficiency[]>(this.storageKey);

@@ -26,7 +26,7 @@ export class ConnectionRepository implements IConnectionRepository {
 
     async saveConnection (params: SaveConnectionParams): Promise<SaveConnectionRepositoryReturn> {
         this.logger.info('Executing ConnectionRepository::saveConnection');
-        this.logger.debug('Executing ConnectionRepository::saveConnection - params: ', params);
+        this.logger.storage('Executing ConnectionRepository::saveConnection - params: ', params);
 
         const loaded = await this.storage.load<Connection[]>(this.storageKey);
         if (!loaded.success) {
@@ -65,7 +65,7 @@ export class ConnectionRepository implements IConnectionRepository {
         }
 
         const rawData = loaded.data ?? [];
-        this.logger.debug('Executing ConnectionRepository::getConnections - rawData: ', rawData);
+        this.logger.storage('Executing ConnectionRepository::getConnections - rawData: ', rawData);
 
         if (!Array.isArray(rawData)) {
             this.logger.warning('ConnectionRepository::getConnections - stored connections are not a list');
@@ -84,13 +84,13 @@ export class ConnectionRepository implements IConnectionRepository {
             this.logger.warning('Some connections were not converted to entity');
         }
 
-        this.logger.debug('Executing ConnectionRepository::getConnections - connections: ', connections);
+        this.logger.storage('Executing ConnectionRepository::getConnections - connections: ', connections);
         return { success: true, connections };
     }
 
     async editConnection (params: EditConnectionParams): Promise<EditConnectionRepositoryReturn> {
         this.logger.info('Executing ConnectionRepository::editConnection');
-        this.logger.debug('Executing ConnectionRepository::editConnection - params: ', params);
+        this.logger.storage('Executing ConnectionRepository::editConnection - params: ', params);
 
         const { connection } = params;
         const loaded = await this.storage.load<Connection[]>(this.storageKey);

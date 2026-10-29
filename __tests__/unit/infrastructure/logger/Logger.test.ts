@@ -100,4 +100,74 @@ describe('Logger', () => {
         expect(info).not.toHaveBeenCalled();
         expect(error).toHaveBeenCalledWith('[ERROR] error message');
     });
+
+    it('does not write storage messages when the storage log is disabled', () => {
+        new Logger().storage('stored data', { id: 'adv-1' });
+
+        expect(info).not.toHaveBeenCalled();
+    });
+
+    it('writes storage messages with the [STORAGE] prefix when the storage log is enabled', () => {
+        new Logger(LogLevelEnum.DEBUG, { storage: true }).storage('stored data', { id: 'adv-1' });
+
+        expect(info).toHaveBeenCalledWith('[STORAGE] stored data', '{"id":"adv-1"}');
+    });
+
+    it('writes storage messages whatever the configured level is', () => {
+        new Logger(LogLevelEnum.ERROR, { storage: true }).storage('stored data');
+
+        expect(info).toHaveBeenCalledWith('[STORAGE] stored data');
+    });
+
+    it('masks the auth token of a stored connection', () => {
+        new Logger(LogLevelEnum.DEBUG, { storage: true }).storage('stored data', [{ id: 'conn-1', auth: 'secret-key' }]);
+
+        expect(info).toHaveBeenCalledWith('[STORAGE] stored data', '[{"id":"conn-1","auth":"***"}]');
+    });
+
+    it('does not write storage messages through the debug level', () => {
+        new Logger(LogLevelEnum.DEBUG).storage('stored data');
+        new Logger(LogLevelEnum.DEBUG).debug('debug message');
+
+        expect(info).toHaveBeenCalledTimes(1);
+        expect(info).toHaveBeenCalledWith('[DEBUG] debug message');
+    });
+
+    it('does not write streaming messages when the streaming log is disabled', () => {
+        new Logger().streaming('token saved', { chatId: 'chat-1' });
+
+        expect(info).not.toHaveBeenCalled();
+    });
+
+    it('writes streaming messages with the [STREAMING] prefix when the streaming log is enabled', () => {
+        new Logger(LogLevelEnum.DEBUG, { streaming: true }).streaming('token saved', { chatId: 'chat-1' });
+
+        expect(info).toHaveBeenCalledWith('[STREAMING] token saved', '{"chatId":"chat-1"}');
+    });
+
+    it('writes streaming messages whatever the configured level is', () => {
+        new Logger(LogLevelEnum.ERROR, { streaming: true }).streaming('token saved');
+
+        expect(info).toHaveBeenCalledWith('[STREAMING] token saved');
+    });
+
+    it('does not write storage messages when only the streaming log is enabled', () => {
+        const logger = new Logger(LogLevelEnum.DEBUG, { streaming: true });
+
+        logger.storage('stored data');
+        logger.streaming('token saved');
+
+        expect(info).toHaveBeenCalledTimes(1);
+        expect(info).toHaveBeenCalledWith('[STREAMING] token saved');
+    });
+
+    it('does not write streaming messages when only the storage log is enabled', () => {
+        const logger = new Logger(LogLevelEnum.DEBUG, { storage: true });
+
+        logger.streaming('token saved');
+        logger.storage('stored data');
+
+        expect(info).toHaveBeenCalledTimes(1);
+        expect(info).toHaveBeenCalledWith('[STORAGE] stored data');
+    });
 });

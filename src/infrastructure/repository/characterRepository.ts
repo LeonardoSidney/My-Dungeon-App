@@ -26,7 +26,7 @@ export class CharacterRepository implements ICharacterRepository {
 
     async saveCharacter (params: SaveCharacterParams): Promise<SaveCharacterRepositoryReturn> {
         this.logger.info('Executing CharacterRepository::saveCharacter');
-        this.logger.debug('Executing CharacterRepository::saveCharacter - params: ', params);
+        this.logger.storage('Executing CharacterRepository::saveCharacter - params: ', params);
 
         const loaded = await this.storage.load<Character[]>(this.storageKey);
         if (!loaded.success) {
@@ -65,7 +65,7 @@ export class CharacterRepository implements ICharacterRepository {
         }
 
         const rawData = loaded.data ?? [];
-        this.logger.debug('Executing CharacterRepository::getCharacters - rawData: ', rawData);
+        this.logger.storage('Executing CharacterRepository::getCharacters - rawData: ', rawData);
 
         if (!Array.isArray(rawData)) {
             this.logger.warning('CharacterRepository::getCharacters - stored characters are not a list');
@@ -84,13 +84,13 @@ export class CharacterRepository implements ICharacterRepository {
             this.logger.warning('Some characters were not converted to entity');
         }
 
-        this.logger.debug('Executing CharacterRepository::getCharacters - characters: ', characters);
+        this.logger.storage('Executing CharacterRepository::getCharacters - characters: ', characters);
         return { success: true, characters };
     }
 
     async editCharacter (params: EditCharacterParams): Promise<EditCharacterReturn> {
         this.logger.info('Executing CharacterRepository::editCharacter');
-        this.logger.debug('Executing CharacterRepository::editCharacter - params: ', params);
+        this.logger.storage('Executing CharacterRepository::editCharacter - params: ', params);
 
         const { character } = params;
         const loaded = await this.storage.load<Character[]>(this.storageKey);

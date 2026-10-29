@@ -9,7 +9,7 @@ export class MobileStorage implements IStorage {
 
     async save<T> (name: string, data: T): Promise<StorageSaveReturn> {
         this.logger.info('Executing MobileStorage::save');
-        this.logger.debug('Executing MobileStorage::save - data', data);
+        this.logger.storage('Executing MobileStorage::save - data', data);
 
         try {
             await AsyncStorage.setItem(name, JSON.stringify(data));

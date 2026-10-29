@@ -59,6 +59,7 @@ import {
     SelectChatVersionService,
     SetAdventureWorldMasterService,
     RecoverInterruptedChatsService,
+    TurnSpeakerService,
 } from '@application/services';
 import {
     CreateAdventureUseCase,
@@ -128,7 +129,16 @@ import {
 } from '@domain/controllers';
 import { IEditAdventureUseCase, IGetAdventuresUseCase, IHydrateAdventureUseCase } from '@domain/use-cases';
 import { IHydrateAdventureService } from '@domain/services';
-import { idGenerate, logger, storage, getStreamProvider, chatReplyBus, chatReplyRegistry } from './shared';
+import {
+    idGenerate,
+    logger,
+    storage,
+    streamingLogger,
+    streamingStorage,
+    getStreamProvider,
+    chatReplyBus,
+    chatReplyRegistry,
+} from './shared';
 import {
     createAbilityRepository,
     createAdventureRepository,
@@ -385,12 +395,14 @@ export function getAdventureSystemPromptController (): IGetAdventureSystemPrompt
 
 export function getAdventureTemplatedPromptController (): IGetAdventureTemplatedPromptController {
     const textGeneration = new TextGeneration(logger, new TextGenerationTemplatesService(logger));
+    const turnSpeakerService = new TurnSpeakerService(logger);
     const useCase = new GetAdventureTemplatedPromptUseCase(
         logger,
         textGeneration,
         new LlamaCppOAGateway(logger, getStreamProvider()),
         createHydrateAdventureUseCase(),
-        createGetSystemPromptLoadOrderUseCase()
+        createGetSystemPromptLoadOrderUseCase(),
+        turnSpeakerService
     );
     return new GetAdventureTemplatedPromptController(logger, useCase);
 }
@@ -438,12 +450,14 @@ export function generateChatReplyController (): IGenerateChatReplyController {
     const textGenerationTemplatesService = new TextGenerationTemplatesService(logger);
     const textGeneration = new TextGeneration(logger, textGenerationTemplatesService);
     const hydrateAdventureUseCase = createHydrateAdventureUseCase();
+    const turnSpeakerService = new TurnSpeakerService(logger);
     const getAdventureTemplatedPromptUseCase = new GetAdventureTemplatedPromptUseCase(
         logger,
         textGeneration,
         new LlamaCppOAGateway(logger, getStreamProvider()),
         hydrateAdventureUseCase,
-        createGetSystemPromptLoadOrderUseCase()
+        createGetSystemPromptLoadOrderUseCase(),
+        turnSpeakerService
     );
     const nativeStreamCompletionUseCase = new NativeStreamCompletionUseCase(
         logger,
@@ -452,14 +466,18 @@ export function generateChatReplyController (): IGenerateChatReplyController {
         createSamplerRepository(storage, logger),
         new GetSamplersService(logger)
     );
+    const streamingAdventureRepository = createAdventureRepository(streamingStorage, streamingLogger);
+    const updateStreamingChatService = new UpdateStreamingChatService(streamingLogger);
+    const updateStreamingChatUseCase = new UpdateStreamingChatUseCase(streamingLogger, updateStreamingChatService, streamingAdventureRepository);
     const useCase = new GenerateChatReplyUseCase(
         logger,
         idGenerate,
         hydrateAdventureUseCase,
+        turnSpeakerService,
         getAdventureTemplatedPromptUseCase,
         nativeStreamCompletionUseCase,
         new StartStreamingChatUseCase(logger, new StartStreamingChatService(logger, idGenerate), adventureRepository),
-        new UpdateStreamingChatUseCase(logger, new UpdateStreamingChatService(logger), adventureRepository),
+        updateStreamingChatUseCase,
         new FinishStreamingChatUseCase(logger, new FinishStreamingChatService(logger), adventureRepository),
         new DeleteChatAdventureUseCase(logger, new DeleteChatAdventureService(logger), adventureRepository),
         new DeleteChatVersionUseCase(logger, new DeleteChatVersionService(logger), adventureRepository),
@@ -475,8 +493,10 @@ export function getChatMessagesController (): IGetChatMessagesController {
 }
 
 export function getChatMessageController (): IGetChatMessageController {
-    const useCase = new GetChatByIdUseCase(logger, createAdventureRepository(storage, logger));
-    return new GetChatMessageController(logger, useCase, new ChatMessagesPresenter());
+    const streamingAdventureRepository = createAdventureRepository(streamingStorage, streamingLogger);
+    const getChatByIdUseCase = new GetChatByIdUseCase(streamingLogger, streamingAdventureRepository);
+    const chatMessagesPresenter = new ChatMessagesPresenter();
+    return new GetChatMessageController(streamingLogger, getChatByIdUseCase, chatMessagesPresenter);
 }
 
 export function stopChatReplyController (): IStopChatReplyController {

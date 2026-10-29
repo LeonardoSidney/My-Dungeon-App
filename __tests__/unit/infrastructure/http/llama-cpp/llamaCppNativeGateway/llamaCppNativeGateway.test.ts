@@ -5,6 +5,8 @@ import { createConnectionHelper, createSamplerHelper } from '@test/helpers';
 
 const mockLogger = {
     debug: jest.fn(),
+    storage: jest.fn(),
+    streaming: jest.fn(),
     info: jest.fn(),
     warning: jest.fn(),
     error: jest.fn(),

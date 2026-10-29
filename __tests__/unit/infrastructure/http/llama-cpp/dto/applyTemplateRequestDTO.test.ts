@@ -1,86 +1,47 @@
 import { mapToApplyTemplateRequest } from '@infra/http/llama-cpp/dto/applyTemplateRequestDTO';
 import { RoleEnum } from '@domain/entities';
-import { createChatHelper } from '@test/helpers';
 
 describe('mapToApplyTemplateRequest', () => {
     it('sends the model and starts the messages with the system prompt', () => {
-        expect(mapToApplyTemplateRequest({ modelId: 'model-a', systemPrompt: 'system', chat: [] })).toEqual({
+        expect(mapToApplyTemplateRequest({ modelId: 'model-a', systemPrompt: 'system', messages: [] })).toEqual({
             model: 'model-a',
             messages: [{ role: 'system', content: 'system' }]
         });
     });
 
-    it('sends the selected content version of each chat', () => {
+    it('sends each message with its role and content in order', () => {
         const request = mapToApplyTemplateRequest({
             modelId: 'model-a',
             systemPrompt: 'system',
-            chat: [
-                createChatHelper({ role: RoleEnum.USER, content: ['old', 'new'], index: 1 }),
-                createChatHelper({ role: RoleEnum.ASSISTANT, content: ['answer'] })
+            messages: [
+                { role: RoleEnum.USER, content: 'turn' },
+                { role: RoleEnum.ASSISTANT, content: 'answer' }
             ]
         });
 
         expect(request.messages.slice(1)).toEqual([
-            { role: RoleEnum.USER, content: 'new' },
+            { role: RoleEnum.USER, content: 'turn' },
             { role: RoleEnum.ASSISTANT, content: 'answer' }
         ]);
     });
 
-    it('sends an empty user message when the selected version does not exist', () => {
+    it('sends the reasoning of a message as reasoning_content', () => {
         const request = mapToApplyTemplateRequest({
             modelId: 'model-a',
             systemPrompt: 'system',
-            chat: [createChatHelper({ role: RoleEnum.USER, content: [], index: 0 })]
-        });
-
-        expect(request.messages[1]).toEqual({ role: RoleEnum.USER, content: '' });
-    });
-
-    it('skips an assistant chat without content nor reasoning', () => {
-        const request = mapToApplyTemplateRequest({
-            modelId: 'model-a',
-            systemPrompt: 'system',
-            chat: [
-                createChatHelper({ role: RoleEnum.USER, content: ['hello'] }),
-                createChatHelper({ role: RoleEnum.ASSISTANT, content: ['   '] })
-            ]
-        });
-
-        expect(request.messages).toEqual([
-            { role: 'system', content: 'system' },
-            { role: RoleEnum.USER, content: 'hello' }
-        ]);
-    });
-
-    it('keeps an assistant chat without content when it has reasoning', () => {
-        const request = mapToApplyTemplateRequest({
-            modelId: 'model-a',
-            systemPrompt: 'system',
-            chat: [createChatHelper({
-                role: RoleEnum.ASSISTANT,
-                content: [''],
-                think: [{ id: 'think-1', content: 'reasoning', enabled: true }]
-            })]
+            messages: [{ role: RoleEnum.ASSISTANT, content: '', reasoning: 'reasoning' }]
         });
 
         expect(request.messages[1]).toEqual({ role: RoleEnum.ASSISTANT, content: '', reasoning_content: 'reasoning' });
     });
 
-    it('omits reasoning that is disabled or blank', () => {
+    it('does not send reasoning_content when the message has no reasoning', () => {
         const request = mapToApplyTemplateRequest({
             modelId: 'model-a',
             systemPrompt: 'system',
-            chat: [
-                createChatHelper({ role: RoleEnum.ASSISTANT, content: ['a'], think: [{ id: 't1', content: 'hidden', enabled: false }] }),
-                createChatHelper({ role: RoleEnum.ASSISTANT, content: ['b'], think: [{ id: 't2', content: undefined, enabled: true }] }),
-                createChatHelper({ role: RoleEnum.ASSISTANT, content: ['c'], think: [{ id: 't3', content: '  ', enabled: true }] })
-            ]
+            messages: [{ role: RoleEnum.ASSISTANT, content: 'answer' }]
         });
 
-        expect(request.messages.slice(1)).toEqual([
-            { role: RoleEnum.ASSISTANT, content: 'a' },
-            { role: RoleEnum.ASSISTANT, content: 'b' },
-            { role: RoleEnum.ASSISTANT, content: 'c' }
-        ]);
+        expect(request.messages[1]).not.toHaveProperty('reasoning_content');
     });
 });

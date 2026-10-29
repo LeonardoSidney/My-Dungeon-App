@@ -26,7 +26,7 @@ export class StatusRepository implements IStatusRepository {
 
     async saveStatus (params: SaveStatusParams): Promise<SaveStatusRepositoryReturn> {
         this.logger.info('Executing StatusRepository::saveStatus');
-        this.logger.debug('Executing StatusRepository::saveStatus - params: ', params);
+        this.logger.storage('Executing StatusRepository::saveStatus - params: ', params);
 
         const loaded = await this.storage.load<Status[]>(this.storageKey);
         if (!loaded.success) {
@@ -65,7 +65,7 @@ export class StatusRepository implements IStatusRepository {
         }
 
         const rawData = loaded.data ?? [];
-        this.logger.debug('Executing StatusRepository::getStatuses - rawData: ', rawData);
+        this.logger.storage('Executing StatusRepository::getStatuses - rawData: ', rawData);
 
         if (!Array.isArray(rawData)) {
             this.logger.warning('StatusRepository::getStatuses - stored statuses are not a list');
@@ -84,13 +84,13 @@ export class StatusRepository implements IStatusRepository {
             this.logger.warning('Some statuses were not converted to entity');
         }
 
-        this.logger.debug('Executing StatusRepository::getStatuses - statuses: ', statuses);
+        this.logger.storage('Executing StatusRepository::getStatuses - statuses: ', statuses);
         return { success: true, statuses };
     }
 
     async editStatus (params: EditStatusParams): Promise<EditStatusReturn> {
         this.logger.info('Executing StatusRepository::editStatus');
-        this.logger.debug('Executing StatusRepository::editStatus - params: ', params);
+        this.logger.storage('Executing StatusRepository::editStatus - params: ', params);
 
         const { status } = params;
         const loaded = await this.storage.load<Status[]>(this.storageKey);

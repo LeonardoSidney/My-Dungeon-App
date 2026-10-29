@@ -15,8 +15,8 @@ export class UpdateStreamingChatUseCase implements IUpdateStreamingChatUseCase {
     ) { }
 
     async execute (params: UpdateStreamingChatUseCaseParams): Promise<UpdateStreamingChatUseCaseReturn> {
-        this.logger.info('Executing UpdateStreamingChatUseCase::execute');
-        this.logger.debug('UpdateStreamingChatUseCase::execute - params', params);
+        this.logger.streaming('Executing UpdateStreamingChatUseCase::execute');
+        this.logger.streaming('UpdateStreamingChatUseCase::execute - params', params);
 
         const validation = this.validate(params);
         if (!validation.success) {
@@ -73,7 +73,7 @@ export class UpdateStreamingChatUseCase implements IUpdateStreamingChatUseCase {
             };
         }
 
-        this.logger.debug('UpdateStreamingChatUseCase::execute - adventure persisted');
+        this.logger.streaming('UpdateStreamingChatUseCase::execute - adventure persisted');
 
         return {
             success: true,

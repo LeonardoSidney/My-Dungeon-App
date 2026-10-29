@@ -26,7 +26,7 @@ export class AbilityRepository implements IAbilityRepository {
 
     async saveAbility (params: SaveAbilityParams): Promise<SaveAbilityRepositoryReturn> {
         this.logger.info('Executing AbilityRepository::saveAbility');
-        this.logger.debug('Executing AbilityRepository::saveAbility - params: ', params);
+        this.logger.storage('Executing AbilityRepository::saveAbility - params: ', params);
 
         const loaded = await this.storage.load<Ability[]>(this.storageKey);
         if (!loaded.success) {
@@ -65,7 +65,7 @@ export class AbilityRepository implements IAbilityRepository {
         }
 
         const rawData = loaded.data ?? [];
-        this.logger.debug('Executing AbilityRepository::getAbilities - rawData: ', rawData);
+        this.logger.storage('Executing AbilityRepository::getAbilities - rawData: ', rawData);
 
         if (!Array.isArray(rawData)) {
             this.logger.warning('AbilityRepository::getAbilities - stored abilities are not a list');
@@ -84,13 +84,13 @@ export class AbilityRepository implements IAbilityRepository {
             this.logger.warning('Some abilities were not converted to entity');
         }
 
-        this.logger.debug('Executing AbilityRepository::getAbilities - abilities: ', abilities);
+        this.logger.storage('Executing AbilityRepository::getAbilities - abilities: ', abilities);
         return { success: true, abilities };
     }
 
     async editAbility (params: EditAbilityParams): Promise<EditAbilityReturn> {
         this.logger.info('Executing AbilityRepository::editAbility');
-        this.logger.debug('Executing AbilityRepository::editAbility - params: ', params);
+        this.logger.storage('Executing AbilityRepository::editAbility - params: ', params);
 
         const { ability } = params;
         const loaded = await this.storage.load<Ability[]>(this.storageKey);

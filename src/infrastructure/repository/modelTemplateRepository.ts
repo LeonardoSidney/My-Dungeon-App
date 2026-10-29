@@ -34,7 +34,7 @@ export class ModelTemplateRepository implements IModelTemplateRepository {
         }
 
         const rawData = loaded.data ?? [];
-        this.logger.debug('Executing ModelTemplateRepository::getModelTemplates - rawData: ', rawData);
+        this.logger.storage('Executing ModelTemplateRepository::getModelTemplates - rawData: ', rawData);
 
         if (!Array.isArray(rawData)) {
             this.logger.warning('ModelTemplateRepository::getModelTemplates - stored model templates are not a list');
@@ -84,7 +84,7 @@ export class ModelTemplateRepository implements IModelTemplateRepository {
 
     async saveModelTemplate (params: SaveModelTemplateParams): Promise<SaveModelTemplateRepositoryReturn> {
         this.logger.info('Executing ModelTemplateRepository::saveModelTemplate');
-        this.logger.debug('Executing ModelTemplateRepository::saveModelTemplate - params: ', params);
+        this.logger.storage('Executing ModelTemplateRepository::saveModelTemplate - params: ', params);
 
         const response = await this.getModelTemplates();
         if (!response.success || !response.modelTemplates) {

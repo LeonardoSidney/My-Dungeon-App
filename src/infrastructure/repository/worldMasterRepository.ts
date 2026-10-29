@@ -26,7 +26,7 @@ export class WorldMasterRepository implements IWorldMasterRepository {
 
     async saveWorldMaster (params: SaveWorldMasterParams): Promise<SaveWorldMasterRepositoryReturn> {
         this.logger.info('Executing WorldMasterRepository::saveWorldMaster');
-        this.logger.debug('Executing WorldMasterRepository::saveWorldMaster - params: ', params);
+        this.logger.storage('Executing WorldMasterRepository::saveWorldMaster - params: ', params);
 
         const loaded = await this.storage.load<WorldMaster[]>(this.storageKey);
         if (!loaded.success) {
@@ -65,7 +65,7 @@ export class WorldMasterRepository implements IWorldMasterRepository {
         }
 
         const rawData = loaded.data ?? [];
-        this.logger.debug('Executing WorldMasterRepository::getWorldMasters - rawData: ', rawData);
+        this.logger.storage('Executing WorldMasterRepository::getWorldMasters - rawData: ', rawData);
 
         if (!Array.isArray(rawData)) {
             this.logger.warning('WorldMasterRepository::getWorldMasters - stored world masters are not a list');
@@ -84,13 +84,13 @@ export class WorldMasterRepository implements IWorldMasterRepository {
             this.logger.warning('Some world masters were not converted to entity');
         }
 
-        this.logger.debug('Executing WorldMasterRepository::getWorldMasters - worldMasters: ', worldMasters);
+        this.logger.storage('Executing WorldMasterRepository::getWorldMasters - worldMasters: ', worldMasters);
         return { success: true, worldMasters };
     }
 
     async editWorldMaster (params: EditWorldMasterParams): Promise<EditWorldMasterReturn> {
         this.logger.info('Executing WorldMasterRepository::editWorldMaster');
-        this.logger.debug('Executing WorldMasterRepository::editWorldMaster - params: ', params);
+        this.logger.storage('Executing WorldMasterRepository::editWorldMaster - params: ', params);
 
         const { worldMaster } = params;
         const loaded = await this.storage.load<WorldMaster[]>(this.storageKey);

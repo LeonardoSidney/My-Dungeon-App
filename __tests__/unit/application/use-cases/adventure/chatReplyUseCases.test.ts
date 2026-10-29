@@ -6,6 +6,8 @@ import { ChatReplyEvent, ChatReplyStatusEnum } from '@domain/providers';
 
 const logger = {
     debug: jest.fn(),
+    storage: jest.fn(),
+    streaming: jest.fn(),
     info: jest.fn(),
     warning: jest.fn(),
     error: jest.fn(),

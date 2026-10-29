@@ -48,3 +48,4 @@ export * from './iRecoverInterruptedChatsService';
 export * from './iWriteDraftService';
 export * from './iValidateSystemPromptLoadOrderService';
 export * from './iActivitySummaryService';
+export * from './iTurnSpeakerService';

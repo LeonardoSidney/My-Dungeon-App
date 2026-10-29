@@ -42,7 +42,7 @@ export async function handleChatReplyUpdate ({ update, reloadMessage, reloadMess
         showError(alert, update.error, update.error);
     }
 
-    if (update.isRemoved) {
+    if (update.isFinished) {
         await reloadMessages();
         return;
     }

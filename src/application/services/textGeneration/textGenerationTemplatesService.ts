@@ -1,4 +1,10 @@
 import {
+    DEFAULT_AI_CHARACTER_INSTRUCTION_TEMPLATE,
+    DEFAULT_CHARACTER_MESSAGE_TEMPLATE,
+    DEFAULT_CONTEXT_INSTRUCTION_TEMPLATE,
+    DEFAULT_CONTEXT_MESSAGE_TEMPLATE,
+    DEFAULT_INSTRUCTIONS_MESSAGE_TEMPLATE,
+    DEFAULT_MESSAGE_TEMPLATE,
     DEFAULT_TEXT_ADVENTURE_ABILITIES_TEMPLATE,
     DEFAULT_TEXT_ADVENTURE_CHARACTERS_TEMPLATE,
     DEFAULT_TEXT_ADVENTURE_IA_CONTROLLED_CHARACTER_TEMPLATE,
@@ -9,6 +15,8 @@ import {
     DEFAULT_TEXT_ADVENTURE_SYSTEM_PROMPT_TEMPLATE,
     DEFAULT_TEXT_ADVENTURE_WORLD_MASTER_TEMPLATE,
     DEFAULT_TEXT_ADVENTURE_WORLDS_TEMPLATE,
+    DEFAULT_TURN_MESSAGE_TEMPLATE,
+    DEFAULT_WORLD_MASTER_INSTRUCTION_TEMPLATE,
 } from '@domain/constants/textGeneration';
 import { ILogger } from '@domain/logger';
 import {
@@ -23,6 +31,14 @@ import {
     ITextGenerationTemplatesService,
     WorldMasterTemplateServiceResponse,
     WorldsTemplateServiceResponse,
+    MessageTemplateServiceResponse,
+    ContextMessageTemplateServiceResponse,
+    TurnMessageTemplateServiceResponse,
+    CharacterMessageTemplateServiceResponse,
+    InstructionsMessageTemplateServiceResponse,
+    AiCharacterInstructionTemplateServiceResponse,
+    WorldMasterInstructionTemplateServiceResponse,
+    ContextInstructionTemplateServiceResponse,
 } from '@domain/services';
 
 export class TextGenerationTemplatesService implements ITextGenerationTemplatesService {
@@ -78,5 +94,45 @@ export class TextGenerationTemplatesService implements ITextGenerationTemplatesS
     getCharactersTemplate (): CharactersTemplateServiceResponse {
         this.logger.info('Executing TextGenerationTemplatesService::getCharactersTemplate');
         return { success: true, template: DEFAULT_TEXT_ADVENTURE_CHARACTERS_TEMPLATE };
+    }
+
+    getMessageTemplate (): MessageTemplateServiceResponse {
+        this.logger.info('Executing TextGenerationTemplatesService::getMessageTemplate');
+        return { success: true, template: DEFAULT_MESSAGE_TEMPLATE };
+    }
+
+    getContextMessageTemplate (): ContextMessageTemplateServiceResponse {
+        this.logger.info('Executing TextGenerationTemplatesService::getContextMessageTemplate');
+        return { success: true, template: DEFAULT_CONTEXT_MESSAGE_TEMPLATE };
+    }
+
+    getTurnMessageTemplate (): TurnMessageTemplateServiceResponse {
+        this.logger.info('Executing TextGenerationTemplatesService::getTurnMessageTemplate');
+        return { success: true, template: DEFAULT_TURN_MESSAGE_TEMPLATE };
+    }
+
+    getCharacterMessageTemplate (): CharacterMessageTemplateServiceResponse {
+        this.logger.info('Executing TextGenerationTemplatesService::getCharacterMessageTemplate');
+        return { success: true, template: DEFAULT_CHARACTER_MESSAGE_TEMPLATE };
+    }
+
+    getInstructionsMessageTemplate (): InstructionsMessageTemplateServiceResponse {
+        this.logger.info('Executing TextGenerationTemplatesService::getInstructionsMessageTemplate');
+        return { success: true, template: DEFAULT_INSTRUCTIONS_MESSAGE_TEMPLATE };
+    }
+
+    getAiCharacterInstructionTemplate (): AiCharacterInstructionTemplateServiceResponse {
+        this.logger.info('Executing TextGenerationTemplatesService::getAiCharacterInstructionTemplate');
+        return { success: true, template: DEFAULT_AI_CHARACTER_INSTRUCTION_TEMPLATE };
+    }
+
+    getWorldMasterInstructionTemplate (): WorldMasterInstructionTemplateServiceResponse {
+        this.logger.info('Executing TextGenerationTemplatesService::getWorldMasterInstructionTemplate');
+        return { success: true, template: DEFAULT_WORLD_MASTER_INSTRUCTION_TEMPLATE };
+    }
+
+    getContextInstructionTemplate (): ContextInstructionTemplateServiceResponse {
+        this.logger.info('Executing TextGenerationTemplatesService::getContextInstructionTemplate');
+        return { success: true, template: DEFAULT_CONTEXT_INSTRUCTION_TEMPLATE };
     }
 }

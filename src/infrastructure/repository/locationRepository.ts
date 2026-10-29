@@ -26,7 +26,7 @@ export class LocationRepository implements ILocationRepository {
 
     async saveLocation (params: SaveLocationParams): Promise<SaveLocationRepositoryReturn> {
         this.logger.info('Executing LocationRepository::saveLocation');
-        this.logger.debug('Executing LocationRepository::saveLocation - params: ', params);
+        this.logger.storage('Executing LocationRepository::saveLocation - params: ', params);
 
         const loaded = await this.storage.load<Location[]>(this.storageKey);
         if (!loaded.success) {
@@ -65,7 +65,7 @@ export class LocationRepository implements ILocationRepository {
         }
 
         const rawData = loaded.data ?? [];
-        this.logger.debug('Executing LocationRepository::getLocations - rawData: ', rawData);
+        this.logger.storage('Executing LocationRepository::getLocations - rawData: ', rawData);
 
         if (!Array.isArray(rawData)) {
             this.logger.warning('LocationRepository::getLocations - stored locations are not a list');
@@ -84,13 +84,13 @@ export class LocationRepository implements ILocationRepository {
             this.logger.warning('Some locations were not converted to entity');
         }
 
-        this.logger.debug('Executing LocationRepository::getLocations - locations: ', locations);
+        this.logger.storage('Executing LocationRepository::getLocations - locations: ', locations);
         return { success: true, locations };
     }
 
     async editLocation (params: EditLocationParams): Promise<EditLocationReturn> {
         this.logger.info('Executing LocationRepository::editLocation');
-        this.logger.debug('Executing LocationRepository::editLocation - params: ', params);
+        this.logger.storage('Executing LocationRepository::editLocation - params: ', params);
 
         const { location } = params;
         const loaded = await this.storage.load<Location[]>(this.storageKey);

@@ -7,6 +7,8 @@ import { createChatHelper } from '@test/helpers';
 
 const logger = {
     debug: jest.fn(),
+    storage: jest.fn(),
+    streaming: jest.fn(),
     info: jest.fn(),
     warning: jest.fn(),
     error: jest.fn(),

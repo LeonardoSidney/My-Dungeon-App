@@ -1,4 +1,5 @@
-import { Chat, RoleEnum } from '@domain/entities';
+import { RoleEnum } from '@domain/entities';
+import type { ModelProviderGateway } from '@domain/gateways';
 
 export type ApplyTemplateChatMessage = {
     role: string;
@@ -14,44 +15,27 @@ export type ApplyTemplateRequest = {
 export function mapToApplyTemplateRequest (params: {
     modelId: string;
     systemPrompt: string;
-    chat: Chat[];
+    messages: ModelProviderGateway.TemplateMessage[];
 }): ApplyTemplateRequest {
-    const { modelId, systemPrompt, chat } = params;
-
-    const messages = chat
-        .map(c => mapToApplyTemplateChatMessage(c))
-        .filter((m): m is ApplyTemplateChatMessage => m !== null);
+    const { modelId, systemPrompt, messages } = params;
 
     return {
         model: modelId,
         messages: [
-            { role: 'system', content: systemPrompt },
-            ...messages,
+            { role: RoleEnum.SYSTEM, content: systemPrompt },
+            ...messages.map(message => mapToApplyTemplateChatMessage(message)),
         ],
     };
 }
 
-function mapToApplyTemplateChatMessage (chat: Chat): ApplyTemplateChatMessage | null {
-    const content = chat.content[chat.index] ?? '';
-
-    if (chat.role !== RoleEnum.ASSISTANT) {
-        return { role: chat.role, content };
-    }
-
-    const think = chat.think?.[chat.thinkIndex];
-
-    if (think === undefined || !think.enabled || !think.content || think.content.trim() === '') {
-        const hasContent = content.trim() !== '';
-        if (!hasContent) {
-            return null;
-        }
-
-        return { role: chat.role, content };
+function mapToApplyTemplateChatMessage (message: ModelProviderGateway.TemplateMessage): ApplyTemplateChatMessage {
+    if (message.reasoning === undefined) {
+        return { role: message.role, content: message.content };
     }
 
     return {
-        role: chat.role,
-        content,
-        reasoning_content: think.content,
+        role: message.role,
+        content: message.content,
+        reasoning_content: message.reasoning,
     };
 }

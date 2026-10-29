@@ -193,9 +193,9 @@ export abstract class LlamaCppBaseGateway {
 
     async applyTemplate (params: ModelProviderGateway.ApplyTemplateParams): Promise<ModelProviderGateway.ApplyTemplateResult> {
         this.logger.info('Executing LlamaCppBaseGateway::applyTemplate');
-        const { connection, modelId, systemPrompt, chat } = params;
+        const { connection, modelId, systemPrompt, messages } = params;
         const url = this.buildUrl(connection, '/apply-template');
-        const body = mapToApplyTemplateRequest({ modelId, systemPrompt, chat });
+        const body = mapToApplyTemplateRequest({ modelId, systemPrompt, messages });
 
         this.logger.debug('Executing LlamaCppBaseGateway::applyTemplate - url: ', url);
         this.logger.debug('Executing LlamaCppBaseGateway::applyTemplate - body: ', JSON.stringify(body));

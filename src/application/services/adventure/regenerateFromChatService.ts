@@ -37,7 +37,7 @@ export class RegenerateFromChatService implements IRegenerateFromChatService {
             return this.regenerateAssistantAfterUserMessage(params, targetChat, chatIndex);
         }
 
-        if (targetChat.role === RoleEnum.ASSISTANT) {
+        if (this.isGeneratedChat(targetChat)) {
             return this.regenerateAssistantWithFreshThink(params, targetChat, chatIndex);
         }
 
@@ -49,7 +49,7 @@ export class RegenerateFromChatService implements IRegenerateFromChatService {
 
     private regenerateAssistantAfterUserMessage (params: RegenerateFromChatServiceParams, targetChat: Chat, chatIndex: number): RegenerateFromChatServiceReturn {
         const chats = params.adventure.chat;
-        const assistantIndex = chats.findIndex((c, i) => i > chatIndex && c.role === RoleEnum.ASSISTANT);
+        const assistantIndex = chats.findIndex((c, i) => i > chatIndex && this.isGeneratedChat(c));
 
         if (assistantIndex === -1) {
             const updatedAdventure: Adventure = {
@@ -147,7 +147,7 @@ export class RegenerateFromChatService implements IRegenerateFromChatService {
     }
 
     private regenerateChatContentPreservingThink (params: RegenerateFromChatServiceParams, targetChat: Chat, chatIndex: number): RegenerateFromChatServiceReturn {
-        if (targetChat.role !== RoleEnum.ASSISTANT) {
+        if (!this.isGeneratedChat(targetChat)) {
             return {
                 success: false,
                 error: `Chat with id ${targetChat.id} cannot have its content regenerated from role ${targetChat.role}`,
@@ -180,5 +180,9 @@ export class RegenerateFromChatService implements IRegenerateFromChatService {
             chat: freshChat,
             adventure: updatedAdventure,
         };
+    }
+
+    private isGeneratedChat (chat: Chat): boolean {
+        return chat.role === RoleEnum.ASSISTANT || chat.role === RoleEnum.AI_PERSONA;
     }
 }

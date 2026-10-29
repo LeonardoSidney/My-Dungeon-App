@@ -1,4 +1,6 @@
 import type { HydratedAdventure } from '../services/iHydrateAdventureService';
+import type { TurnSpeaker } from '../services/iTurnSpeakerService';
+import type { TurnPromptPurpose } from '../providers/ITextGeneration';
 import { Connection } from '../entities';
 
 export interface IGetAdventureTemplatedPromptUseCase {
@@ -11,6 +13,10 @@ export type GetAdventureTemplatedPromptUseCaseParams =
 
 export type GetAdventureTemplatedPromptFromHydratedParams = {
     hydrated: HydratedAdventure;
+    speaker: TurnSpeaker;
+    purpose: TurnPromptPurpose;
+    context?: string;
+    targetChatId?: string;
 };
 
 export const HYDRATED_PARAM_KEY = 'hydrated' satisfies keyof GetAdventureTemplatedPromptFromHydratedParams;
@@ -21,13 +27,13 @@ export type GetAdventureTemplatedPromptUseCaseResponse = {
     error?: string;
 };
 
-export type ResolveHydratedReturn = {
+export type ResolveTemplatedPromptRequestReturn = {
     success: boolean;
-    hydrated?: HydratedAdventure;
+    request?: GetAdventureTemplatedPromptFromHydratedParams;
     error?: string;
 };
 
-export type WorldMasterRuntimeReturn = {
+export type SpeakerConnectionReturn = {
     success: boolean;
     connection?: Connection;
     modelId?: string;

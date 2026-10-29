@@ -1,4 +1,4 @@
-import { Adventure, Chat, RoleEnum } from '@domain/entities';
+import { Adventure } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import {
     IDeleteChatAdventureService,
@@ -21,10 +21,10 @@ export class DeleteChatAdventureService implements IDeleteChatAdventureService {
             };
         }
 
-        const removedChatIds = this.resolveRemovedChatIds(params.adventure, chatIndex, params.adventure.chat[chatIndex]);
+        const removedChatIds = params.adventure.chat.slice(chatIndex).map(c => c.id);
         const updatedAdventure: Adventure = {
             ...params.adventure,
-            chat: params.adventure.chat.filter(c => !removedChatIds.includes(c.id)),
+            chat: params.adventure.chat.slice(0, chatIndex),
             updatedAt: new Date(),
         };
 
@@ -34,18 +34,5 @@ export class DeleteChatAdventureService implements IDeleteChatAdventureService {
             success: true,
             adventure: updatedAdventure,
         };
-    }
-
-    private resolveRemovedChatIds (adventure: Adventure, chatIndex: number, existingChat: Chat): string[] {
-        if (existingChat.role !== RoleEnum.USER) {
-            return [existingChat.id];
-        }
-
-        const nextChat = adventure.chat[chatIndex + 1];
-        if (nextChat?.role !== RoleEnum.ASSISTANT) {
-            return [existingChat.id];
-        }
-
-        return [existingChat.id, nextChat.id];
     }
 }

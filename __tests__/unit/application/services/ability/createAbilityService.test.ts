@@ -13,7 +13,9 @@ const mockLogger = {
     info: jest.fn(),
     error: jest.fn(),
     warn: jest.fn(),
-    debug: jest.fn()
+    debug: jest.fn(),
+    storage: jest.fn(),
+    streaming: jest.fn()
 };
 
 const mockIdGenerator = {

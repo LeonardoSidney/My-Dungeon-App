@@ -71,12 +71,13 @@ describe('handleChatReplyUpdate', () => {
         expect(params.setIsReplying).toHaveBeenCalledWith(true);
     });
 
-    it('marks the reply as done when it finishes', async () => {
+    it('marks the reply as done and reloads every message of the turn when it finishes', async () => {
         const params = buildParams({ chatId: 'chat-1', isFinished: true, isRemoved: false });
 
         await handleChatReplyUpdate(params);
 
-        expect(params.reloadMessage).toHaveBeenCalledWith('chat-1');
+        expect(params.reloadMessages).toHaveBeenCalled();
+        expect(params.reloadMessage).not.toHaveBeenCalled();
         expect(params.setIsReplying).toHaveBeenCalledWith(false);
     });
 

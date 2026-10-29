@@ -1,4 +1,4 @@
-import { Chat, Connection, Model, Sampler } from '../entities';
+import { Connection, Model, RoleEnum, Sampler } from '../entities';
 
 export namespace ModelProviderGateway {
     export type StreamResult = {
@@ -18,11 +18,19 @@ export namespace ModelProviderGateway {
         autoload?: boolean;
     };
 
+    export type TemplateMessageRole = RoleEnum.USER | RoleEnum.ASSISTANT;
+
+    export type TemplateMessage = {
+        role: TemplateMessageRole;
+        content: string;
+        reasoning?: string;
+    };
+
     export type ApplyTemplateParams = {
         connection: Connection;
         modelId: string;
         systemPrompt: string;
-        chat: Chat[];
+        messages: TemplateMessage[];
     };
 
     export type GetModelsResult = {

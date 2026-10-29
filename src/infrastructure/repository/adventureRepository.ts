@@ -27,7 +27,7 @@ export class AdventureRepository implements IAdventureRepository {
 
     async saveAdventure (params: SaveAdventureParams): Promise<SaveAdventureRepositoryReturn> {
         this.logger.info('Executing AdventureRepository::saveAdventure');
-        this.logger.debug('Executing AdventureRepository::saveAdventure - params: ', params);
+        this.logger.storage('Executing AdventureRepository::saveAdventure - params: ', params);
 
         const loaded = await this.storage.load<Adventure[]>(this.storageKey);
         if (!loaded.success) {
@@ -47,7 +47,7 @@ export class AdventureRepository implements IAdventureRepository {
 
     async updateAdventure (params: UpdateAdventureParams): Promise<UpdateAdventureReturn> {
         this.logger.info('Executing AdventureRepository::updateAdventure');
-        this.logger.debug('Executing AdventureRepository::updateAdventure - params: ', params);
+        this.logger.storage('Executing AdventureRepository::updateAdventure - params: ', params);
 
         const { adventure } = params;
         const loaded = await this.storage.load<Adventure[]>(this.storageKey);
@@ -94,7 +94,7 @@ export class AdventureRepository implements IAdventureRepository {
         }
 
         const rawData = loaded.data ?? [];
-        this.logger.debug('Executing AdventureRepository::getAdventures - rawData: ', rawData);
+        this.logger.storage('Executing AdventureRepository::getAdventures - rawData: ', rawData);
 
         if (!Array.isArray(rawData)) {
             this.logger.warning('AdventureRepository::getAdventures - stored adventures are not a list');
@@ -113,7 +113,7 @@ export class AdventureRepository implements IAdventureRepository {
             this.logger.warning('Some adventures were not converted to entity');
         }
 
-        this.logger.debug('Executing AdventureRepository::getAdventures - adventures: ', adventures);
+        this.logger.storage('Executing AdventureRepository::getAdventures - adventures: ', adventures);
         return { success: true, adventures };
     }
 

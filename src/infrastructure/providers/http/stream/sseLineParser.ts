@@ -29,7 +29,7 @@ export class SseLineParser implements ISseLineParser {
         }
 
         if (this.pendingLine) {
-            this.logger.debug('Executing SseLineParser::process - line split across chunks, holding incomplete line', this.pendingLine);
+            this.logger.streaming('Executing SseLineParser::process - line split across chunks, holding incomplete line', this.pendingLine);
         }
     }
 
@@ -38,7 +38,7 @@ export class SseLineParser implements ISseLineParser {
             return;
         }
 
-        this.logger.debug('Executing SseLineParser::flush - rejoining incomplete line held across chunks', this.pendingLine);
+        this.logger.streaming('Executing SseLineParser::flush - rejoining incomplete line held across chunks', this.pendingLine);
 
         const dataValue = this.parseDataLine(this.pendingLine);
         this.pendingLine = '';

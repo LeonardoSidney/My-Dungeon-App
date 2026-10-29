@@ -1,5 +1,11 @@
 import { TextGenerationTemplatesService } from '@application/services/textGeneration';
 import {
+    DEFAULT_AI_CHARACTER_INSTRUCTION_TEMPLATE,
+    DEFAULT_CHARACTER_MESSAGE_TEMPLATE,
+    DEFAULT_CONTEXT_INSTRUCTION_TEMPLATE,
+    DEFAULT_CONTEXT_MESSAGE_TEMPLATE,
+    DEFAULT_INSTRUCTIONS_MESSAGE_TEMPLATE,
+    DEFAULT_MESSAGE_TEMPLATE,
     DEFAULT_TEXT_ADVENTURE_ABILITIES_TEMPLATE,
     DEFAULT_TEXT_ADVENTURE_CHARACTERS_TEMPLATE,
     DEFAULT_TEXT_ADVENTURE_IA_CONTROLLED_CHARACTER_TEMPLATE,
@@ -10,6 +16,8 @@ import {
     DEFAULT_TEXT_ADVENTURE_SYSTEM_PROMPT_TEMPLATE,
     DEFAULT_TEXT_ADVENTURE_WORLD_MASTER_TEMPLATE,
     DEFAULT_TEXT_ADVENTURE_WORLDS_TEMPLATE,
+    DEFAULT_TURN_MESSAGE_TEMPLATE,
+    DEFAULT_WORLD_MASTER_INSTRUCTION_TEMPLATE,
 } from '@domain/constants/textGeneration';
 import { ILogger } from '@domain/logger';
 
@@ -18,6 +26,8 @@ const mockLogger = {
     error: jest.fn(),
     warning: jest.fn(),
     debug: jest.fn(),
+    storage: jest.fn(),
+    streaming: jest.fn(),
     log: jest.fn()
 };
 
@@ -63,5 +73,53 @@ describe('TextGenerationTemplatesService', () => {
         service.getAbilitiesTemplate();
 
         expect(mockLogger.info).toHaveBeenCalledWith('Executing TextGenerationTemplatesService::getAbilitiesTemplate');
+    });
+
+    it('should return the default user message template', () => {
+        const result = service.getMessageTemplate();
+
+        expect(result).toEqual({ success: true, template: DEFAULT_MESSAGE_TEMPLATE });
+    });
+
+    it('should return the default context message template', () => {
+        const result = service.getContextMessageTemplate();
+
+        expect(result).toEqual({ success: true, template: DEFAULT_CONTEXT_MESSAGE_TEMPLATE });
+    });
+
+    it('should return the default turn message template', () => {
+        const result = service.getTurnMessageTemplate();
+
+        expect(result).toEqual({ success: true, template: DEFAULT_TURN_MESSAGE_TEMPLATE });
+    });
+
+    it('should return the default character message template', () => {
+        const result = service.getCharacterMessageTemplate();
+
+        expect(result).toEqual({ success: true, template: DEFAULT_CHARACTER_MESSAGE_TEMPLATE });
+    });
+
+    it('should return the default instructions message template', () => {
+        const result = service.getInstructionsMessageTemplate();
+
+        expect(result).toEqual({ success: true, template: DEFAULT_INSTRUCTIONS_MESSAGE_TEMPLATE });
+    });
+
+    it('should return the default AI character instruction template', () => {
+        const result = service.getAiCharacterInstructionTemplate();
+
+        expect(result).toEqual({ success: true, template: DEFAULT_AI_CHARACTER_INSTRUCTION_TEMPLATE });
+    });
+
+    it('should return the default world master instruction template', () => {
+        const result = service.getWorldMasterInstructionTemplate();
+
+        expect(result).toEqual({ success: true, template: DEFAULT_WORLD_MASTER_INSTRUCTION_TEMPLATE });
+    });
+
+    it('should return the default context instruction template', () => {
+        const result = service.getContextInstructionTemplate();
+
+        expect(result).toEqual({ success: true, template: DEFAULT_CONTEXT_INSTRUCTION_TEMPLATE });
     });
 });

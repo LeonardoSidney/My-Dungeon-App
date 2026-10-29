@@ -4,6 +4,8 @@ import { createAdventureHelper, createAdventureRequestHelper } from '@test/helpe
 
 const logger = {
     debug: jest.fn(),
+    storage: jest.fn(),
+    streaming: jest.fn(),
     info: jest.fn(),
     warning: jest.fn(),
     error: jest.fn(),

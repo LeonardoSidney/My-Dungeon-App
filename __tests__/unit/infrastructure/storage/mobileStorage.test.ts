@@ -9,6 +9,8 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 
 const mockLogger: ILogger = {
     debug: jest.fn(),
+    storage: jest.fn(),
+    streaming: jest.fn(),
     info: jest.fn(),
     warning: jest.fn(),
     error: jest.fn(),

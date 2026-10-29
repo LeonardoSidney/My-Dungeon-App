@@ -26,7 +26,7 @@ export class SystemPromptRepository implements ISystemPromptRepository {
 
     async saveSystemPrompt (params: SaveSystemPromptParams): Promise<SaveSystemPromptRepositoryReturn> {
         this.logger.info('Executing SystemPromptRepository::saveSystemPrompt');
-        this.logger.debug('Executing SystemPromptRepository::saveSystemPrompt - params: ', params);
+        this.logger.storage('Executing SystemPromptRepository::saveSystemPrompt - params: ', params);
 
         const loaded = await this.storage.load<SystemPrompt[]>(this.storageKey);
         if (!loaded.success) {
@@ -65,7 +65,7 @@ export class SystemPromptRepository implements ISystemPromptRepository {
         }
 
         const rawData = loaded.data ?? [];
-        this.logger.debug('Executing SystemPromptRepository::getSystemPrompts - rawData: ', rawData);
+        this.logger.storage('Executing SystemPromptRepository::getSystemPrompts - rawData: ', rawData);
 
         if (!Array.isArray(rawData)) {
             this.logger.warning('SystemPromptRepository::getSystemPrompts - stored system prompts are not a list');
@@ -84,13 +84,13 @@ export class SystemPromptRepository implements ISystemPromptRepository {
             this.logger.warning('Some system prompts were not converted to entity');
         }
 
-        this.logger.debug('Executing SystemPromptRepository::getSystemPrompts - systemPrompts: ', systemPrompts);
+        this.logger.storage('Executing SystemPromptRepository::getSystemPrompts - systemPrompts: ', systemPrompts);
         return { success: true, systemPrompts };
     }
 
     async editSystemPrompt (params: EditSystemPromptParams): Promise<EditSystemPromptReturn> {
         this.logger.info('Executing SystemPromptRepository::editSystemPrompt');
-        this.logger.debug('Executing SystemPromptRepository::editSystemPrompt - params: ', params);
+        this.logger.storage('Executing SystemPromptRepository::editSystemPrompt - params: ', params);
 
         const { systemPrompt } = params;
         const loaded = await this.storage.load<SystemPrompt[]>(this.storageKey);

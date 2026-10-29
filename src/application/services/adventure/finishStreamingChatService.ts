@@ -10,7 +10,7 @@ export class FinishStreamingChatService implements IFinishStreamingChatService {
 
     finishStreamingChat (params: FinishStreamingChatServiceParams): FinishStreamingChatServiceReturn {
         this.logger.info('Executing FinishStreamingChatService::finishStreamingChat');
-        this.logger.debug('FinishStreamingChatService::finishStreamingChat - params', params);
+        this.logger.storage('FinishStreamingChatService::finishStreamingChat - params', params);
 
         const { adventure, chatId } = params;
 

@@ -26,7 +26,7 @@ export class ItemRepository implements IItemRepository {
 
     async saveItem (params: SaveItemParams): Promise<SaveItemRepositoryReturn> {
         this.logger.info('Executing ItemRepository::saveItem');
-        this.logger.debug('Executing ItemRepository::saveItem - params: ', params);
+        this.logger.storage('Executing ItemRepository::saveItem - params: ', params);
 
         const loaded = await this.storage.load<Item[]>(this.storageKey);
         if (!loaded.success) {
@@ -65,7 +65,7 @@ export class ItemRepository implements IItemRepository {
         }
 
         const rawData = loaded.data ?? [];
-        this.logger.debug('Executing ItemRepository::getItems - rawData: ', rawData);
+        this.logger.storage('Executing ItemRepository::getItems - rawData: ', rawData);
 
         if (!Array.isArray(rawData)) {
             this.logger.warning('ItemRepository::getItems - stored items are not a list');
@@ -84,13 +84,13 @@ export class ItemRepository implements IItemRepository {
             this.logger.warning('Some items were not converted to entity');
         }
 
-        this.logger.debug('Executing ItemRepository::getItems - items: ', items);
+        this.logger.storage('Executing ItemRepository::getItems - items: ', items);
         return { success: true, items };
     }
 
     async editItem (params: EditItemParams): Promise<EditItemReturn> {
         this.logger.info('Executing ItemRepository::editItem');
-        this.logger.debug('Executing ItemRepository::editItem - params: ', params);
+        this.logger.storage('Executing ItemRepository::editItem - params: ', params);
 
         const { item } = params;
         const loaded = await this.storage.load<Item[]>(this.storageKey);

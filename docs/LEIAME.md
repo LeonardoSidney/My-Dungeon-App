@@ -276,3 +276,17 @@ npm run lint        # eslint
 npm test            # testes de unidade do backend (sem UI)
 npm run test:api    # integração contra um servidor llama.cpp real
 ```
+
+Os logs `[STORAGE]` mostram tudo o que é lido e gravado no armazenamento e ficam desligados por padrão. Para ligar, inicie o Metro ou o servidor web com `STORAGE=true`:
+
+```sh
+STORAGE=true npm start
+STORAGE=true npm run web
+```
+
+Os logs `[STREAMING]` mostram cada salvamento intermediário de uma resposta durante o streaming e também ficam desligados por padrão. Para ligar, use `STREAMING=true` do mesmo jeito:
+
+```sh
+STREAMING=true npm start
+STREAMING=true npm run web
+```

@@ -1,6 +1,7 @@
 import { ILogger } from '@domain/logger';
-import { ITextGeneration } from '@domain/providers';
+import { ITextGeneration, TurnPromptPurposeEnum } from '@domain/providers';
 import { IModelProviderGateway } from '@domain/gateways';
+import { ITurnSpeakerService, TurnSpeaker } from '@domain/services';
 import {
     GetAdventureTemplatedPromptUseCaseParams,
     GetAdventureTemplatedPromptUseCaseResponse,
@@ -9,8 +10,8 @@ import {
     IGetAdventureTemplatedPromptUseCase,
     IGetSystemPromptLoadOrderUseCase,
     IHydrateAdventureUseCase,
-    ResolveHydratedReturn,
-    WorldMasterRuntimeReturn,
+    ResolveTemplatedPromptRequestReturn,
+    SpeakerConnectionReturn,
 } from '@domain/use-cases';
 
 export class GetAdventureTemplatedPromptUseCase implements IGetAdventureTemplatedPromptUseCase {
@@ -19,16 +20,17 @@ export class GetAdventureTemplatedPromptUseCase implements IGetAdventureTemplate
         private readonly provider: ITextGeneration,
         private readonly gateway: IModelProviderGateway,
         private readonly hydrateAdventureUseCase: IHydrateAdventureUseCase,
-        private readonly getSystemPromptLoadOrderUseCase: IGetSystemPromptLoadOrderUseCase
+        private readonly getSystemPromptLoadOrderUseCase: IGetSystemPromptLoadOrderUseCase,
+        private readonly turnSpeakerService: ITurnSpeakerService
     ) { }
 
     async execute (params: GetAdventureTemplatedPromptUseCaseParams): Promise<GetAdventureTemplatedPromptUseCaseResponse> {
         this.logger.info('Executing GetAdventureTemplatedPromptUseCase::execute');
         this.logger.debug('Executing GetAdventureTemplatedPromptUseCase::execute - params', params);
 
-        const hydratedResponse = await this.resolveHydrated(params);
-        if (!hydratedResponse.success || !hydratedResponse.hydrated) {
-            return { success: false, error: hydratedResponse.error ?? 'Failed to hydrate adventure' };
+        const requestResponse = await this.resolveRequest(params);
+        if (!requestResponse.success || !requestResponse.request) {
+            return { success: false, error: requestResponse.error ?? 'Failed to hydrate adventure' };
         }
 
         const loadOrderResponse = await this.getSystemPromptLoadOrderUseCase.execute();
@@ -36,7 +38,8 @@ export class GetAdventureTemplatedPromptUseCase implements IGetAdventureTemplate
             return { success: false, error: loadOrderResponse.error ?? 'Failed to load system prompt load order' };
         }
 
-        const hydrated = hydratedResponse.hydrated;
+        const request = requestResponse.request;
+        const hydrated = request.hydrated;
         const systemPromptResponse = this.provider.buildAdventureTextSystemPrompt(hydrated, loadOrderResponse.loadOrder);
         if (!systemPromptResponse.success || systemPromptResponse.systemPrompt === undefined) {
             this.logger.warning('GetAdventureTemplatedPromptUseCase::execute - failed to build system prompt', systemPromptResponse.error);
@@ -46,9 +49,15 @@ export class GetAdventureTemplatedPromptUseCase implements IGetAdventureTemplate
         const systemPrompt = systemPromptResponse.systemPrompt;
         this.logger.debug('Executing GetAdventureTemplatedPromptUseCase:execute - systemPrompt', systemPrompt);
 
-        const runtime = this.getWorldMasterRuntime(hydrated);
+        const turnMessagesResponse = this.provider.buildAdventureTurnMessages(request);
+        if (!turnMessagesResponse.success || !turnMessagesResponse.messages) {
+            this.logger.warning('GetAdventureTemplatedPromptUseCase::execute - failed to build turn messages', turnMessagesResponse.error);
+            return { success: false, error: turnMessagesResponse.error ?? 'Failed to build turn messages' };
+        }
+
+        const runtime = this.getSpeakerConnection(hydrated, request.speaker);
         if (!runtime.success || !runtime.connection || !runtime.modelId) {
-            this.logger.warning('GetAdventureTemplatedPromptUseCase::execute - failed to resolve world master runtime', runtime.error);
+            this.logger.warning('GetAdventureTemplatedPromptUseCase::execute - failed to resolve speaker runtime', runtime.error);
             return { success: false, error: runtime.error };
         }
 
@@ -57,7 +66,7 @@ export class GetAdventureTemplatedPromptUseCase implements IGetAdventureTemplate
             connection: runtime.connection,
             modelId: runtime.modelId,
             systemPrompt,
-            chat: hydrated.adventure.chat
+            messages: turnMessagesResponse.messages,
         });
 
         this.logger.debug('Executing GetAdventureTemplatedPromptUseCase:execute - prompt', templateResponse.prompt);
@@ -76,31 +85,39 @@ export class GetAdventureTemplatedPromptUseCase implements IGetAdventureTemplate
         };
     }
 
-    private async resolveHydrated (params: GetAdventureTemplatedPromptUseCaseParams): Promise<ResolveHydratedReturn> {
+    private async resolveRequest (params: GetAdventureTemplatedPromptUseCaseParams): Promise<ResolveTemplatedPromptRequestReturn> {
         if (HYDRATED_PARAM_KEY in params) {
-            return { success: true, hydrated: params.hydrated };
+            return { success: true, request: params };
         }
 
-        return this.hydrateAdventureUseCase.execute({ adventureId: params.adventureId });
+        const hydratedResponse = await this.hydrateAdventureUseCase.execute({ adventureId: params.adventureId });
+        if (!hydratedResponse.success || !hydratedResponse.hydrated) {
+            return { success: false, error: hydratedResponse.error };
+        }
+
+        const hydrated = hydratedResponse.hydrated;
+        const nextSpeaker = this.turnSpeakerService.resolveNextSpeaker(hydrated);
+        if (!nextSpeaker.success) {
+            return { success: false, error: nextSpeaker.error };
+        }
+
+        const speakerResponse = nextSpeaker.speaker
+            ? nextSpeaker
+            : this.turnSpeakerService.resolveWorldMaster(hydrated);
+        if (!speakerResponse.success || !speakerResponse.speaker) {
+            return { success: false, error: speakerResponse.error };
+        }
+
+        return {
+            success: true,
+            request: { hydrated, speaker: speakerResponse.speaker, purpose: TurnPromptPurposeEnum.REPLY },
+        };
     }
 
-    private getWorldMasterRuntime (hydrated: HydratedAdventure): WorldMasterRuntimeReturn {
-        const dedicatedWorldMaster = hydrated.worldMaster;
-        const worldMasterCharacter = dedicatedWorldMaster
-            ? undefined
-            : hydrated.characters.find(c => c.worldMaster === true);
-
-        const assistantId = dedicatedWorldMaster
-            ? dedicatedWorldMaster.assistantId
-            : worldMasterCharacter?.assistantId;
-
-        if (!assistantId) {
-            return { success: false, error: 'WorldMaster not found' };
-        }
-
-        const assistant = hydrated.assistants[assistantId];
+    private getSpeakerConnection (hydrated: HydratedAdventure, speaker: TurnSpeaker): SpeakerConnectionReturn {
+        const assistant = hydrated.assistants[speaker.assistantId];
         if (!assistant) {
-            return { success: false, error: `Assistant not found: ${assistantId}` };
+            return { success: false, error: `Assistant not found: ${speaker.assistantId}` };
         }
 
         const connection = hydrated.connections.find(c => c.id === assistant.connectionId);

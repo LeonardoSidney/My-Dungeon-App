@@ -4,6 +4,8 @@ import { IStorage } from '@domain/storage';
 
 const mockLogger: ILogger = {
     debug: jest.fn(),
+    storage: jest.fn(),
+    streaming: jest.fn(),
     info: jest.fn(),
     warning: jest.fn(),
     error: jest.fn(),

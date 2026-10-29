@@ -68,7 +68,7 @@ describe('useChatReplies', () => {
             .mockResolvedValueOnce({ success: true, message: createMessage('chat-2', 'Hello', false) });
 
         await emit({ chatId: 'chat-2', isFinished: false, isRemoved: false });
-        await emit({ chatId: 'chat-2', isFinished: true, isRemoved: false });
+        await emit({ chatId: 'chat-2', isFinished: false, isRemoved: false });
         await waitFor(() => expect(messages()[1]?.content).toBe('Hello'));
         await act(async () => { resolveSlow({ success: true, message: createMessage('chat-2', 'Hel') }); });
 

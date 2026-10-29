@@ -7,6 +7,8 @@ const mockLogger = {
     error: jest.fn(),
     warn: jest.fn(),
     debug: jest.fn(),
+    storage: jest.fn(),
+    streaming: jest.fn(),
     warning: jest.fn()
 };
 

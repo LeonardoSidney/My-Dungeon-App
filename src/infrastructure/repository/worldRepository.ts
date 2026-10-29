@@ -26,7 +26,7 @@ export class WorldRepository implements IWorldRepository {
 
     async saveWorld (params: SaveWorldParams): Promise<SaveWorldRepositoryReturn> {
         this.logger.info('Executing WorldRepository::saveWorld');
-        this.logger.debug('Executing WorldRepository::saveWorld - params: ', params);
+        this.logger.storage('Executing WorldRepository::saveWorld - params: ', params);
 
         const loaded = await this.storage.load<World[]>(this.storageKey);
         if (!loaded.success) {
@@ -65,7 +65,7 @@ export class WorldRepository implements IWorldRepository {
         }
 
         const rawData = loaded.data ?? [];
-        this.logger.debug('Executing WorldRepository::getWorlds - rawData: ', rawData);
+        this.logger.storage('Executing WorldRepository::getWorlds - rawData: ', rawData);
 
         if (!Array.isArray(rawData)) {
             this.logger.warning('WorldRepository::getWorlds - stored worlds are not a list');
@@ -84,13 +84,13 @@ export class WorldRepository implements IWorldRepository {
             this.logger.warning('Some worlds were not converted to entity');
         }
 
-        this.logger.debug('Executing WorldRepository::getWorlds - worlds: ', worlds);
+        this.logger.storage('Executing WorldRepository::getWorlds - worlds: ', worlds);
         return { success: true, worlds };
     }
 
     async editWorld (params: EditWorldParams): Promise<EditWorldRepositoryReturn> {
         this.logger.info('Executing WorldRepository::editWorld');
-        this.logger.debug('Executing WorldRepository::editWorld - params: ', params);
+        this.logger.storage('Executing WorldRepository::editWorld - params: ', params);
 
         const { world } = params;
         const loaded = await this.storage.load<World[]>(this.storageKey);

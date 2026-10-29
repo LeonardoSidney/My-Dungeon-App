@@ -1,12 +1,16 @@
 import { GetAdventureTemplatedPromptUseCase } from '@application/use-cases';
-import { ITextGeneration } from '@domain/providers';
+import { RoleEnum } from '@domain/entities';
+import { ITextGeneration, TurnPromptPurposeEnum } from '@domain/providers';
 import { IModelProviderGateway } from '@domain/gateways';
+import { ITurnSpeakerService, TurnSpeaker, TurnSpeakerKindEnum } from '@domain/services';
 import { IGetSystemPromptLoadOrderUseCase, IHydrateAdventureUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
-import { createAdventureHelper, createHydratedAdventureHelper } from '@test/helpers';
+import { createAssistantHelper, createHydratedAdventureHelper } from '@test/helpers';
 
 const mockLogger: ILogger = {
     debug: jest.fn(),
+    storage: jest.fn(),
+    streaming: jest.fn(),
     info: jest.fn(),
     warning: jest.fn(),
     error: jest.fn(),
@@ -18,7 +22,8 @@ const mockHydrateAdventureUseCase = {
 };
 
 const mockTextGeneration = {
-    buildAdventureTextSystemPrompt: jest.fn()
+    buildAdventureTextSystemPrompt: jest.fn(),
+    buildAdventureTurnMessages: jest.fn()
 };
 
 const mockGateway = {
@@ -29,13 +34,38 @@ const mockGetSystemPromptLoadOrderUseCase = {
     execute: jest.fn()
 };
 
+const mockTurnSpeakerService = {
+    resolveNextSpeaker: jest.fn(),
+    resolveChatSpeaker: jest.fn(),
+    resolveWorldMaster: jest.fn()
+};
+
+const worldMasterSpeaker: TurnSpeaker = {
+    kind: TurnSpeakerKindEnum.WORLD_MASTER,
+    role: RoleEnum.ASSISTANT,
+    characterId: '1',
+    name: 'Master',
+    assistantId: '1'
+};
+
+const clericSpeaker: TurnSpeaker = {
+    kind: TurnSpeakerKindEnum.AI_CHARACTER,
+    role: RoleEnum.AI_PERSONA,
+    characterId: 'cleric',
+    name: 'Cleric',
+    assistantId: '1'
+};
+
+const turnMessages = [{ role: RoleEnum.USER, content: '<turn_chat_content>\n</turn_chat_content>\n' }];
+
 function buildUseCase (): GetAdventureTemplatedPromptUseCase {
     return new GetAdventureTemplatedPromptUseCase(
         mockLogger,
         mockTextGeneration as unknown as ITextGeneration,
         mockGateway as unknown as IModelProviderGateway,
         mockHydrateAdventureUseCase as unknown as IHydrateAdventureUseCase,
-        mockGetSystemPromptLoadOrderUseCase as unknown as IGetSystemPromptLoadOrderUseCase
+        mockGetSystemPromptLoadOrderUseCase as unknown as IGetSystemPromptLoadOrderUseCase,
+        mockTurnSpeakerService as unknown as ITurnSpeakerService
     );
 }
 
@@ -43,141 +73,194 @@ describe('GetAdventureTemplatedPromptUseCase', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         mockGetSystemPromptLoadOrderUseCase.execute.mockResolvedValue({ success: true, loadOrder: '{systemPrompt}{characters}' });
+        mockTextGeneration.buildAdventureTextSystemPrompt.mockReturnValue({ success: true, systemPrompt: 'system prompt' });
+        mockTextGeneration.buildAdventureTurnMessages.mockReturnValue({ success: true, messages: turnMessages });
+        mockGateway.applyTemplate.mockResolvedValue({ success: true, prompt: 'final prompt' });
     });
 
-    it('reuses the provided hydrated adventure without loading or hydrating it', async () => {
-        const adventure = createAdventureHelper();
-        const hydrated = createHydratedAdventureHelper({ adventure });
+    it('reuses the provided hydrated adventure without hydrating it', async () => {
+        const hydrated = createHydratedAdventureHelper();
 
-        mockTextGeneration.buildAdventureTextSystemPrompt.mockReturnValue({ success: true, systemPrompt: 'system prompt' });
-        mockGateway.applyTemplate.mockResolvedValue({ success: true, prompt: 'final prompt' });
-
-        const response = await buildUseCase().execute({ hydrated });
+        const response = await buildUseCase().execute({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
         expect(response).toEqual({ success: true, prompt: 'final prompt' });
         expect(mockHydrateAdventureUseCase.execute).not.toHaveBeenCalled();
         expect(mockTextGeneration.buildAdventureTextSystemPrompt).toHaveBeenCalledWith(hydrated, '{systemPrompt}{characters}');
+    });
+
+    it('builds the turn messages for the requested speaker, purpose, context and target chat', async () => {
+        const hydrated = createHydratedAdventureHelper();
+        const request = {
+            hydrated,
+            speaker: clericSpeaker,
+            purpose: TurnPromptPurposeEnum.REPLY,
+            context: 'scene context',
+            targetChatId: 'chat-2'
+        };
+
+        await buildUseCase().execute(request);
+
+        expect(mockTextGeneration.buildAdventureTurnMessages).toHaveBeenCalledWith(request);
+    });
+
+    it('applies the template with the system prompt and the turn messages', async () => {
+        await buildUseCase().execute({ hydrated: createHydratedAdventureHelper(), speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+
         expect(mockGateway.applyTemplate).toHaveBeenCalledWith({
             connection: expect.objectContaining({ id: '1' }),
             modelId: '1',
             systemPrompt: 'system prompt',
-            chat: adventure.chat
+            messages: turnMessages
         });
     });
 
-    it.each([
-        [{ success: false, error: 'Failed to load settings' }, 'Failed to load settings'],
-        [{ success: false }, 'Failed to load system prompt load order'],
-        [{ success: true }, 'Failed to load system prompt load order']
-    ])('fails without building the system prompt when the load order answers %j', async (loadOrderResponse, error) => {
-        mockGetSystemPromptLoadOrderUseCase.execute.mockResolvedValue(loadOrderResponse);
+    it('applies the template with the model of the speaker assistant', async () => {
+        const base = createHydratedAdventureHelper();
+        const clericAssistant = createAssistantHelper({ id: 'cleric-assistant', connectionId: '1', modelId: 'cleric-model' });
+        const hydrated = { ...base, assistants: { ...base.assistants, [clericAssistant.id]: clericAssistant } };
 
-        const response = await buildUseCase().execute({ hydrated: createHydratedAdventureHelper() });
+        await buildUseCase().execute({
+            hydrated,
+            speaker: { ...clericSpeaker, assistantId: 'cleric-assistant' },
+            purpose: TurnPromptPurposeEnum.REPLY
+        });
 
-        expect(response).toEqual({ success: false, error });
+        expect(mockGateway.applyTemplate).toHaveBeenCalledWith(expect.objectContaining({ modelId: 'cleric-model' }));
+    });
+
+    it('fails with the load order error without building the system prompt', async () => {
+        mockGetSystemPromptLoadOrderUseCase.execute.mockResolvedValue({ success: false, error: 'Failed to load settings' });
+
+        const response = await buildUseCase().execute({ hydrated: createHydratedAdventureHelper(), speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+
+        expect(response).toEqual({ success: false, error: 'Failed to load settings' });
         expect(mockTextGeneration.buildAdventureTextSystemPrompt).not.toHaveBeenCalled();
+    });
+
+    it('fails with a generic error when the load order is missing', async () => {
+        mockGetSystemPromptLoadOrderUseCase.execute.mockResolvedValue({ success: true });
+
+        const response = await buildUseCase().execute({ hydrated: createHydratedAdventureHelper(), speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+
+        expect(response).toEqual({ success: false, error: 'Failed to load system prompt load order' });
+    });
+
+    it('fails without applying the template when the system prompt fails', async () => {
+        mockTextGeneration.buildAdventureTextSystemPrompt.mockReturnValue({ success: false, error: 'Template failure' });
+
+        const response = await buildUseCase().execute({ hydrated: createHydratedAdventureHelper(), speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+
+        expect(response).toEqual({ success: false, error: 'Template failure' });
         expect(mockGateway.applyTemplate).not.toHaveBeenCalled();
     });
 
-    it('fails when the gateway does not return a prompt', async () => {
-        const adventure = createAdventureHelper();
-        const hydrated = createHydratedAdventureHelper({ adventure });
+    it('fails without applying the template when the turn messages fail', async () => {
+        mockTextGeneration.buildAdventureTurnMessages.mockReturnValue({ success: false, error: 'Chat with id missing was not found' });
 
-        mockTextGeneration.buildAdventureTextSystemPrompt.mockReturnValue({ success: true, systemPrompt: 'system prompt' });
-        mockGateway.applyTemplate.mockResolvedValue({ success: false, error: 'Model did not return a prompt' });
+        const response = await buildUseCase().execute({ hydrated: createHydratedAdventureHelper(), speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
-        const response = await buildUseCase().execute({ hydrated });
-
-        expect(response).toEqual({
-            success: false,
-            error: 'Model did not return a prompt'
-        });
-    });
-
-    it.each([
-        [{ success: false, error: 'Template failure' }, 'Template failure'],
-        [{ success: true }, undefined]
-    ])('fails without applying the template when the system prompt answers %j', async (systemPromptResponse, error) => {
-        mockTextGeneration.buildAdventureTextSystemPrompt.mockReturnValue(systemPromptResponse);
-
-        const response = await buildUseCase().execute({ hydrated: createHydratedAdventureHelper() });
-
-        expect(response).toEqual({ success: false, error });
+        expect(response).toEqual({ success: false, error: 'Chat with id missing was not found' });
         expect(mockGateway.applyTemplate).not.toHaveBeenCalled();
     });
 
-    it.each([
-        [{ success: false }, 'Model did not return a prompt'],
-        [{ success: true, prompt: '' }, 'Model did not return a prompt']
-    ])('falls back to a generic error when the gateway answers %j', async (templateResponse, error) => {
-        mockTextGeneration.buildAdventureTextSystemPrompt.mockReturnValue({ success: true, systemPrompt: 'system prompt' });
-        mockGateway.applyTemplate.mockResolvedValue(templateResponse);
+    it('fails with a generic error when the turn messages are missing', async () => {
+        mockTextGeneration.buildAdventureTurnMessages.mockReturnValue({ success: true });
 
-        const response = await buildUseCase().execute({ hydrated: createHydratedAdventureHelper() });
+        const response = await buildUseCase().execute({ hydrated: createHydratedAdventureHelper(), speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
-        expect(response).toEqual({ success: false, error });
+        expect(response).toEqual({ success: false, error: 'Failed to build turn messages' });
     });
 
-    describe('world master runtime', () => {
-        beforeEach(() => {
-            mockTextGeneration.buildAdventureTextSystemPrompt.mockReturnValue({ success: true, systemPrompt: 'system prompt' });
-            mockGateway.applyTemplate.mockResolvedValue({ success: true, prompt: 'final prompt' });
+    it('fails with the gateway error', async () => {
+        mockGateway.applyTemplate.mockResolvedValue({ success: false, error: 'applyTemplate failed with status 500' });
+
+        const response = await buildUseCase().execute({ hydrated: createHydratedAdventureHelper(), speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+
+        expect(response).toEqual({ success: false, error: 'applyTemplate failed with status 500' });
+    });
+
+    it('fails with a generic error when the gateway returns an empty prompt', async () => {
+        mockGateway.applyTemplate.mockResolvedValue({ success: true, prompt: '' });
+
+        const response = await buildUseCase().execute({ hydrated: createHydratedAdventureHelper(), speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+
+        expect(response).toEqual({ success: false, error: 'Model did not return a prompt' });
+    });
+
+    it('fails when the speaker assistant is not hydrated', async () => {
+        const hydrated = { ...createHydratedAdventureHelper(), assistants: {} };
+
+        const response = await buildUseCase().execute({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+
+        expect(response).toEqual({ success: false, error: 'Assistant not found: 1' });
+        expect(mockGateway.applyTemplate).not.toHaveBeenCalled();
+    });
+
+    it('fails when the speaker assistant connection is not hydrated', async () => {
+        const hydrated = { ...createHydratedAdventureHelper(), connections: [] };
+
+        const response = await buildUseCase().execute({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+
+        expect(response).toEqual({ success: false, error: 'Connection not found: 1' });
+    });
+
+    it('fails when the speaker assistant has no model', async () => {
+        const response = await buildUseCase().execute({
+            hydrated: createHydratedAdventureHelper({ modelId: '' }),
+            speaker: clericSpeaker,
+            purpose: TurnPromptPurposeEnum.REPLY
         });
 
-        it('uses the assistant of the character acting as world master when there is no dedicated one', async () => {
-            const base = createHydratedAdventureHelper({ withoutWorldMaster: true, modelId: 'character-model' });
-            const hydrated = { ...base, characters: [{ ...base.characters[0], worldMaster: true }] };
-
-            const response = await buildUseCase().execute({ hydrated });
-
-            expect(response).toEqual({ success: true, prompt: 'final prompt' });
-            expect(mockGateway.applyTemplate).toHaveBeenCalledWith(expect.objectContaining({ modelId: 'character-model' }));
-        });
-
-        it('fails when there is neither a world master nor a character acting as one', async () => {
-            const response = await buildUseCase().execute({ hydrated: createHydratedAdventureHelper({ withoutWorldMaster: true }) });
-
-            expect(response).toEqual({ success: false, error: 'WorldMaster not found' });
-            expect(mockGateway.applyTemplate).not.toHaveBeenCalled();
-        });
-
-        it('fails when the world master assistant is not hydrated', async () => {
-            const hydrated = { ...createHydratedAdventureHelper(), assistants: {} };
-
-            const response = await buildUseCase().execute({ hydrated });
-
-            expect(response.success).toBe(false);
-            expect(response.error).toContain('Assistant not found');
-        });
-
-        it('fails when the assistant connection is not hydrated', async () => {
-            const hydrated = { ...createHydratedAdventureHelper(), connections: [] };
-
-            const response = await buildUseCase().execute({ hydrated });
-
-            expect(response.success).toBe(false);
-            expect(response.error).toContain('Connection not found');
-        });
-
-        it('fails when the assistant has no model', async () => {
-            const response = await buildUseCase().execute({ hydrated: createHydratedAdventureHelper({ modelId: '' }) });
-
-            expect(response.success).toBe(false);
-            expect(mockGateway.applyTemplate).not.toHaveBeenCalled();
-        });
+        expect(response.success).toBe(false);
+        expect(mockGateway.applyTemplate).not.toHaveBeenCalled();
     });
 
     describe('when hydrating the adventure by id', () => {
-        it('hydrates the adventure through the hydrate use case', async () => {
-            const adventure = createAdventureHelper();
-            mockHydrateAdventureUseCase.execute.mockResolvedValue({ success: true, hydrated: createHydratedAdventureHelper({ adventure }) });
-            mockTextGeneration.buildAdventureTextSystemPrompt.mockReturnValue({ success: true, systemPrompt: 'system prompt' });
-            mockGateway.applyTemplate.mockResolvedValue({ success: true, prompt: 'final prompt' });
+        it('builds the reply prompt of the next speaker', async () => {
+            const hydrated = createHydratedAdventureHelper();
+            mockHydrateAdventureUseCase.execute.mockResolvedValue({ success: true, hydrated });
+            mockTurnSpeakerService.resolveNextSpeaker.mockReturnValue({ success: true, speaker: clericSpeaker });
 
             const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
 
             expect(response).toEqual({ success: true, prompt: 'final prompt' });
             expect(mockHydrateAdventureUseCase.execute).toHaveBeenCalledWith({ adventureId: 'adventure-1' });
+            expect(mockTextGeneration.buildAdventureTurnMessages).toHaveBeenCalledWith({
+                hydrated,
+                speaker: clericSpeaker,
+                purpose: TurnPromptPurposeEnum.REPLY
+            });
+        });
+
+        it('builds the world master prompt while the turn waits for the players', async () => {
+            const hydrated = createHydratedAdventureHelper();
+            mockHydrateAdventureUseCase.execute.mockResolvedValue({ success: true, hydrated });
+            mockTurnSpeakerService.resolveNextSpeaker.mockReturnValue({ success: true });
+            mockTurnSpeakerService.resolveWorldMaster.mockReturnValue({ success: true, speaker: worldMasterSpeaker });
+
+            await buildUseCase().execute({ adventureId: 'adventure-1' });
+
+            expect(mockTextGeneration.buildAdventureTurnMessages).toHaveBeenCalledWith(expect.objectContaining({ speaker: worldMasterSpeaker }));
+        });
+
+        it('returns the next speaker error without building the prompt', async () => {
+            mockHydrateAdventureUseCase.execute.mockResolvedValue({ success: true, hydrated: createHydratedAdventureHelper() });
+            mockTurnSpeakerService.resolveNextSpeaker.mockReturnValue({ success: false, error: 'AI controlled character not found: cleric' });
+
+            const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
+
+            expect(response).toEqual({ success: false, error: 'AI controlled character not found: cleric' });
+            expect(mockTextGeneration.buildAdventureTextSystemPrompt).not.toHaveBeenCalled();
+        });
+
+        it('returns the world master error when the turn waits for the players and there is no world master', async () => {
+            mockHydrateAdventureUseCase.execute.mockResolvedValue({ success: true, hydrated: createHydratedAdventureHelper() });
+            mockTurnSpeakerService.resolveNextSpeaker.mockReturnValue({ success: true });
+            mockTurnSpeakerService.resolveWorldMaster.mockReturnValue({ success: false, error: 'WorldMaster not found' });
+
+            const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
+
+            expect(response).toEqual({ success: false, error: 'WorldMaster not found' });
         });
 
         it('returns the hydration error without building the prompt', async () => {
@@ -190,11 +273,8 @@ describe('GetAdventureTemplatedPromptUseCase', () => {
             expect(mockGateway.applyTemplate).not.toHaveBeenCalled();
         });
 
-        it.each([
-            [{ success: false }],
-            [{ success: true }]
-        ])('fails with a generic error when hydration answers %j', async (hydrateResponse) => {
-            mockHydrateAdventureUseCase.execute.mockResolvedValue(hydrateResponse);
+        it('fails with a generic error when hydration returns no adventure', async () => {
+            mockHydrateAdventureUseCase.execute.mockResolvedValue({ success: true });
 
             const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
 

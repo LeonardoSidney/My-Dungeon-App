@@ -26,7 +26,7 @@ export class SamplerRepository implements ISamplerRepository {
 
     async saveSampler (params: SaveSamplerParams): Promise<SaveSamplerRepositoryReturn> {
         this.logger.info('Executing SamplerRepository::saveSampler');
-        this.logger.debug('Executing SamplerRepository::saveSampler - params: ', params);
+        this.logger.storage('Executing SamplerRepository::saveSampler - params: ', params);
 
         const loaded = await this.storage.load<Sampler[]>(this.storageKey);
         if (!loaded.success) {
@@ -65,7 +65,7 @@ export class SamplerRepository implements ISamplerRepository {
         }
 
         const rawData = loaded.data ?? [];
-        this.logger.debug('Executing SamplerRepository::getSamplers - rawData: ', rawData);
+        this.logger.storage('Executing SamplerRepository::getSamplers - rawData: ', rawData);
 
         if (!Array.isArray(rawData)) {
             this.logger.warning('SamplerRepository::getSamplers - stored samplers are not a list');
@@ -84,13 +84,13 @@ export class SamplerRepository implements ISamplerRepository {
             this.logger.warning('Some samplers were not converted to entity');
         }
 
-        this.logger.debug('Executing SamplerRepository::getSamplers - samplers: ', samplers);
+        this.logger.storage('Executing SamplerRepository::getSamplers - samplers: ', samplers);
         return { success: true, samplers };
     }
 
     async editSampler (params: EditSamplerParams): Promise<EditSamplerRepositoryReturn> {
         this.logger.info('Executing SamplerRepository::editSampler');
-        this.logger.debug('Executing SamplerRepository::editSampler - params: ', params);
+        this.logger.storage('Executing SamplerRepository::editSampler - params: ', params);
 
         const { sampler } = params;
         const loaded = await this.storage.load<Sampler[]>(this.storageKey);

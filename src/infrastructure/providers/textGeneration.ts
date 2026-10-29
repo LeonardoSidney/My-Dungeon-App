@@ -1,23 +1,35 @@
 import {
     Ability,
+    Chat,
     Item,
     Location,
     Proficiency,
+    RoleEnum,
     Status,
     SystemPrompt,
     World,
     WorldMaster,
 } from '@domain/entities';
+import type { ModelProviderGateway } from '@domain/gateways';
 import { ILogger } from '@domain/logger';
 import {
     AdventureTemplates,
     BuildAdventureTextSystemPromptReturn,
+    BuildAdventureTurnMessagesParams,
+    BuildAdventureTurnMessagesReturn,
     EnabledCharacterReferences,
     ITextGeneration,
     LoadOrderSections,
     ResolveTemplatesReturn,
+    ResolveTurnTemplatesReturn,
+    TemplateTagValues,
+    TurnChats,
+    TurnHistory,
+    TurnMessageTemplates,
+    TurnPromptPurposeEnum,
+    UNKNOWN_CHARACTER_NAME,
 } from '@domain/providers';
-import { ITextGenerationTemplatesService, LOAD_ORDER_TAG_PATTERN } from '@domain/services';
+import { ITextGenerationTemplatesService, LOAD_ORDER_TAG_PATTERN, TurnSpeakerKindEnum } from '@domain/services';
 import { HydratedAdventure, HydratedCharacter } from '@domain/use-cases';
 
 export class TextGeneration implements ITextGeneration {
@@ -82,9 +94,202 @@ export class TextGeneration implements ITextGeneration {
             ['statuses', statusesTemplate],
             ['characters', charactersTemplate],
         ]);
-        const systemPrompt = this.fillLoadOrder(loadOrder, sections);
+        const systemPrompt = this.fillTemplateTags(loadOrder, sections);
 
         return { success: true, systemPrompt };
+    }
+
+    buildAdventureTurnMessages (params: BuildAdventureTurnMessagesParams): BuildAdventureTurnMessagesReturn {
+        this.logger.info('TextGeneration::buildAdventureTurnMessages');
+        this.logger.debug('TextGeneration::buildAdventureTurnMessages - params', {
+            speaker: params.speaker.name,
+            purpose: params.purpose,
+            targetChatId: params.targetChatId,
+        });
+
+        const templatesResponse = this.resolveTurnTemplates();
+        if (!templatesResponse.success || !templatesResponse.templates) {
+            this.logger.warning('TextGeneration::buildAdventureTurnMessages - failed to resolve templates', templatesResponse.error);
+            return { success: false, error: templatesResponse.error };
+        }
+
+        const turnChats = this.splitTurnChats(params.hydrated.adventure.chat, params.targetChatId);
+        if (!turnChats) {
+            return { success: false, error: `Chat with id ${params.targetChatId} was not found` };
+        }
+
+        const templates = templatesResponse.templates;
+        const characterNames = this.resolveCharacterNames(params);
+        const history = this.buildTurnHistory(turnChats.history, templates, characterNames);
+        const currentTurnMessage: ModelProviderGateway.TemplateMessage = {
+            role: RoleEnum.USER,
+            content: this.buildCurrentTurnContent(params, history.currentTurn, templates, characterNames),
+        };
+        const messages = [...history.messages, currentTurnMessage];
+        this.logger.debug(
+            'TextGeneration::buildAdventureTurnMessages - user message built',
+            { speaker: params.speaker.name, purpose: params.purpose },
+            currentTurnMessage.content
+        );
+
+        const prefillMessage = this.buildPrefillMessage(params, turnChats.target);
+        if (prefillMessage) {
+            this.logger.debug('TextGeneration::buildAdventureTurnMessages - assistant message to continue', prefillMessage.content);
+            messages.push(prefillMessage);
+        }
+
+        this.logger.debug('TextGeneration::buildAdventureTurnMessages - messages built', { count: messages.length });
+        return { success: true, messages };
+    }
+
+    private resolveTurnTemplates (): ResolveTurnTemplatesReturn {
+        const responses: Record<keyof TurnMessageTemplates, { success: boolean; template?: string; error?: string; }> = {
+            message: this.templatesService.getMessageTemplate(),
+            contextMessage: this.templatesService.getContextMessageTemplate(),
+            turnMessage: this.templatesService.getTurnMessageTemplate(),
+            characterMessage: this.templatesService.getCharacterMessageTemplate(),
+            instructionsMessage: this.templatesService.getInstructionsMessageTemplate(),
+            aiCharacterInstruction: this.templatesService.getAiCharacterInstructionTemplate(),
+            worldMasterInstruction: this.templatesService.getWorldMasterInstructionTemplate(),
+            contextInstruction: this.templatesService.getContextInstructionTemplate(),
+        };
+
+        const templates = {} as TurnMessageTemplates;
+        for (const key of Object.keys(responses) as (keyof TurnMessageTemplates)[]) {
+            const response = responses[key];
+            if (!response.success || !response.template) {
+                return { success: false, error: response.error ?? `Turn message template not found: ${key}` };
+            }
+            templates[key] = response.template;
+        }
+
+        return { success: true, templates };
+    }
+
+    private splitTurnChats (chats: Chat[], targetChatId: string | undefined): TurnChats | null {
+        if (!targetChatId) {
+            return { history: chats };
+        }
+
+        const targetIndex = chats.findIndex(chat => chat.id === targetChatId);
+        if (targetIndex === -1) {
+            return null;
+        }
+
+        return { history: chats.slice(0, targetIndex), target: chats[targetIndex] };
+    }
+
+    private resolveCharacterNames (params: BuildAdventureTurnMessagesParams): Map<string, string> {
+        return new Map(params.hydrated.characters.map(character => [character.id, character.name]));
+    }
+
+    private buildTurnHistory (chats: Chat[], templates: TurnMessageTemplates, characterNames: Map<string, string>): TurnHistory {
+        const messages: ModelProviderGateway.TemplateMessage[] = [];
+        let currentTurn: Chat[] = [];
+
+        for (const chat of chats) {
+            if (chat.role !== RoleEnum.ASSISTANT) {
+                currentTurn.push(chat);
+                continue;
+            }
+
+            if (currentTurn.length > 0) {
+                messages.push({ role: RoleEnum.USER, content: this.buildTurnContent(currentTurn, templates, characterNames) });
+            }
+            currentTurn = [];
+
+            const assistantMessage = this.buildAssistantMessage(chat);
+            if (assistantMessage) {
+                messages.push(assistantMessage);
+            }
+        }
+
+        return { messages, currentTurn };
+    }
+
+    private buildCurrentTurnContent (
+        params: BuildAdventureTurnMessagesParams,
+        currentTurn: Chat[],
+        templates: TurnMessageTemplates,
+        characterNames: Map<string, string>
+    ): string {
+        const contextMessage = this.buildContextMessage(params, templates);
+        const turnMessage = this.buildTurnContent(currentTurn, templates, characterNames);
+        const instruction = this.fillTemplateTags(
+            this.resolveInstructionTemplate(params, templates),
+            new Map([['characterName', params.speaker.name]])
+        );
+        const instructionMessage = this.fillTemplateTags(templates.instructionsMessage, new Map([['instructionMessage', instruction]]));
+
+        return this.fillTemplateTags(templates.message, new Map([
+            ['context', contextMessage],
+            ['turnMessage', turnMessage],
+            ['instructionMessage', instructionMessage],
+        ]));
+    }
+
+    private buildContextMessage (params: BuildAdventureTurnMessagesParams, templates: TurnMessageTemplates): string {
+        const context = params.context?.trim();
+        if (params.purpose === TurnPromptPurposeEnum.CONTEXT || !context) {
+            return '';
+        }
+
+        return this.fillTemplateTags(templates.contextMessage, new Map([['chatbotResume', context]]));
+    }
+
+    private resolveInstructionTemplate (params: BuildAdventureTurnMessagesParams, templates: TurnMessageTemplates): string {
+        if (params.purpose === TurnPromptPurposeEnum.CONTEXT) {
+            return templates.contextInstruction;
+        }
+
+        if (params.speaker.kind === TurnSpeakerKindEnum.WORLD_MASTER) {
+            return templates.worldMasterInstruction;
+        }
+
+        return templates.aiCharacterInstruction;
+    }
+
+    private buildTurnContent (chats: Chat[], templates: TurnMessageTemplates, characterNames: Map<string, string>): string {
+        const charactersMessages = chats
+            .map(chat => this.fillTemplateTags(templates.characterMessage, new Map([
+                ['characterName', characterNames.get(chat.characterId) ?? UNKNOWN_CHARACTER_NAME],
+                ['characterMessage', chat.content[chat.index] ?? ''],
+            ])))
+            .join('');
+
+        return this.fillTemplateTags(templates.turnMessage, new Map([['charactersMessages', charactersMessages]]));
+    }
+
+    private buildPrefillMessage (params: BuildAdventureTurnMessagesParams, target: Chat | undefined): ModelProviderGateway.TemplateMessage | null {
+        if (params.purpose === TurnPromptPurposeEnum.CONTEXT || !target) {
+            return null;
+        }
+
+        return this.buildAssistantMessage(target);
+    }
+
+    private buildAssistantMessage (chat: Chat): ModelProviderGateway.TemplateMessage | null {
+        const content = chat.content[chat.index] ?? '';
+        const reasoning = this.resolveReasoning(chat);
+
+        if (!reasoning && !content.trim()) {
+            return null;
+        }
+
+        if (!reasoning) {
+            return { role: RoleEnum.ASSISTANT, content };
+        }
+
+        return { role: RoleEnum.ASSISTANT, content, reasoning };
+    }
+
+    private resolveReasoning (chat: Chat): string | undefined {
+        const think = chat.think?.[chat.thinkIndex];
+        if (!think?.enabled || !think.content?.trim()) {
+            return undefined;
+        }
+
+        return think.content;
     }
 
     private resolveTemplates (): ResolveTemplatesReturn {
@@ -113,8 +318,8 @@ export class TextGeneration implements ITextGeneration {
         return { success: true, templates };
     }
 
-    private fillLoadOrder (loadOrder: string, sections: LoadOrderSections): string {
-        return loadOrder.replace(LOAD_ORDER_TAG_PATTERN, (tag: string, name: string) => sections.get(name) ?? tag);
+    private fillTemplateTags (template: string, values: TemplateTagValues): string {
+        return template.replace(LOAD_ORDER_TAG_PATTERN, (tag: string, name: string) => values.get(name) ?? tag);
     }
 
     private resolveEnabledCharacterReferences (loadOrder: string): EnabledCharacterReferences {

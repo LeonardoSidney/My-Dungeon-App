@@ -2,13 +2,15 @@ import { RoleEnum } from '@domain/entities';
 import { LlamaCppBaseGateway } from '@infra/http/llama-cpp/llamaCppBaseGateway';
 import { ILogger } from '@domain/logger';
 import { IStreamProvider } from '@domain/providers';
-import { createChatHelper, createConnectionHelper } from '@test/helpers';
+import { createConnectionHelper } from '@test/helpers';
 
 const mockLogger = {
     info: jest.fn(),
     warning: jest.fn(),
     error: jest.fn(),
-    debug: jest.fn()
+    debug: jest.fn(),
+    storage: jest.fn(),
+    streaming: jest.fn()
 };
 
 class TestLlamaCppGateway extends LlamaCppBaseGateway {
@@ -205,7 +207,7 @@ describe('LlamaCppBaseGateway', () => {
         it('should send only the json content type when the connection has no auth token', async () => {
             globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ prompt: 'templated prompt' }));
 
-            await createGateway().applyTemplate({ connection, modelId: 'model-a', systemPrompt: 'system', chat: [] });
+            await createGateway().applyTemplate({ connection, modelId: 'model-a', systemPrompt: 'system', messages: [] });
 
             expect(globalThis.fetch).toHaveBeenCalledWith(
                 'http://192.168.0.1:8080/apply-template',
@@ -217,7 +219,7 @@ describe('LlamaCppBaseGateway', () => {
             globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ prompt: 'templated prompt' }));
             const authenticated = createConnectionHelper({ ip: 'http://192.168.0.1', port: 8080, auth: 'secret-key' });
 
-            await createGateway().applyTemplate({ connection: authenticated, modelId: 'model-a', systemPrompt: 'system', chat: [] });
+            await createGateway().applyTemplate({ connection: authenticated, modelId: 'model-a', systemPrompt: 'system', messages: [] });
 
             expect(globalThis.fetch).toHaveBeenCalledWith(
                 'http://192.168.0.1:8080/apply-template',
@@ -228,7 +230,7 @@ describe('LlamaCppBaseGateway', () => {
         it('should return prompt from successful response', async () => {
             globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ prompt: 'templated prompt' }));
 
-            const result = await createGateway().applyTemplate({ connection, modelId: 'model-a', systemPrompt: 'system', chat: [] });
+            const result = await createGateway().applyTemplate({ connection, modelId: 'model-a', systemPrompt: 'system', messages: [] });
 
             expect(result).toEqual({ success: true, prompt: 'templated prompt' });
             expect(globalThis.fetch).toHaveBeenCalledWith(
@@ -246,7 +248,7 @@ describe('LlamaCppBaseGateway', () => {
 
             const gateway = createGateway();
 
-            const result = await gateway.applyTemplate({ connection, modelId: 'model-a', systemPrompt: 'system', chat: [] });
+            const result = await gateway.applyTemplate({ connection, modelId: 'model-a', systemPrompt: 'system', messages: [] });
 
             expect(result).toEqual({ success: false, error: 'applyTemplate failed with status 400: model is not loaded' });
         });
@@ -260,7 +262,7 @@ describe('LlamaCppBaseGateway', () => {
 
             const gateway = createGateway();
 
-            const result = await gateway.applyTemplate({ connection, modelId: 'model-a', systemPrompt: 'system', chat: [] });
+            const result = await gateway.applyTemplate({ connection, modelId: 'model-a', systemPrompt: 'system', messages: [] });
 
             expect(result).toEqual({ success: false, error: 'applyTemplate failed with status 500: no error details' });
         });
@@ -270,7 +272,7 @@ describe('LlamaCppBaseGateway', () => {
 
             const gateway = createGateway();
 
-            const result = await gateway.applyTemplate({ connection, modelId: 'model-a', systemPrompt: 'system', chat: [] });
+            const result = await gateway.applyTemplate({ connection, modelId: 'model-a', systemPrompt: 'system', messages: [] });
 
             expect(result).toEqual({ success: false, error: 'Error calling applyTemplate on http://192.168.0.1:8080/apply-template: ECONNREFUSED' });
         });
@@ -278,7 +280,7 @@ describe('LlamaCppBaseGateway', () => {
         it('should fail when response has no prompt', async () => {
             globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ something: 'else' }));
 
-            const result = await createGateway().applyTemplate({ connection, modelId: 'model-a', systemPrompt: 'system', chat: [] });
+            const result = await createGateway().applyTemplate({ connection, modelId: 'model-a', systemPrompt: 'system', messages: [] });
 
             expect(result).toEqual({ success: false, error: 'Model did not return a prompt' });
         });
@@ -292,7 +294,7 @@ describe('LlamaCppBaseGateway', () => {
 
             const gateway = createGateway();
 
-            const result = await gateway.applyTemplate({ connection, modelId: 'model-a', systemPrompt: 'system', chat: [] });
+            const result = await gateway.applyTemplate({ connection, modelId: 'model-a', systemPrompt: 'system', messages: [] });
 
             expect(result).toEqual({ success: false, error: 'Error calling applyTemplate on http://192.168.0.1:8080/apply-template: not json' });
         });
@@ -303,21 +305,16 @@ describe('LlamaCppBaseGateway', () => {
                 return JSON.parse(fetchMock.mock.calls[0][1].body);
             }
 
-            it('should send reasoning_content for an assistant chat with enabled think', async () => {
+            it('should send the reasoning of a message as reasoning_content', async () => {
                 globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ prompt: 'templated prompt' }));
 
                 await createGateway().applyTemplate({
                     connection,
                     modelId: 'model-a',
                     systemPrompt: 'system',
-                    chat: [
-                        createChatHelper({ id: 'chat-1', role: RoleEnum.USER, content: ['hello'] }),
-                        createChatHelper({
-                            id: 'chat-2',
-                            role: RoleEnum.ASSISTANT,
-                            content: ['partial answer'],
-                            think: [{ id: 'think-1', content: 'deep reasoning', enabled: true }],
-                        }),
+                    messages: [
+                        { role: RoleEnum.USER, content: 'hello' },
+                        { role: RoleEnum.ASSISTANT, content: 'partial answer', reasoning: 'deep reasoning' },
                     ],
                 });
 
@@ -328,87 +325,16 @@ describe('LlamaCppBaseGateway', () => {
                 ]);
             });
 
-            it('should send reasoning_content for an earlier assistant chat with enabled think', async () => {
+            it('should omit reasoning_content when a message has no reasoning', async () => {
                 globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ prompt: 'templated prompt' }));
 
                 await createGateway().applyTemplate({
                     connection,
                     modelId: 'model-a',
                     systemPrompt: 'system',
-                    chat: [
-                        createChatHelper({
-                            id: 'chat-1',
-                            role: RoleEnum.ASSISTANT,
-                            content: ['answer'],
-                            think: [{ id: 'think-1', content: 'deep reasoning', enabled: true }],
-                        }),
-                        createChatHelper({ id: 'chat-2', role: RoleEnum.USER, content: ['hello'] }),
-                    ],
-                });
-
-                expect(getLastRequestBody().messages).toEqual([
-                    { role: 'system', content: 'system' },
-                    { role: 'assistant', content: 'answer', reasoning_content: 'deep reasoning' },
-                    { role: 'user', content: 'hello' },
-                ]);
-            });
-
-            it('should omit reasoning_content when think is disabled', async () => {
-                globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ prompt: 'templated prompt' }));
-
-                await createGateway().applyTemplate({
-                    connection,
-                    modelId: 'model-a',
-                    systemPrompt: 'system',
-                    chat: [
-                        createChatHelper({
-                            id: 'chat-1',
-                            role: RoleEnum.ASSISTANT,
-                            content: ['partial answer'],
-                            think: [{ id: 'think-1', content: 'deep reasoning', enabled: false }],
-                        }),
-                    ],
-                });
-
-                expect(getLastRequestBody().messages).toEqual([
-                    { role: 'system', content: 'system' },
-                    { role: 'assistant', content: 'partial answer' },
-                ]);
-            });
-
-            it('should omit reasoning_content when think content is blank', async () => {
-                globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ prompt: 'templated prompt' }));
-
-                await createGateway().applyTemplate({
-                    connection,
-                    modelId: 'model-a',
-                    systemPrompt: 'system',
-                    chat: [
-                        createChatHelper({
-                            id: 'chat-1',
-                            role: RoleEnum.ASSISTANT,
-                            content: ['partial answer'],
-                            think: [{ id: 'think-1', content: '   ', enabled: true }],
-                        }),
-                    ],
-                });
-
-                expect(getLastRequestBody().messages).toEqual([
-                    { role: 'system', content: 'system' },
-                    { role: 'assistant', content: 'partial answer' },
-                ]);
-            });
-
-            it('should omit reasoning_content when an assistant chat has no think', async () => {
-                globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ prompt: 'templated prompt' }));
-
-                await createGateway().applyTemplate({
-                    connection,
-                    modelId: 'model-a',
-                    systemPrompt: 'system',
-                    chat: [
-                        createChatHelper({ id: 'chat-1', role: RoleEnum.USER, content: ['hello'] }),
-                        createChatHelper({ id: 'chat-2', role: RoleEnum.ASSISTANT, content: ['partial answer'] }),
+                    messages: [
+                        { role: RoleEnum.USER, content: 'hello' },
+                        { role: RoleEnum.ASSISTANT, content: 'partial answer' },
                     ],
                 });
 
@@ -416,66 +342,6 @@ describe('LlamaCppBaseGateway', () => {
                     { role: 'system', content: 'system' },
                     { role: 'user', content: 'hello' },
                     { role: 'assistant', content: 'partial answer' },
-                ]);
-            });
-
-            it('should send reasoning_content from the think at the chat index', async () => {
-                globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ prompt: 'templated prompt' }));
-
-                await createGateway().applyTemplate({
-                    connection,
-                    modelId: 'model-a',
-                    systemPrompt: 'system',
-                    chat: [
-                        createChatHelper({ id: 'chat-1', role: RoleEnum.USER, content: ['hello'] }),
-                        createChatHelper({
-                            id: 'chat-2',
-                            role: RoleEnum.ASSISTANT,
-                            index: 1,
-                            thinkIndex: 1,
-                            content: ['old answer', 'new answer'],
-                            think: [
-                                { id: 'think-0', content: 'old reasoning', enabled: true },
-                                { id: 'think-1', content: 'new reasoning', enabled: true },
-                            ],
-                        }),
-                    ],
-                });
-
-                expect(getLastRequestBody().messages).toEqual([
-                    { role: 'system', content: 'system' },
-                    { role: 'user', content: 'hello' },
-                    { role: 'assistant', content: 'new answer', reasoning_content: 'new reasoning' },
-                ]);
-            });
-
-            it('should send reasoning_content from the think at the think index', async () => {
-                globalThis.fetch = jest.fn().mockResolvedValue(mockResponse({ prompt: 'templated prompt' }));
-
-                await createGateway().applyTemplate({
-                    connection,
-                    modelId: 'model-a',
-                    systemPrompt: 'system',
-                    chat: [
-                        createChatHelper({ id: 'chat-1', role: RoleEnum.USER, content: ['hello'] }),
-                        createChatHelper({
-                            id: 'chat-2',
-                            role: RoleEnum.ASSISTANT,
-                            index: 0,
-                            thinkIndex: 1,
-                            content: ['old answer', 'new answer'],
-                            think: [
-                                { id: 'think-0', content: 'old reasoning', enabled: true },
-                                { id: 'think-1', content: 'new reasoning', enabled: true },
-                            ],
-                        }),
-                    ],
-                });
-
-                expect(getLastRequestBody().messages).toEqual([
-                    { role: 'system', content: 'system' },
-                    { role: 'user', content: 'hello' },
-                    { role: 'assistant', content: 'old answer', reasoning_content: 'new reasoning' },
                 ]);
             });
         });

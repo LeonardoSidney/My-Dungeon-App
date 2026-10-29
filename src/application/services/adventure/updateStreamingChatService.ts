@@ -10,8 +10,8 @@ export class UpdateStreamingChatService implements IUpdateStreamingChatService {
     constructor (private readonly logger: ILogger) { }
 
     updateStreamingChat (params: UpdateStreamingChatServiceParams): UpdateStreamingChatServiceReturn {
-        this.logger.info('Executing UpdateStreamingChatService::updateStreamingChat');
-        this.logger.debug('UpdateStreamingChatService::updateStreamingChat - params', params);
+        this.logger.streaming('Executing UpdateStreamingChatService::updateStreamingChat');
+        this.logger.storage('UpdateStreamingChatService::updateStreamingChat - params', params);
 
         const { adventure, chatId, content, think } = params;
 
@@ -43,7 +43,7 @@ export class UpdateStreamingChatService implements IUpdateStreamingChatService {
             updatedAt: updatedChat.updatedAt,
         };
 
-        this.logger.debug('UpdateStreamingChatService::updateStreamingChat - chat updated', updatedChat);
+        this.logger.streaming('UpdateStreamingChatService::updateStreamingChat - chat updated', updatedChat);
 
         return {
             success: true,

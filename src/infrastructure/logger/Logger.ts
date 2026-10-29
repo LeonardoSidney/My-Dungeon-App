@@ -1,9 +1,11 @@
-import { ILogger, LOG_LEVEL_SEVERITY, LogLevel, LogLevelEnum, MASKED_LOG_VALUE, SENSITIVE_LOG_KEYS } from '@domain/logger';
+import { ILogger, LOG_LEVEL_SEVERITY, LoggerChannels, LogLevel, LogLevelEnum, MASKED_LOG_VALUE, SENSITIVE_LOG_KEYS } from '@domain/logger';
 
 export class Logger implements ILogger {
     private logLevel: LogLevel;
-    constructor (logLevel: LogLevel = LogLevelEnum.DEBUG) {
+    private channels: LoggerChannels;
+    constructor (logLevel: LogLevel = LogLevelEnum.DEBUG, channels: LoggerChannels = {}) {
         this.logLevel = logLevel;
+        this.channels = channels;
     }
 
     private isEnabled (level: LogLevel): boolean {
@@ -35,6 +37,18 @@ export class Logger implements ILogger {
     debug (message: string, ...args: unknown[]): void {
         if (this.isEnabled(LogLevelEnum.DEBUG)) {
             console.info(`[DEBUG] ${message}`, ...this.serializeArgs(args));
+        }
+    }
+
+    storage (message: string, ...args: unknown[]): void {
+        if (this.channels.storage) {
+            console.info(`[STORAGE] ${message}`, ...this.serializeArgs(args));
+        }
+    }
+
+    streaming (message: string, ...args: unknown[]): void {
+        if (this.channels.streaming) {
+            console.info(`[STREAMING] ${message}`, ...this.serializeArgs(args));
         }
     }
 

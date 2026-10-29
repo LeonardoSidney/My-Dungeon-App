@@ -15,7 +15,7 @@ jest.mock('@infra/container', () => {
 });
 
 jest.mock('@infra/container/shared', () => ({
-    logger: { debug: jest.fn(), info: jest.fn(), warning: jest.fn(), error: jest.fn(), log: jest.fn() }
+    logger: { debug: jest.fn(), storage: jest.fn(), streaming: jest.fn(), info: jest.fn(), warning: jest.fn(), error: jest.fn(), log: jest.fn() }
 }));
 
 type ControllerFactory = keyof typeof container;

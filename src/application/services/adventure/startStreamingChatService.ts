@@ -15,7 +15,7 @@ export class StartStreamingChatService implements IStartStreamingChatService {
 
     startStreamingChat (params: StartStreamingChatServiceParams): StartStreamingChatServiceReturn {
         this.logger.info('Executing StartStreamingChatService::startStreamingChat');
-        this.logger.debug('StartStreamingChatService::startStreamingChat - params', params);
+        this.logger.storage('StartStreamingChatService::startStreamingChat - params', params);
 
         const { adventure, role, characterId, modelId } = params;
 

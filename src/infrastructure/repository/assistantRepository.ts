@@ -26,7 +26,7 @@ export class AssistantRepository implements IAssistantRepository {
 
     async saveAssistant (params: SaveAssistantParams): Promise<SaveAssistantRepositoryReturn> {
         this.logger.info('Executing AssistantRepository::saveAssistant');
-        this.logger.debug('Executing AssistantRepository::saveAssistant - params: ', params);
+        this.logger.storage('Executing AssistantRepository::saveAssistant - params: ', params);
 
         const loaded = await this.storage.load<Assistant[]>(this.storageKey);
         if (!loaded.success) {
@@ -65,7 +65,7 @@ export class AssistantRepository implements IAssistantRepository {
         }
 
         const rawData = loaded.data ?? [];
-        this.logger.debug('Executing AssistantRepository::getAssistants - rawData: ', rawData);
+        this.logger.storage('Executing AssistantRepository::getAssistants - rawData: ', rawData);
 
         if (!Array.isArray(rawData)) {
             this.logger.warning('AssistantRepository::getAssistants - stored assistants are not a list');
@@ -84,13 +84,13 @@ export class AssistantRepository implements IAssistantRepository {
             this.logger.warning('Some assistants were not converted to entity');
         }
 
-        this.logger.debug('Executing AssistantRepository::getAssistants - assistants: ', assistants);
+        this.logger.storage('Executing AssistantRepository::getAssistants - assistants: ', assistants);
         return { success: true, assistants };
     }
 
     async editAssistant (params: EditAssistantParams): Promise<EditAssistantReturn> {
         this.logger.info('Executing AssistantRepository::editAssistant');
-        this.logger.debug('Executing AssistantRepository::editAssistant - params: ', params);
+        this.logger.storage('Executing AssistantRepository::editAssistant - params: ', params);
 
         const { assistant } = params;
         const loaded = await this.storage.load<Assistant[]>(this.storageKey);

@@ -1,4 +1,4 @@
-import { Logger } from '../logger';
+import { Logger, StreamingLogger } from '../logger';
 import { MD5Provider, UUIDGenerator } from '../providers';
 import { MobileStorage } from '../storage';
 import { ReactNativeStreamProvider, WebStreamProvider, SseLineParser } from '@infra/providers/http/stream';
@@ -9,11 +9,15 @@ import { DEVELOPMENT_LOG_LEVEL, RELEASE_LOG_LEVEL } from '@domain/logger';
 import { KeyedEventBus, StreamSessionRegistry } from '@application/streaming';
 
 const logLevel = __DEV__ ? DEVELOPMENT_LOG_LEVEL : RELEASE_LOG_LEVEL;
+const isStorageLogEnabled = typeof __STORAGE__ !== 'undefined' && __STORAGE__;
+const isStreamingLogEnabled = typeof __STREAMING__ !== 'undefined' && __STREAMING__;
 
-export const logger = new Logger(logLevel);
+export const logger = new Logger(logLevel, { storage: isStorageLogEnabled, streaming: isStreamingLogEnabled });
+export const streamingLogger = new StreamingLogger(logger);
 export const idGenerate = new UUIDGenerator();
 export const hashProvider = new MD5Provider();
 export const storage = new MobileStorage(logger);
+export const streamingStorage = new MobileStorage(streamingLogger);
 export const backgroundExecution = new BackgroundExecutionProvider(logger);
 export const chatReplyBus = new KeyedEventBus<ChatReplyEvent>(logger, event => event.adventureId);
 export const chatReplyRegistry = new StreamSessionRegistry(backgroundExecution);
