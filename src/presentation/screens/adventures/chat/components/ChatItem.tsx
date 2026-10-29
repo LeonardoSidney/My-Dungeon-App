@@ -15,11 +15,13 @@ type ChatItemProps = {
   characterName: string;
   editingChatId: string | null;
   editingThinkChatId: string | null;
+  showThinkBlocks: boolean;
   actions: ChatMessageActions;
 };
 
-function ChatItemBase ({ message, characterName, editingChatId, editingThinkChatId, actions }: ChatItemProps) {
-  const { id, content, think, isStreaming } = message;
+function ChatItemBase ({ message, characterName, editingChatId, editingThinkChatId, showThinkBlocks, actions }: ChatItemProps) {
+  const { id, content, isStreaming } = message;
+  const visibleThink = showThinkBlocks ? message.think : undefined;
   const isUserMessage = message.role === RoleEnum.USER;
   const isEditing = !isStreaming && editingChatId === id;
   const [draft, setDraft] = useEditDraft(content, isEditing);
@@ -75,16 +77,16 @@ function ChatItemBase ({ message, characterName, editingChatId, editingThinkChat
 
   return (
     <View style={styles.wrapper}>
-      {think && (
+      {visibleThink && (
         <ThinkBlock
           chatId={id}
-          think={think}
+          think={visibleThink}
           isStreaming={isStreaming}
           editingThinkChatId={editingThinkChatId}
           actions={actions}
         />
       )}
-      <View style={[styles.bubble, think && styles.bubbleBelowThink]}>
+      <View style={[styles.bubble, visibleThink && styles.bubbleBelowThink]}>
         <Text style={styles.characterName}>{characterName}</Text>
         {renderContent()}
       </View>

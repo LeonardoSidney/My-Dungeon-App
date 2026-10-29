@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { AdventureChatCharacter, AdventureChatWorldMaster, ChatMessageView } from '@domain/controllers';
 import { useKeyboardHeight } from '@presentation/hooks';
 import { useControllers } from '@presentation/providers/ControllersProvider';
@@ -10,8 +10,9 @@ import { useChatAutoScroll } from './hooks/useChatAutoScroll';
 import { useChatReplies } from './hooks/useChatReplies';
 import { useComposer } from './hooks/useComposer';
 import { useMessageActions } from './hooks/useMessageActions';
+import { useThinkBlocksVisibility } from './hooks/useThinkBlocksVisibility';
 import type { SetMessages, UpdateMessages } from './types';
-import { styles } from './AdventureChatScreen.styles';
+import { styles, thinkSwitchTrackColor } from './AdventureChatScreen.styles';
 
 type AdventureChatProps = {
   adventureId: string;
@@ -93,6 +94,12 @@ export function AdventureChat ({
     controllers,
   });
 
+  const thinkBlocks = useThinkBlocksVisibility({
+    getThinkBlocksVisibility: controllers.getThinkBlocksVisibility,
+    saveThinkBlocksVisibility: controllers.saveThinkBlocksVisibility,
+    alert: controllers.alert,
+  });
+
   const autoScroll = useChatAutoScroll(messages);
 
   return (
@@ -101,9 +108,20 @@ export function AdventureChat ({
         title={adventureName}
         onBack={onBack}
         right={(
-          <TouchableOpacity onPress={onOpenSettings}>
-            <Text style={detailHeaderStyles.actionText}>settings</Text>
-          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            <View style={styles.thinkToggle}>
+              <Text style={styles.thinkToggleLabel}>think</Text>
+              <Switch
+                value={thinkBlocks.showThinkBlocks}
+                onValueChange={thinkBlocks.changeThinkBlocksVisibility}
+                trackColor={thinkSwitchTrackColor}
+                accessibilityLabel="Mostrar raciocínio"
+              />
+            </View>
+            <TouchableOpacity onPress={onOpenSettings}>
+              <Text style={detailHeaderStyles.actionText}>settings</Text>
+            </TouchableOpacity>
+          </View>
         )}
       />
 
@@ -121,6 +139,7 @@ export function AdventureChat ({
             characterNameById={characterNameById}
             editingChatId={editingChatId}
             editingThinkChatId={editingThinkChatId}
+            showThinkBlocks={thinkBlocks.showThinkBlocks}
             actions={actions}
           />
         </ScrollView>

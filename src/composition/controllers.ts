@@ -98,6 +98,8 @@ import {
     getSystemPromptLoadOrderController,
     saveSystemPromptLoadOrderController,
     resetSystemPromptLoadOrderController,
+    getThinkBlocksVisibilityController,
+    saveThinkBlocksVisibilityController,
     getHomeSummaryController,
 } from '@infra/container';
 import type { AppControllers } from '@presentation/providers/appControllers';
@@ -204,5 +206,7 @@ export function buildControllers (): AppControllers {
         getSystemPromptLoadOrder: getSystemPromptLoadOrderController(),
         saveSystemPromptLoadOrder: saveSystemPromptLoadOrderController(),
         resetSystemPromptLoadOrder: resetSystemPromptLoadOrderController(),
+        getThinkBlocksVisibility: getThinkBlocksVisibilityController(),
+        saveThinkBlocksVisibility: saveThinkBlocksVisibilityController(),
     };
 }

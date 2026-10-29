@@ -28,4 +28,18 @@ describe('SettingsDTO', () => {
     ])('rejects %j', (data) => {
         expect(SettingsDTO.fromStorage(data)).toBeNull();
     });
+
+    it('converts a stored think blocks visibility', () => {
+        expect(SettingsDTO.fromStorage({ showThinkBlocks: false })?.toEntity()).toEqual({ showThinkBlocks: false });
+    });
+
+    it('keeps the load order next to the think blocks visibility', () => {
+        const settings = SettingsDTO.fromStorage({ systemPromptLoadOrder: '{characters}', showThinkBlocks: true })?.toEntity();
+
+        expect(settings).toEqual({ systemPromptLoadOrder: '{characters}', showThinkBlocks: true });
+    });
+
+    it('rejects a think blocks visibility that is not a boolean', () => {
+        expect(SettingsDTO.fromStorage({ showThinkBlocks: 'false' })).toBeNull();
+    });
 });

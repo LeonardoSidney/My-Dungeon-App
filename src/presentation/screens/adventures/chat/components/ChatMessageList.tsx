@@ -10,10 +10,11 @@ type ChatMessageListProps = {
   characterNameById: Record<string, string>;
   editingChatId: string | null;
   editingThinkChatId: string | null;
+  showThinkBlocks: boolean;
   actions: ChatMessageActions;
 };
 
-function ChatMessageListBase ({ messages, characterNameById, editingChatId, editingThinkChatId, actions }: ChatMessageListProps) {
+function ChatMessageListBase ({ messages, characterNameById, editingChatId, editingThinkChatId, showThinkBlocks, actions }: ChatMessageListProps) {
   return (
     <View style={styles.container}>
       {messages.map(message => (
@@ -23,6 +24,7 @@ function ChatMessageListBase ({ messages, characterNameById, editingChatId, edit
           characterName={characterNameById[message.characterId] ?? ''}
           editingChatId={editingChatId}
           editingThinkChatId={editingThinkChatId}
+          showThinkBlocks={showThinkBlocks}
           actions={actions}
         />
       ))}

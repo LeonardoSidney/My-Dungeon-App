@@ -99,6 +99,8 @@ import {
     IGetSystemPromptLoadOrderController,
     ISaveSystemPromptLoadOrderController,
     IResetSystemPromptLoadOrderController,
+    IGetThinkBlocksVisibilityController,
+    ISaveThinkBlocksVisibilityController,
 } from '@domain/controllers';
 
 export type AppControllers = {
@@ -202,4 +204,6 @@ export type AppControllers = {
     getSystemPromptLoadOrder: IGetSystemPromptLoadOrderController;
     saveSystemPromptLoadOrder: ISaveSystemPromptLoadOrderController;
     resetSystemPromptLoadOrder: IResetSystemPromptLoadOrderController;
+    getThinkBlocksVisibility: IGetThinkBlocksVisibilityController;
+    saveThinkBlocksVisibility: ISaveThinkBlocksVisibilityController;
 };

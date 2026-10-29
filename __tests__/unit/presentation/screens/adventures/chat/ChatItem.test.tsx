@@ -27,13 +27,14 @@ const actions: ChatMessageActions = {
   deleteThink: jest.fn(),
 };
 
-const setup = (chat: Chat) =>
+const setup = (chat: Chat, showThinkBlocks = true) =>
   render(
     <ChatItem
       message={new ChatMessagesPresenter().presentOne(chat)}
       characterName="Hero"
       editingChatId={null}
       editingThinkChatId={null}
+      showThinkBlocks={showThinkBlocks}
       actions={actions}
     />,
   );
@@ -98,6 +99,21 @@ describe('ChatItem think controls', () => {
 
     expect(screen.getByLabelText('Versão anterior do raciocínio')).toBeDefined();
     expect(screen.getByLabelText('Próxima versão do raciocínio')).toBeDefined();
+  });
+});
+
+describe('ChatItem think visibility', () => {
+  it('hides the think block when the think blocks are turned off', async () => {
+    const chat = createChatHelper({
+      role: RoleEnum.ASSISTANT,
+      think: [{ id: 'think-1', content: 'old note', enabled: true }],
+      thinkIndex: 0
+    });
+
+    await setup(chat, false);
+
+    expect(screen.queryByLabelText('Versão anterior do raciocínio')).toBeNull();
+    expect(screen.getByLabelText('Regenerar conteúdo')).toBeDefined();
   });
 });
 

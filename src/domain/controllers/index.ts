@@ -103,4 +103,6 @@ export * from './iSubscribeDraftController';
 export * from './iGetSystemPromptLoadOrderController';
 export * from './iSaveSystemPromptLoadOrderController';
 export * from './iResetSystemPromptLoadOrderController';
+export * from './iGetThinkBlocksVisibilityController';
+export * from './iSaveThinkBlocksVisibilityController';
 export * from './iGetHomeSummaryController';

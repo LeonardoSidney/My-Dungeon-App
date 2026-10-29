@@ -36,8 +36,27 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: 8,
     },
+    headerActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 16,
+    },
+    thinkToggle: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    thinkToggleLabel: {
+        fontSize: 14,
+        color: colors.textMuted,
+    },
     scrollToBottomText: {
         fontSize: 20,
         color: colors.text,
     },
 });
+
+export const thinkSwitchTrackColor = {
+    false: colors.surfaceRaised,
+    true: colors.primary,
+};
