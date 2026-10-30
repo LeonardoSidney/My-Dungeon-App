@@ -72,7 +72,7 @@ export class GenerateChatReplyUseCase implements IGenerateChatReplyUseCase {
             return { success: false, error: hydrated.error ?? 'Failed to hydrate adventure' };
         }
 
-        const speakerResponse = this.resolveFirstSpeaker(hydrated.hydrated, params.chatId);
+        const speakerResponse = this.resolveFirstSpeaker(hydrated.hydrated, params);
         if (!speakerResponse.success) {
             return { success: false, error: speakerResponse.error ?? 'Failed to resolve the next speaker' };
         }
@@ -99,14 +99,18 @@ export class GenerateChatReplyUseCase implements IGenerateChatReplyUseCase {
         return { success: true, chatId: step.session.chat.id };
     }
 
-    private resolveFirstSpeaker (hydrated: HydratedAdventure, chatId: string | undefined): ResolveTurnSpeakerReturn {
-        if (!chatId) {
+    private resolveFirstSpeaker (hydrated: HydratedAdventure, params: GenerateChatReplyUseCaseParams): ResolveTurnSpeakerReturn {
+        if (params.skipPlayerTurn) {
+            return this.turnSpeakerService.resolveSkippedPlayersSpeaker(hydrated);
+        }
+
+        if (!params.chatId) {
             return this.turnSpeakerService.resolveNextSpeaker(hydrated);
         }
 
-        const chat = hydrated.adventure.chat.find(c => c.id === chatId);
+        const chat = hydrated.adventure.chat.find(c => c.id === params.chatId);
         if (!chat) {
-            return { success: false, error: `Chat with id ${chatId} was not found` };
+            return { success: false, error: `Chat with id ${params.chatId} was not found` };
         }
 
         return this.turnSpeakerService.resolveChatSpeaker(hydrated, chat);
@@ -421,6 +425,10 @@ export class GenerateChatReplyUseCase implements IGenerateChatReplyUseCase {
     private validate (params: GenerateChatReplyUseCaseParams): string | null {
         if (!params.adventureId?.trim()) {
             return 'Adventure id is required';
+        }
+
+        if (params.skipPlayerTurn && params.chatId) {
+            return 'The player turn cannot be skipped while continuing a chat';
         }
 
         return null;

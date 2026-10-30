@@ -3,6 +3,7 @@ import { RoleEnum } from '@domain/entities';
 import {
     handleChatReplyUpdate,
     handleReplyAction,
+    isWaitingForPlayers,
     navigateVersion,
     requestChatReply,
     upsertChatMessage,
@@ -38,6 +39,15 @@ describe('requestChatReply', () => {
         expect(params.generateChatReply.handle).toHaveBeenCalledWith({ adventureId: 'adventure-1', chatId: 'chat-1' });
         expect(params.reloadMessages).toHaveBeenCalled();
         expect(params.alert.handle).not.toHaveBeenCalled();
+    });
+
+    it('asks the backend to skip the player turn', async () => {
+        const params = buildParams({ success: true, chatId: 'chat-1' });
+
+        await requestChatReply({ ...params, skipPlayerTurn: true });
+
+        expect(params.generateChatReply.handle).toHaveBeenCalledWith({ adventureId: 'adventure-1', skipPlayerTurn: true });
+        expect(params.reloadMessages).toHaveBeenCalled();
     });
 
     it('alerts with the backend error and still reloads what was saved before the failure', async () => {
@@ -96,6 +106,38 @@ describe('handleChatReplyUpdate', () => {
         await handleChatReplyUpdate(params);
 
         expect(params.alert.handle).toHaveBeenCalledWith({ title: 'Erro', message: 'Request failed with status 500' });
+    });
+});
+
+describe('isWaitingForPlayers', () => {
+    function createRoleMessage (id: string, role: RoleEnum): ChatMessageView {
+        return { ...createMessage(id, 'line'), role };
+    }
+
+    it('waits for the players while the adventure has no message', () => {
+        expect(isWaitingForPlayers([])).toBe(true);
+    });
+
+    it('waits for the players right after the world master closed the turn', () => {
+        const messages = [createRoleMessage('chat-1', RoleEnum.AI_PERSONA), createRoleMessage('chat-2', RoleEnum.ASSISTANT)];
+
+        expect(isWaitingForPlayers(messages)).toBe(true);
+    });
+
+    it('waits for the players while only players spoke in the turn', () => {
+        const messages = [createRoleMessage('chat-1', RoleEnum.ASSISTANT), createRoleMessage('chat-2', RoleEnum.USER)];
+
+        expect(isWaitingForPlayers(messages)).toBe(true);
+    });
+
+    it('stops waiting for the players once an AI character spoke in the turn', () => {
+        const messages = [
+            createRoleMessage('chat-1', RoleEnum.ASSISTANT),
+            createRoleMessage('chat-2', RoleEnum.USER),
+            createRoleMessage('chat-3', RoleEnum.AI_PERSONA)
+        ];
+
+        expect(isWaitingForPlayers(messages)).toBe(false);
     });
 });
 

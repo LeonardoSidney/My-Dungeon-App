@@ -82,6 +82,11 @@ export function useChatReplies ({
         [adventureId, generateChatReply, reloadMessages, alert],
     );
 
+    const skipTurn = useCallback(
+        () => requestChatReply({ adventureId, skipPlayerTurn: true, generateChatReply, reloadMessages, alert }),
+        [adventureId, generateChatReply, reloadMessages, alert],
+    );
+
     const stopReply = useCallback(() => {
         const response = stopChatReply.handle({ adventureId });
         if (!response.success) {
@@ -89,5 +94,5 @@ export function useChatReplies ({
         }
     }, [adventureId, stopChatReply, alert]);
 
-    return { isReplying, reloadMessages, streamReply, stopReply };
+    return { isReplying, reloadMessages, streamReply, skipTurn, stopReply };
 }

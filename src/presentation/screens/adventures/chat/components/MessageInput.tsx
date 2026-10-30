@@ -12,6 +12,8 @@ type MessageInputProps = {
   isStreaming: boolean;
   onSend: () => void;
   onStop: () => void;
+  canSkipTurn: boolean;
+  onSkipTurn: () => void;
   onResend: () => void;
   characters: AdventureChatCharacter[];
   selectedCharacter?: AdventureChatCharacter;
@@ -25,11 +27,18 @@ function MessageInputBase ({
   isStreaming,
   onSend,
   onStop,
+  canSkipTurn,
+  onSkipTurn,
   onResend,
   characters,
   selectedCharacter,
   onCharacterSelect,
 }: MessageInputProps) {
+  const idleButtonLabel = canSkipTurn ? 'Skip turn' : 'Send';
+  const idleButtonAction = canSkipTurn ? onSkipTurn : onSend;
+  const buttonLabel = isStreaming ? 'Stop' : idleButtonLabel;
+  const buttonAction = isStreaming ? onStop : idleButtonAction;
+
   return (
     <View style={styles.inputContainer}>
       {selectedCharacter && (
@@ -59,10 +68,10 @@ function MessageInputBase ({
         </TouchableOpacity>
       )}
       <TouchableOpacity
-        style={[styles.sendButtonContainer, isStreaming && styles.stopButtonContainer]}
-        onPress={isStreaming ? onStop : onSend}
+        style={[styles.sendButtonContainer, canSkipTurn && styles.skipButtonContainer, isStreaming && styles.stopButtonContainer]}
+        onPress={buttonAction}
       >
-        <Text style={styles.sendButtonText}>{isStreaming ? 'Stop' : 'Send'}</Text>
+        <Text style={styles.sendButtonText}>{buttonLabel}</Text>
       </TouchableOpacity>
     </View>
   );

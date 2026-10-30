@@ -36,6 +36,7 @@ const mockGetSystemPromptLoadOrderUseCase = {
 
 const mockTurnSpeakerService = {
     resolveNextSpeaker: jest.fn(),
+    resolveSkippedPlayersSpeaker: jest.fn(),
     resolveChatSpeaker: jest.fn(),
     resolveWorldMaster: jest.fn()
 };

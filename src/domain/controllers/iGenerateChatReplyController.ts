@@ -5,6 +5,7 @@ export interface IGenerateChatReplyController {
 export type GenerateChatReplyControllerRequest = {
     adventureId: string;
     chatId?: string;
+    skipPlayerTurn?: boolean;
 };
 
 export type GenerateChatReplyControllerResponse = {

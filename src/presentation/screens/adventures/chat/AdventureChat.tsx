@@ -6,6 +6,7 @@ import { useControllers } from '@presentation/providers/ControllersProvider';
 import { DetailHeader, detailHeaderStyles } from '../DetailHeader';
 import { ChatMessageList } from './components/ChatMessageList';
 import { MessageInput } from './components/MessageInput';
+import { isWaitingForPlayers } from './chatActions';
 import { useChatAutoScroll } from './hooks/useChatAutoScroll';
 import { useChatReplies } from './hooks/useChatReplies';
 import { useComposer } from './hooks/useComposer';
@@ -102,6 +103,9 @@ export function AdventureChat ({
 
   const autoScroll = useChatAutoScroll(messages);
 
+  const isPlayersTurn = useMemo(() => isWaitingForPlayers(messages), [messages]);
+  const canSkipTurn = isPlayersTurn && !replies.isReplying && !editingChatId && !composer.message.trim();
+
   return (
     <View style={[styles.container, { paddingBottom: keyboardHeight }]}>
       <DetailHeader
@@ -157,6 +161,8 @@ export function AdventureChat ({
         isStreaming={replies.isReplying}
         onSend={composer.send}
         onStop={replies.stopReply}
+        canSkipTurn={canSkipTurn}
+        onSkipTurn={replies.skipTurn}
         onResend={composer.resend}
         characters={characters}
         selectedCharacter={selectedCharacter}

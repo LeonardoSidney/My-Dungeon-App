@@ -19,17 +19,22 @@ export class TurnSpeakerService implements ITurnSpeakerService {
         const progress = this.resolveTurnProgress(hydrated.adventure.chat);
 
         const waitingPlayerId = summary.playableCharacterIds.find(id => !progress.spokenPlayerIds.has(id));
-        if (waitingPlayerId) {
+        const isPlayersPhase = progress.spokenAiCharacterIds.size === 0;
+        if (waitingPlayerId && isPlayersPhase) {
             this.logger.debug('TurnSpeakerService::resolveNextSpeaker - waiting for a player character', { characterId: waitingPlayerId });
             return { success: true };
         }
 
-        const nextAiCharacterId = summary.aiControlledCharacterIds.find(id => !progress.spokenAiCharacterIds.has(id));
-        if (nextAiCharacterId) {
-            return this.resolveAiCharacter(hydrated, nextAiCharacterId);
-        }
+        return this.resolveAfterPlayersSpeaker(hydrated, summary.aiControlledCharacterIds, progress);
+    }
 
-        return this.resolveWorldMaster(hydrated);
+    resolveSkippedPlayersSpeaker (hydrated: HydratedAdventure): ResolveTurnSpeakerReturn {
+        this.logger.info('Executing TurnSpeakerService::resolveSkippedPlayersSpeaker');
+
+        const summary = summarizeAdventureCharacters(hydrated.adventure);
+        const progress = this.resolveTurnProgress(hydrated.adventure.chat);
+
+        return this.resolveAfterPlayersSpeaker(hydrated, summary.aiControlledCharacterIds, progress);
     }
 
     resolveChatSpeaker (hydrated: HydratedAdventure, chat: Chat): ResolveTurnSpeakerReturn {
@@ -79,6 +84,19 @@ export class TurnSpeakerService implements ITurnSpeakerService {
                 assistantId: worldMasterCharacter.assistantId,
             },
         };
+    }
+
+    private resolveAfterPlayersSpeaker (
+        hydrated: HydratedAdventure,
+        aiControlledCharacterIds: string[],
+        progress: TurnProgress
+    ): ResolveTurnSpeakerReturn {
+        const nextAiCharacterId = aiControlledCharacterIds.find(id => !progress.spokenAiCharacterIds.has(id));
+        if (nextAiCharacterId) {
+            return this.resolveAiCharacter(hydrated, nextAiCharacterId);
+        }
+
+        return this.resolveWorldMaster(hydrated);
     }
 
     private resolveAiCharacter (hydrated: HydratedAdventure, characterId: string): ResolveTurnSpeakerReturn {

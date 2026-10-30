@@ -190,6 +190,7 @@ function buildMocks (tokens: string[] = ['Hello', ' world'], chat: Chat = create
         hydrate: { execute: jest.fn().mockResolvedValue({ success: true, hydrated: createHydrated() }) },
         turnSpeaker: {
             resolveNextSpeaker: jest.fn().mockReturnValue({ success: true, speaker: worldMasterSpeaker }),
+            resolveSkippedPlayersSpeaker: jest.fn().mockReturnValue({ success: true, speaker: clericSpeaker }),
             resolveChatSpeaker: jest.fn().mockReturnValue({ success: true, speaker: worldMasterSpeaker }),
             resolveWorldMaster: jest.fn().mockReturnValue({ success: true, speaker: worldMasterSpeaker })
         },
@@ -538,6 +539,32 @@ describe('GenerateChatReplyUseCase', () => {
         expect(mocks.nativeStream.execute).not.toHaveBeenCalled();
         expect(mocks.channel.publish).not.toHaveBeenCalled();
         expect(mocks.registry.isActive('adventure-1')).toBe(false);
+    });
+
+    it('gives the turn to the speaker after the players when the player turn is skipped', async () => {
+        const clericChat = createChat({ id: 'cleric-chat', role: RoleEnum.AI_PERSONA, characterId: 'cleric' });
+        const masterChat = createChat({ id: 'master-chat' });
+        const mocks = buildMocks(['Hello'], clericChat);
+        mocks.startStreaming.execute
+            .mockResolvedValueOnce({ success: true, chat: clericChat })
+            .mockResolvedValueOnce({ success: true, chat: masterChat });
+
+        const response = await buildUseCase(mocks).execute({ adventureId: 'adventure-1', skipPlayerTurn: true });
+        await mocks.settled;
+
+        expect(response).toEqual({ success: true, chatId: 'cleric-chat' });
+        expect(mocks.turnSpeaker.resolveSkippedPlayersSpeaker).toHaveBeenCalledTimes(1);
+        expect(mocks.startStreaming.execute).toHaveBeenNthCalledWith(1, expect.objectContaining({ role: RoleEnum.AI_PERSONA, characterId: 'cleric' }));
+        expect(mocks.startStreaming.execute).toHaveBeenNthCalledWith(2, expect.objectContaining({ role: RoleEnum.ASSISTANT, chatId: undefined }));
+    });
+
+    it('fails validation when the player turn is skipped while continuing a chat', async () => {
+        const mocks = buildMocks();
+
+        const response = await buildUseCase(mocks).execute({ adventureId: 'adventure-1', chatId: 'chat-1', skipPlayerTurn: true });
+
+        expect(response).toEqual({ success: false, error: 'The player turn cannot be skipped while continuing a chat' });
+        expect(mocks.hydrate.execute).not.toHaveBeenCalled();
     });
 
     it('fails without starting a chat when the next speaker cannot be resolved', async () => {

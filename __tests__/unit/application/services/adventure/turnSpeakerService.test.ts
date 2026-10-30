@@ -158,6 +158,60 @@ describe('TurnSpeakerService', () => {
 
             expect(service.resolveNextSpeaker(hydrated)).toEqual({ success: false, error: 'AI controlled character not found: cleric' });
         });
+
+        it('keeps giving the turn to the AI characters once one spoke even when a player was skipped', () => {
+            const hydrated = buildHydrated([line('chat-1', 'swordsman'), line('chat-2', 'cleric', RoleEnum.AI_PERSONA)]);
+
+            expect(service.resolveNextSpeaker(hydrated).speaker?.characterId).toBe('necromancer');
+        });
+
+        it('gives the turn to the world master after the AI characters of a skipped player turn', () => {
+            const hydrated = buildHydrated([
+                line('chat-1', 'cleric', RoleEnum.AI_PERSONA),
+                line('chat-2', 'necromancer', RoleEnum.AI_PERSONA)
+            ]);
+
+            expect(service.resolveNextSpeaker(hydrated).speaker?.kind).toBe(TurnSpeakerKindEnum.WORLD_MASTER);
+        });
+    });
+
+    describe('resolveSkippedPlayersSpeaker', () => {
+        it('gives the turn to the first AI character while no player spoke', () => {
+            const hydrated = buildHydrated([line('chat-1', 'master', RoleEnum.ASSISTANT)]);
+
+            expect(service.resolveSkippedPlayersSpeaker(hydrated)).toEqual({
+                success: true,
+                speaker: {
+                    kind: TurnSpeakerKindEnum.AI_CHARACTER,
+                    role: RoleEnum.AI_PERSONA,
+                    characterId: 'cleric',
+                    name: 'Cleric',
+                    assistantId: 'cleric-assistant'
+                }
+            });
+        });
+
+        it('gives the turn to the first AI character while a player has not spoken', () => {
+            const hydrated = buildHydrated([line('chat-1', 'swordsman')]);
+
+            expect(service.resolveSkippedPlayersSpeaker(hydrated).speaker?.characterId).toBe('cleric');
+        });
+
+        it('gives the turn to the next AI character that has not spoken', () => {
+            const hydrated = buildHydrated([line('chat-1', 'swordsman'), line('chat-2', 'cleric', RoleEnum.AI_PERSONA)]);
+
+            expect(service.resolveSkippedPlayersSpeaker(hydrated).speaker?.characterId).toBe('necromancer');
+        });
+
+        it('gives the turn to the world master when the adventure has no AI character', () => {
+            const hydrated = createHydratedAdventureHelper({
+                adventure: { chat: [], characterIds: ['swordsman'], worldMasterId: 'master' },
+                characters: [swordsman],
+                worldMaster: master
+            });
+
+            expect(service.resolveSkippedPlayersSpeaker(hydrated).speaker?.kind).toBe(TurnSpeakerKindEnum.WORLD_MASTER);
+        });
     });
 
     describe('resolveChatSpeaker', () => {

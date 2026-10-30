@@ -3,6 +3,7 @@ import type { HydratedAdventure } from './iHydrateAdventureService';
 
 export interface ITurnSpeakerService {
     resolveNextSpeaker (hydrated: HydratedAdventure): ResolveTurnSpeakerReturn;
+    resolveSkippedPlayersSpeaker (hydrated: HydratedAdventure): ResolveTurnSpeakerReturn;
     resolveChatSpeaker (hydrated: HydratedAdventure, chat: Chat): ResolveTurnSpeakerReturn;
     resolveWorldMaster (hydrated: HydratedAdventure): ResolveTurnSpeakerReturn;
 }

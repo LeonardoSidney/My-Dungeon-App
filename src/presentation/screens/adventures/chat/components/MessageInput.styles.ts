@@ -50,6 +50,9 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    skipButtonContainer: {
+        backgroundColor: colors.primary,
+    },
     stopButtonContainer: {
         backgroundColor: colors.dangerStrong,
     },

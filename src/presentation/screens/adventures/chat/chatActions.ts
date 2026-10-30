@@ -6,19 +6,28 @@ import {
     IGenerateChatReplyController,
     ISelectChatVersionController,
 } from '@domain/controllers';
+import { RoleEnum } from '@domain/entities';
 import { showError } from '@presentation/utils/showError';
 import type { StreamReply, VersionDirection } from './types';
 
 type RequestChatReplyParams = {
     adventureId: string;
     replyChatId?: string;
+    skipPlayerTurn?: boolean;
     generateChatReply: IGenerateChatReplyController;
     reloadMessages: () => Promise<void>;
     alert: IAlertController;
 };
 
-export async function requestChatReply ({ adventureId, replyChatId, generateChatReply, reloadMessages, alert }: RequestChatReplyParams): Promise<void> {
-    const response = await generateChatReply.handle({ adventureId, chatId: replyChatId });
+export async function requestChatReply ({
+    adventureId,
+    replyChatId,
+    skipPlayerTurn,
+    generateChatReply,
+    reloadMessages,
+    alert,
+}: RequestChatReplyParams): Promise<void> {
+    const response = await generateChatReply.handle({ adventureId, chatId: replyChatId, skipPlayerTurn });
 
     if (!response.success) {
         showError(alert, response.error, 'Failed to generate the assistant reply');
@@ -48,6 +57,13 @@ export async function handleChatReplyUpdate ({ update, reloadMessage, reloadMess
     }
 
     await reloadMessage(update.chatId);
+}
+
+export function isWaitingForPlayers (messages: ChatMessageView[]): boolean {
+    const lastWorldMasterIndex = messages.map(message => message.role).lastIndexOf(RoleEnum.ASSISTANT);
+    const currentTurn = messages.slice(lastWorldMasterIndex + 1);
+
+    return !currentTurn.some(message => message.role === RoleEnum.AI_PERSONA);
 }
 
 export function upsertChatMessage (messages: ChatMessageView[], message: ChatMessageView): ChatMessageView[] {

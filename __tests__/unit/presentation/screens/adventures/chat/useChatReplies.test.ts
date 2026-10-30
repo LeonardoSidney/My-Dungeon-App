@@ -105,6 +105,17 @@ describe('useChatReplies', () => {
         expect(params.getChatMessages.handle).toHaveBeenCalledWith({ adventureId: 'adventure-1' });
     });
 
+    it('asks for a reply that skips the player turn and reloads the messages it saved', async () => {
+        const { result, params } = await setup();
+
+        await act(async () => {
+            await result.current.skipTurn();
+        });
+
+        expect(params.generateChatReply.handle).toHaveBeenCalledWith({ adventureId: 'adventure-1', skipPlayerTurn: true });
+        expect(params.getChatMessages.handle).toHaveBeenCalledWith({ adventureId: 'adventure-1' });
+    });
+
     it('alerts when the reply cannot be stopped', async () => {
         const { result, params } = await setup(true);
         params.stopChatReply.handle.mockReturnValue({ success: false, error: 'not replying' });

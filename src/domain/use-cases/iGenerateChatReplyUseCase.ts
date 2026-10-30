@@ -9,6 +9,7 @@ export interface IGenerateChatReplyUseCase {
 export type GenerateChatReplyUseCaseParams = {
     adventureId: string;
     chatId?: string;
+    skipPlayerTurn?: boolean;
 };
 
 export type GenerateChatReplyUseCaseReturn = {
