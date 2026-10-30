@@ -77,6 +77,8 @@ Only what the adventure has goes in — the injection is on demand, precisely to
 
 That order is the default **System Prompt Load Order**, editable in Settings: reorder the tags or remove the ones you don't want injected (an empty load order injects nothing). Only the tags above are accepted, each one at most once; spaces and line breaks are ignored, and _Restore default_ brings the string above back.
 
+Settings also lets you rewrite the text the app wraps around everything, for every adventure at once. **System Prompt Sections** holds the heading of each section above, and **Turn Messages** holds how a turn is written to the model: the layout of the message, the scene context, the characters' lines and the instructions for the AI characters, the world master and the scene context. Each field lists the tags it accepts; a required tag can't be removed and an unknown tag is refused, so a literal `{...}` can't be used. Line breaks are kept, and _Restore default_ brings a field's original text back when you save.
+
 The answer arrives **streaming** straight from the server, and reasoning models can _think_: the _thinking_ is recorded with the message in the chat and can be edited or removed. On your turn you decree actions and speak for the characters you control in the adventure chat; on the AI's turn the world master and the characters it controls answer — and every message can be regenerated, resent or continued.
 
 ## The server: llama.cpp

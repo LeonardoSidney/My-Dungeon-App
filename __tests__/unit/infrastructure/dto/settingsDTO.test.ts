@@ -42,4 +42,24 @@ describe('SettingsDTO', () => {
     it('rejects a think blocks visibility that is not a boolean', () => {
         expect(SettingsDTO.fromStorage({ showThinkBlocks: 'false' })).toBeNull();
     });
+
+    it('converts the stored chat templates', () => {
+        const settings = SettingsDTO.fromStorage({ chatTemplates: { worlds: '# REALMS\n{worlds}\n' } })?.toEntity();
+
+        expect(settings).toEqual({ chatTemplates: { worlds: '# REALMS\n{worlds}\n' } });
+    });
+
+    it('drops the stored chat templates that are no longer known', () => {
+        const settings = SettingsDTO.fromStorage({ chatTemplates: { worlds: '{worlds}', retired: 'text' } })?.toEntity();
+
+        expect(settings).toEqual({ chatTemplates: { worlds: '{worlds}' } });
+    });
+
+    it('rejects chat templates that are not an object', () => {
+        expect(SettingsDTO.fromStorage({ chatTemplates: ['{worlds}'] })).toBeNull();
+    });
+
+    it('rejects chat templates with a value that is not text', () => {
+        expect(SettingsDTO.fromStorage({ chatTemplates: { worlds: 42 } })).toBeNull();
+    });
 });

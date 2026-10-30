@@ -1,6 +1,6 @@
 import { GetAdventureSystemPromptUseCase } from '@application/use-cases';
 import { ITextGeneration } from '@domain/providers';
-import { IGetSystemPromptLoadOrderUseCase, IHydrateAdventureUseCase } from '@domain/use-cases';
+import { IGetChatTemplatesUseCase, IGetSystemPromptLoadOrderUseCase, IHydrateAdventureUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { createAdventureHelper, createHydratedAdventureHelper } from '@test/helpers';
 
@@ -26,6 +26,12 @@ const mockGetSystemPromptLoadOrderUseCase = {
     execute: jest.fn()
 };
 
+const mockGetChatTemplatesUseCase = {
+    execute: jest.fn()
+};
+
+const templates = { worlds: 'WORLDS<{worlds}>' };
+
 const adventure = createAdventureHelper();
 
 function buildUseCase (): GetAdventureSystemPromptUseCase {
@@ -33,7 +39,8 @@ function buildUseCase (): GetAdventureSystemPromptUseCase {
         mockLogger,
         mockTextGeneration as unknown as ITextGeneration,
         mockHydrateAdventureUseCase as unknown as IHydrateAdventureUseCase,
-        mockGetSystemPromptLoadOrderUseCase as unknown as IGetSystemPromptLoadOrderUseCase
+        mockGetSystemPromptLoadOrderUseCase as unknown as IGetSystemPromptLoadOrderUseCase,
+        mockGetChatTemplatesUseCase as unknown as IGetChatTemplatesUseCase
     );
 }
 
@@ -42,6 +49,7 @@ describe('GetAdventureSystemPromptUseCase', () => {
         jest.clearAllMocks();
         mockHydrateAdventureUseCase.execute.mockResolvedValue({ success: true, hydrated: createHydratedAdventureHelper({ adventure }) });
         mockGetSystemPromptLoadOrderUseCase.execute.mockResolvedValue({ success: true, loadOrder: '{worldMaster}' });
+        mockGetChatTemplatesUseCase.execute.mockResolvedValue({ success: true, templates });
     });
 
     it('should return the system prompt composed from the adventure hydrated by id', async () => {
@@ -51,7 +59,24 @@ describe('GetAdventureSystemPromptUseCase', () => {
 
         expect(response).toEqual({ success: true, systemPrompt: '# WORLD MASTER\nprompt here' });
         expect(mockHydrateAdventureUseCase.execute).toHaveBeenCalledWith({ adventureId: 'adventure-1' });
-        expect(mockTextGeneration.buildAdventureTextSystemPrompt).toHaveBeenCalledWith(expect.objectContaining({ adventure }), '{worldMaster}');
+        expect(mockTextGeneration.buildAdventureTextSystemPrompt).toHaveBeenCalledWith(expect.objectContaining({ adventure }), '{worldMaster}', templates);
+    });
+
+    it('should fail without building the system prompt when the chat templates cannot be loaded', async () => {
+        mockGetChatTemplatesUseCase.execute.mockResolvedValue({ success: false, error: 'Failed to load settings' });
+
+        const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
+
+        expect(response).toEqual({ success: false, error: 'Failed to load settings' });
+        expect(mockTextGeneration.buildAdventureTextSystemPrompt).not.toHaveBeenCalled();
+    });
+
+    it('should use a default error when the chat templates answer without a template', async () => {
+        mockGetChatTemplatesUseCase.execute.mockResolvedValue({ success: true });
+
+        const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
+
+        expect(response).toEqual({ success: false, error: 'Failed to load chat templates' });
     });
 
     it.each([

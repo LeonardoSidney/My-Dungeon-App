@@ -4,11 +4,14 @@ import { screenStyles } from '@presentation/components';
 import { useEntityScreen } from '@presentation/hooks';
 import { useControllers } from '@presentation/providers/ControllersProvider';
 import { showError } from '@presentation/utils/showError';
+import { ChatTemplatesPanel } from './ChatTemplatesPanel';
 import { ConnectionForm } from './ConnectionForm';
 import { ConnectionPanel } from './ConnectionPanel';
 import { DangerZone } from './DangerZone';
 import { SystemPromptLoadOrderPanel } from './SystemPromptLoadOrderPanel';
+import { SYSTEM_PROMPT_SECTION_FIELDS, TURN_TEMPLATE_FIELDS } from './chatTemplatesForm';
 import { initialConnectionForm, submitConnection, toConnectionFormState, validateConnectionForm } from './connectionForm';
+import { useChatTemplates } from './useChatTemplates';
 import { useSystemPromptLoadOrder } from './useSystemPromptLoadOrder';
 
 export function SettingsScreen () {
@@ -22,6 +25,8 @@ export function SettingsScreen () {
     getSystemPromptLoadOrder,
     saveSystemPromptLoadOrder,
     resetSystemPromptLoadOrder,
+    getChatTemplates,
+    saveChatTemplates,
     alert,
   } = useControllers();
   const [isErasing, setIsErasing] = useState(false);
@@ -44,6 +49,9 @@ export function SettingsScreen () {
     resetSystemPromptLoadOrder,
     alert,
   });
+
+  const turnTemplates = useChatTemplates({ fields: TURN_TEMPLATE_FIELDS, getChatTemplates, saveChatTemplates, alert });
+  const systemPromptSections = useChatTemplates({ fields: SYSTEM_PROMPT_SECTION_FIELDS, getChatTemplates, saveChatTemplates, alert });
 
   const eraseAllAdventures = async () => {
     setIsErasing(true);
@@ -84,6 +92,36 @@ export function SettingsScreen () {
           onChange={systemPromptLoadOrder.changeLoadOrder}
           onSave={systemPromptLoadOrder.save}
           onRestoreDefault={systemPromptLoadOrder.restoreDefault}
+        />
+        <ChatTemplatesPanel
+          title="Turn Messages"
+          helpText="How each turn is written to the model. Line breaks are kept. Only the listed tags are accepted."
+          fields={TURN_TEMPLATE_FIELDS}
+          templates={turnTemplates.templates}
+          definitions={turnTemplates.definitions}
+          errors={turnTemplates.errors}
+          loadError={turnTemplates.loadError}
+          isLoading={turnTemplates.isLoading}
+          isSaving={turnTemplates.isSaving}
+          hasUnsavedChanges={turnTemplates.hasUnsavedChanges}
+          onChange={turnTemplates.changeTemplate}
+          onRestoreDefault={turnTemplates.restoreDefault}
+          onSave={turnTemplates.save}
+        />
+        <ChatTemplatesPanel
+          title="System Prompt Sections"
+          helpText="The text around each section of the system prompt. Line breaks are kept. Only the listed tags are accepted."
+          fields={SYSTEM_PROMPT_SECTION_FIELDS}
+          templates={systemPromptSections.templates}
+          definitions={systemPromptSections.definitions}
+          errors={systemPromptSections.errors}
+          loadError={systemPromptSections.loadError}
+          isLoading={systemPromptSections.isLoading}
+          isSaving={systemPromptSections.isSaving}
+          hasUnsavedChanges={systemPromptSections.hasUnsavedChanges}
+          onChange={systemPromptSections.changeTemplate}
+          onRestoreDefault={systemPromptSections.restoreDefault}
+          onSave={systemPromptSections.save}
         />
         <DangerZone isErasing={isErasing} onErase={eraseAllAdventures} />
       </ScrollView>

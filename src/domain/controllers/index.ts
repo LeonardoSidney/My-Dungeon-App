@@ -105,4 +105,6 @@ export * from './iSaveSystemPromptLoadOrderController';
 export * from './iResetSystemPromptLoadOrderController';
 export * from './iGetThinkBlocksVisibilityController';
 export * from './iSaveThinkBlocksVisibilityController';
+export * from './iGetChatTemplatesController';
+export * from './iSaveChatTemplatesController';
 export * from './iGetHomeSummaryController';

@@ -107,4 +107,6 @@ export * from './iSaveSystemPromptLoadOrderUseCase';
 export * from './iResetSystemPromptLoadOrderUseCase';
 export * from './iGetThinkBlocksVisibilityUseCase';
 export * from './iSaveThinkBlocksVisibilityUseCase';
+export * from './iGetChatTemplatesUseCase';
+export * from './iSaveChatTemplatesUseCase';
 export * from './iGetHomeSummaryUseCase';

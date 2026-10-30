@@ -3,7 +3,7 @@ import { RoleEnum } from '@domain/entities';
 import { ITextGeneration, TurnPromptPurposeEnum } from '@domain/providers';
 import { IModelProviderGateway } from '@domain/gateways';
 import { ITurnSpeakerService, TurnSpeaker, TurnSpeakerKindEnum } from '@domain/services';
-import { IGetSystemPromptLoadOrderUseCase, IHydrateAdventureUseCase } from '@domain/use-cases';
+import { IGetChatTemplatesUseCase, IGetSystemPromptLoadOrderUseCase, IHydrateAdventureUseCase } from '@domain/use-cases';
 import { ILogger } from '@domain/logger';
 import { createAssistantHelper, createHydratedAdventureHelper } from '@test/helpers';
 
@@ -33,6 +33,12 @@ const mockGateway = {
 const mockGetSystemPromptLoadOrderUseCase = {
     execute: jest.fn()
 };
+
+const mockGetChatTemplatesUseCase = {
+    execute: jest.fn()
+};
+
+const templates = { worlds: 'WORLDS<{worlds}>' };
 
 const mockTurnSpeakerService = {
     resolveNextSpeaker: jest.fn(),
@@ -66,6 +72,7 @@ function buildUseCase (): GetAdventureTemplatedPromptUseCase {
         mockGateway as unknown as IModelProviderGateway,
         mockHydrateAdventureUseCase as unknown as IHydrateAdventureUseCase,
         mockGetSystemPromptLoadOrderUseCase as unknown as IGetSystemPromptLoadOrderUseCase,
+        mockGetChatTemplatesUseCase as unknown as IGetChatTemplatesUseCase,
         mockTurnSpeakerService as unknown as ITurnSpeakerService
     );
 }
@@ -74,6 +81,7 @@ describe('GetAdventureTemplatedPromptUseCase', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         mockGetSystemPromptLoadOrderUseCase.execute.mockResolvedValue({ success: true, loadOrder: '{systemPrompt}{characters}' });
+        mockGetChatTemplatesUseCase.execute.mockResolvedValue({ success: true, templates });
         mockTextGeneration.buildAdventureTextSystemPrompt.mockReturnValue({ success: true, systemPrompt: 'system prompt' });
         mockTextGeneration.buildAdventureTurnMessages.mockReturnValue({ success: true, messages: turnMessages });
         mockGateway.applyTemplate.mockResolvedValue({ success: true, prompt: 'final prompt' });
@@ -86,7 +94,7 @@ describe('GetAdventureTemplatedPromptUseCase', () => {
 
         expect(response).toEqual({ success: true, prompt: 'final prompt' });
         expect(mockHydrateAdventureUseCase.execute).not.toHaveBeenCalled();
-        expect(mockTextGeneration.buildAdventureTextSystemPrompt).toHaveBeenCalledWith(hydrated, '{systemPrompt}{characters}');
+        expect(mockTextGeneration.buildAdventureTextSystemPrompt).toHaveBeenCalledWith(hydrated, '{systemPrompt}{characters}', templates);
     });
 
     it('builds the turn messages for the requested speaker, purpose, context and target chat', async () => {
@@ -101,7 +109,7 @@ describe('GetAdventureTemplatedPromptUseCase', () => {
 
         await buildUseCase().execute(request);
 
-        expect(mockTextGeneration.buildAdventureTurnMessages).toHaveBeenCalledWith(request);
+        expect(mockTextGeneration.buildAdventureTurnMessages).toHaveBeenCalledWith(request, templates);
     });
 
     it('applies the template with the system prompt and the turn messages', async () => {
@@ -144,6 +152,23 @@ describe('GetAdventureTemplatedPromptUseCase', () => {
         const response = await buildUseCase().execute({ hydrated: createHydratedAdventureHelper(), speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
         expect(response).toEqual({ success: false, error: 'Failed to load system prompt load order' });
+    });
+
+    it('fails with the chat templates error without building the system prompt', async () => {
+        mockGetChatTemplatesUseCase.execute.mockResolvedValue({ success: false, error: 'Failed to load settings' });
+
+        const response = await buildUseCase().execute({ hydrated: createHydratedAdventureHelper(), speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+
+        expect(response).toEqual({ success: false, error: 'Failed to load settings' });
+        expect(mockTextGeneration.buildAdventureTextSystemPrompt).not.toHaveBeenCalled();
+    });
+
+    it('fails with a generic error when the chat templates are missing', async () => {
+        mockGetChatTemplatesUseCase.execute.mockResolvedValue({ success: true });
+
+        const response = await buildUseCase().execute({ hydrated: createHydratedAdventureHelper(), speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+
+        expect(response).toEqual({ success: false, error: 'Failed to load chat templates' });
     });
 
     it('fails without applying the template when the system prompt fails', async () => {
@@ -230,7 +255,7 @@ describe('GetAdventureTemplatedPromptUseCase', () => {
                 hydrated,
                 speaker: clericSpeaker,
                 purpose: TurnPromptPurposeEnum.REPLY
-            });
+            }, templates);
         });
 
         it('builds the world master prompt while the turn waits for the players', async () => {
@@ -241,7 +266,7 @@ describe('GetAdventureTemplatedPromptUseCase', () => {
 
             await buildUseCase().execute({ adventureId: 'adventure-1' });
 
-            expect(mockTextGeneration.buildAdventureTurnMessages).toHaveBeenCalledWith(expect.objectContaining({ speaker: worldMasterSpeaker }));
+            expect(mockTextGeneration.buildAdventureTurnMessages).toHaveBeenCalledWith(expect.objectContaining({ speaker: worldMasterSpeaker }), templates);
         });
 
         it('returns the next speaker error without building the prompt', async () => {

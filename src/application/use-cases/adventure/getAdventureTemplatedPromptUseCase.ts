@@ -8,6 +8,7 @@ import {
     HYDRATED_PARAM_KEY,
     HydratedAdventure,
     IGetAdventureTemplatedPromptUseCase,
+    IGetChatTemplatesUseCase,
     IGetSystemPromptLoadOrderUseCase,
     IHydrateAdventureUseCase,
     ResolveTemplatedPromptRequestReturn,
@@ -21,6 +22,7 @@ export class GetAdventureTemplatedPromptUseCase implements IGetAdventureTemplate
         private readonly gateway: IModelProviderGateway,
         private readonly hydrateAdventureUseCase: IHydrateAdventureUseCase,
         private readonly getSystemPromptLoadOrderUseCase: IGetSystemPromptLoadOrderUseCase,
+        private readonly getChatTemplatesUseCase: IGetChatTemplatesUseCase,
         private readonly turnSpeakerService: ITurnSpeakerService
     ) { }
 
@@ -38,9 +40,15 @@ export class GetAdventureTemplatedPromptUseCase implements IGetAdventureTemplate
             return { success: false, error: loadOrderResponse.error ?? 'Failed to load system prompt load order' };
         }
 
+        const templatesResponse = await this.getChatTemplatesUseCase.execute();
+        if (!templatesResponse.success || !templatesResponse.templates) {
+            return { success: false, error: templatesResponse.error ?? 'Failed to load chat templates' };
+        }
+
+        const templates = templatesResponse.templates;
         const request = requestResponse.request;
         const hydrated = request.hydrated;
-        const systemPromptResponse = this.provider.buildAdventureTextSystemPrompt(hydrated, loadOrderResponse.loadOrder);
+        const systemPromptResponse = this.provider.buildAdventureTextSystemPrompt(hydrated, loadOrderResponse.loadOrder, templates);
         if (!systemPromptResponse.success || systemPromptResponse.systemPrompt === undefined) {
             this.logger.warning('GetAdventureTemplatedPromptUseCase::execute - failed to build system prompt', systemPromptResponse.error);
             return { success: false, error: systemPromptResponse.error };
@@ -49,7 +57,7 @@ export class GetAdventureTemplatedPromptUseCase implements IGetAdventureTemplate
         const systemPrompt = systemPromptResponse.systemPrompt;
         this.logger.debug('Executing GetAdventureTemplatedPromptUseCase:execute - systemPrompt', systemPrompt);
 
-        const turnMessagesResponse = this.provider.buildAdventureTurnMessages(request);
+        const turnMessagesResponse = this.provider.buildAdventureTurnMessages(request, templates);
         if (!turnMessagesResponse.success || !turnMessagesResponse.messages) {
             this.logger.warning('GetAdventureTemplatedPromptUseCase::execute - failed to build turn messages', turnMessagesResponse.error);
             return { success: false, error: turnMessagesResponse.error ?? 'Failed to build turn messages' };

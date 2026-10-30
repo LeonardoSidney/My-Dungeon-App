@@ -101,6 +101,8 @@ import {
     IResetSystemPromptLoadOrderController,
     IGetThinkBlocksVisibilityController,
     ISaveThinkBlocksVisibilityController,
+    IGetChatTemplatesController,
+    ISaveChatTemplatesController,
 } from '@domain/controllers';
 
 export type AppControllers = {
@@ -206,4 +208,6 @@ export type AppControllers = {
     resetSystemPromptLoadOrder: IResetSystemPromptLoadOrderController;
     getThinkBlocksVisibility: IGetThinkBlocksVisibilityController;
     saveThinkBlocksVisibility: ISaveThinkBlocksVisibilityController;
+    getChatTemplates: IGetChatTemplatesController;
+    saveChatTemplates: ISaveChatTemplatesController;
 };

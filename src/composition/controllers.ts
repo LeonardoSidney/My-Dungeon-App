@@ -100,6 +100,8 @@ import {
     resetSystemPromptLoadOrderController,
     getThinkBlocksVisibilityController,
     saveThinkBlocksVisibilityController,
+    getChatTemplatesController,
+    saveChatTemplatesController,
     getHomeSummaryController,
 } from '@infra/container';
 import type { AppControllers } from '@presentation/providers/appControllers';
@@ -208,5 +210,7 @@ export function buildControllers (): AppControllers {
         resetSystemPromptLoadOrder: resetSystemPromptLoadOrderController(),
         getThinkBlocksVisibility: getThinkBlocksVisibilityController(),
         saveThinkBlocksVisibility: saveThinkBlocksVisibilityController(),
+        getChatTemplates: getChatTemplatesController(),
+        saveChatTemplates: saveChatTemplatesController(),
     };
 }

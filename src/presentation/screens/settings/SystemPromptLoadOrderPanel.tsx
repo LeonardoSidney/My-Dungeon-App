@@ -1,6 +1,7 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { CollapsibleSection, formStyles, screenStyles, TextField } from '@presentation/components';
-import { colors } from '@presentation/theme';
+import { getSaveLabel } from './saveLabel';
+import { settingsPanelStyles } from './settingsPanel.styles';
 
 type SystemPromptLoadOrderPanelProps = {
   loadOrder: string;
@@ -13,16 +14,6 @@ type SystemPromptLoadOrderPanelProps = {
   onSave: () => void;
   onRestoreDefault: () => void;
 };
-
-function getSaveLabel (isSaving: boolean, hasUnsavedChanges: boolean): string {
-  if (isSaving) {
-    return 'Saving...';
-  }
-  if (hasUnsavedChanges) {
-    return 'Save';
-  }
-  return 'Saved ✓';
-}
 
 export function SystemPromptLoadOrderPanel ({
   loadOrder,
@@ -46,13 +37,13 @@ export function SystemPromptLoadOrderPanel ({
     }
     return (
       <>
-        <Text style={styles.helpText}>
+        <Text style={settingsPanelStyles.helpText}>
           Chain the tags in the order they are injected into the system prompt. Remove a tag to leave its section out.
           Spaces and line breaks are ignored.
         </Text>
         <TextField label="Load order" value={loadOrder} onChangeText={onChange} error={error} variant="tall" />
-        {hasUnsavedChanges && <Text style={styles.unsavedText}>Unsaved changes</Text>}
-        <View style={styles.actions}>
+        {hasUnsavedChanges && <Text style={settingsPanelStyles.unsavedText}>Unsaved changes</Text>}
+        <View style={settingsPanelStyles.actions}>
           <TouchableOpacity style={formStyles.cancelButton} onPress={onRestoreDefault} disabled={isSaving}>
             <Text style={formStyles.cancelButtonText}>Restore default</Text>
           </TouchableOpacity>
@@ -74,22 +65,3 @@ export function SystemPromptLoadOrderPanel ({
     </CollapsibleSection>
   );
 }
-
-const styles = StyleSheet.create({
-  helpText: {
-    color: colors.textMuted,
-    fontSize: 14,
-    marginBottom: 12,
-  },
-  unsavedText: {
-    color: colors.textMuted,
-    fontSize: 12,
-    fontStyle: 'italic',
-    marginBottom: 12,
-  },
-  actions: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: 12,
-  },
-});

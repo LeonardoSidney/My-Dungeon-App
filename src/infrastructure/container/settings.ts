@@ -1,26 +1,32 @@
 import {
+    GetChatTemplatesController,
     GetSystemPromptLoadOrderController,
     GetThinkBlocksVisibilityController,
     ResetSystemPromptLoadOrderController,
+    SaveChatTemplatesController,
     SaveSystemPromptLoadOrderController,
     SaveThinkBlocksVisibilityController,
 } from '@adapters/controllers';
-import { ValidateSystemPromptLoadOrderService } from '@application/services';
+import { ValidateChatTemplatesService, ValidateSystemPromptLoadOrderService } from '@application/services';
 import {
+    GetChatTemplatesUseCase,
     GetSystemPromptLoadOrderUseCase,
     GetThinkBlocksVisibilityUseCase,
     ResetSystemPromptLoadOrderUseCase,
+    SaveChatTemplatesUseCase,
     SaveSystemPromptLoadOrderUseCase,
     SaveThinkBlocksVisibilityUseCase,
 } from '@application/use-cases';
 import {
+    IGetChatTemplatesController,
     IGetSystemPromptLoadOrderController,
     IGetThinkBlocksVisibilityController,
     IResetSystemPromptLoadOrderController,
+    ISaveChatTemplatesController,
     ISaveSystemPromptLoadOrderController,
     ISaveThinkBlocksVisibilityController,
 } from '@domain/controllers';
-import { IGetSystemPromptLoadOrderUseCase } from '@domain/use-cases';
+import { IGetChatTemplatesUseCase, IGetSystemPromptLoadOrderUseCase } from '@domain/use-cases';
 import { logger, storage } from './shared';
 import { createSettingsRepository } from './repository';
 
@@ -56,4 +62,21 @@ export function saveThinkBlocksVisibilityController (): ISaveThinkBlocksVisibili
     const settingsRepository = createSettingsRepository(storage, logger);
     const saveThinkBlocksVisibilityUseCase = new SaveThinkBlocksVisibilityUseCase(logger, settingsRepository);
     return new SaveThinkBlocksVisibilityController(logger, saveThinkBlocksVisibilityUseCase);
+}
+
+export function createGetChatTemplatesUseCase (): IGetChatTemplatesUseCase {
+    const settingsRepository = createSettingsRepository(storage, logger);
+    return new GetChatTemplatesUseCase(logger, settingsRepository);
+}
+
+export function getChatTemplatesController (): IGetChatTemplatesController {
+    const getChatTemplatesUseCase = createGetChatTemplatesUseCase();
+    return new GetChatTemplatesController(logger, getChatTemplatesUseCase);
+}
+
+export function saveChatTemplatesController (): ISaveChatTemplatesController {
+    const settingsRepository = createSettingsRepository(storage, logger);
+    const validateChatTemplatesService = new ValidateChatTemplatesService(logger);
+    const saveChatTemplatesUseCase = new SaveChatTemplatesUseCase(logger, settingsRepository, validateChatTemplatesService);
+    return new SaveChatTemplatesController(logger, saveChatTemplatesUseCase);
 }

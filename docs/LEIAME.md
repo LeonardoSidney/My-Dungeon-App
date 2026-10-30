@@ -77,6 +77,8 @@ Só entra o que a aventura tem — a injeção é sob demanda, justamente para p
 
 Essa ordem é o padrão da **System Prompt Load Order**, editável nas Configurações: reordene as tags ou remova as que não quer injetar (uma load order vazia não injeta nada). Só as tags acima são aceitas, cada uma no máximo uma vez; espaços e quebras de linha são ignorados, e o _Restore default_ traz a string acima de volta.
 
+As Configurações também deixam você reescrever o texto que o app coloca em volta de tudo, para todas as aventuras de uma vez. **System Prompt Sections** guarda o título de cada seção acima, e **Turn Messages** guarda como um turno é escrito para o modelo: o layout da mensagem, o contexto da cena, as falas dos personagens e as instruções para os personagens de IA, o world master e o contexto da cena. Cada campo lista as tags que aceita; uma tag obrigatória não pode ser removida e uma tag desconhecida é recusada, então não dá para usar `{...}` literal. As quebras de linha são mantidas, e o _Restore default_ traz o texto original do campo de volta ao salvar.
+
 A resposta chega em **streaming** direto do servidor, e modelos de raciocínio podem _pensar_: o _thinking_ fica gravado junto da mensagem no chat e pode ser editado ou removido. No seu turno você decreta ações e fala dos personagens que controla no chat da aventura; no turno da IA, o world master e os personagens sob controle dela respondem — e cada mensagem pode ser regenerada, reenviada ou continuada.
 
 ## O servidor: llama.cpp

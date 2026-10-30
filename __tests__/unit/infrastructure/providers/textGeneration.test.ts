@@ -11,9 +11,9 @@ import {
 } from '@domain/constants/textGeneration';
 import { RoleEnum } from '@domain/entities';
 import { ILogger } from '@domain/logger';
-import { TurnPromptPurposeEnum } from '@domain/providers';
-import { ITextGenerationTemplatesService, TurnSpeaker, TurnSpeakerKindEnum } from '@domain/services';
-import { HydratedCharacter } from '@domain/use-cases';
+import { AdventureTemplates, BuildAdventureTurnMessagesParams, TurnPromptPurposeEnum, TurnMessageTemplates } from '@domain/providers';
+import { TurnSpeaker, TurnSpeakerKindEnum } from '@domain/services';
+import { HydratedAdventure, HydratedCharacter } from '@domain/use-cases';
 import {
     createAbilityHelper,
     createCharacterHelper,
@@ -40,37 +40,36 @@ const mockLogger: ILogger = {
 
 const LOAD_ORDER = '{systemPrompt}|{worldMaster}|{characterAsWorldMaster}|{worlds}|{locations}|{items}|{abilities}|{proficiencies}|{statuses}|{characters}';
 
-const TEMPLATES = {
-    getSystemPromptTemplate: 'SP<{systemPrompt}>',
-    getWorldMasterTemplate: 'WM<{worldMaster}>',
-    getIaControlledCharacterTemplate: 'IA<{characterAsWorldMaster}>',
-    getWorldsTemplate: 'WORLDS<{worlds}>',
-    getLocationsTemplate: 'LOCATIONS<{locations}>',
-    getItemsTemplate: 'ITEMS<{items}>',
-    getAbilitiesTemplate: 'ABILITIES<{abilities}>',
-    getProficienciesTemplate: 'PROFICIENCIES<{proficiencies}>',
-    getStatusesTemplate: 'STATUSES<{statuses}>',
-    getCharactersTemplate: 'CHARACTERS<{characters}>',
-    getMessageTemplate: DEFAULT_MESSAGE_TEMPLATE,
-    getContextMessageTemplate: DEFAULT_CONTEXT_MESSAGE_TEMPLATE,
-    getTurnMessageTemplate: DEFAULT_TURN_MESSAGE_TEMPLATE,
-    getCharacterMessageTemplate: DEFAULT_CHARACTER_MESSAGE_TEMPLATE,
-    getInstructionsMessageTemplate: DEFAULT_INSTRUCTIONS_MESSAGE_TEMPLATE,
-    getAiCharacterInstructionTemplate: DEFAULT_AI_CHARACTER_INSTRUCTION_TEMPLATE,
-    getWorldMasterInstructionTemplate: DEFAULT_WORLD_MASTER_INSTRUCTION_TEMPLATE,
-    getContextInstructionTemplate: DEFAULT_CONTEXT_INSTRUCTION_TEMPLATE
+const ADVENTURE_TEMPLATES: AdventureTemplates = {
+    systemPrompt: 'SP<{systemPrompt}>',
+    worldMaster: 'WM<{worldMaster}>',
+    iaControlledCharacter: 'IA<{characterAsWorldMaster}>',
+    worlds: 'WORLDS<{worlds}>',
+    locations: 'LOCATIONS<{locations}>',
+    items: 'ITEMS<{items}>',
+    abilities: 'ABILITIES<{abilities}>',
+    proficiencies: 'PROFICIENCIES<{proficiencies}>',
+    statuses: 'STATUSES<{statuses}>',
+    characters: 'CHARACTERS<{characters}>'
 };
 
-type TemplateMethod = keyof typeof TEMPLATES;
+const TURN_TEMPLATES: TurnMessageTemplates = {
+    message: DEFAULT_MESSAGE_TEMPLATE,
+    contextMessage: DEFAULT_CONTEXT_MESSAGE_TEMPLATE,
+    turnMessage: DEFAULT_TURN_MESSAGE_TEMPLATE,
+    characterMessage: DEFAULT_CHARACTER_MESSAGE_TEMPLATE,
+    instructionsMessage: DEFAULT_INSTRUCTIONS_MESSAGE_TEMPLATE,
+    aiCharacterInstruction: DEFAULT_AI_CHARACTER_INSTRUCTION_TEMPLATE,
+    worldMasterInstruction: DEFAULT_WORLD_MASTER_INSTRUCTION_TEMPLATE,
+    contextInstruction: DEFAULT_CONTEXT_INSTRUCTION_TEMPLATE
+};
 
-function buildTemplatesService (): Record<TemplateMethod, jest.Mock> {
-    return Object.fromEntries(
-        Object.entries(TEMPLATES).map(([method, template]) => [method, jest.fn().mockReturnValue({ success: true, template })])
-    ) as Record<TemplateMethod, jest.Mock>;
+function buildSystemPrompt (hydrated: HydratedAdventure, loadOrder: string, templates = ADVENTURE_TEMPLATES) {
+    return new TextGeneration(mockLogger).buildAdventureTextSystemPrompt(hydrated, loadOrder, templates);
 }
 
-function buildTextGeneration (templatesService = buildTemplatesService()): TextGeneration {
-    return new TextGeneration(mockLogger, templatesService as unknown as ITextGenerationTemplatesService);
+function buildTurnMessages (params: BuildAdventureTurnMessagesParams, templates = TURN_TEMPLATES) {
+    return new TextGeneration(mockLogger).buildAdventureTurnMessages(params, templates);
 }
 
 const fireball = createAbilityHelper({ id: 'ability-1', name: 'Fireball', prompt: 'Throws fire' });
@@ -111,7 +110,7 @@ describe('TextGeneration', () => {
                 items: [createItemHelper({ name: 'Sword', prompt: 'Item prompt' })]
             };
 
-            const result = buildTextGeneration().buildAdventureTextSystemPrompt(hydrated, LOAD_ORDER);
+            const result = buildSystemPrompt(hydrated, LOAD_ORDER);
 
             expect(result.success).toBe(true);
             expect(result.systemPrompt?.split('|')).toEqual([
@@ -141,7 +140,7 @@ describe('TextGeneration', () => {
                 items: []
             };
 
-            const result = buildTextGeneration().buildAdventureTextSystemPrompt(hydrated, LOAD_ORDER);
+            const result = buildSystemPrompt(hydrated, LOAD_ORDER);
 
             expect(result).toEqual({ success: true, systemPrompt: 'SP<>|||||||||CHARACTERS<>' });
         });
@@ -149,7 +148,7 @@ describe('TextGeneration', () => {
         it('keeps the world master section with an empty prompt', () => {
             const hydrated = createHydratedAdventureHelper({ worldMaster: createWorldMasterHelper({ prompt: '' }) });
 
-            const sections = buildTextGeneration().buildAdventureTextSystemPrompt(hydrated, LOAD_ORDER).systemPrompt?.split('|');
+            const sections = buildSystemPrompt(hydrated, LOAD_ORDER).systemPrompt?.split('|');
 
             expect(sections?.[1]).toBe('WM<>');
         });
@@ -162,7 +161,7 @@ describe('TextGeneration', () => {
                 ]
             });
 
-            const sections = buildTextGeneration().buildAdventureTextSystemPrompt(hydrated, LOAD_ORDER).systemPrompt?.split('|');
+            const sections = buildSystemPrompt(hydrated, LOAD_ORDER).systemPrompt?.split('|');
 
             expect(sections?.[7]).toBe('PROFICIENCIES<## SWORDS\nFights with swords\n>');
             expect(sections?.[8]).toBe('STATUSES<## HEALTHY\nFeels fine\n>');
@@ -179,7 +178,7 @@ describe('TextGeneration', () => {
             };
 
             it('injects the sections in the order of the load order', () => {
-                const result = buildTextGeneration().buildAdventureTextSystemPrompt(hydrated, '{characters}|{worlds}|{systemPrompt}');
+                const result = buildSystemPrompt(hydrated, '{characters}|{worlds}|{systemPrompt}');
 
                 expect(result).toEqual({
                     success: true,
@@ -188,7 +187,7 @@ describe('TextGeneration', () => {
             });
 
             it('leaves out the sections whose tags were removed', () => {
-                const result = buildTextGeneration().buildAdventureTextSystemPrompt(hydrated, '{systemPrompt}|{characters}');
+                const result = buildSystemPrompt(hydrated, '{systemPrompt}|{characters}');
 
                 expect(result.systemPrompt).toBe('SP<Rules\n>|CHARACTERS<## HERO\nHero prompt\n>');
                 expect(result.systemPrompt).not.toContain('Master prompt');
@@ -214,7 +213,7 @@ describe('TextGeneration', () => {
                 const statusesReference = '### STATUSES\n- **Healthy**\n\n';
 
                 function buildSections (loadOrder: string) {
-                    const systemPrompt = buildTextGeneration().buildAdventureTextSystemPrompt(referencesHydrated, loadOrder).systemPrompt ?? '';
+                    const systemPrompt = buildSystemPrompt(referencesHydrated, loadOrder).systemPrompt ?? '';
                     const [iaControlledCharacter, characters] = systemPrompt.split('|');
                     return { iaControlledCharacter, characters };
                 }
@@ -253,13 +252,13 @@ describe('TextGeneration', () => {
             });
 
             it('injects nothing when the load order is empty', () => {
-                const result = buildTextGeneration().buildAdventureTextSystemPrompt(hydrated, '');
+                const result = buildSystemPrompt(hydrated, '');
 
                 expect(result).toEqual({ success: true, systemPrompt: '' });
             });
 
             it('keeps a tag it does not know', () => {
-                const result = buildTextGeneration().buildAdventureTextSystemPrompt(hydrated, '{systemPrompt}|{unknown}');
+                const result = buildSystemPrompt(hydrated, '{systemPrompt}|{unknown}');
 
                 expect(result.systemPrompt).toBe('SP<Rules\n>|{unknown}');
             });
@@ -272,7 +271,7 @@ describe('TextGeneration', () => {
                     systemPrompts: [createSystemPromptHelper({ content: rules })],
                 };
 
-                return buildTextGeneration().buildAdventureTextSystemPrompt(hydrated, '{systemPrompt}|{characters}').systemPrompt;
+                return buildSystemPrompt(hydrated, '{systemPrompt}|{characters}').systemPrompt;
             }
 
             it('keeps a dollar sign followed by a quote as written', () => {
@@ -296,18 +295,13 @@ describe('TextGeneration', () => {
             });
         });
 
-        it.each([
-            [{ success: false, error: 'Template file missing' }, 'Template file missing'],
-            [{ success: false }, 'Text generation template not found: worlds'],
-            [{ success: true }, 'Text generation template not found: worlds']
-        ])('fails when a template answers %j', (templateResponse, error) => {
-            const templatesService = buildTemplatesService();
-            templatesService.getWorldsTemplate.mockReturnValue(templateResponse);
+        it('fills every occurrence of a tag repeated in a section template', () => {
+            const hydrated = { ...createHydratedAdventureHelper(), worlds: [createWorldHelper({ name: 'Aether', prompt: 'World prompt' })] };
+            const templates = { ...ADVENTURE_TEMPLATES, worlds: '{worlds}/{worlds}' };
 
-            const result = buildTextGeneration(templatesService).buildAdventureTextSystemPrompt(createHydratedAdventureHelper(), LOAD_ORDER);
+            const result = buildSystemPrompt(hydrated, '{worlds}', templates);
 
-            expect(result).toEqual({ success: false, error });
-            expect(mockLogger.warning).toHaveBeenCalled();
+            expect(result.systemPrompt).toBe('## AETHER\nWorld prompt\n/## AETHER\nWorld prompt\n');
         });
     });
 
@@ -341,7 +335,7 @@ describe('TextGeneration', () => {
                 createChatHelper({ id: 'chat-2', characterId: 'mage', content: ['I cast a light'] })
             ]);
 
-            const result = buildTextGeneration().buildAdventureTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+            const result = buildTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
             expect(result).toEqual({
                 success: true,
@@ -359,7 +353,7 @@ describe('TextGeneration', () => {
         it('puts the context before the current turn when one is given', () => {
             const hydrated = hydratedWithChat([createChatHelper({ id: 'chat-1', characterId: 'swordsman', content: ['Hello'] })]);
 
-            const result = buildTextGeneration().buildAdventureTurnMessages({
+            const result = buildTurnMessages({
                 hydrated,
                 speaker: clericSpeaker,
                 purpose: TurnPromptPurposeEnum.REPLY,
@@ -376,7 +370,7 @@ describe('TextGeneration', () => {
         it('leaves the context out when the given context is blank', () => {
             const hydrated = hydratedWithChat([createChatHelper({ id: 'chat-1', characterId: 'swordsman', content: ['Hello'] })]);
 
-            const result = buildTextGeneration().buildAdventureTurnMessages({
+            const result = buildTurnMessages({
                 hydrated,
                 speaker: clericSpeaker,
                 purpose: TurnPromptPurposeEnum.REPLY,
@@ -389,7 +383,7 @@ describe('TextGeneration', () => {
         it('sends the world master instruction when the world master speaks', () => {
             const hydrated = hydratedWithChat([createChatHelper({ id: 'chat-1', characterId: 'swordsman', content: ['Hello'] })]);
 
-            const result = buildTextGeneration().buildAdventureTurnMessages({ hydrated, speaker: worldMasterSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+            const result = buildTurnMessages({ hydrated, speaker: worldMasterSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
             expect(result.messages?.[0].content).toContain(
                 `<instruction>${DEFAULT_WORLD_MASTER_INSTRUCTION_TEMPLATE.split('{characterName}').join('Master')}</instruction>`
@@ -399,7 +393,7 @@ describe('TextGeneration', () => {
         it('asks for the context of the speaker without a context block when the purpose is the context', () => {
             const hydrated = hydratedWithChat([createChatHelper({ id: 'chat-1', characterId: 'swordsman', content: ['Hello'] })]);
 
-            const result = buildTextGeneration().buildAdventureTurnMessages({
+            const result = buildTurnMessages({
                 hydrated,
                 speaker: clericSpeaker,
                 purpose: TurnPromptPurposeEnum.CONTEXT,
@@ -420,7 +414,7 @@ describe('TextGeneration', () => {
                 createChatHelper({ id: 'chat-4', characterId: 'swordsman', content: ['Second line'] })
             ]);
 
-            const result = buildTextGeneration().buildAdventureTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+            const result = buildTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
             expect(result.messages?.slice(0, 2)).toEqual([
                 {
@@ -438,7 +432,7 @@ describe('TextGeneration', () => {
         it('sends the selected content version of each turn message', () => {
             const hydrated = hydratedWithChat([createChatHelper({ id: 'chat-1', characterId: 'swordsman', content: ['old', 'new'], index: 1 })]);
 
-            const result = buildTextGeneration().buildAdventureTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+            const result = buildTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
             expect(result.messages?.[0].content).toContain('<message character="Swordsman">new</message>');
         });
@@ -454,7 +448,7 @@ describe('TextGeneration', () => {
                 })
             ]);
 
-            const result = buildTextGeneration().buildAdventureTurnMessages({ hydrated, speaker: worldMasterSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+            const result = buildTurnMessages({ hydrated, speaker: worldMasterSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
             expect(result.messages).toHaveLength(1);
             expect(result.messages?.[0].content).not.toContain('secret thought');
@@ -472,7 +466,7 @@ describe('TextGeneration', () => {
                 })
             ]);
 
-            const result = buildTextGeneration().buildAdventureTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+            const result = buildTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
             expect(result.messages?.[1]).toEqual({ role: RoleEnum.ASSISTANT, content: 'Outcome', reasoning: 'master thought' });
         });
@@ -489,7 +483,7 @@ describe('TextGeneration', () => {
                 })
             ]);
 
-            const result = buildTextGeneration().buildAdventureTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+            const result = buildTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
             expect(result.messages?.[1]).toEqual({ role: RoleEnum.ASSISTANT, content: 'Outcome' });
         });
@@ -506,7 +500,7 @@ describe('TextGeneration', () => {
                 })
             ]);
 
-            const result = buildTextGeneration().buildAdventureTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+            const result = buildTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
             expect(result.messages?.[1]).toEqual({ role: RoleEnum.ASSISTANT, content: 'Outcome' });
         });
@@ -528,7 +522,7 @@ describe('TextGeneration', () => {
                 })
             ]);
 
-            const result = buildTextGeneration().buildAdventureTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+            const result = buildTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
             expect(result.messages?.[1]).toEqual({ role: RoleEnum.ASSISTANT, content: 'old answer', reasoning: 'new reasoning' });
         });
@@ -545,7 +539,7 @@ describe('TextGeneration', () => {
                 })
             ]);
 
-            const result = buildTextGeneration().buildAdventureTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+            const result = buildTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
             expect(result.messages?.[1]).toEqual({ role: RoleEnum.ASSISTANT, content: '', reasoning: 'reasoning' });
         });
@@ -556,7 +550,7 @@ describe('TextGeneration', () => {
                 createChatHelper({ id: 'chat-2', role: RoleEnum.ASSISTANT, characterId: 'master', content: ['  '] })
             ]);
 
-            const result = buildTextGeneration().buildAdventureTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+            const result = buildTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
             expect(result.messages?.map(message => message.role)).toEqual([RoleEnum.USER, RoleEnum.USER]);
         });
@@ -574,7 +568,7 @@ describe('TextGeneration', () => {
                 createChatHelper({ id: 'chat-3', characterId: 'mage', content: ['After the target'] })
             ]);
 
-            const result = buildTextGeneration().buildAdventureTurnMessages({
+            const result = buildTurnMessages({
                 hydrated,
                 speaker: clericSpeaker,
                 purpose: TurnPromptPurposeEnum.REPLY,
@@ -596,7 +590,7 @@ describe('TextGeneration', () => {
                 createChatHelper({ id: 'chat-2', role: RoleEnum.AI_PERSONA, characterId: 'cleric', content: [''] })
             ]);
 
-            const result = buildTextGeneration().buildAdventureTurnMessages({
+            const result = buildTurnMessages({
                 hydrated,
                 speaker: clericSpeaker,
                 purpose: TurnPromptPurposeEnum.REPLY,
@@ -612,7 +606,7 @@ describe('TextGeneration', () => {
                 createChatHelper({ id: 'chat-2', role: RoleEnum.AI_PERSONA, characterId: 'cleric', content: ['I start to'] })
             ]);
 
-            const result = buildTextGeneration().buildAdventureTurnMessages({
+            const result = buildTurnMessages({
                 hydrated,
                 speaker: clericSpeaker,
                 purpose: TurnPromptPurposeEnum.CONTEXT,
@@ -625,7 +619,7 @@ describe('TextGeneration', () => {
         it('fails when the target chat is not in the adventure', () => {
             const hydrated = hydratedWithChat([createChatHelper({ id: 'chat-1', characterId: 'swordsman', content: ['Hello'] })]);
 
-            const result = buildTextGeneration().buildAdventureTurnMessages({
+            const result = buildTurnMessages({
                 hydrated,
                 speaker: clericSpeaker,
                 purpose: TurnPromptPurposeEnum.REPLY,
@@ -638,7 +632,7 @@ describe('TextGeneration', () => {
         it('names a message of a character that is no longer in the adventure as unknown', () => {
             const hydrated = hydratedWithChat([createChatHelper({ id: 'chat-1', characterId: 'removed', content: ['Hello'] })]);
 
-            const result = buildTextGeneration().buildAdventureTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+            const result = buildTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
             expect(result.messages?.[0].content).toContain('<message character="Unknown">Hello</message>');
         });
@@ -646,7 +640,7 @@ describe('TextGeneration', () => {
         it('keeps a tag written by the player as written', () => {
             const hydrated = hydratedWithChat([createChatHelper({ id: 'chat-1', characterId: 'swordsman', content: ['Say {characterName} and $& now'] })]);
 
-            const result = buildTextGeneration().buildAdventureTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+            const result = buildTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
             expect(result.messages?.[0].content).toContain('<message character="Swordsman">Say {characterName} and $& now</message>');
         });
@@ -654,7 +648,7 @@ describe('TextGeneration', () => {
         it('logs the user message it built with its speaker and purpose', () => {
             const hydrated = hydratedWithChat([createChatHelper({ id: 'chat-1', characterId: 'swordsman', content: ['Hello'] })]);
 
-            buildTextGeneration().buildAdventureTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+            buildTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
             expect(mockLogger.debug).toHaveBeenCalledWith(
                 'TextGeneration::buildAdventureTurnMessages - user message built',
@@ -669,7 +663,7 @@ describe('TextGeneration', () => {
                 createChatHelper({ id: 'chat-2', role: RoleEnum.AI_PERSONA, characterId: 'cleric', content: ['I start to'] })
             ]);
 
-            buildTextGeneration().buildAdventureTurnMessages({
+            buildTurnMessages({
                 hydrated,
                 speaker: clericSpeaker,
                 purpose: TurnPromptPurposeEnum.REPLY,
@@ -682,23 +676,17 @@ describe('TextGeneration', () => {
         it('does not log an assistant message to continue when there is none', () => {
             const hydrated = hydratedWithChat([createChatHelper({ id: 'chat-1', characterId: 'swordsman', content: ['Hello'] })]);
 
-            buildTextGeneration().buildAdventureTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+            buildTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
             expect(mockLogger.debug).not.toHaveBeenCalledWith('TextGeneration::buildAdventureTurnMessages - assistant message to continue', expect.anything());
         });
 
-        it('fails when a turn template is missing', () => {
-            const templatesService = buildTemplatesService();
-            templatesService.getTurnMessageTemplate.mockReturnValue({ success: false });
+        it('builds the messages from the templates it receives', () => {
+            const templates = { ...TURN_TEMPLATES, aiCharacterInstruction: 'Speak as {characterName} now.' };
 
-            const result = buildTextGeneration(templatesService).buildAdventureTurnMessages({
-                hydrated: hydratedWithChat([]),
-                speaker: clericSpeaker,
-                purpose: TurnPromptPurposeEnum.REPLY
-            });
+            const result = buildTurnMessages({ hydrated: hydratedWithChat([]), speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY }, templates);
 
-            expect(result).toEqual({ success: false, error: 'Turn message template not found: turnMessage' });
-            expect(mockLogger.warning).toHaveBeenCalled();
+            expect(result.messages?.at(-1)?.content).toContain(`<instruction>Speak as ${clericSpeaker.name} now.</instruction>`);
         });
     });
 });

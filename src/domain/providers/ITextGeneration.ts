@@ -4,8 +4,8 @@ import type { TurnSpeaker } from '@domain/services';
 import { HydratedAdventure } from '@domain/use-cases';
 
 export interface ITextGeneration {
-    buildAdventureTextSystemPrompt (hydrated: HydratedAdventure, loadOrder: string): BuildAdventureTextSystemPromptReturn;
-    buildAdventureTurnMessages (params: BuildAdventureTurnMessagesParams): BuildAdventureTurnMessagesReturn;
+    buildAdventureTextSystemPrompt (hydrated: HydratedAdventure, loadOrder: string, templates: AdventureTemplates): BuildAdventureTextSystemPromptReturn;
+    buildAdventureTurnMessages (params: BuildAdventureTurnMessagesParams, templates: TurnMessageTemplates): BuildAdventureTurnMessagesReturn;
 }
 
 export const UNKNOWN_CHARACTER_NAME = 'Unknown';
@@ -40,12 +40,6 @@ export type TurnMessageTemplates = {
     aiCharacterInstruction: string;
     worldMasterInstruction: string;
     contextInstruction: string;
-};
-
-export type ResolveTurnTemplatesReturn = {
-    success: boolean;
-    templates?: TurnMessageTemplates;
-    error?: string;
 };
 
 export type TurnChats = {
@@ -85,10 +79,4 @@ export type EnabledCharacterReferences = {
     abilities: boolean;
     proficiencies: boolean;
     statuses: boolean;
-};
-
-export type ResolveTemplatesReturn = {
-    success: boolean;
-    templates?: AdventureTemplates;
-    error?: string;
 };

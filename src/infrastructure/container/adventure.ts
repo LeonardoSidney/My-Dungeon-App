@@ -54,7 +54,6 @@ import {
     UpdateStreamingChatService,
     FinishStreamingChatService,
     GetSamplersService,
-    TextGenerationTemplatesService,
     HydrateAdventureService,
     SelectChatVersionService,
     SetAdventureWorldMasterService,
@@ -156,7 +155,7 @@ import {
 } from './repository';
 import { LlamaCppOAGateway, LlamaCppNativeGateway } from '../http/llama-cpp';
 import { TextGeneration } from '../providers/textGeneration';
-import { createGetSystemPromptLoadOrderUseCase } from './settings';
+import { createGetChatTemplatesUseCase, createGetSystemPromptLoadOrderUseCase } from './settings';
 import { createEditCharacterUseCase, createGetCharacterByIdUseCase } from './character';
 import { createEditWorldMasterUseCase, createGetWorldMasterByIdUseCase } from './worldMaster';
 import { createEditAssistantUseCase, createGetAssistantByIdUseCase } from './assistant';
@@ -383,25 +382,29 @@ export function eraseAdventureController (): IEraseAdventureController {
 }
 
 export function getAdventureSystemPromptController (): IGetAdventureSystemPromptController {
-    const textGeneration = new TextGeneration(logger, new TextGenerationTemplatesService(logger));
+    const textGeneration = new TextGeneration(logger);
+    const getChatTemplatesUseCase = createGetChatTemplatesUseCase();
     const useCase = new GetAdventureSystemPromptUseCase(
         logger,
         textGeneration,
         createHydrateAdventureUseCase(),
-        createGetSystemPromptLoadOrderUseCase()
+        createGetSystemPromptLoadOrderUseCase(),
+        getChatTemplatesUseCase
     );
     return new GetAdventureSystemPromptController(logger, useCase);
 }
 
 export function getAdventureTemplatedPromptController (): IGetAdventureTemplatedPromptController {
-    const textGeneration = new TextGeneration(logger, new TextGenerationTemplatesService(logger));
+    const textGeneration = new TextGeneration(logger);
     const turnSpeakerService = new TurnSpeakerService(logger);
+    const getChatTemplatesUseCase = createGetChatTemplatesUseCase();
     const useCase = new GetAdventureTemplatedPromptUseCase(
         logger,
         textGeneration,
         new LlamaCppOAGateway(logger, getStreamProvider()),
         createHydrateAdventureUseCase(),
         createGetSystemPromptLoadOrderUseCase(),
+        getChatTemplatesUseCase,
         turnSpeakerService
     );
     return new GetAdventureTemplatedPromptController(logger, useCase);
@@ -447,16 +450,17 @@ export function getAdventureSummaryController (): IGetAdventureSummaryController
 
 export function generateChatReplyController (): IGenerateChatReplyController {
     const adventureRepository = createAdventureRepository(storage, logger);
-    const textGenerationTemplatesService = new TextGenerationTemplatesService(logger);
-    const textGeneration = new TextGeneration(logger, textGenerationTemplatesService);
+    const textGeneration = new TextGeneration(logger);
     const hydrateAdventureUseCase = createHydrateAdventureUseCase();
     const turnSpeakerService = new TurnSpeakerService(logger);
+    const getChatTemplatesUseCase = createGetChatTemplatesUseCase();
     const getAdventureTemplatedPromptUseCase = new GetAdventureTemplatedPromptUseCase(
         logger,
         textGeneration,
         new LlamaCppOAGateway(logger, getStreamProvider()),
         hydrateAdventureUseCase,
         createGetSystemPromptLoadOrderUseCase(),
+        getChatTemplatesUseCase,
         turnSpeakerService
     );
     const nativeStreamCompletionUseCase = new NativeStreamCompletionUseCase(

@@ -20,8 +20,6 @@ import {
     EnabledCharacterReferences,
     ITextGeneration,
     LoadOrderSections,
-    ResolveTemplatesReturn,
-    ResolveTurnTemplatesReturn,
     TemplateTagValues,
     TurnChats,
     TurnHistory,
@@ -29,26 +27,18 @@ import {
     TurnPromptPurposeEnum,
     UNKNOWN_CHARACTER_NAME,
 } from '@domain/providers';
-import { ITextGenerationTemplatesService, LOAD_ORDER_TAG_PATTERN, TurnSpeakerKindEnum } from '@domain/services';
+import { LOAD_ORDER_TAG_PATTERN, TurnSpeakerKindEnum } from '@domain/services';
 import { HydratedAdventure, HydratedCharacter } from '@domain/use-cases';
 
 export class TextGeneration implements ITextGeneration {
     constructor (
-        private readonly logger: ILogger,
-        private readonly templatesService: ITextGenerationTemplatesService
+        private readonly logger: ILogger
     ) { }
 
-    buildAdventureTextSystemPrompt (hydrated: HydratedAdventure, loadOrder: string): BuildAdventureTextSystemPromptReturn {
+    buildAdventureTextSystemPrompt (hydrated: HydratedAdventure, loadOrder: string, templates: AdventureTemplates): BuildAdventureTextSystemPromptReturn {
         this.logger.info('TextGeneration::buildAdventureText');
         this.logger.debug(`Building adventure text for: ${hydrated.adventure.name}`);
 
-        const templatesResponse = this.resolveTemplates();
-        if (!templatesResponse.success || !templatesResponse.templates) {
-            this.logger.warning('TextGeneration::buildAdventureText - failed to resolve templates', templatesResponse.error);
-            return { success: false, error: templatesResponse.error };
-        }
-
-        const templates = templatesResponse.templates;
         const { systemPrompts, worldMaster, worlds, locations, items, characters } = hydrated;
         const enabledReferences = this.resolveEnabledCharacterReferences(loadOrder);
         const systemPromptTemplate = this.buildSystemPromptTemplate(systemPrompts, templates.systemPrompt);
@@ -99,7 +89,7 @@ export class TextGeneration implements ITextGeneration {
         return { success: true, systemPrompt };
     }
 
-    buildAdventureTurnMessages (params: BuildAdventureTurnMessagesParams): BuildAdventureTurnMessagesReturn {
+    buildAdventureTurnMessages (params: BuildAdventureTurnMessagesParams, templates: TurnMessageTemplates): BuildAdventureTurnMessagesReturn {
         this.logger.info('TextGeneration::buildAdventureTurnMessages');
         this.logger.debug('TextGeneration::buildAdventureTurnMessages - params', {
             speaker: params.speaker.name,
@@ -107,18 +97,11 @@ export class TextGeneration implements ITextGeneration {
             targetChatId: params.targetChatId,
         });
 
-        const templatesResponse = this.resolveTurnTemplates();
-        if (!templatesResponse.success || !templatesResponse.templates) {
-            this.logger.warning('TextGeneration::buildAdventureTurnMessages - failed to resolve templates', templatesResponse.error);
-            return { success: false, error: templatesResponse.error };
-        }
-
         const turnChats = this.splitTurnChats(params.hydrated.adventure.chat, params.targetChatId);
         if (!turnChats) {
             return { success: false, error: `Chat with id ${params.targetChatId} was not found` };
         }
 
-        const templates = templatesResponse.templates;
         const characterNames = this.resolveCharacterNames(params);
         const history = this.buildTurnHistory(turnChats.history, templates, characterNames);
         const currentTurnMessage: ModelProviderGateway.TemplateMessage = {
@@ -140,30 +123,6 @@ export class TextGeneration implements ITextGeneration {
 
         this.logger.debug('TextGeneration::buildAdventureTurnMessages - messages built', { count: messages.length });
         return { success: true, messages };
-    }
-
-    private resolveTurnTemplates (): ResolveTurnTemplatesReturn {
-        const responses: Record<keyof TurnMessageTemplates, { success: boolean; template?: string; error?: string; }> = {
-            message: this.templatesService.getMessageTemplate(),
-            contextMessage: this.templatesService.getContextMessageTemplate(),
-            turnMessage: this.templatesService.getTurnMessageTemplate(),
-            characterMessage: this.templatesService.getCharacterMessageTemplate(),
-            instructionsMessage: this.templatesService.getInstructionsMessageTemplate(),
-            aiCharacterInstruction: this.templatesService.getAiCharacterInstructionTemplate(),
-            worldMasterInstruction: this.templatesService.getWorldMasterInstructionTemplate(),
-            contextInstruction: this.templatesService.getContextInstructionTemplate(),
-        };
-
-        const templates = {} as TurnMessageTemplates;
-        for (const key of Object.keys(responses) as (keyof TurnMessageTemplates)[]) {
-            const response = responses[key];
-            if (!response.success || !response.template) {
-                return { success: false, error: response.error ?? `Turn message template not found: ${key}` };
-            }
-            templates[key] = response.template;
-        }
-
-        return { success: true, templates };
     }
 
     private splitTurnChats (chats: Chat[], targetChatId: string | undefined): TurnChats | null {
@@ -292,32 +251,6 @@ export class TextGeneration implements ITextGeneration {
         return think.content;
     }
 
-    private resolveTemplates (): ResolveTemplatesReturn {
-        const responses: Record<keyof AdventureTemplates, { success: boolean; template?: string; error?: string; }> = {
-            systemPrompt: this.templatesService.getSystemPromptTemplate(),
-            worldMaster: this.templatesService.getWorldMasterTemplate(),
-            iaControlledCharacter: this.templatesService.getIaControlledCharacterTemplate(),
-            worlds: this.templatesService.getWorldsTemplate(),
-            locations: this.templatesService.getLocationsTemplate(),
-            items: this.templatesService.getItemsTemplate(),
-            abilities: this.templatesService.getAbilitiesTemplate(),
-            proficiencies: this.templatesService.getProficienciesTemplate(),
-            statuses: this.templatesService.getStatusesTemplate(),
-            characters: this.templatesService.getCharactersTemplate(),
-        };
-
-        const templates = {} as AdventureTemplates;
-        for (const key of Object.keys(responses) as (keyof AdventureTemplates)[]) {
-            const response = responses[key];
-            if (!response.success || !response.template) {
-                return { success: false, error: response.error ?? `Text generation template not found: ${key}` };
-            }
-            templates[key] = response.template;
-        }
-
-        return { success: true, templates };
-    }
-
     private fillTemplateTags (template: string, values: TemplateTagValues): string {
         return template.replace(LOAD_ORDER_TAG_PATTERN, (tag: string, name: string) => values.get(name) ?? tag);
     }
@@ -380,7 +313,7 @@ export class TextGeneration implements ITextGeneration {
         const characterHeader = `## ${iaControlledCharacter.name.toUpperCase()}\n`;
         const characterReferences = this.buildCharacterResourceReferences(iaControlledCharacter, enabledReferences);
         const characterBlock = `${characterHeader}${iaControlledCharacter.prompt}\n${characterReferences}`;
-        return template.replace('{characterAsWorldMaster}', () => characterBlock);
+        return this.fillTemplateTags(template, new Map([['characterAsWorldMaster', characterBlock]]));
     }
 
     private buildSystemPromptTemplate (systemPrompts: SystemPrompt[], template: string): string {
@@ -390,7 +323,7 @@ export class TextGeneration implements ITextGeneration {
         }
 
         this.logger.debug(`Found ${systemPrompts.length} system prompts`);
-        return template.replace('{systemPrompt}', () => systemPromptsText);
+        return this.fillTemplateTags(template, new Map([['systemPrompt', systemPromptsText]]));
     }
 
     private buildWorldMasterTemplate (worldMaster: WorldMaster | undefined, template: string): string {
@@ -400,7 +333,7 @@ export class TextGeneration implements ITextGeneration {
 
         const promptPresence = worldMaster.prompt ? 'present' : 'empty';
         this.logger.debug(`WorldMaster prompt: ${promptPresence}`);
-        return template.replace('{worldMaster}', () => `${worldMaster.prompt}`);
+        return this.fillTemplateTags(template, new Map([['worldMaster', `${worldMaster.prompt}`]]));
     }
 
     private buildWorldsTemplate (worlds: World[], template: string): string {
@@ -414,7 +347,7 @@ export class TextGeneration implements ITextGeneration {
         }
 
         this.logger.debug(`Found ${worlds.length} worlds`);
-        return template.replace('{worlds}', () => worldsText);
+        return this.fillTemplateTags(template, new Map([['worlds', worldsText]]));
     }
 
     private buildLocationsTemplate (locations: Location[], template: string): string {
@@ -427,7 +360,7 @@ export class TextGeneration implements ITextGeneration {
             locationsText += `## ${location.name.toUpperCase()}\n${location.prompt}\n`;
         }
         this.logger.debug(`Found ${locations.length} locations`);
-        return template.replace('{locations}', () => locationsText);
+        return this.fillTemplateTags(template, new Map([['locations', locationsText]]));
     }
 
     private buildItemsTemplate (items: Item[], template: string): string {
@@ -440,7 +373,7 @@ export class TextGeneration implements ITextGeneration {
             itemsText += `## ${item.name.toUpperCase()}\n${item.prompt}\n`;
         }
         this.logger.debug(`Found ${items.length} items`);
-        return template.replace('{items}', () => itemsText);
+        return this.fillTemplateTags(template, new Map([['items', itemsText]]));
     }
 
     private buildAbilitiesTemplate (characters: HydratedCharacter[], template: string): string {
@@ -464,7 +397,7 @@ export class TextGeneration implements ITextGeneration {
         for (const ability of uniqueAbilities.values()) {
             abilities += `## ${ability.name.toUpperCase()}\n${ability.prompt}\n`;
         }
-        return template.replace('{abilities}', () => abilities);
+        return this.fillTemplateTags(template, new Map([['abilities', abilities]]));
     }
 
     private buildProficienciesTemplate (characters: HydratedCharacter[], template: string): string {
@@ -488,7 +421,7 @@ export class TextGeneration implements ITextGeneration {
         for (const proficiency of uniqueProficiencies.values()) {
             proficiencies += `## ${proficiency.name.toUpperCase()}\n${proficiency.prompt}\n`;
         }
-        return template.replace('{proficiencies}', () => proficiencies);
+        return this.fillTemplateTags(template, new Map([['proficiencies', proficiencies]]));
     }
 
     private buildStatusesTemplate (characters: HydratedCharacter[], template: string): string {
@@ -512,7 +445,7 @@ export class TextGeneration implements ITextGeneration {
         for (const status of uniqueStatuses.values()) {
             statuses += `## ${status.name.toUpperCase()}\n${status.prompt}\n`;
         }
-        return template.replace('{statuses}', () => statuses);
+        return this.fillTemplateTags(template, new Map([['statuses', statuses]]));
     }
 
     private buildCharactersTemplate (
@@ -534,6 +467,6 @@ export class TextGeneration implements ITextGeneration {
 
         const playableCharacters = characters.filter(c => c.worldMaster !== true);
         this.logger.debug(`Found ${playableCharacters.length} playable characters`);
-        return template.replace('{characters}', () => charactersText);
+        return this.fillTemplateTags(template, new Map([['characters', charactersText]]));
     }
 }
