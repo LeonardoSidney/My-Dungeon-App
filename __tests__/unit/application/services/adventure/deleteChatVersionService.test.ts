@@ -38,6 +38,16 @@ describe('DeleteChatVersionService', () => {
         expect(result.adventure?.chat[0]).toEqual(expect.objectContaining({ content: ['v1'], index: 0 }));
     });
 
+    it('stops streaming the chat when the generated version is removed', () => {
+        const adventure = createAdventureHelper({
+            chat: [createChatHelper({ id: 'assistant-1', content: ['kept', ''], index: 1, isStreaming: true })]
+        });
+
+        const result = service.deleteVersion({ adventure, chatId: 'assistant-1', versionIndex: 1 });
+
+        expect(result.adventure?.chat[0]).toEqual(expect.objectContaining({ content: ['kept'], isStreaming: false }));
+    });
+
     it('never touches the following assistant chat', () => {
         const result = service.deleteVersion({ adventure: adventureWith(['v0', 'v1'], 1), chatId: 'user-1', versionIndex: 1 });
 

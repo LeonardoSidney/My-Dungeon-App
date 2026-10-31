@@ -26,6 +26,18 @@ describe('ChatDTO', () => {
         expect(ChatDTO.fromStorage({ ...STORED, modelId: 42 })?.toEntity().modelId).toBeUndefined();
     });
 
+    it('keeps a chat marked as streaming', () => {
+        expect(ChatDTO.fromStorage({ ...STORED, isStreaming: true })?.toEntity().isStreaming).toBe(true);
+    });
+
+    it('keeps a chat marked as not streaming', () => {
+        expect(ChatDTO.fromStorage({ ...STORED, isStreaming: false })?.toEntity().isStreaming).toBe(false);
+    });
+
+    it('ignores a streaming flag that is not a boolean', () => {
+        expect(ChatDTO.fromStorage({ ...STORED, isStreaming: 'true' })?.toEntity().isStreaming).toBeUndefined();
+    });
+
     it('falls back to the content index when the think index was not stored', () => {
         expect(ChatDTO.fromStorage({ ...STORED, thinkIndex: undefined })?.toEntity().thinkIndex).toBe(1);
     });

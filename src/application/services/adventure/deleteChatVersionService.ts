@@ -35,6 +35,7 @@ export class DeleteChatVersionService implements IDeleteChatVersionService {
             ...existingChat,
             content,
             index: Math.min(Math.max(params.versionIndex - 1, 0), content.length - 1),
+            isStreaming: false,
             updatedAt: new Date(),
         };
         const updatedAdventure: Adventure = {
