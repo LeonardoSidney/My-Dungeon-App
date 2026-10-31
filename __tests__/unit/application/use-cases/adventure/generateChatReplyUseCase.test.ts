@@ -195,6 +195,7 @@ function buildMocks (tokens: string[] = ['Hello', ' world'], chat: Chat = create
             resolveWorldMaster: jest.fn().mockReturnValue({ success: true, speaker: worldMasterSpeaker })
         },
         getTemplatedPrompt: { execute: jest.fn(resolveTemplatedPrompt) },
+        getSceneContextEnabled: { execute: jest.fn().mockResolvedValue({ success: true, sceneContextEnabled: true }) },
         nativeStream: { execute: jest.fn(resolveCompletion) },
         startStreaming: { execute: jest.fn().mockResolvedValue({ success: true, chat, adventure: startedAdventure }) },
         updateStreaming: { execute: jest.fn().mockResolvedValue({ success: true }) },
@@ -212,6 +213,7 @@ function buildUseCase (mocks: ReturnType<typeof buildMocks>, throttleMs = NO_INT
         mocks.hydrate,
         mocks.turnSpeaker,
         mocks.getTemplatedPrompt,
+        mocks.getSceneContextEnabled,
         mocks.nativeStream,
         mocks.startStreaming,
         mocks.updateStreaming,
@@ -618,6 +620,70 @@ describe('GenerateChatReplyUseCase', () => {
         expect(response).toEqual({ success: false, error: 'Failed to start assistant chat' });
     });
 
+    it('does not ask the model for a context when the scene context is off', async () => {
+        const mocks = buildMocks();
+        mocks.getSceneContextEnabled.execute.mockResolvedValue({ success: true, sceneContextEnabled: false });
+
+        await buildUseCase(mocks).execute({ adventureId: 'adventure-1' });
+        await mocks.settled;
+
+        expect(mocks.nativeStream.execute).toHaveBeenCalledTimes(1);
+        expect(mocks.nativeStream.execute).toHaveBeenCalledWith(expect.objectContaining({ prompt: REPLY_PROMPT }));
+    });
+
+    it('builds the reply prompt without a context when the scene context is off', async () => {
+        const mocks = buildMocks();
+        mocks.getSceneContextEnabled.execute.mockResolvedValue({ success: true, sceneContextEnabled: false });
+
+        await buildUseCase(mocks).execute({ adventureId: 'adventure-1' });
+        await mocks.settled;
+
+        expect(mocks.getTemplatedPrompt.execute).toHaveBeenCalledTimes(1);
+        expect(mocks.getTemplatedPrompt.execute).toHaveBeenCalledWith({
+            hydrated: expect.anything(),
+            speaker: worldMasterSpeaker,
+            purpose: TurnPromptPurposeEnum.REPLY,
+            context: undefined,
+            targetChatId: 'chat-1'
+        });
+    });
+
+    it('saves the reply when the scene context is off', async () => {
+        const mocks = buildMocks();
+        mocks.getSceneContextEnabled.execute.mockResolvedValue({ success: true, sceneContextEnabled: false });
+
+        await buildUseCase(mocks).execute({ adventureId: 'adventure-1' });
+        await mocks.settled;
+
+        expect(mocks.updateStreaming.execute).toHaveBeenCalledWith({
+            adventureId: 'adventure-1',
+            chatId: 'chat-1',
+            content: 'Hello world'
+        });
+        expect(mocks.finishStreaming.execute).toHaveBeenCalledWith({ adventureId: 'adventure-1', chatId: 'chat-1' });
+    });
+
+    it('fails the reply with the setting error when the scene context setting cannot be loaded', async () => {
+        const mocks = buildMocks();
+        mocks.getSceneContextEnabled.execute.mockResolvedValue({ success: false, error: 'Storage unavailable' });
+
+        await buildUseCase(mocks).execute({ adventureId: 'adventure-1' });
+        await mocks.settled;
+
+        expect(mocks.nativeStream.execute).not.toHaveBeenCalled();
+        expect(mocks.events[mocks.events.length - 1].error).toBe('Storage unavailable');
+    });
+
+    it('falls back to the default error when the scene context setting fails silently', async () => {
+        const mocks = buildMocks();
+        mocks.getSceneContextEnabled.execute.mockResolvedValue({ success: false });
+
+        await buildUseCase(mocks).execute({ adventureId: 'adventure-1' });
+        await mocks.settled;
+
+        expect(mocks.events[mocks.events.length - 1].error).toBe('Failed to load the scene context setting');
+    });
+
     it('fails without starting a chat when another reply claims the adventure first', async () => {
         const mocks = buildMocks();
         const registry = { isActive: jest.fn().mockReturnValue(false), start: jest.fn().mockReturnValue(false), release: jest.fn(), stop: jest.fn() };
@@ -627,6 +693,7 @@ describe('GenerateChatReplyUseCase', () => {
             mocks.hydrate,
             mocks.turnSpeaker,
             mocks.getTemplatedPrompt,
+            mocks.getSceneContextEnabled,
             mocks.nativeStream,
             mocks.startStreaming,
             mocks.updateStreaming,
@@ -1089,6 +1156,7 @@ describe('GenerateChatReplyUseCase', () => {
             mocks.hydrate,
             mocks.turnSpeaker,
             mocks.getTemplatedPrompt,
+            mocks.getSceneContextEnabled,
             mocks.nativeStream,
             mocks.startStreaming,
             mocks.updateStreaming,

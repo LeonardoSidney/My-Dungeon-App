@@ -1,6 +1,11 @@
 import { StyleSheet } from 'react-native';
 import { colors } from '@presentation/theme';
 
+export const switchTrackColor = {
+    false: colors.surfaceRaised,
+    true: colors.primary,
+};
+
 /**
  * Form styles shared by every entity form and by the reusable select
  * components. Single source of truth for the "same design" rule: when a

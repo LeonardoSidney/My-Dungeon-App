@@ -1,32 +1,38 @@
 import {
     GetChatTemplatesController,
+    GetSceneContextEnabledController,
     GetSystemPromptLoadOrderController,
     GetThinkBlocksVisibilityController,
     ResetSystemPromptLoadOrderController,
     SaveChatTemplatesController,
+    SaveSceneContextEnabledController,
     SaveSystemPromptLoadOrderController,
     SaveThinkBlocksVisibilityController,
 } from '@adapters/controllers';
 import { ValidateChatTemplatesService, ValidateSystemPromptLoadOrderService } from '@application/services';
 import {
     GetChatTemplatesUseCase,
+    GetSceneContextEnabledUseCase,
     GetSystemPromptLoadOrderUseCase,
     GetThinkBlocksVisibilityUseCase,
     ResetSystemPromptLoadOrderUseCase,
     SaveChatTemplatesUseCase,
+    SaveSceneContextEnabledUseCase,
     SaveSystemPromptLoadOrderUseCase,
     SaveThinkBlocksVisibilityUseCase,
 } from '@application/use-cases';
 import {
     IGetChatTemplatesController,
+    IGetSceneContextEnabledController,
     IGetSystemPromptLoadOrderController,
     IGetThinkBlocksVisibilityController,
     IResetSystemPromptLoadOrderController,
     ISaveChatTemplatesController,
+    ISaveSceneContextEnabledController,
     ISaveSystemPromptLoadOrderController,
     ISaveThinkBlocksVisibilityController,
 } from '@domain/controllers';
-import { IGetChatTemplatesUseCase, IGetSystemPromptLoadOrderUseCase } from '@domain/use-cases';
+import { IGetChatTemplatesUseCase, IGetSceneContextEnabledUseCase, IGetSystemPromptLoadOrderUseCase } from '@domain/use-cases';
 import { logger, storage } from './shared';
 import { createSettingsRepository } from './repository';
 
@@ -62,6 +68,22 @@ export function saveThinkBlocksVisibilityController (): ISaveThinkBlocksVisibili
     const settingsRepository = createSettingsRepository(storage, logger);
     const saveThinkBlocksVisibilityUseCase = new SaveThinkBlocksVisibilityUseCase(logger, settingsRepository);
     return new SaveThinkBlocksVisibilityController(logger, saveThinkBlocksVisibilityUseCase);
+}
+
+export function createGetSceneContextEnabledUseCase (): IGetSceneContextEnabledUseCase {
+    const settingsRepository = createSettingsRepository(storage, logger);
+    return new GetSceneContextEnabledUseCase(logger, settingsRepository);
+}
+
+export function getSceneContextEnabledController (): IGetSceneContextEnabledController {
+    const getSceneContextEnabledUseCase = createGetSceneContextEnabledUseCase();
+    return new GetSceneContextEnabledController(logger, getSceneContextEnabledUseCase);
+}
+
+export function saveSceneContextEnabledController (): ISaveSceneContextEnabledController {
+    const settingsRepository = createSettingsRepository(storage, logger);
+    const saveSceneContextEnabledUseCase = new SaveSceneContextEnabledUseCase(logger, settingsRepository);
+    return new SaveSceneContextEnabledController(logger, saveSceneContextEnabledUseCase);
 }
 
 export function createGetChatTemplatesUseCase (): IGetChatTemplatesUseCase {

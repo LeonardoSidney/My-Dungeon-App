@@ -7,7 +7,7 @@ export type {
 export { FormCard } from './form/FormCard';
 export { FormField } from './form/FormField';
 export { TextField } from './form/TextField';
-export { formStyles } from './form/formStyles';
+export { formStyles, switchTrackColor } from './form/formStyles';
 export { CrudEntityList } from './crudEntityList/CrudEntityList';
 export type { CrudEntityListItem, CrudEntityListProps } from './crudEntityList/CrudEntityList';
 export { EntityItem } from './crudEntityList/EntityItem';

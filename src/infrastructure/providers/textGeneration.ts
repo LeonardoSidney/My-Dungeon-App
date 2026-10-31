@@ -214,7 +214,7 @@ export class TextGeneration implements ITextGeneration {
                 ['characterName', characterNames.get(chat.characterId) ?? UNKNOWN_CHARACTER_NAME],
                 ['characterMessage', chat.content[chat.index] ?? ''],
             ])))
-            .join('');
+            .join('\n');
 
         return this.fillTemplateTags(templates.turnMessage, new Map([['charactersMessages', charactersMessages]]));
     }

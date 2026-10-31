@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { AdventureChatCharacter, AdventureChatWorldMaster, ChatMessageView } from '@domain/controllers';
+import { switchTrackColor } from '@presentation/components';
 import { useKeyboardHeight } from '@presentation/hooks';
 import { useControllers } from '@presentation/providers/ControllersProvider';
 import { DetailHeader, detailHeaderStyles } from '../DetailHeader';
@@ -13,7 +14,7 @@ import { useComposer } from './hooks/useComposer';
 import { useMessageActions } from './hooks/useMessageActions';
 import { useThinkBlocksVisibility } from './hooks/useThinkBlocksVisibility';
 import type { SetMessages, UpdateMessages } from './types';
-import { styles, thinkSwitchTrackColor } from './AdventureChatScreen.styles';
+import { styles } from './AdventureChatScreen.styles';
 
 type AdventureChatProps = {
   adventureId: string;
@@ -118,7 +119,7 @@ export function AdventureChat ({
               <Switch
                 value={thinkBlocks.showThinkBlocks}
                 onValueChange={thinkBlocks.changeThinkBlocksVisibility}
-                trackColor={thinkSwitchTrackColor}
+                trackColor={switchTrackColor}
                 accessibilityLabel="Mostrar raciocínio"
               />
             </View>

@@ -55,8 +55,3 @@ export const styles = StyleSheet.create({
         color: colors.text,
     },
 });
-
-export const thinkSwitchTrackColor = {
-    false: colors.surfaceRaised,
-    true: colors.primary,
-};

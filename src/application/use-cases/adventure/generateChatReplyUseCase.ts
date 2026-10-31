@@ -25,6 +25,7 @@ import {
     IFinishStreamingChatUseCase,
     IGenerateChatReplyUseCase,
     IGetAdventureTemplatedPromptUseCase,
+    IGetSceneContextEnabledUseCase,
     IHydrateAdventureUseCase,
     INativeStreamCompletionUseCase,
     IStartStreamingChatUseCase,
@@ -43,6 +44,7 @@ export class GenerateChatReplyUseCase implements IGenerateChatReplyUseCase {
         private readonly hydrateAdventureUseCase: IHydrateAdventureUseCase,
         private readonly turnSpeakerService: ITurnSpeakerService,
         private readonly getAdventureTemplatedPromptUseCase: IGetAdventureTemplatedPromptUseCase,
+        private readonly getSceneContextEnabledUseCase: IGetSceneContextEnabledUseCase,
         private readonly nativeStreamCompletionUseCase: INativeStreamCompletionUseCase,
         private readonly startStreamingChatUseCase: IStartStreamingChatUseCase,
         private readonly updateStreamingChatUseCase: IUpdateStreamingChatUseCase,
@@ -256,7 +258,7 @@ export class GenerateChatReplyUseCase implements IGenerateChatReplyUseCase {
             return { success: false, error: hydrated.error ?? 'Failed to hydrate adventure' };
         }
 
-        const contextResponse = await this.generateContext(session, hydrated.hydrated);
+        const contextResponse = await this.resolveContext(session, hydrated.hydrated);
         if (!contextResponse.success) {
             return { success: false, error: contextResponse.error };
         }
@@ -277,6 +279,19 @@ export class GenerateChatReplyUseCase implements IGenerateChatReplyUseCase {
         }
 
         return this.startCompletion(session, prompt.prompt);
+    }
+
+    private async resolveContext (session: ChatReplySession, hydrated: HydratedAdventure): Promise<ChatReplyContextReturn> {
+        const setting = await this.getSceneContextEnabledUseCase.execute();
+        if (!setting.success) {
+            return { success: false, error: setting.error ?? 'Failed to load the scene context setting' };
+        }
+
+        if (!setting.sceneContextEnabled) {
+            return { success: true };
+        }
+
+        return this.generateContext(session, hydrated);
     }
 
     private async generateContext (session: ChatReplySession, hydrated: HydratedAdventure): Promise<ChatReplyContextReturn> {

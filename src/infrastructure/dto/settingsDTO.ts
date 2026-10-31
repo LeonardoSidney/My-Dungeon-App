@@ -5,6 +5,7 @@ export class SettingsDTO {
     constructor (
         private readonly systemPromptLoadOrder?: string,
         private readonly showThinkBlocks?: boolean,
+        private readonly sceneContextEnabled?: boolean,
         private readonly chatTemplates?: Record<string, string>
     ) { }
 
@@ -17,6 +18,10 @@ export class SettingsDTO {
 
         if (this.showThinkBlocks !== undefined) {
             settings.showThinkBlocks = this.showThinkBlocks;
+        }
+
+        if (this.sceneContextEnabled !== undefined) {
+            settings.sceneContextEnabled = this.sceneContextEnabled;
         }
 
         if (this.chatTemplates !== undefined) {
@@ -52,11 +57,15 @@ export class SettingsDTO {
             return null;
         }
 
+        if (data.sceneContextEnabled !== undefined && typeof data.sceneContextEnabled !== 'boolean') {
+            return null;
+        }
+
         if (data.chatTemplates !== undefined && !SettingsDTO.isChatTemplates(data.chatTemplates)) {
             return null;
         }
 
-        return new SettingsDTO(data.systemPromptLoadOrder, data.showThinkBlocks, data.chatTemplates);
+        return new SettingsDTO(data.systemPromptLoadOrder, data.showThinkBlocks, data.sceneContextEnabled, data.chatTemplates);
     }
 
     private static isChatTemplates (data: unknown): data is Record<string, string> {

@@ -8,10 +8,12 @@ import { ChatTemplatesPanel } from './ChatTemplatesPanel';
 import { ConnectionForm } from './ConnectionForm';
 import { ConnectionPanel } from './ConnectionPanel';
 import { DangerZone } from './DangerZone';
+import { SceneContextPanel } from './SceneContextPanel';
 import { SystemPromptLoadOrderPanel } from './SystemPromptLoadOrderPanel';
 import { SYSTEM_PROMPT_SECTION_FIELDS, TURN_TEMPLATE_FIELDS } from './chatTemplatesForm';
 import { initialConnectionForm, submitConnection, toConnectionFormState, validateConnectionForm } from './connectionForm';
 import { useChatTemplates } from './useChatTemplates';
+import { useSceneContextEnabled } from './useSceneContextEnabled';
 import { useSystemPromptLoadOrder } from './useSystemPromptLoadOrder';
 
 export function SettingsScreen () {
@@ -25,6 +27,8 @@ export function SettingsScreen () {
     getSystemPromptLoadOrder,
     saveSystemPromptLoadOrder,
     resetSystemPromptLoadOrder,
+    getSceneContextEnabled,
+    saveSceneContextEnabled,
     getChatTemplates,
     saveChatTemplates,
     alert,
@@ -49,6 +53,8 @@ export function SettingsScreen () {
     resetSystemPromptLoadOrder,
     alert,
   });
+
+  const sceneContext = useSceneContextEnabled({ getSceneContextEnabled, saveSceneContextEnabled, alert });
 
   const turnTemplates = useChatTemplates({ fields: TURN_TEMPLATE_FIELDS, getChatTemplates, saveChatTemplates, alert });
   const systemPromptSections = useChatTemplates({ fields: SYSTEM_PROMPT_SECTION_FIELDS, getChatTemplates, saveChatTemplates, alert });
@@ -92,6 +98,10 @@ export function SettingsScreen () {
           onChange={systemPromptLoadOrder.changeLoadOrder}
           onSave={systemPromptLoadOrder.save}
           onRestoreDefault={systemPromptLoadOrder.restoreDefault}
+        />
+        <SceneContextPanel
+          sceneContextEnabled={sceneContext.sceneContextEnabled}
+          onChange={sceneContext.changeSceneContextEnabled}
         />
         <ChatTemplatesPanel
           title="Turn Messages"

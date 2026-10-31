@@ -3,5 +3,7 @@ export * from './saveSystemPromptLoadOrderUseCase';
 export * from './resetSystemPromptLoadOrderUseCase';
 export * from './getThinkBlocksVisibilityUseCase';
 export * from './saveThinkBlocksVisibilityUseCase';
+export * from './getSceneContextEnabledUseCase';
+export * from './saveSceneContextEnabledUseCase';
 export * from './getChatTemplatesUseCase';
 export * from './saveChatTemplatesUseCase';
