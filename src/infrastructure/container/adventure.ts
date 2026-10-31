@@ -155,7 +155,7 @@ import {
 } from './repository';
 import { LlamaCppOAGateway, LlamaCppNativeGateway } from '../http/llama-cpp';
 import { TextGeneration } from '../providers/textGeneration';
-import { createGetChatTemplatesUseCase, createGetSystemPromptLoadOrderUseCase } from './settings';
+import { createGetChatTemplatesUseCase, createGetSceneContextEnabledUseCase, createGetSystemPromptLoadOrderUseCase } from './settings';
 import { createEditCharacterUseCase, createGetCharacterByIdUseCase } from './character';
 import { createEditWorldMasterUseCase, createGetWorldMasterByIdUseCase } from './worldMaster';
 import { createEditAssistantUseCase, createGetAssistantByIdUseCase } from './assistant';
@@ -463,6 +463,7 @@ export function generateChatReplyController (): IGenerateChatReplyController {
         getChatTemplatesUseCase,
         turnSpeakerService
     );
+    const getSceneContextEnabledUseCase = createGetSceneContextEnabledUseCase();
     const nativeStreamCompletionUseCase = new NativeStreamCompletionUseCase(
         logger,
         new LlamaCppNativeGateway(logger, getStreamProvider()),
@@ -479,6 +480,7 @@ export function generateChatReplyController (): IGenerateChatReplyController {
         hydrateAdventureUseCase,
         turnSpeakerService,
         getAdventureTemplatedPromptUseCase,
+        getSceneContextEnabledUseCase,
         nativeStreamCompletionUseCase,
         new StartStreamingChatUseCase(logger, new StartStreamingChatService(logger, idGenerate), adventureRepository),
         updateStreamingChatUseCase,

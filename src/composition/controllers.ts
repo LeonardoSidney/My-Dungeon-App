@@ -100,6 +100,8 @@ import {
     resetSystemPromptLoadOrderController,
     getThinkBlocksVisibilityController,
     saveThinkBlocksVisibilityController,
+    getSceneContextEnabledController,
+    saveSceneContextEnabledController,
     getChatTemplatesController,
     saveChatTemplatesController,
     getHomeSummaryController,
@@ -210,6 +212,8 @@ export function buildControllers (): AppControllers {
         resetSystemPromptLoadOrder: resetSystemPromptLoadOrderController(),
         getThinkBlocksVisibility: getThinkBlocksVisibilityController(),
         saveThinkBlocksVisibility: saveThinkBlocksVisibilityController(),
+        getSceneContextEnabled: getSceneContextEnabledController(),
+        saveSceneContextEnabled: saveSceneContextEnabledController(),
         getChatTemplates: getChatTemplatesController(),
         saveChatTemplates: saveChatTemplatesController(),
     };

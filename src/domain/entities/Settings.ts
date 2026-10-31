@@ -56,5 +56,6 @@ export type ChatTemplateDefinitions = Record<ChatTemplateKey, ChatTemplateDefini
 export type Settings = {
     systemPromptLoadOrder?: string;
     showThinkBlocks?: boolean;
+    sceneContextEnabled?: boolean;
     chatTemplates?: ChatTemplateOverrides;
 };

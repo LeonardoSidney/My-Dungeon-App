@@ -323,7 +323,7 @@ describe('TextGeneration', () => {
             name: 'Master',
             assistantId: '1'
         };
-        const clericInstruction = '<instruction>Respond and act only as Cleric. Do not write lines or actions for any other character.</instruction>';
+        const clericInstruction = '<instruction>\nRespond and act only as Cleric. Do not write lines or actions for any other character.\n</instruction>';
 
         function hydratedWithChat (chat: ReturnType<typeof createChatHelper>[]) {
             return createHydratedAdventureHelper({ adventure: { chat }, characters: [swordsman, mage, cleric] });
@@ -341,9 +341,9 @@ describe('TextGeneration', () => {
                 success: true,
                 messages: [{
                     role: RoleEnum.USER,
-                    content: '<turn_chat_content>\n'
-                        + '<message character="Swordsman">I draw my sword</message>\n'
-                        + '<message character="Mage">I cast a light</message>\n'
+                    content: '\n<turn_chat_content>\n'
+                        + '<message character="Swordsman">\nI draw my sword\n</message>\n'
+                        + '<message character="Mage">\nI cast a light\n</message>\n'
                         + '</turn_chat_content>\n'
                         + clericInstruction
                 }]
@@ -361,8 +361,8 @@ describe('TextGeneration', () => {
             });
 
             expect(result.messages?.[0].content).toBe(
-                '<context>\nThe party is in a dark cave</context>\n'
-                    + '<turn_chat_content>\n<message character="Swordsman">Hello</message>\n</turn_chat_content>\n'
+                '<context>\nThe party is in a dark cave\n</context>\n'
+                    + '<turn_chat_content>\n<message character="Swordsman">\nHello\n</message>\n</turn_chat_content>\n'
                     + clericInstruction
             );
         });
@@ -386,7 +386,7 @@ describe('TextGeneration', () => {
             const result = buildTurnMessages({ hydrated, speaker: worldMasterSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
             expect(result.messages?.[0].content).toContain(
-                `<instruction>${DEFAULT_WORLD_MASTER_INSTRUCTION_TEMPLATE.split('{characterName}').join('Master')}</instruction>`
+                `<instruction>\n${DEFAULT_WORLD_MASTER_INSTRUCTION_TEMPLATE.split('{characterName}').join('Master')}\n</instruction>`
             );
         });
 
@@ -401,8 +401,8 @@ describe('TextGeneration', () => {
             });
 
             expect(result.messages?.[0].content).toBe(
-                '<turn_chat_content>\n<message character="Swordsman">Hello</message>\n</turn_chat_content>\n'
-                    + `<instruction>${DEFAULT_CONTEXT_INSTRUCTION_TEMPLATE.split('{characterName}').join('Cleric')}</instruction>`
+                '\n<turn_chat_content>\n<message character="Swordsman">\nHello\n</message>\n</turn_chat_content>\n'
+                    + `<instruction>\n${DEFAULT_CONTEXT_INSTRUCTION_TEMPLATE.split('{characterName}').join('Cleric')}\n</instruction>`
             );
         });
 
@@ -420,13 +420,13 @@ describe('TextGeneration', () => {
                 {
                     role: RoleEnum.USER,
                     content: '<turn_chat_content>\n'
-                        + '<message character="Swordsman">First line</message>\n'
-                        + '<message character="Cleric">Cleric line</message>\n'
-                        + '</turn_chat_content>\n'
+                        + '<message character="Swordsman">\nFirst line\n</message>\n'
+                        + '<message character="Cleric">\nCleric line\n</message>\n'
+                        + '</turn_chat_content>'
                 },
                 { role: RoleEnum.ASSISTANT, content: 'Outcome' }
             ]);
-            expect(result.messages?.[2].content).toContain('<message character="Swordsman">Second line</message>');
+            expect(result.messages?.[2].content).toContain('<message character="Swordsman">\nSecond line\n</message>');
         });
 
         it('sends the selected content version of each turn message', () => {
@@ -434,7 +434,7 @@ describe('TextGeneration', () => {
 
             const result = buildTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
-            expect(result.messages?.[0].content).toContain('<message character="Swordsman">new</message>');
+            expect(result.messages?.[0].content).toContain('<message character="Swordsman">\nnew\n</message>');
         });
 
         it('does not send the thought of an AI character inside the turn content', () => {
@@ -578,7 +578,7 @@ describe('TextGeneration', () => {
             expect(result.messages).toEqual([
                 {
                     role: RoleEnum.USER,
-                    content: '<turn_chat_content>\n<message character="Swordsman">Hello</message>\n</turn_chat_content>\n' + clericInstruction
+                    content: '\n<turn_chat_content>\n<message character="Swordsman">\nHello\n</message>\n</turn_chat_content>\n' + clericInstruction
                 },
                 { role: RoleEnum.ASSISTANT, content: 'I start to', reasoning: 'cleric thought' }
             ]);
@@ -634,7 +634,7 @@ describe('TextGeneration', () => {
 
             const result = buildTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
-            expect(result.messages?.[0].content).toContain('<message character="Unknown">Hello</message>');
+            expect(result.messages?.[0].content).toContain('<message character="Unknown">\nHello\n</message>');
         });
 
         it('keeps a tag written by the player as written', () => {
@@ -642,7 +642,7 @@ describe('TextGeneration', () => {
 
             const result = buildTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
-            expect(result.messages?.[0].content).toContain('<message character="Swordsman">Say {characterName} and $& now</message>');
+            expect(result.messages?.[0].content).toContain('<message character="Swordsman">\nSay {characterName} and $& now\n</message>');
         });
 
         it('logs the user message it built with its speaker and purpose', () => {
@@ -653,7 +653,7 @@ describe('TextGeneration', () => {
             expect(mockLogger.debug).toHaveBeenCalledWith(
                 'TextGeneration::buildAdventureTurnMessages - user message built',
                 { speaker: 'Cleric', purpose: TurnPromptPurposeEnum.REPLY },
-                '<turn_chat_content>\n<message character="Swordsman">Hello</message>\n</turn_chat_content>\n' + clericInstruction
+                '\n<turn_chat_content>\n<message character="Swordsman">\nHello\n</message>\n</turn_chat_content>\n' + clericInstruction
             );
         });
 
@@ -686,7 +686,7 @@ describe('TextGeneration', () => {
 
             const result = buildTurnMessages({ hydrated: hydratedWithChat([]), speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY }, templates);
 
-            expect(result.messages?.at(-1)?.content).toContain(`<instruction>Speak as ${clericSpeaker.name} now.</instruction>`);
+            expect(result.messages?.at(-1)?.content).toContain(`<instruction>\nSpeak as ${clericSpeaker.name} now.\n</instruction>`);
         });
     });
 });

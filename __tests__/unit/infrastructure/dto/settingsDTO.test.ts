@@ -43,6 +43,20 @@ describe('SettingsDTO', () => {
         expect(SettingsDTO.fromStorage({ showThinkBlocks: 'false' })).toBeNull();
     });
 
+    it('converts a stored scene context setting', () => {
+        expect(SettingsDTO.fromStorage({ sceneContextEnabled: false })?.toEntity()).toEqual({ sceneContextEnabled: false });
+    });
+
+    it('keeps the chat templates next to the scene context setting', () => {
+        const settings = SettingsDTO.fromStorage({ sceneContextEnabled: false, chatTemplates: { worlds: '{worlds}' } })?.toEntity();
+
+        expect(settings).toEqual({ sceneContextEnabled: false, chatTemplates: { worlds: '{worlds}' } });
+    });
+
+    it('rejects a scene context setting that is not a boolean', () => {
+        expect(SettingsDTO.fromStorage({ sceneContextEnabled: 'false' })).toBeNull();
+    });
+
     it('converts the stored chat templates', () => {
         const settings = SettingsDTO.fromStorage({ chatTemplates: { worlds: '# REALMS\n{worlds}\n' } })?.toEntity();
 

@@ -3,5 +3,7 @@ export * from './saveSystemPromptLoadOrderController';
 export * from './resetSystemPromptLoadOrderController';
 export * from './getThinkBlocksVisibilityController';
 export * from './saveThinkBlocksVisibilityController';
+export * from './getSceneContextEnabledController';
+export * from './saveSceneContextEnabledController';
 export * from './getChatTemplatesController';
 export * from './saveChatTemplatesController';
