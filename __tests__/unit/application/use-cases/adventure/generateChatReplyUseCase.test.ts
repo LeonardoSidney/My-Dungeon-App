@@ -434,6 +434,38 @@ describe('GenerateChatReplyUseCase', () => {
         expect(mocks.events[mocks.events.length - 1]).toEqual(expect.objectContaining({ status: ChatReplyStatusEnum.FINISHED, error: 'storage failed' }));
     });
 
+    it('ends the turn with a generic error when the next speaker fails without a message', async () => {
+        const mocks = buildMocks(['Hello'], createChat({ role: RoleEnum.AI_PERSONA, characterId: 'cleric' }));
+        mocks.turnSpeaker.resolveNextSpeaker
+            .mockReturnValueOnce({ success: true, speaker: clericSpeaker })
+            .mockReturnValueOnce({ success: false });
+
+        await buildUseCase(mocks).execute({ adventureId: 'adventure-1' });
+        await mocks.settled;
+
+        expect(mocks.events[mocks.events.length - 1]).toEqual(expect.objectContaining({
+            status: ChatReplyStatusEnum.FINISHED,
+            error: 'Failed to resolve the next speaker'
+        }));
+    });
+
+    it('ends the turn with a generic error when hydration for the next speaker fails without a message', async () => {
+        const mocks = buildMocks(['Hello'], createChat({ role: RoleEnum.AI_PERSONA, characterId: 'cleric' }));
+        mocks.turnSpeaker.resolveNextSpeaker.mockReturnValueOnce({ success: true, speaker: clericSpeaker });
+        mocks.hydrate.execute
+            .mockResolvedValueOnce({ success: true, hydrated: createHydrated() })
+            .mockResolvedValueOnce({ success: true, hydrated: createHydrated() })
+            .mockResolvedValueOnce({ success: false });
+
+        await buildUseCase(mocks).execute({ adventureId: 'adventure-1' });
+        await mocks.settled;
+
+        expect(mocks.events[mocks.events.length - 1]).toEqual(expect.objectContaining({
+            status: ChatReplyStatusEnum.FINISHED,
+            error: 'Failed to hydrate adventure'
+        }));
+    });
+
     it('does not give the turn to the next speaker when an AI character step fails', async () => {
         const mocks = buildMocks(['Hello'], createChat({ role: RoleEnum.AI_PERSONA, characterId: 'cleric' }));
         mocks.turnSpeaker.resolveNextSpeaker.mockReturnValueOnce({ success: true, speaker: clericSpeaker });
@@ -842,6 +874,21 @@ describe('GenerateChatReplyUseCase', () => {
         expect(mocks.events[mocks.events.length - 1]).toEqual(expect.objectContaining({ status: ChatReplyStatusEnum.REMOVED, error: 'storage failed' }));
     });
 
+    it('reports a generic error when hydration for the reply prompt fails without a message', async () => {
+        const mocks = buildMocks();
+        mocks.hydrate.execute
+            .mockResolvedValueOnce({ success: true, hydrated: createHydrated() })
+            .mockResolvedValueOnce({ success: false });
+
+        await buildUseCase(mocks).execute({ adventureId: 'adventure-1' });
+        await mocks.settled;
+
+        expect(mocks.events[mocks.events.length - 1]).toEqual(expect.objectContaining({
+            status: ChatReplyStatusEnum.REMOVED,
+            error: 'Failed to hydrate adventure'
+        }));
+    });
+
     it('keeps the continued content and reports the error when the reply cannot start', async () => {
         const chat = createChat({ content: ['Once upon'] });
         const mocks = buildMocks([], chat);
@@ -1129,6 +1176,21 @@ describe('GenerateChatReplyUseCase', () => {
         expect(mocks.abortContext).toHaveBeenCalled();
         expect(mocks.getTemplatedPrompt.execute).toHaveBeenCalledTimes(1);
         expect(mocks.deleteChat.execute).toHaveBeenCalledWith({ adventureId: 'adventure-1', chatId: 'chat-1' });
+        expect(mocks.events[mocks.events.length - 1]).toEqual(expect.objectContaining({ status: ChatReplyStatusEnum.REMOVED, error: undefined }));
+    });
+
+    it('aborts the completion as soon as it starts when stopped before it was tracked', async () => {
+        const mocks = buildMocks();
+        mocks.completions.context = () => {
+            mocks.registry.stop('adventure-1');
+            return { success: true, stream: asyncTokens([]), abort: mocks.abortContext };
+        };
+
+        await buildUseCase(mocks).execute({ adventureId: 'adventure-1' });
+        await mocks.settled;
+
+        expect(mocks.abortContext).toHaveBeenCalledTimes(1);
+        expect(mocks.getTemplatedPrompt.execute).toHaveBeenCalledTimes(1);
         expect(mocks.events[mocks.events.length - 1]).toEqual(expect.objectContaining({ status: ChatReplyStatusEnum.REMOVED, error: undefined }));
     });
 

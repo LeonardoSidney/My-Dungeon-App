@@ -92,7 +92,7 @@ export class GenerateChatReplyUseCase implements IGenerateChatReplyUseCase {
         const step = await this.startStep(turn, hydrated.hydrated, speakerResponse.speaker, params.chatId);
         if (!step.success || !step.session) {
             this.registry.release(params.adventureId);
-            return { success: false, error: step.error ?? 'Failed to start assistant chat' };
+            return { success: false, error: step.error };
         }
 
         this.notify(step.session, ChatReplyStatusEnum.STREAMING);

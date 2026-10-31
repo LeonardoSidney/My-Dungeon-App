@@ -11,6 +11,7 @@
     "test": "jest __tests__/unit --passWithNoTests",
     "test:api": "jest __tests__/api",
     "test:coverage": "jest __tests__/unit --coverage",
+    "test:coverage:staged": "jest __tests__/unit --passWithNoTests --coverage --coverageThreshold='{}' --coverageReporters=json-summary && node scripts/checkStagedCoverage.js",
     "web": "webpack serve --config webpack.config.js --mode development",
     "prod": "npm run build:web && serve --single dist --listen tcp://127.0.0.1:3000",
     "build:web": "webpack --config webpack.config.js --mode production",

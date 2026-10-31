@@ -12,12 +12,13 @@ And all of it under a free software license ([AGPL v3](./LICENSE.md)), giving yo
 
 - An app for **Android**, **iOS** and **Web**, built with React Native + TypeScript
 - A catalog of reusable components saved on the device itself: worlds, world masters, characters, assistants, samplers, system prompts, locations, items, abilities, proficiencies and statuses
-- **Adventure**: where everything meets and the table happens
-- A **home** that takes you back to your last adventure and sums up your table: what you created, how much you played, your highlights and the server status — plus a **Playground** to test models and samplers on free text
+- **Adventure**: where everything meets and the table happens, in rounds where your characters, the AI-controlled characters and the world master each take their turn
+- A **home** that guides your first setup, takes you back to your last adventure and sums up your table: what you created, how much you played, your highlights and the server status
+- A **Playground** for free text: a single saved text that the first loaded model continues with the default sampler
 - Connectivity with a [llama.cpp](https://github.com/ggml-org/llama.cpp) server in router mode: model listing, prompt building, streaming generation and _thinking_ from reasoning models
-- A UI-independent backend (use cases, services, storage and friends), covered by unit and API tests
+- A UI-independent backend (use cases, services, storage and friends), with unit tests for the backend and the UI, plus an integration test against a real llama.cpp server
 
-Ideas still being studied for the project's future, such as multi-character turns, live in [docs/future-prototypes](./docs/future-prototypes/). They are proposals, not features yet.
+Ideas still being studied for the project's future, such as turns driven by mentions and Playground sessions, live in [docs/future-prototypes](./docs/future-prototypes/). They are proposals, not features yet.
 
 ## How it works
 
@@ -60,14 +61,16 @@ And the backend won't let the table go live without the minimum:
 - at least **1 system prompt**;
 - **1 world master** — dedicated or a character in the role, but not both at the same time;
 - at least **1 playable character** (not AI-controlled and not playing the world master);
-- without a dedicated world master, **at least 2 characters**, with at least one of them outside AI control;
+- a character playing the world master must be part of the adventure and can't be AI-controlled, so without a dedicated world master you need **at least 2 characters**;
 - every AI-controlled character must be part of the adventure.
 
-Everything above can be changed mid-game from the chat's **settings**: name, narrator, cast, story context and **generation** — the assistant, sampler and sampler values of the world master and of each AI-controlled character (**Generation**) and of each character you play (**Your Characters**). Generation changes are saved to the characters, assistants and samplers themselves, so they apply to every adventure that uses them; want a variation just for one table? Create a separate assistant or sampler for it. Each card warns when an assistant or sampler is shared with other characters. System samplers can't be edited, and changes apply from the next reply. Today only the world master generates replies, so the settings of the other characters take effect once they reply on their own.
+Everything above can be changed mid-game from the chat's **settings**: name, narrator, cast, story context and **generation** — the assistant, sampler and sampler values of the world master and of each AI-controlled character (**Generation**) and of each character you play (**Your Characters**). Generation changes are saved to the characters, assistants and samplers themselves, so they apply to every adventure that uses them; want a variation just for one table? Create a separate assistant or sampler for it. Each card warns when an assistant or sampler is shared with other characters. System samplers can't be edited, and changes apply from the next reply. The settings in **Your Characters** only take effect if the AI later plays that character.
 
 ## Gameplay
 
-Every turn the app assembles the prompt by joining the table's sections:
+Each turn is a round: every character you play speaks, then each AI-controlled character replies in the adventure's order, and the world master closes the round. Each voice generates with its own assistant. On your turn, with the message box empty, **Skip turn** hands the round straight to the AI characters and the world master. **Stop** ends the whole round, and the messages already finished stay in the chat.
+
+Before each AI reply the app assembles the prompt of whoever is speaking by joining the table's sections:
 
 ```
 {systemPrompt}{worldMaster}{characterAsWorldMaster}{worlds}{locations}{items}{abilities}{proficiencies}{statuses}{characters}
@@ -79,7 +82,11 @@ That order is the default **System Prompt Load Order**, editable in Settings: re
 
 Settings also lets you rewrite the text the app wraps around everything, for every adventure at once. **System Prompt Sections** holds the heading of each section above, and **Turn Messages** holds how a turn is written to the model: the layout of the message, the scene context, the characters' lines and the instructions for the AI characters, the world master and the scene context. Each field lists the tags it accepts; a required tag can't be removed and an unknown tag is refused, so a literal `{...}` can't be used. Line breaks are kept, and _Restore default_ brings a field's original text back when you save.
 
-The answer arrives **streaming** straight from the server, and reasoning models can _think_: the _thinking_ is recorded with the message in the chat and can be edited or removed. On your turn you decree actions and speak for the characters you control in the adventure chat; on the AI's turn the world master and the characters it controls answer — and every message can be regenerated, resent or continued.
+**Scene Context**, also in Settings and off by default, makes the model summarize the scene before each AI reply so the summary can guide it. It costs one extra model call per reply. The adventure list lets you open the system prompt and the final prompt assembled for an adventure.
+
+The answer arrives **streaming** straight from the server, with Markdown and LaTeX rendered in the chat, and reasoning models can _think_: the _thinking_ is recorded with the message in the chat, can be edited or removed, and a switch in the chat header shows or hides it. On Android the app stays alive in the background while a reply streams.
+
+Your messages can be edited, deleted or resent. AI messages can be edited, regenerated or continued, and each regeneration is kept as a version you can flip through.
 
 ## The server: llama.cpp
 
@@ -91,7 +98,7 @@ The app talks to the server through the HTTP API:
 | --------------------------------------------- | -------------------------------------------------------------------------------------------- |
 | `GET /models`                                 | Lists the available models (feeds the assistant's model picker)                              |
 | `POST /apply-template`                        | Applies the model's chat template to the built prompt (that's why `jinja = true` in the ini) |
-| `POST /completion` and `POST /v1/completions` | Streaming text generation (native route and OpenAI-compatible route)                         |
+| `POST /completion` and `POST /v1/completions` | Streaming generation (native route for adventures, OpenAI route for the Playground)          |
 
 That's why the server runs in **router mode**: a single `llama-server` with an INI preset hosts many models, and the app lists the ones that are available.
 
@@ -270,14 +277,18 @@ With the app open, the configuration happens right inside it:
 ## Development
 
 ```sh
-npm start           # Metro (Android/iOS)
-npm run web         # web dev server
-npm run prod        # fresh release web build, served at 127.0.0.1:3000
-npm run build:web   # release web build in dist/
-npm run lint        # eslint
-npm test            # backend unit tests (no UI)
-npm run test:api    # integration against a real llama.cpp server
+npm start                     # Metro (Android/iOS)
+npm run web                   # web dev server
+npm run prod                  # fresh release web build, served at 127.0.0.1:3000
+npm run build:web             # release web build in dist/
+npm run lint                  # eslint
+npm test                      # unit tests of the backend and the UI
+npm run test:coverage         # unit tests with the coverage report
+npm run test:coverage:staged  # unit tests, then requires 100% coverage on the staged files
+npm run test:api              # integration against a real llama.cpp server
 ```
+
+The husky `pre-commit` hook runs the lint, the tests and `test:coverage:staged`. A staged file below 100% blocks the commit, even when it has no tests yet. Only files measured by the coverage count, so what `jest.config.js` excludes, like `src/presentation`, stays out of this rule.
 
 The `[STORAGE]` logs print everything read from and written to storage, and they are off by default. To turn them on, start Metro or the web dev server with `STORAGE=true`:
 

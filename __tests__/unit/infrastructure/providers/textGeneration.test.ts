@@ -437,6 +437,26 @@ describe('TextGeneration', () => {
             expect(result.messages?.[0].content).toContain('<message character="Swordsman">\nnew\n</message>');
         });
 
+        it('sends a turn message without text when its selected content version does not exist', () => {
+            const hydrated = hydratedWithChat([createChatHelper({ id: 'chat-1', characterId: 'swordsman', content: ['only'], index: 1 })]);
+
+            const result = buildTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+
+            expect(result.messages?.[0].content).toContain('<message character="Swordsman">\n\n</message>');
+        });
+
+        it('sends no empty turn before a world master message that opens the adventure', () => {
+            const hydrated = hydratedWithChat([
+                createChatHelper({ id: 'chat-1', role: RoleEnum.ASSISTANT, characterId: 'master', content: ['Opening'] }),
+                createChatHelper({ id: 'chat-2', characterId: 'swordsman', content: ['Hello'] })
+            ]);
+
+            const result = buildTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+
+            expect(result.messages?.map(message => message.role)).toEqual([RoleEnum.ASSISTANT, RoleEnum.USER]);
+            expect(result.messages?.[0].content).toBe('Opening');
+        });
+
         it('does not send the thought of an AI character inside the turn content', () => {
             const hydrated = hydratedWithChat([
                 createChatHelper({
@@ -548,6 +568,17 @@ describe('TextGeneration', () => {
             const hydrated = hydratedWithChat([
                 createChatHelper({ id: 'chat-1', characterId: 'swordsman', content: ['Hello'] }),
                 createChatHelper({ id: 'chat-2', role: RoleEnum.ASSISTANT, characterId: 'master', content: ['  '] })
+            ]);
+
+            const result = buildTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
+
+            expect(result.messages?.map(message => message.role)).toEqual([RoleEnum.USER, RoleEnum.USER]);
+        });
+
+        it('skips a past world master message whose selected content version does not exist', () => {
+            const hydrated = hydratedWithChat([
+                createChatHelper({ id: 'chat-1', characterId: 'swordsman', content: ['Hello'] }),
+                createChatHelper({ id: 'chat-2', role: RoleEnum.ASSISTANT, characterId: 'master', content: ['only'], index: 1 })
             ]);
 
             const result = buildTurnMessages({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });

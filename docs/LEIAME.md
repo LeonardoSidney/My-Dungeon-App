@@ -12,12 +12,13 @@ E tudo sob uma licença de código livre ([AGPL v3](../LICENSE.md)), permitindo 
 
 - App para **Android**, **iOS** e **Web**, construído com React Native + TypeScript
 - Catálogo de componentes reutilizáveis salvos no próprio dispositivo: mundos, world masters, personagens, assistentes, samplers, system prompts, locations, itens, abilities, proficiências e statuses
-- **Aventura**: onde tudo se encontra e a mesa acontece
-- Uma **home** que leva de volta à sua última aventura e resume a sua mesa: o que você criou, o quanto jogou, seus destaques e o status do servidor — e um **Playground** para testar modelos e samplers em texto livre
+- **Aventura**: onde tudo se encontra e a mesa acontece, em rodadas nas quais seus personagens, os personagens controlados pela IA e o world master têm cada um a sua vez
+- Uma **home** que guia a sua primeira configuração, leva de volta à sua última aventura e resume a sua mesa: o que você criou, o quanto jogou, seus destaques e o status do servidor
+- Um **Playground** para texto livre: um único texto salvo que o primeiro modelo carregado continua com o sampler padrão
 - Conectividade com um servidor [llama.cpp](https://github.com/ggml-org/llama.cpp) em modo router: listagem de modelos, montagem do prompt, geração com streaming e _thinking_ de modelos de raciocínio
-- Backend independente da UI (use cases, services, storage e afins), coberto por testes de unidade e de API
+- Backend independente da UI (use cases, services, storage e afins), com testes de unidade do backend e da UI, além de um teste de integração contra um servidor llama.cpp real
 
-Ideias que ainda estão sendo estudadas para o futuro do projeto, como turnos com vários personagens, ficam em [docs/future-prototypes](./future-prototypes/). São propostas, ainda não funcionalidades.
+Ideias que ainda estão sendo estudadas para o futuro do projeto, como turnos guiados por menções e sessões no Playground, ficam em [docs/future-prototypes](./future-prototypes/). São propostas, ainda não funcionalidades.
 
 ## Como o projeto funciona
 
@@ -60,14 +61,16 @@ E o backend não deixa a mesa ir ao ar sem o mínimo:
 - ao menos **1 system prompt**;
 - **1 world master** — dedicado ou um personagem no papel, mas os dois ao mesmo tempo, não;
 - ao menos **1 personagem jogável** (que não seja controlado pela IA nem esteja no papel de world master);
-- sem world master dedicado, **ao menos 2 personagens**, com ao menos um deles fora do controle da IA;
+- um personagem no papel de world master precisa fazer parte da aventura e não pode ser controlado pela IA, então sem world master dedicado você precisa de **ao menos 2 personagens**;
 - todo personagem controlado pela IA precisa fazer parte da aventura.
 
-Tudo isso pode ser trocado no meio do jogo pelas **settings** do chat: nome, narrador, elenco, contexto da história e **geração** — o assistente, o sampler e os valores do sampler do world master e de cada personagem controlado pela IA (**Generation**) e de cada personagem que você joga (**Your Characters**). As mudanças de geração são salvas nos próprios personagens, assistentes e samplers, então valem em toda aventura que os usa; quer uma variação só para uma mesa? Crie um assistente ou sampler separado para ela. Cada card avisa quando um assistente ou sampler é compartilhado com outros personagens. Samplers do sistema não podem ser editados, e as mudanças valem a partir da próxima resposta. Hoje só o world master gera respostas, então a configuração dos outros personagens passa a valer quando eles responderem por conta própria.
+Tudo isso pode ser trocado no meio do jogo pelas **settings** do chat: nome, narrador, elenco, contexto da história e **geração** — o assistente, o sampler e os valores do sampler do world master e de cada personagem controlado pela IA (**Generation**) e de cada personagem que você joga (**Your Characters**). As mudanças de geração são salvas nos próprios personagens, assistentes e samplers, então valem em toda aventura que os usa; quer uma variação só para uma mesa? Crie um assistente ou sampler separado para ela. Cada card avisa quando um assistente ou sampler é compartilhado com outros personagens. Samplers do sistema não podem ser editados, e as mudanças valem a partir da próxima resposta. As configurações em **Your Characters** só valem se a IA passar a jogar aquele personagem.
 
 ## Gameplay
 
-Em cada turno o app monta o prompt juntando as seções da mesa:
+Cada turno é uma rodada: todo personagem que você joga fala, depois cada personagem controlado pela IA responde na ordem da aventura, e o world master fecha a rodada. Cada voz gera com o próprio assistente. No seu turno, com a caixa de mensagem vazia, o **Skip turn** passa a rodada direto para os personagens de IA e o world master. O **Stop** encerra a rodada inteira, e as mensagens já terminadas continuam no chat.
+
+Antes de cada resposta da IA o app monta o prompt de quem vai falar juntando as seções da mesa:
 
 ```
 {systemPrompt}{worldMaster}{characterAsWorldMaster}{worlds}{locations}{items}{abilities}{proficiencies}{statuses}{characters}
@@ -79,7 +82,11 @@ Essa ordem é o padrão da **System Prompt Load Order**, editável nas Configura
 
 As Configurações também deixam você reescrever o texto que o app coloca em volta de tudo, para todas as aventuras de uma vez. **System Prompt Sections** guarda o título de cada seção acima, e **Turn Messages** guarda como um turno é escrito para o modelo: o layout da mensagem, o contexto da cena, as falas dos personagens e as instruções para os personagens de IA, o world master e o contexto da cena. Cada campo lista as tags que aceita; uma tag obrigatória não pode ser removida e uma tag desconhecida é recusada, então não dá para usar `{...}` literal. As quebras de linha são mantidas, e o _Restore default_ traz o texto original do campo de volta ao salvar.
 
-A resposta chega em **streaming** direto do servidor, e modelos de raciocínio podem _pensar_: o _thinking_ fica gravado junto da mensagem no chat e pode ser editado ou removido. No seu turno você decreta ações e fala dos personagens que controla no chat da aventura; no turno da IA, o world master e os personagens sob controle dela respondem — e cada mensagem pode ser regenerada, reenviada ou continuada.
+O **Scene Context**, também nas Configurações e desligado por padrão, faz o modelo resumir a cena antes de cada resposta da IA para que o resumo a guie. Isso custa uma chamada a mais ao modelo por resposta. A lista de aventuras permite abrir o system prompt e o prompt final montado de uma aventura.
+
+A resposta chega em **streaming** direto do servidor, com Markdown e LaTeX renderizados no chat, e modelos de raciocínio podem _pensar_: o _thinking_ fica gravado junto da mensagem no chat, pode ser editado ou removido, e um botão no cabeçalho do chat mostra ou esconde esse conteúdo. No Android o app continua vivo em segundo plano enquanto uma resposta chega.
+
+Suas mensagens podem ser editadas, apagadas ou reenviadas. As mensagens da IA podem ser editadas, regeneradas ou continuadas, e cada regeneração fica guardada como uma versão que você pode navegar.
 
 ## O servidor: llama.cpp
 
@@ -91,7 +98,7 @@ O app conversa com o servidor pela API HTTP:
 | ------------------------------------------- | ------------------------------------------------------------------------------------- |
 | `GET /models`                               | Lista os modelos disponíveis (alimenta o seletor de modelos do assistente)            |
 | `POST /apply-template`                      | Aplica o chat template do modelo no prompt montado (por isso o `jinja = true` no ini) |
-| `POST /completion` e `POST /v1/completions` | Geração de texto com streaming (rota nativa e rota compatível com a OpenAI API)       |
+| `POST /completion` e `POST /v1/completions` | Geração em streaming (rota nativa nas aventuras, rota OpenAI no Playground)           |
 
 Por isso o servidor roda em **modo router**: um único `llama-server` com um preset INI hospeda vários modelos e o app lista os que estão disponíveis.
 
@@ -270,14 +277,18 @@ Com o app aberto, a configuração acontece lá dentro mesmo:
 ## Desenvolvimento
 
 ```sh
-npm start           # Metro (Android/iOS)
-npm run web         # servidor de desenvolvimento web
-npm run prod        # versão web de release fresca, servida em 127.0.0.1:3000
-npm run build:web   # versão web de release em dist/
-npm run lint        # eslint
-npm test            # testes de unidade do backend (sem UI)
-npm run test:api    # integração contra um servidor llama.cpp real
+npm start                     # Metro (Android/iOS)
+npm run web                   # servidor de desenvolvimento web
+npm run prod                  # versão web de release fresca, servida em 127.0.0.1:3000
+npm run build:web             # versão web de release em dist/
+npm run lint                  # eslint
+npm test                      # testes de unidade do backend e da UI
+npm run test:coverage         # testes de unidade com o relatório de cobertura
+npm run test:coverage:staged  # testes de unidade, depois exige 100% de cobertura nos arquivos em stage
+npm run test:api              # integração contra um servidor llama.cpp real
 ```
+
+O hook `pre-commit` do husky roda o lint, os testes e o `test:coverage:staged`. Um arquivo em stage abaixo de 100% bloqueia o commit, mesmo que ainda não tenha testes. Só contam os arquivos medidos pela cobertura, então o que o `jest.config.js` exclui, como `src/presentation`, fica fora dessa regra.
 
 Os logs `[STORAGE]` mostram tudo o que é lido e gravado no armazenamento e ficam desligados por padrão. Para ligar, inicie o Metro ou o servidor web com `STORAGE=true`:
 

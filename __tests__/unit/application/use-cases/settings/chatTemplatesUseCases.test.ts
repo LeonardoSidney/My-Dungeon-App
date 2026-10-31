@@ -134,6 +134,16 @@ describe('SaveChatTemplatesUseCase', () => {
         expect(repository.saveSettings).not.toHaveBeenCalled();
     });
 
+    it('uses a default error when the settings cannot be loaded without a message', async () => {
+        const repository = createRepository();
+        repository.getSettings.mockResolvedValue({ success: false });
+
+        const response = await new SaveChatTemplatesUseCase(logger, repository, createValidateService()).execute({ templates: { worlds: '{worlds}' } });
+
+        expect(response).toEqual({ success: false, error: 'Failed to load settings' });
+        expect(repository.saveSettings).not.toHaveBeenCalled();
+    });
+
     it('returns the repository error when the settings cannot be saved', async () => {
         const repository = createRepository();
         repository.saveSettings.mockResolvedValue({ success: false, error: 'Failed to save settings' });
