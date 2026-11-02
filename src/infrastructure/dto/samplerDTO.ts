@@ -1,3 +1,4 @@
+import { LEGACY_SAMPLER_FIELDS } from '@domain/constants/sampler';
 import { MirostatEnum, Sampler } from '@domain/entities';
 import { isRecord, parseDate } from './shared';
 
@@ -7,9 +8,9 @@ export class SamplerDTO {
         private readonly name: string,
         private readonly observation: string | undefined,
         private readonly systemDefault: boolean,
-        private readonly adaptativeDecay: number | undefined,
-        private readonly adaptativeTarget: number | undefined,
-        private readonly dryAllowedLenght: number | undefined,
+        private readonly adaptiveDecay: number | undefined,
+        private readonly adaptiveTarget: number | undefined,
+        private readonly dryAllowedLength: number | undefined,
         private readonly dryBase: number | undefined,
         private readonly dryMultiplier: number | undefined,
         private readonly drySequenceBreakers: string | undefined,
@@ -31,7 +32,7 @@ export class SamplerDTO {
         private readonly topP: number | undefined,
         private readonly typicalP: number | undefined,
         private readonly xtcProbability: number | undefined,
-        private readonly xtcThreshould: number | undefined,
+        private readonly xtcThreshold: number | undefined,
         private readonly createdAt: Date,
         private readonly updatedAt: Date
     ) { }
@@ -42,9 +43,9 @@ export class SamplerDTO {
             name: this.name,
             observation: this.observation,
             systemDefault: this.systemDefault,
-            adaptativeDecay: this.adaptativeDecay,
-            adaptativeTarget: this.adaptativeTarget,
-            dryAllowedLenght: this.dryAllowedLenght,
+            adaptiveDecay: this.adaptiveDecay,
+            adaptiveTarget: this.adaptiveTarget,
+            dryAllowedLength: this.dryAllowedLength,
             dryBase: this.dryBase,
             dryMultiplier: this.dryMultiplier,
             drySequenceBreakers: this.drySequenceBreakers,
@@ -66,17 +67,18 @@ export class SamplerDTO {
             topP: this.topP,
             typicalP: this.typicalP,
             xtcProbability: this.xtcProbability,
-            xtcThreshould: this.xtcThreshould,
+            xtcThreshold: this.xtcThreshold,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt
         };
     }
 
-    static fromStorage (data: unknown): SamplerDTO | null {
-        if (!isRecord(data)) {
+    static fromStorage (stored: unknown): SamplerDTO | null {
+        if (!isRecord(stored)) {
             return null;
         }
 
+        const data = SamplerDTO.renameLegacyFields(stored);
         const createdAt = parseDate(data.createdAt);
         const updatedAt = parseDate(data.updatedAt);
 
@@ -86,9 +88,9 @@ export class SamplerDTO {
             (data.observation !== undefined && typeof data.observation !== 'string') ||
             typeof data.systemDefault !== 'boolean' ||
             (data.drySequenceBreakers !== undefined && typeof data.drySequenceBreakers !== 'string') ||
-            (data.adaptativeDecay !== undefined && typeof data.adaptativeDecay !== 'number') ||
-            (data.adaptativeTarget !== undefined && typeof data.adaptativeTarget !== 'number') ||
-            (data.dryAllowedLenght !== undefined && typeof data.dryAllowedLenght !== 'number') ||
+            (data.adaptiveDecay !== undefined && typeof data.adaptiveDecay !== 'number') ||
+            (data.adaptiveTarget !== undefined && typeof data.adaptiveTarget !== 'number') ||
+            (data.dryAllowedLength !== undefined && typeof data.dryAllowedLength !== 'number') ||
             (data.dryBase !== undefined && typeof data.dryBase !== 'number') ||
             (data.dryMultiplier !== undefined && typeof data.dryMultiplier !== 'number') ||
             (data.dynaTempExp !== undefined && typeof data.dynaTempExp !== 'number') ||
@@ -109,7 +111,7 @@ export class SamplerDTO {
             (data.topP !== undefined && typeof data.topP !== 'number') ||
             (data.typicalP !== undefined && typeof data.typicalP !== 'number') ||
             (data.xtcProbability !== undefined && typeof data.xtcProbability !== 'number') ||
-            (data.xtcThreshould !== undefined && typeof data.xtcThreshould !== 'number') ||
+            (data.xtcThreshold !== undefined && typeof data.xtcThreshold !== 'number') ||
             !createdAt ||
             !updatedAt
         ) {
@@ -121,9 +123,9 @@ export class SamplerDTO {
             data.name,
             data.observation,
             data.systemDefault,
-            data.adaptativeDecay,
-            data.adaptativeTarget,
-            data.dryAllowedLenght,
+            data.adaptiveDecay,
+            data.adaptiveTarget,
+            data.dryAllowedLength,
             data.dryBase,
             data.dryMultiplier,
             data.drySequenceBreakers,
@@ -145,9 +147,20 @@ export class SamplerDTO {
             data.topP,
             data.typicalP,
             data.xtcProbability,
-            data.xtcThreshould,
+            data.xtcThreshold,
             createdAt,
             updatedAt
         );
+    }
+
+    private static renameLegacyFields (stored: Record<string, unknown>): Record<string, unknown> {
+        const data = { ...stored };
+        for (const [legacyField, field] of Object.entries(LEGACY_SAMPLER_FIELDS)) {
+            if (data[field] === undefined) {
+                data[field] = stored[legacyField];
+            }
+        }
+
+        return data;
     }
 }

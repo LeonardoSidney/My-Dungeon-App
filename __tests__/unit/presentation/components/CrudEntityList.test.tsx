@@ -3,6 +3,9 @@ import { Text, TouchableOpacity } from 'react-native';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { CrudEntityList } from '@presentation/components/crudEntityList/CrudEntityList';
 import type { CrudEntityListProps, CrudEntityListItem } from '@presentation/components/crudEntityList/CrudEntityList';
+import { ControllersProvider } from '@presentation/providers/ControllersProvider';
+import type { AppControllers } from '@presentation/providers/appControllers';
+import { AlertActionStyleEnum, AlertUseCaseParams } from '@domain/use-cases';
 
 jest.mock('lucide-react-native', () => ({
   Pencil: () => null,
@@ -21,18 +24,22 @@ const items: WorldItem[] = [
 const onAdd = jest.fn();
 const onEdit = jest.fn();
 const onDelete = jest.fn();
+const handleAlert = jest.fn<void, [AlertUseCaseParams]>();
+const controllers = { alert: { handle: handleAlert } } as unknown as AppControllers;
 
 const setup = (props: Partial<CrudEntityListProps<WorldItem>> = {}) =>
   render(
-    <CrudEntityList
-      items={items}
-      emptyText="No worlds found."
-      addLabel="Add World"
-      onAdd={onAdd}
-      onEdit={onEdit}
-      onDelete={onDelete}
-      {...props}
-    />,
+    <ControllersProvider controllers={controllers}>
+      <CrudEntityList
+        items={items}
+        emptyText="No worlds found."
+        addLabel="Add World"
+        onAdd={onAdd}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        {...props}
+      />
+    </ControllersProvider>,
   );
 
 function CustomAction (params: { onPress: () => void; }) {
@@ -101,10 +108,20 @@ describe('CrudEntityList', () => {
       expect(onEdit).toHaveBeenCalledWith(items[0]);
     });
 
-    it('calls onDelete with the item when the delete button is pressed', async () => {
+    it('asks for confirmation before deleting', async () => {
       await setup();
 
       fireEvent.press(screen.getAllByLabelText('Delete')[0]);
+
+      expect(handleAlert.mock.calls[0][0].title).toBe('Delete Arendale?');
+      expect(onDelete).not.toHaveBeenCalled();
+    });
+
+    it('calls onDelete with the item once the deletion is confirmed', async () => {
+      await setup();
+
+      fireEvent.press(screen.getAllByLabelText('Delete')[0]);
+      handleAlert.mock.calls[0][0].actions?.find(action => action.style === AlertActionStyleEnum.DESTRUCTIVE)?.onPress?.();
 
       expect(onDelete).toHaveBeenCalledTimes(1);
       expect(onDelete).toHaveBeenCalledWith(items[0]);

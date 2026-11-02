@@ -6,6 +6,7 @@ import type { AdventureFormData } from '../../form/adventureForm';
 import type { AdventureFormOptions } from '../../form/useAdventureFormOptions';
 import {
     getModifiedSections,
+    hasDroppedReferences,
     switchNarratorMode,
     toAdventureSettingsForm,
     toApplySettingsRequest,
@@ -51,6 +52,7 @@ export function useAdventureSettings ({ adventureId, options, controllers }: Use
     const [saved, setSaved] = useState<AdventureSettingsForm | null>(null);
     const [draft, setDraft] = useState<AdventureSettingsForm | null>(null);
     const [isApplying, setIsApplying] = useState(false);
+    const [hasPendingRepair, setHasPendingRepair] = useState(false);
 
     useEffect(() => {
         let isActive = true;
@@ -82,6 +84,7 @@ export function useAdventureSettings ({ adventureId, options, controllers }: Use
         const form = toAdventureSettingsForm(source, options);
         setSaved(form);
         setDraft(form);
+        setHasPendingRepair(hasDroppedReferences(source, form.adventure));
     }, [saved, source, options, hasOptionsError]);
 
     const updateDraft = useCallback((update: (form: AdventureSettingsForm) => AdventureSettingsForm) => {
@@ -124,7 +127,7 @@ export function useAdventureSettings ({ adventureId, options, controllers }: Use
     }, [saved, draft]);
 
     const hasGenerationChanges = Boolean(draft && hasGenerationEdits(draft.generation));
-    const hasUnsavedChanges = hasGenerationChanges || Object.values(modifiedSections ?? {}).some(Boolean);
+    const hasUnsavedChanges = hasPendingRepair || hasGenerationChanges || Object.values(modifiedSections ?? {}).some(Boolean);
 
     const discard = useCallback(() => {
         setDraft(saved);
@@ -146,6 +149,7 @@ export function useAdventureSettings ({ adventureId, options, controllers }: Use
         const applied = { ...draft, generation: emptyGenerationEdits };
         setSaved(applied);
         setDraft(applied);
+        setHasPendingRepair(false);
         return true;
     }, [draft, hasErrors, applyAdventureSettings, alert]);
 

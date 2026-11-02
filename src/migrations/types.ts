@@ -16,9 +16,9 @@ export type SeedConnection = CreateConnectionConfigControllerRequest;
 export type SeedSampler = {
     name: string;
     observation?: string;
-    adaptativeDecay?: number;
-    adaptativeTarget?: number;
-    dryAllowedLenght?: number;
+    adaptiveDecay?: number;
+    adaptiveTarget?: number;
+    dryAllowedLength?: number;
     dryBase?: number;
     dryMultiplier?: number;
     drySequenceBreakers?: string;
@@ -40,7 +40,7 @@ export type SeedSampler = {
     topP?: number;
     typicalP?: number;
     xtcProbability?: number;
-    xtcThreshould?: number;
+    xtcThreshold?: number;
 };
 
 export type SeedAssistant = {

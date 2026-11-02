@@ -76,6 +76,28 @@ describe('EditSamplerUseCase', () => {
         expect(mockSamplerRepository.editSampler).not.toHaveBeenCalled();
     });
 
+    it('should fail when the adaptive target is out of range', async () => {
+        const response = await buildUseCase().execute({ id: '1', editParams: { name: 'new-name', adaptiveTarget: 5 } });
+
+        expect(response).toEqual({ success: false, error: 'Adaptive target must be greater than 0 and up to 1 to edit a sampler' });
+        expect(mockSamplerRepository.getSamplerById).not.toHaveBeenCalled();
+    });
+
+    it('should fail when the adaptive decay is out of range', async () => {
+        const response = await buildUseCase().execute({ id: '1', editParams: { name: 'new-name', adaptiveDecay: 1.1 } });
+
+        expect(response).toEqual({ success: false, error: 'Adaptive decay must be greater than 0 and up to 0.99 to edit a sampler' });
+        expect(mockSamplerRepository.getSamplerById).not.toHaveBeenCalled();
+    });
+
+    it('should fail when the name only matches a system default sampler after trimming', async () => {
+        const response = await buildUseCase().execute({ id: '1', editParams: { name: '  top_k  ' } });
+
+        expect(response.success).toBe(false);
+        expect(response.error).toContain('"top_k" is reserved');
+        expect(mockSamplerRepository.editSampler).not.toHaveBeenCalled();
+    });
+
     it('should fail when the target name matches any system default sampler name', async () => {
         mockGetSamplersService.getSystemDefaultSamplers.mockReturnValue([
             createSamplerHelper({
@@ -162,16 +184,36 @@ describe('EditSamplerUseCase', () => {
             expect(response).toEqual({ success: false, error: 'Sampler with id 1 not found' });
         });
 
-        it.each([
-            [{ success: false, error: 'Invalid sampler' }, 'Invalid sampler'],
-            [{ success: false }, 'An unknown error occurred on EditSamplerService'],
-            [{ success: true }, 'Success is true but does not have a sampler']
-        ])('should fail when the service answers %j', async (serviceResponse, error) => {
+        it('should fail when the service answers { success: false, error: "Invalid sampler" }', async () => {
+            const serviceResponse = { success: false, error: 'Invalid sampler' };
+
             mockService.editSampler.mockReturnValue(serviceResponse);
 
             const response = await buildUseCase().execute({ id: '1', editParams: { name: 'new-name' } });
 
-            expect(response).toEqual({ success: false, error });
+            expect(response).toEqual({ success: false, error: 'Invalid sampler' });
+            expect(mockSamplerRepository.editSampler).not.toHaveBeenCalled();
+        });
+
+        it('should fail when the service answers { success: false }', async () => {
+            const serviceResponse = { success: false };
+
+            mockService.editSampler.mockReturnValue(serviceResponse);
+
+            const response = await buildUseCase().execute({ id: '1', editParams: { name: 'new-name' } });
+
+            expect(response).toEqual({ success: false, error: 'An unknown error occurred on EditSamplerService' });
+            expect(mockSamplerRepository.editSampler).not.toHaveBeenCalled();
+        });
+
+        it('should fail when the service answers { success: true }', async () => {
+            const serviceResponse = { success: true };
+
+            mockService.editSampler.mockReturnValue(serviceResponse);
+
+            const response = await buildUseCase().execute({ id: '1', editParams: { name: 'new-name' } });
+
+            expect(response).toEqual({ success: false, error: 'Success is true but does not have a sampler' });
             expect(mockSamplerRepository.editSampler).not.toHaveBeenCalled();
         });
 
@@ -195,15 +237,24 @@ describe('EditSamplerUseCase', () => {
             expect(mockSamplerRepository.editSampler).not.toHaveBeenCalled();
         });
 
-        it.each([
-            [{ success: false, error: 'Disk full' }, 'Disk full'],
-            [{ success: false }, 'Failed to save sampler']
-        ])('should fail when saving answers %j', async (saveResponse, error) => {
+        it('should fail when saving answers { success: false, error: "Disk full" }', async () => {
+            const saveResponse = { success: false, error: 'Disk full' };
+
             mockSamplerRepository.editSampler.mockResolvedValueOnce(saveResponse);
 
             const response = await buildUseCase().execute({ id: '1', editParams: { name: 'new-name' } });
 
-            expect(response).toEqual({ success: false, error });
+            expect(response).toEqual({ success: false, error: 'Disk full' });
+        });
+
+        it('should fail when saving answers { success: false }', async () => {
+            const saveResponse = { success: false };
+
+            mockSamplerRepository.editSampler.mockResolvedValueOnce(saveResponse);
+
+            const response = await buildUseCase().execute({ id: '1', editParams: { name: 'new-name' } });
+
+            expect(response).toEqual({ success: false, error: 'Failed to save sampler' });
         });
     });
 });

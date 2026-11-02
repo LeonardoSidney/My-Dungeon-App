@@ -17,7 +17,7 @@ export class CreateAssistantService implements ICreateAssistantService {
             success: true,
             assistant: {
                 id: this.idGenerate.generate(),
-                name,
+                name: name.trim(),
                 observation,
                 modelId,
                 samplerId,

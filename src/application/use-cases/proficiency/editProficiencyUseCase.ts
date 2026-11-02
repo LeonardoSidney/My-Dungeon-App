@@ -88,7 +88,7 @@ export class EditProficiencyUseCase implements IEditProficiencyUseCase {
     }
 
     private validate (params: EditProficiencyParams): string | null {
-        if (!params.id) {
+        if (!params.id?.trim()) {
             return 'An id is required to edit a proficiency';
         }
 

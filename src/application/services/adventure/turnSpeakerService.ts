@@ -1,3 +1,5 @@
+import { formatEntityNotFound } from '@application/shared/formatEntityNotFound';
+import { CHARACTER_STORAGE_NAMESPACE, COLLECTION_LABELS, WORLD_MASTER_STORAGE_NAMESPACE } from '@domain/constants/general';
 import { Chat, RoleEnum } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import {
@@ -71,7 +73,7 @@ export class TurnSpeakerService implements ITurnSpeakerService {
 
         const worldMasterCharacter = hydrated.characters.find(character => character.worldMaster === true);
         if (!worldMasterCharacter) {
-            return { success: false, error: 'WorldMaster not found' };
+            return { success: false, error: `${COLLECTION_LABELS[WORLD_MASTER_STORAGE_NAMESPACE]} not found` };
         }
 
         return {
@@ -102,7 +104,7 @@ export class TurnSpeakerService implements ITurnSpeakerService {
     private resolveAiCharacter (hydrated: HydratedAdventure, characterId: string): ResolveTurnSpeakerReturn {
         const character = hydrated.characters.find(entry => entry.id === characterId);
         if (!character) {
-            return { success: false, error: `AI controlled character not found: ${characterId}` };
+            return { success: false, error: formatEntityNotFound(characterId, CHARACTER_STORAGE_NAMESPACE) };
         }
 
         return {

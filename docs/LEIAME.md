@@ -1,5 +1,7 @@
 # My dungeon app
 
+Leia isto em [inglês](../README.md).
+
 Bem vindo ao My dungeon app, esse é um aplicativo que eu carinhosamente fiz para minha querida esposa Luna 🌙
 
 O objetivo é simular uma mesa de RPG onde você acompanha uma narrativa feita por uma IA local que atua como mestre do mundo, com total liberdade em uma campanha solo para explorar os limites de uma narrativa auxiliada por IA.
@@ -87,6 +89,8 @@ O **Scene Context**, também nas Configurações e desligado por padrão, faz o 
 A resposta chega em **streaming** direto do servidor, com Markdown e LaTeX renderizados no chat, e modelos de raciocínio podem _pensar_: o _thinking_ fica gravado junto da mensagem no chat, pode ser editado ou removido, e um botão no cabeçalho do chat mostra ou esconde esse conteúdo. No Android o app continua vivo em segundo plano enquanto uma resposta chega.
 
 Suas mensagens podem ser editadas, apagadas ou reenviadas. As mensagens da IA podem ser editadas, regeneradas ou continuadas, e cada regeneração fica guardada como uma versão que você pode navegar.
+
+Tudo que tem lixeira pede confirmação antes de apagar. Se algo de que uma aventura depende for apagado, como uma habilidade de um personagem ou a conexão de um assistente, a aventura ainda abre para leitura, lista o que precisa ser corrigido e não gera respostas até a correção.
 
 ## O servidor: llama.cpp
 
@@ -187,7 +191,7 @@ fit-target = 512
 load-mode = mmap+mlock ; preferência pessoal
 n-gpu-layers = all ; Necessário para que MTP funcione corretamente
 
-; parametros de geração recomendados, se não li errado
+; parâmetros de geração recomendados, se não li errado
 chat-template-kwargs = {"reasoning_effort":"xhigh"} ; preferência pessoal
 min-p = 0.00
 temperature = 1

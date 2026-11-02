@@ -8,9 +8,9 @@ export class GetSamplerPresenter implements IGetSamplerPresenter {
             id: sampler.id,
             name: sampler.name,
             observation: sampler.observation,
-            adaptativeDecay: sampler.adaptativeDecay,
-            adaptativeTarget: sampler.adaptativeTarget,
-            dryAllowedLenght: sampler.dryAllowedLenght,
+            adaptiveDecay: sampler.adaptiveDecay,
+            adaptiveTarget: sampler.adaptiveTarget,
+            dryAllowedLength: sampler.dryAllowedLength,
             dryBase: sampler.dryBase,
             dryMultiplier: sampler.dryMultiplier,
             drySequenceBreakers: sampler.drySequenceBreakers,
@@ -32,7 +32,7 @@ export class GetSamplerPresenter implements IGetSamplerPresenter {
             topP: sampler.topP,
             typicalP: sampler.typicalP,
             xtcProbability: sampler.xtcProbability,
-            xtcThreshould: sampler.xtcThreshould,
+            xtcThreshold: sampler.xtcThreshold,
         };
     }
 }

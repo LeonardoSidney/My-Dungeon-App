@@ -1,3 +1,4 @@
+import { isValidPort } from '@application/shared/isValidPort';
 import { ILogger } from '@domain/logger';
 import { IConnectionRepository } from '@domain/repository';
 import { ICreateConnectionConfigService } from '@domain/services';
@@ -38,7 +39,7 @@ export class CreateConnectionConfigUseCase implements ICreateConnectionConfigUse
         if (!response.connection) {
             return {
                 success: false,
-                error: 'Success is true but does not have an connection'
+                error: 'Success is true but does not have a connection'
             };
         }
 
@@ -81,7 +82,7 @@ export class CreateConnectionConfigUseCase implements ICreateConnectionConfigUse
             return 'An IP is required to create a connection config';
         }
 
-        if (params.port && params.port <= 0) {
+        if (params.port !== undefined && !isValidPort(params.port)) {
             return 'A valid port is required to create a connection config';
         }
 

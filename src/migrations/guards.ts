@@ -85,9 +85,9 @@ export function isSeedConnection (value: unknown): value is SeedConnection {
 }
 
 const SEED_SAMPLER_NUMBER_FIELDS: string[] = [
-    'adaptativeDecay',
-    'adaptativeTarget',
-    'dryAllowedLenght',
+    'adaptiveDecay',
+    'adaptiveTarget',
+    'dryAllowedLength',
     'dryBase',
     'dryMultiplier',
     'dynaTempExp',
@@ -105,7 +105,7 @@ const SEED_SAMPLER_NUMBER_FIELDS: string[] = [
     'topP',
     'typicalP',
     'xtcProbability',
-    'xtcThreshould',
+    'xtcThreshold',
 ];
 
 export function isSeedSampler (value: unknown): value is SeedSampler {

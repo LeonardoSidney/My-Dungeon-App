@@ -1,12 +1,40 @@
-import { parseThinkContent, THOUGHT_END_TAGS } from '@application/shared/parseThinkContent';
+import { parseThinkContent } from '@application/shared/parseThinkContent';
 
 describe('parseThinkContent', () => {
     it('returns the whole text as content when there is no thought end tag', () => {
         expect(parseThinkContent('  just an answer  ')).toEqual({ content: '  just an answer  ' });
     });
 
-    it.each(THOUGHT_END_TAGS)('splits the think from the content at %p', (tag) => {
-        expect(parseThinkContent(` reasoning ${tag} answer `)).toEqual({
+    it('splits the think from the content at "</think>"', () => {
+        expect(parseThinkContent(' reasoning </think> answer ')).toEqual({
+            think: { content: 'reasoning' },
+            content: 'answer'
+        });
+    });
+
+    it('splits the think from the content at "</thought>"', () => {
+        expect(parseThinkContent(' reasoning </thought> answer ')).toEqual({
+            think: { content: 'reasoning' },
+            content: 'answer'
+        });
+    });
+
+    it('splits the think from the content at "</thought_end>"', () => {
+        expect(parseThinkContent(' reasoning </thought_end> answer ')).toEqual({
+            think: { content: 'reasoning' },
+            content: 'answer'
+        });
+    });
+
+    it('splits the think from the content at "<channel|>"', () => {
+        expect(parseThinkContent(' reasoning <channel|> answer ')).toEqual({
+            think: { content: 'reasoning' },
+            content: 'answer'
+        });
+    });
+
+    it('splits the think from the content at "to=user<|message|>"', () => {
+        expect(parseThinkContent(' reasoning to=user<|message|> answer ')).toEqual({
             think: { content: 'reasoning' },
             content: 'answer'
         });

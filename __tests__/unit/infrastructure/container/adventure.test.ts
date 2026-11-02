@@ -1,5 +1,5 @@
-import { MigrateAdventureStorageController } from '@adapters/controllers';
-import { migrateAdventureStorageController } from '@infra/container';
+import { GetAdventureMissingReferencesController, MigrateAdventureStorageController } from '@adapters/controllers';
+import { getAdventureMissingReferencesController, migrateAdventureStorageController } from '@infra/container';
 
 jest.mock('@react-native-async-storage/async-storage', () => ({
     getItem: jest.fn(),
@@ -9,5 +9,9 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 describe('adventure factories', () => {
     it('migrateAdventureStorageController builds a MigrateAdventureStorageController', () => {
         expect(migrateAdventureStorageController()).toBeInstanceOf(MigrateAdventureStorageController);
+    });
+
+    it('getAdventureMissingReferencesController builds a GetAdventureMissingReferencesController', () => {
+        expect(getAdventureMissingReferencesController()).toBeInstanceOf(GetAdventureMissingReferencesController);
     });
 });

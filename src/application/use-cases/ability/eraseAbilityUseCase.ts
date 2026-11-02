@@ -32,7 +32,7 @@ export class EraseAbilityUseCase implements IEraseAbilityUseCase {
     }
 
     private validate (params: EraseAbilityUseCaseParams): string | null {
-        if (!params.id) {
+        if (!params.id?.trim()) {
             return 'An ability id is required to erase an ability';
         }
 

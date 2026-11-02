@@ -1,8 +1,8 @@
 const ROUTER_URL = 'http://192.168.18.101:9931';
 const MODEL_PREFIX = 'Qwen3.8-27B';
-const SINGLE_THOUGHT = 'PENSAMENTO-UNICO-42: a resposta deriva de contagem de dedos.';
-const FIRST_THOUGHT = 'PENSAMENTO-PRIMEIRO-43: primeiro raciocinio da rodada.';
-const SECOND_THOUGHT = 'PENSAMENTO-SEGUNDO-44: segundo raciocinio da rodada.';
+const SINGLE_THOUGHT = 'PENSAMENTO-ÚNICO-42: a resposta deriva de contagem de dedos.';
+const FIRST_THOUGHT = 'PENSAMENTO-PRIMEIRO-43: primeiro raciocínio da rodada.';
+const SECOND_THOUGHT = 'PENSAMENTO-SEGUNDO-44: segundo raciocínio da rodada.';
 
 type ApiMessage = { role: string; content: string; reasoning_content?: string; };
 

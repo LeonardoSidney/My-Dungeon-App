@@ -1,3 +1,5 @@
+import { getAdaptiveRangeError } from '@application/shared/adaptiveSamplerRules';
+import { SamplerActionEnum } from '@domain/constants/sampler';
 import { ILogger } from '@domain/logger';
 import { ISamplerRepository } from '@domain/repository';
 import { ICreateSamplerService, IGetSamplersService } from '@domain/services';
@@ -20,7 +22,7 @@ export class CreateSamplerUseCase implements ICreateSamplerUseCase {
             };
         }
 
-        const reservedNameError = this.getReservedNameError(params.name);
+        const reservedNameError = this.getReservedNameError(params.name.trim());
         if (reservedNameError) {
             return {
                 success: false,
@@ -80,15 +82,7 @@ export class CreateSamplerUseCase implements ICreateSamplerUseCase {
             return 'A name is required to create a sampler';
         }
 
-        if (params.adaptativeTarget !== undefined && (params.adaptativeTarget <= 0 || params.adaptativeTarget > 1)) {
-            return 'Adaptative target must be greater than 0 and up to 1 to create a sampler';
-        }
-
-        if (params.adaptativeDecay !== undefined && (params.adaptativeDecay <= 0 || params.adaptativeDecay > 1)) {
-            return 'Adaptative decay must be greater than 0 and up to 1 to create a sampler';
-        }
-
-        return null;
+        return getAdaptiveRangeError(params, SamplerActionEnum.CREATE);
     }
 
     private getReservedNameError (name: string): string | null {

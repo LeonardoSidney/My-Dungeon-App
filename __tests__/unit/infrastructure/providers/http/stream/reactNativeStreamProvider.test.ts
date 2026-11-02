@@ -153,15 +153,27 @@ describe('ReactNativeStreamProvider', () => {
         await expect(tokens).rejects.toThrow('Request failed with status 500');
     });
 
-    it.each([
-        ['error', `Request to ${URL} failed`],
-        ['timeout', `Request to ${URL} timed out`]
-    ])('fails when the request emits %s', async (event, message) => {
+    it('fails when the request emits error', async () => {
+        const message = `Request to ${URL} failed`;
+
         const { stream, xhr } = buildStream();
 
         const tokens = collect(stream);
         await nextTick();
-        xhr.emit(event);
+        xhr.emit('error');
+
+        await expect(tokens).rejects.toThrow(message);
+        expect(mockLogger.error).toHaveBeenCalled();
+    });
+
+    it('fails when the request emits timeout', async () => {
+        const message = `Request to ${URL} timed out`;
+
+        const { stream, xhr } = buildStream();
+
+        const tokens = collect(stream);
+        await nextTick();
+        xhr.emit('timeout');
 
         await expect(tokens).rejects.toThrow(message);
         expect(mockLogger.error).toHaveBeenCalled();

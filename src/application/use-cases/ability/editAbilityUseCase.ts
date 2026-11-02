@@ -88,7 +88,7 @@ export class EditAbilityUseCase implements IEditAbilityUseCase {
     }
 
     private validate (params: EditAbilityParams): string | null {
-        if (!params.id) {
+        if (!params.id?.trim()) {
             return 'An id is required to edit an ability';
         }
 
@@ -97,7 +97,7 @@ export class EditAbilityUseCase implements IEditAbilityUseCase {
         }
 
         if (!params.editParams.activationWord?.trim()) {
-            return 'An activation world is required to edit an ability';
+            return 'An activation word is required to edit an ability';
         }
 
         if (!params.editParams.prompt?.trim()) {

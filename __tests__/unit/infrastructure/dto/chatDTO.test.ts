@@ -54,19 +54,43 @@ describe('ChatDTO', () => {
         expect(ChatDTO.fromStorage({ ...STORED, think: 'reasoning' })?.toEntity().think).toBeUndefined();
     });
 
-    it.each([null, 'chat', 42])('rejects %p because it is not a record', (data) => {
-        expect(ChatDTO.fromStorage(data)).toBeNull();
+    it('rejects null because it is not a record', () => {
+        expect(ChatDTO.fromStorage(null)).toBeNull();
     });
 
-    it.each([
-        ['id', 1],
-        ['role', 'narrator'],
-        ['role', 7],
-        ['index', '1'],
-        ['characterId', undefined],
-        ['createdAt', 'not a date'],
-        ['updatedAt', undefined]
-    ])('rejects a stored chat with an invalid %s', (field, value) => {
-        expect(ChatDTO.fromStorage({ ...STORED, [field]: value })).toBeNull();
+    it('rejects "chat" because it is not a record', () => {
+        expect(ChatDTO.fromStorage('chat')).toBeNull();
+    });
+
+    it('rejects 42 because it is not a record', () => {
+        expect(ChatDTO.fromStorage(42)).toBeNull();
+    });
+
+    it('rejects a stored chat with an invalid id', () => {
+        expect(ChatDTO.fromStorage({ ...STORED, id: 1 })).toBeNull();
+    });
+
+    it('rejects a stored chat with an unknown role', () => {
+        expect(ChatDTO.fromStorage({ ...STORED, role: 'narrator' })).toBeNull();
+    });
+
+    it('rejects a stored chat with a role that is not a string', () => {
+        expect(ChatDTO.fromStorage({ ...STORED, role: 7 })).toBeNull();
+    });
+
+    it('rejects a stored chat with an invalid index', () => {
+        expect(ChatDTO.fromStorage({ ...STORED, index: '1' })).toBeNull();
+    });
+
+    it('rejects a stored chat with an invalid characterId', () => {
+        expect(ChatDTO.fromStorage({ ...STORED, characterId: undefined })).toBeNull();
+    });
+
+    it('rejects a stored chat with an invalid createdAt', () => {
+        expect(ChatDTO.fromStorage({ ...STORED, createdAt: 'not a date' })).toBeNull();
+    });
+
+    it('rejects a stored chat with an invalid updatedAt', () => {
+        expect(ChatDTO.fromStorage({ ...STORED, updatedAt: undefined })).toBeNull();
     });
 });

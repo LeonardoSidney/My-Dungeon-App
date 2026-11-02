@@ -89,14 +89,19 @@ describe('SubscribeDraftController', () => {
         expect(response).toEqual({ success: true, isStreaming: false, unsubscribe, error: undefined });
     });
 
-    it.each([
-        [DraftStatusEnum.STREAMING, true],
-        [DraftStatusEnum.IDLE, false],
-    ])('maps a %s event into an update view', (status, isStreaming) => {
+    it('maps a DraftStatusEnum.STREAMING event into an update view', () => {
         const { onUpdate, emit } = subscribe();
 
-        emit({ draftId: 'home', status, error: 'oops' });
+        emit({ draftId: 'home', status: DraftStatusEnum.STREAMING, error: 'oops' });
 
-        expect(onUpdate).toHaveBeenCalledWith({ isStreaming, error: 'oops' });
+        expect(onUpdate).toHaveBeenCalledWith({ isStreaming: true, error: 'oops' });
+    });
+
+    it('maps a DraftStatusEnum.IDLE event into an update view', () => {
+        const { onUpdate, emit } = subscribe();
+
+        emit({ draftId: 'home', status: DraftStatusEnum.IDLE, error: 'oops' });
+
+        expect(onUpdate).toHaveBeenCalledWith({ isStreaming: false, error: 'oops' });
     });
 });

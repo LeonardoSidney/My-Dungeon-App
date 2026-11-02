@@ -16,10 +16,11 @@ type ChatItemProps = {
   editingChatId: string | null;
   editingThinkChatId: string | null;
   showThinkBlocks: boolean;
+  canGenerate: boolean;
   actions: ChatMessageActions;
 };
 
-function ChatItemBase ({ message, characterName, editingChatId, editingThinkChatId, showThinkBlocks, actions }: ChatItemProps) {
+function ChatItemBase ({ message, characterName, editingChatId, editingThinkChatId, showThinkBlocks, canGenerate, actions }: ChatItemProps) {
   const { id, content, isStreaming } = message;
   const visibleThink = showThinkBlocks ? message.think : undefined;
   const isUserMessage = message.role === RoleEnum.USER;
@@ -28,10 +29,10 @@ function ChatItemBase ({ message, characterName, editingChatId, editingThinkChat
   const canAct = editingChatId === null;
 
   const buttons: MessageAction[] = [];
-  if (canAct && isUserMessage) {
+  if (canAct && canGenerate && isUserMessage) {
     buttons.push({ key: 'regenerate', icon: '↻', tone: 'accent', onPress: () => actions.regenerateFrom(id) });
   }
-  if (canAct && !isStreaming && !isUserMessage) {
+  if (canAct && canGenerate && !isStreaming && !isUserMessage) {
     buttons.push({
       key: 'regenerateContent',
       icon: '⟳',
@@ -49,7 +50,7 @@ function ChatItemBase ({ message, characterName, editingChatId, editingThinkChat
       { key: 'save', icon: '💾', tone: 'neutral', disabled: !draft.trim(), onPress: () => actions.saveEdit(id, draft) },
     );
   }
-  if (canAct && !isStreaming && !isUserMessage) {
+  if (canAct && canGenerate && !isStreaming && !isUserMessage) {
     buttons.push({ key: 'continue', icon: '▶', tone: 'success', onPress: () => actions.continueFrom(id) });
   }
   if (canAct && isUserMessage) {
@@ -74,6 +75,7 @@ function ChatItemBase ({ message, characterName, editingChatId, editingThinkChat
           think={visibleThink}
           isStreaming={isStreaming}
           editingThinkChatId={editingThinkChatId}
+          canGenerate={canGenerate}
           actions={actions}
         />
       )}

@@ -12,7 +12,7 @@ export class CreateConnectionConfigService implements ICreateConnectionConfigSer
         const { name, ip, port, auth } = params;
         const connection = {
             id: this.idGenerate.generate(),
-            name,
+            name: name.trim(),
             ip,
             port,
             auth,

@@ -202,20 +202,38 @@ describe.each(ENTITIES)('$label controllers', ({ label, field, plural, entity, L
         expect(response).toEqual({ success: true });
     });
 
-    it.each([['create', Create], ['edit', Edit]] as const)('forwards the id the %s use case returns', async (_kind, Controller) => {
+    it('forwards the id the create use case returns', async () => {
         const execute = jest.fn().mockResolvedValue({ success: true, id: entity.id });
 
-        const response = await build(Controller, execute).handle({ id: entity.id, editParams: {}, name: 'x' } as never);
+        const response = await build(Create, execute).handle({ id: entity.id, editParams: {}, name: 'x' } as never);
 
         expect(execute).toHaveBeenCalledTimes(1);
         expect(response).toEqual({ success: true, id: entity.id });
         expect(definedKeys(response)).toEqual(['id', 'success']);
     });
 
-    it.each([['create', Create], ['edit', Edit]] as const)('forwards the %s error', async (_kind, Controller) => {
+    it('forwards the id the edit use case returns', async () => {
+        const execute = jest.fn().mockResolvedValue({ success: true, id: entity.id });
+
+        const response = await build(Edit, execute).handle({ id: entity.id, editParams: {}, name: 'x' } as never);
+
+        expect(execute).toHaveBeenCalledTimes(1);
+        expect(response).toEqual({ success: true, id: entity.id });
+        expect(definedKeys(response)).toEqual(['id', 'success']);
+    });
+
+    it('forwards the create error', async () => {
         const execute = jest.fn().mockResolvedValue({ success: false, error: 'invalid' });
 
-        const response = await build(Controller, execute).handle({ id: entity.id, editParams: {}, name: 'x' } as never);
+        const response = await build(Create, execute).handle({ id: entity.id, editParams: {}, name: 'x' } as never);
+
+        expect(response).toEqual({ success: false, error: 'invalid' });
+    });
+
+    it('forwards the edit error', async () => {
+        const execute = jest.fn().mockResolvedValue({ success: false, error: 'invalid' });
+
+        const response = await build(Edit, execute).handle({ id: entity.id, editParams: {}, name: 'x' } as never);
 
         expect(response).toEqual({ success: false, error: 'invalid' });
     });

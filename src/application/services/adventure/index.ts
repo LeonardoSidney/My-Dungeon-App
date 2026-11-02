@@ -18,3 +18,4 @@ export * from './setAdventureWorldMasterService';
 export * from './deleteChatVersionService';
 export * from './recoverInterruptedChatsService';
 export * from './turnSpeakerService';
+export * from './findAdventureMissingReferencesService';

@@ -7,11 +7,15 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 }));
 
 describe('model container', () => {
-    it.each([
-        ['getModelsFromProviderController', getModelsFromProviderController, GetModelsFromProviderController],
-        ['getModelTemplateController', getModelTemplateController, GetModelTemplateController],
-        ['getModelsController', getModelsController, GetModelsController]
-    ])('%s builds its controller', (_, factory, Controller) => {
-        expect(factory()).toBeInstanceOf(Controller);
+    it('getModelsFromProviderController builds its controller', () => {
+        expect(getModelsFromProviderController()).toBeInstanceOf(GetModelsFromProviderController);
+    });
+
+    it('getModelTemplateController builds its controller', () => {
+        expect(getModelTemplateController()).toBeInstanceOf(GetModelTemplateController);
+    });
+
+    it('getModelsController builds its controller', () => {
+        expect(getModelsController()).toBeInstanceOf(GetModelsController);
     });
 });

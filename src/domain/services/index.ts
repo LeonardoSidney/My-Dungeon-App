@@ -39,6 +39,7 @@ export * from './iStartStreamingChatService';
 export * from './iUpdateStreamingChatService';
 export * from './iFinishStreamingChatService';
 export * from './iHydrateAdventureService';
+export * from './iFindAdventureMissingReferencesService';
 export * from './iSelectChatVersionService';
 export * from './iSetAdventureWorldMasterService';
 export * from './iGetModelTemplateService';

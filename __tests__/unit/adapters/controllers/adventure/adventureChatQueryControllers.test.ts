@@ -1,5 +1,6 @@
-import { GetAdventureCharactersController, GetAdventureSummaryController, GetAdventureWorldMasterController, SetAdventureWorldMasterController } from '@adapters/controllers';
-import { GetAdventureCharactersPresenter, GetAdventureSummaryPresenter, GetAdventureWorldMasterPresenter } from '@adapters/presenters';
+import { GetAdventureCharactersController, GetAdventureMissingReferencesController, GetAdventureSummaryController, GetAdventureWorldMasterController, SetAdventureWorldMasterController } from '@adapters/controllers';
+import { GetAdventureCharactersPresenter, GetAdventureMissingReferencesPresenter, GetAdventureSummaryPresenter, GetAdventureWorldMasterPresenter } from '@adapters/presenters';
+import { MissingReferenceKindEnum, MissingReferenceOwnerEnum } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { createAdventureHelper, createCharacterHelper, createWorldMasterHelper } from '@test/helpers';
 
@@ -66,6 +67,34 @@ describe('GetAdventureWorldMasterController', () => {
         const response = await new GetAdventureWorldMasterController(logger, { execute }, new GetAdventureWorldMasterPresenter()).handle({ adventureId: 'adv-1' });
 
         expect(response).toEqual({ success: false, error: 'World master with id wm not found' });
+    });
+});
+
+describe('GetAdventureMissingReferencesController', () => {
+    it('returns the issues the player has to fix', async () => {
+        const missingReferences = [{ owner: MissingReferenceOwnerEnum.CHARACTER, ownerName: 'Aria', kind: MissingReferenceKindEnum.ABILITY, id: 'ability' }];
+        const execute = jest.fn().mockResolvedValue({ success: true, missingReferences });
+
+        const response = await new GetAdventureMissingReferencesController(logger, { execute }, new GetAdventureMissingReferencesPresenter()).handle({ adventureId: 'adv-1' });
+
+        expect(execute).toHaveBeenCalledWith({ adventureId: 'adv-1' });
+        expect(response).toEqual({ success: true, issues: ['Characters > Aria: an entry from Abilities is no longer available'] });
+    });
+
+    it('returns no issues when the use case answers without missing references', async () => {
+        const execute = jest.fn().mockResolvedValue({ success: true });
+
+        const response = await new GetAdventureMissingReferencesController(logger, { execute }, new GetAdventureMissingReferencesPresenter()).handle({ adventureId: 'adv-1' });
+
+        expect(response).toEqual({ success: true, issues: [] });
+    });
+
+    it('forwards the error', async () => {
+        const execute = jest.fn().mockResolvedValue({ success: false, error: 'storage offline' });
+
+        const response = await new GetAdventureMissingReferencesController(logger, { execute }, new GetAdventureMissingReferencesPresenter()).handle({ adventureId: 'adv-1' });
+
+        expect(response).toEqual({ success: false, error: 'storage offline' });
     });
 });
 

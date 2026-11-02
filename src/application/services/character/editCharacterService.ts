@@ -13,7 +13,15 @@ export class EditCharacterService implements IEditCharacterService {
 
         const editedCharacter: Character = {
             ...character,
-            ...editParams,
+            name: editParams.name.trim(),
+            activationWord: editParams.activationWord,
+            prompt: editParams.prompt,
+            observation: editParams.observation,
+            abilityIds: editParams.abilityIds,
+            proficiencyIds: editParams.proficiencyIds,
+            statusIds: editParams.statusIds,
+            attributes: editParams.attributes,
+            assistantId: editParams.assistantId,
             updatedAt: new Date()
         };
 

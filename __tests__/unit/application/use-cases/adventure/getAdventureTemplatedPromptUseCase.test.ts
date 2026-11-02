@@ -218,7 +218,7 @@ describe('GetAdventureTemplatedPromptUseCase', () => {
 
         const response = await buildUseCase().execute({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
-        expect(response).toEqual({ success: false, error: 'Assistant not found: 1' });
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: 1 from Assistants' });
         expect(mockGateway.applyTemplate).not.toHaveBeenCalled();
     });
 
@@ -227,7 +227,7 @@ describe('GetAdventureTemplatedPromptUseCase', () => {
 
         const response = await buildUseCase().execute({ hydrated, speaker: clericSpeaker, purpose: TurnPromptPurposeEnum.REPLY });
 
-        expect(response).toEqual({ success: false, error: 'Connection not found: 1' });
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: 1 from Connections' });
     });
 
     it('fails when the speaker assistant has no model', async () => {
@@ -271,22 +271,22 @@ describe('GetAdventureTemplatedPromptUseCase', () => {
 
         it('returns the next speaker error without building the prompt', async () => {
             mockHydrateAdventureUseCase.execute.mockResolvedValue({ success: true, hydrated: createHydratedAdventureHelper() });
-            mockTurnSpeakerService.resolveNextSpeaker.mockReturnValue({ success: false, error: 'AI controlled character not found: cleric' });
+            mockTurnSpeakerService.resolveNextSpeaker.mockReturnValue({ success: false, error: 'Entity not found for id: cleric from Characters' });
 
             const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
 
-            expect(response).toEqual({ success: false, error: 'AI controlled character not found: cleric' });
+            expect(response).toEqual({ success: false, error: 'Entity not found for id: cleric from Characters' });
             expect(mockTextGeneration.buildAdventureTextSystemPrompt).not.toHaveBeenCalled();
         });
 
         it('returns the world master error when the turn waits for the players and there is no world master', async () => {
             mockHydrateAdventureUseCase.execute.mockResolvedValue({ success: true, hydrated: createHydratedAdventureHelper() });
             mockTurnSpeakerService.resolveNextSpeaker.mockReturnValue({ success: true });
-            mockTurnSpeakerService.resolveWorldMaster.mockReturnValue({ success: false, error: 'WorldMaster not found' });
+            mockTurnSpeakerService.resolveWorldMaster.mockReturnValue({ success: false, error: 'World Masters not found' });
 
             const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
 
-            expect(response).toEqual({ success: false, error: 'WorldMaster not found' });
+            expect(response).toEqual({ success: false, error: 'World Masters not found' });
         });
 
         it('returns the hydration error without building the prompt', async () => {

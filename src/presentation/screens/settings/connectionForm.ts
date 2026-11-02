@@ -4,6 +4,7 @@ import {
     ICreateConnectionConfigController,
     IEditConnectionController,
 } from '@domain/controllers';
+import { MAX_PORT, MIN_PORT } from '@domain/constants/general';
 import { ControllerResponse } from '@presentation/hooks';
 
 export type ConnectionFormData = {
@@ -41,8 +42,11 @@ export function initialConnectionForm (): ConnectionFormData {
 }
 
 function parsePort (port: string): number | undefined {
-    const parsedPort = parseInt(port, 10);
-    return Number.isNaN(parsedPort) ? undefined : parsedPort;
+    const trimmedPort = port.trim();
+    if (!/^\d+$/.test(trimmedPort)) {
+        return undefined;
+    }
+    return parseInt(trimmedPort, 10);
 }
 
 function toConnectionRequest (form: ConnectionFormData): CreateConnectionConfigControllerRequest {
@@ -58,8 +62,9 @@ function validatePort (port: string): string | undefined {
     if (!port.trim()) {
         return 'Port is required';
     }
-    if (parsePort(port) === undefined) {
-        return 'Port must be a number';
+    const parsedPort = parsePort(port);
+    if (parsedPort === undefined || parsedPort < MIN_PORT || parsedPort > MAX_PORT) {
+        return `Port must be a number between ${MIN_PORT} and ${MAX_PORT}`;
     }
     return undefined;
 }

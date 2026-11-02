@@ -13,7 +13,10 @@ export class EditLocationService implements IEditLocationService {
 
         const editedLocation: Location = {
             ...location,
-            ...editParams,
+            name: editParams.name.trim(),
+            activationWord: editParams.activationWord,
+            prompt: editParams.prompt,
+            observation: editParams.observation,
             updatedAt: new Date()
         };
 

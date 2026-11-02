@@ -32,7 +32,7 @@ export class EraseAdventureUseCase implements IEraseAdventureUseCase {
     }
 
     private validate (params: EraseAdventureUseCaseParams): string | null {
-        if (!params.id) {
+        if (!params.id?.trim()) {
             return 'An adventure id is required to erase an adventure';
         }
 

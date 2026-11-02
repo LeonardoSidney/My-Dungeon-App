@@ -16,7 +16,7 @@ export class CreateLocationService implements ICreateLocationService {
             success: true,
             location: {
                 id: this.idGenerator.generate(),
-                name: params.name,
+                name: params.name.trim(),
                 activationWord: params.activationWord,
                 prompt: params.prompt,
                 observation: params.observation,

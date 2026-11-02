@@ -99,6 +99,7 @@ export * from './iSubscribeChatReplyUseCase';
 export * from './iRecoverInterruptedRepliesUseCase';
 export * from './iGetAdventureCharactersUseCase';
 export * from './iGetAdventureWorldMasterUseCase';
+export * from './iGetAdventureMissingReferencesUseCase';
 export * from './iGetDraftByIdUseCase';
 export * from './iSaveDraftUseCase';
 export * from './iStartDraftCompletionUseCase';

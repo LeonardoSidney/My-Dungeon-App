@@ -32,7 +32,7 @@ export class CreateAdventureService implements ICreateAdventureService {
         const createdAt = new Date();
         const adventure: Adventure = {
             id: this.idGenerate.generate(),
-            name: params.name,
+            name: params.name.trim(),
             chat: [],
             systemPromptIds: params.systemPromptIds,
             ...roster,

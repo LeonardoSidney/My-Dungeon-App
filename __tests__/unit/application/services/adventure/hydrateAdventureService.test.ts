@@ -71,7 +71,34 @@ describe('HydrateAdventureService', () => {
 
         const response = await service.hydrate({ adventure: createAdventureHelper({ characterIds: ['gone'] }) });
 
-        expect(response).toEqual({ success: false, error: 'Entity not found for id: gone' });
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: gone from Characters' });
+    });
+
+    it('names the world master collection when the world master does not exist', async () => {
+        const { service } = buildService();
+
+        const response = await service.hydrate({ adventure: createAdventureHelper({ worldMasterId: 'gone' }) });
+
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: gone from World Masters' });
+    });
+
+    it('names the system prompt collection when a system prompt does not exist', async () => {
+        const { service, repositories } = buildService();
+        repositories.getSystemPromptById.mockResolvedValue({ success: true, systemPrompt: undefined } as never);
+
+        const response = await service.hydrate({ adventure: createAdventureHelper({ systemPromptIds: ['gone'] }) });
+
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: gone from System Prompts' });
+    });
+
+    it('names the ability collection when an ability of a character does not exist', async () => {
+        const { service, repositories } = buildService();
+        repositories.getCharacterById.mockResolvedValue({ success: true, character: createCharacterHelper({ assistantId: 'assistant-1', abilityIds: ['gone'] }) });
+        repositories.getAbilityById.mockResolvedValue({ success: true, ability: undefined } as never);
+
+        const response = await service.hydrate({ adventure: createAdventureHelper({ characterIds: ['hero'] }) });
+
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: gone from Abilities' });
     });
 
     it('fails when an assistant does not exist', async () => {
@@ -80,7 +107,7 @@ describe('HydrateAdventureService', () => {
 
         const response = await service.hydrate({ adventure: createAdventureHelper({ characterIds: ['hero'] }) });
 
-        expect(response).toEqual({ success: false, error: 'Assistant not found: assistant-1' });
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: assistant-1 from Assistants' });
     });
 
     it('propagates a repository failure without resolving the next references', async () => {
@@ -172,25 +199,103 @@ describe('HydrateAdventureService', () => {
             expect(getSamplersService.findSystemDefaultSampler).toHaveBeenCalledWith('sampler-1');
         });
 
-        it.each([
-            ['getWorldMasterById', 'world master'],
-            ['getAssistantById', 'assistants'],
-            ['getSamplerById', 'samplers'],
-            ['getConnectionById', 'connections'],
-            ['getWorldById', 'worlds'],
-            ['getLocationById', 'locations'],
-            ['getItemById', 'items'],
-            ['getSystemPromptById', 'system prompts'],
-            ['getAbilityById', 'abilities'],
-            ['getProficiencyById', 'proficiencies'],
-            ['getStatusById', 'statuses']
-        ] as const)('fails with a generic error when %s fails without a message', async (method, resource) => {
+        it('fails with a generic error when getWorldMasterById fails without a message', async () => {
             const { service, repositories } = buildFullService();
-            (repositories[method] as jest.Mock).mockResolvedValue({ success: false });
+            (repositories.getWorldMasterById as jest.Mock).mockResolvedValue({ success: false });
 
             const response = await service.hydrate({ adventure });
 
-            expect(response).toEqual({ success: false, error: `Failed to resolve ${resource}` });
+            expect(response).toEqual({ success: false, error: 'Failed to resolve world master' });
+        });
+
+        it('fails with a generic error when getAssistantById fails without a message', async () => {
+            const { service, repositories } = buildFullService();
+            (repositories.getAssistantById as jest.Mock).mockResolvedValue({ success: false });
+
+            const response = await service.hydrate({ adventure });
+
+            expect(response).toEqual({ success: false, error: 'Failed to resolve assistants' });
+        });
+
+        it('fails with a generic error when getSamplerById fails without a message', async () => {
+            const { service, repositories } = buildFullService();
+            (repositories.getSamplerById as jest.Mock).mockResolvedValue({ success: false });
+
+            const response = await service.hydrate({ adventure });
+
+            expect(response).toEqual({ success: false, error: 'Failed to resolve samplers' });
+        });
+
+        it('fails with a generic error when getConnectionById fails without a message', async () => {
+            const { service, repositories } = buildFullService();
+            (repositories.getConnectionById as jest.Mock).mockResolvedValue({ success: false });
+
+            const response = await service.hydrate({ adventure });
+
+            expect(response).toEqual({ success: false, error: 'Failed to resolve connections' });
+        });
+
+        it('fails with a generic error when getWorldById fails without a message', async () => {
+            const { service, repositories } = buildFullService();
+            (repositories.getWorldById as jest.Mock).mockResolvedValue({ success: false });
+
+            const response = await service.hydrate({ adventure });
+
+            expect(response).toEqual({ success: false, error: 'Failed to resolve worlds' });
+        });
+
+        it('fails with a generic error when getLocationById fails without a message', async () => {
+            const { service, repositories } = buildFullService();
+            (repositories.getLocationById as jest.Mock).mockResolvedValue({ success: false });
+
+            const response = await service.hydrate({ adventure });
+
+            expect(response).toEqual({ success: false, error: 'Failed to resolve locations' });
+        });
+
+        it('fails with a generic error when getItemById fails without a message', async () => {
+            const { service, repositories } = buildFullService();
+            (repositories.getItemById as jest.Mock).mockResolvedValue({ success: false });
+
+            const response = await service.hydrate({ adventure });
+
+            expect(response).toEqual({ success: false, error: 'Failed to resolve items' });
+        });
+
+        it('fails with a generic error when getSystemPromptById fails without a message', async () => {
+            const { service, repositories } = buildFullService();
+            (repositories.getSystemPromptById as jest.Mock).mockResolvedValue({ success: false });
+
+            const response = await service.hydrate({ adventure });
+
+            expect(response).toEqual({ success: false, error: 'Failed to resolve system prompts' });
+        });
+
+        it('fails with a generic error when getAbilityById fails without a message', async () => {
+            const { service, repositories } = buildFullService();
+            (repositories.getAbilityById as jest.Mock).mockResolvedValue({ success: false });
+
+            const response = await service.hydrate({ adventure });
+
+            expect(response).toEqual({ success: false, error: 'Failed to resolve abilities' });
+        });
+
+        it('fails with a generic error when getProficiencyById fails without a message', async () => {
+            const { service, repositories } = buildFullService();
+            (repositories.getProficiencyById as jest.Mock).mockResolvedValue({ success: false });
+
+            const response = await service.hydrate({ adventure });
+
+            expect(response).toEqual({ success: false, error: 'Failed to resolve proficiencies' });
+        });
+
+        it('fails with a generic error when getStatusById fails without a message', async () => {
+            const { service, repositories } = buildFullService();
+            (repositories.getStatusById as jest.Mock).mockResolvedValue({ success: false });
+
+            const response = await service.hydrate({ adventure });
+
+            expect(response).toEqual({ success: false, error: 'Failed to resolve statuses' });
         });
     });
 });

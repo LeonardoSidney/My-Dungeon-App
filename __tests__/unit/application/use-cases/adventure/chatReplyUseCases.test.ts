@@ -54,15 +54,25 @@ describe('GetChatByIdUseCase', () => {
         expect(response).toEqual({ success: false, error: 'storage offline' });
     });
 
-    it.each([
-        [{ adventureId: ' ', chatId: 'chat-1' }, 'Adventure id is required'],
-        [{ adventureId: 'adventure-1', chatId: '' }, 'Chat id is required'],
-    ])('validates %p before reading the storage', async (params, error) => {
+    it('validates { adventureId: " ", chatId: "chat-1" } before reading the storage', async () => {
+        const params = { adventureId: ' ', chatId: 'chat-1' };
+
         const repository = { getAdventureById: jest.fn() };
 
         const response = await new GetChatByIdUseCase(logger, repository as never).execute(params);
 
-        expect(response).toEqual({ success: false, error });
+        expect(response).toEqual({ success: false, error: 'Adventure id is required' });
+        expect(repository.getAdventureById).not.toHaveBeenCalled();
+    });
+
+    it('validates { adventureId: "adventure-1", chatId: "" } before reading the storage', async () => {
+        const params = { adventureId: 'adventure-1', chatId: '' };
+
+        const repository = { getAdventureById: jest.fn() };
+
+        const response = await new GetChatByIdUseCase(logger, repository as never).execute(params);
+
+        expect(response).toEqual({ success: false, error: 'Chat id is required' });
         expect(repository.getAdventureById).not.toHaveBeenCalled();
     });
 });

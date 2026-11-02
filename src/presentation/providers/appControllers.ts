@@ -15,6 +15,7 @@ import {
     IGetAdventureTemplatedPromptController,
     IGetAdventureCharactersController,
     IGetAdventureWorldMasterController,
+    IGetAdventureMissingReferencesController,
     IGetAdventureSummaryController,
     IGetChatMessagesController,
     IGetChatMessageController,
@@ -124,6 +125,7 @@ export type AppControllers = {
     getAdventureTemplatedPrompt: IGetAdventureTemplatedPromptController;
     getAdventureCharacters: IGetAdventureCharactersController;
     getAdventureWorldMaster: IGetAdventureWorldMasterController;
+    getAdventureMissingReferences: IGetAdventureMissingReferencesController;
     getAdventureSummary: IGetAdventureSummaryController;
     getChatMessages: IGetChatMessagesController;
     getChatMessage: IGetChatMessageController;

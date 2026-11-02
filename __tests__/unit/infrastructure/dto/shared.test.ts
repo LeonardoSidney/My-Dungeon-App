@@ -7,12 +7,38 @@ enum Color {
 
 describe('dto shared helpers', () => {
     describe('isRecord', () => {
-        it.each([{}, { id: 1 }, []])('accepts %p', (value) => {
+        it('accepts {}', () => {
+            const value = {};
+
             expect(isRecord(value)).toBe(true);
         });
 
-        it.each([null, undefined, 'text', 42])('rejects %p', (value) => {
-            expect(isRecord(value)).toBe(false);
+        it('accepts { id: 1 }', () => {
+            const value = { id: 1 };
+
+            expect(isRecord(value)).toBe(true);
+        });
+
+        it('accepts []', () => {
+            const value: unknown[] = [];
+
+            expect(isRecord(value)).toBe(true);
+        });
+
+        it('rejects null', () => {
+            expect(isRecord(null)).toBe(false);
+        });
+
+        it('rejects undefined', () => {
+            expect(isRecord(undefined)).toBe(false);
+        });
+
+        it('rejects "text"', () => {
+            expect(isRecord('text')).toBe(false);
+        });
+
+        it('rejects 42', () => {
+            expect(isRecord(42)).toBe(false);
         });
     });
 
@@ -23,19 +49,31 @@ describe('dto shared helpers', () => {
             expect(parseDate(date)).toBe(date);
         });
 
-        it.each([
-            ['an ISO string', '2026-01-01T00:00:00.000Z'],
-            ['a timestamp', Date.parse('2026-01-01T00:00:00.000Z')]
-        ])('parses %s', (_, value) => {
+        it('parses an ISO string', () => {
+            expect(parseDate('2026-01-01T00:00:00.000Z')).toEqual(new Date('2026-01-01T00:00:00.000Z'));
+        });
+
+        it('parses a timestamp', () => {
+            const value = Date.parse('2026-01-01T00:00:00.000Z');
+
             expect(parseDate(value)).toEqual(new Date('2026-01-01T00:00:00.000Z'));
         });
 
-        it.each([
-            ['an invalid string', 'not a date'],
-            ['NaN', Number.NaN],
-            ['null', null],
-            ['an object', {}]
-        ])('rejects %s', (_, value) => {
+        it('rejects an invalid string', () => {
+            expect(parseDate('not a date')).toBeNull();
+        });
+
+        it('rejects NaN', () => {
+            expect(parseDate(Number.NaN)).toBeNull();
+        });
+
+        it('rejects null', () => {
+            expect(parseDate(null)).toBeNull();
+        });
+
+        it('rejects an object', () => {
+            const value = {};
+
             expect(parseDate(value)).toBeNull();
         });
     });
@@ -45,18 +83,40 @@ describe('dto shared helpers', () => {
             expect(isArrayRecord([{ id: 1 }, {}])).toBe(true);
         });
 
-        it.each([[[{ id: 1 }, 'text']], [{ id: 1 }]])('rejects %p', (value) => {
+        it('rejects [{ id: 1 }, "text"]', () => {
+            const value = [{ id: 1 }, 'text'];
+
+            expect(isArrayRecord(value)).toBe(false);
+        });
+
+        it('rejects { id: 1 }', () => {
+            const value = { id: 1 };
+
             expect(isArrayRecord(value)).toBe(false);
         });
     });
 
     describe('isStringArray', () => {
-        it.each([[[]], [['a', 'b']]])('accepts %p', (value) => {
+        it('accepts []', () => {
+            const value: unknown[] = [];
+
             expect(isStringArray(value)).toBe(true);
         });
 
-        it.each([[['a', 1]], ['a']])('rejects %p', (value) => {
+        it('accepts ["a", "b"]', () => {
+            const value = ['a', 'b'];
+
+            expect(isStringArray(value)).toBe(true);
+        });
+
+        it('rejects ["a", 1]', () => {
+            const value = ['a', 1];
+
             expect(isStringArray(value)).toBe(false);
+        });
+
+        it('rejects "a"', () => {
+            expect(isStringArray('a')).toBe(false);
         });
     });
 

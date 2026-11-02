@@ -16,7 +16,7 @@ export class CreateWorldService implements ICreateWorldService {
             success: true,
             world: {
                 id: this.idGenerator.generate(),
-                name: params.name,
+                name: params.name.trim(),
                 activationWord: params.activationWord,
                 prompt: params.prompt,
                 observation: params.observation,

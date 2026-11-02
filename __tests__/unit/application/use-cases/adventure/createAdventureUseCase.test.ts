@@ -115,19 +115,53 @@ describe('CreateAdventureUseCase', () => {
         expect(response).toEqual({ success: false, error: 'success is true but does not have an adventure object' });
     });
 
-    it.each([
-        ['getWorldMasterById', 'WorldMaster'],
-        ['getSystemPromptById', 'SystemPrompt'],
-        ['getWorldById', 'World'],
-        ['getLocationById', 'Location'],
-        ['getItemById', 'Item']
-    ] as const)('does not save when %s does not find the referenced entity', async (method, label) => {
+    it('does not save when getWorldMasterById does not find the referenced entity', async () => {
         const { useCase, found, adventureRepository } = buildCreate();
-        found[method].mockResolvedValue({ success: true });
+        found.getWorldMasterById.mockResolvedValue({ success: true });
 
         const response = await useCase.execute(REQUEST);
 
-        expect(response).toEqual({ success: false, error: `${label} not found: 1` });
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: 1 from World Masters' });
+        expect(adventureRepository.saveAdventure).not.toHaveBeenCalled();
+    });
+
+    it('does not save when getSystemPromptById does not find the referenced entity', async () => {
+        const { useCase, found, adventureRepository } = buildCreate();
+        found.getSystemPromptById.mockResolvedValue({ success: true });
+
+        const response = await useCase.execute(REQUEST);
+
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: 1 from System Prompts' });
+        expect(adventureRepository.saveAdventure).not.toHaveBeenCalled();
+    });
+
+    it('does not save when getWorldById does not find the referenced entity', async () => {
+        const { useCase, found, adventureRepository } = buildCreate();
+        found.getWorldById.mockResolvedValue({ success: true });
+
+        const response = await useCase.execute(REQUEST);
+
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: 1 from Worlds' });
+        expect(adventureRepository.saveAdventure).not.toHaveBeenCalled();
+    });
+
+    it('does not save when getLocationById does not find the referenced entity', async () => {
+        const { useCase, found, adventureRepository } = buildCreate();
+        found.getLocationById.mockResolvedValue({ success: true });
+
+        const response = await useCase.execute(REQUEST);
+
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: 1 from Locations' });
+        expect(adventureRepository.saveAdventure).not.toHaveBeenCalled();
+    });
+
+    it('does not save when getItemById does not find the referenced entity', async () => {
+        const { useCase, found, adventureRepository } = buildCreate();
+        found.getItemById.mockResolvedValue({ success: true });
+
+        const response = await useCase.execute(REQUEST);
+
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: 1 from Items' });
         expect(adventureRepository.saveAdventure).not.toHaveBeenCalled();
     });
 
@@ -161,5 +195,18 @@ describe('CreateAdventureUseCase', () => {
         const response = await useCase.execute(REQUEST);
 
         expect(response).toEqual({ success: false, error: 'Disk full' });
+    });
+
+    it('compares the trimmed name against the existing adventures', async () => {
+        const { useCase, adventureRepository } = buildCreate();
+        adventureRepository.getAdventureIndex.mockResolvedValue({
+            success: true,
+            entries: [createAdventureHelper({ id: 'old', name: REQUEST.name })]
+        });
+
+        const response = await useCase.execute({ ...REQUEST, name: `  ${REQUEST.name}  ` });
+
+        expect(response).toEqual({ success: false, error: `An adventure name ${REQUEST.name} already exists` });
+        expect(adventureRepository.saveAdventure).not.toHaveBeenCalled();
     });
 });

@@ -7,9 +7,9 @@ export interface ICreateSamplerService {
 export type CreateSamplerServiceParams = {
     name: string;
     observation?: string;
-    adaptativeDecay?: number;
-    adaptativeTarget?: number;
-    dryAllowedLenght?: number;
+    adaptiveDecay?: number;
+    adaptiveTarget?: number;
+    dryAllowedLength?: number;
     dryBase?: number;
     dryMultiplier?: number;
     drySequenceBreakers?: string;
@@ -31,7 +31,7 @@ export type CreateSamplerServiceParams = {
     topP?: number;
     typicalP?: number;
     xtcProbability?: number;
-    xtcThreshould?: number;
+    xtcThreshold?: number;
 };
 
 export type CreateSamplerServiceResponse = {

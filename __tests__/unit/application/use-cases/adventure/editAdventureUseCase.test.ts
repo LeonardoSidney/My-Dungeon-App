@@ -103,16 +103,36 @@ describe('EditAdventureUseCase', () => {
         expect(response).toEqual({ success: false, error: 'Adventure with id adv-1 not found' });
     });
 
-    it.each([
-        [{ success: false, error: 'Invalid cast' }, 'Invalid cast'],
-        [{ success: false }, 'An unknown error occurred on EditAdventureService'],
-        [{ success: true }, 'Success is true but does not have an adventure']
-    ])('fails without saving when the service answers %j', async (serviceResponse, error) => {
+    it('fails without saving when the service answers { success: false, error: "Invalid cast" }', async () => {
+        const serviceResponse = { success: false, error: 'Invalid cast' };
+
         const { useCase, adventureRepository } = buildEdit({ editAdventure: jest.fn().mockReturnValue(serviceResponse) });
 
         const response = await useCase.execute({ id: 'adv-1', editParams: REQUEST });
 
-        expect(response).toEqual({ success: false, error });
+        expect(response).toEqual({ success: false, error: 'Invalid cast' });
+        expect(adventureRepository.updateAdventure).not.toHaveBeenCalled();
+    });
+
+    it('fails without saving when the service answers { success: false }', async () => {
+        const serviceResponse = { success: false };
+
+        const { useCase, adventureRepository } = buildEdit({ editAdventure: jest.fn().mockReturnValue(serviceResponse) });
+
+        const response = await useCase.execute({ id: 'adv-1', editParams: REQUEST });
+
+        expect(response).toEqual({ success: false, error: 'An unknown error occurred on EditAdventureService' });
+        expect(adventureRepository.updateAdventure).not.toHaveBeenCalled();
+    });
+
+    it('fails without saving when the service answers { success: true }', async () => {
+        const serviceResponse = { success: true };
+
+        const { useCase, adventureRepository } = buildEdit({ editAdventure: jest.fn().mockReturnValue(serviceResponse) });
+
+        const response = await useCase.execute({ id: 'adv-1', editParams: REQUEST });
+
+        expect(response).toEqual({ success: false, error: 'Success is true but does not have an adventure' });
         expect(adventureRepository.updateAdventure).not.toHaveBeenCalled();
     });
 
@@ -126,19 +146,53 @@ describe('EditAdventureUseCase', () => {
         expect(adventureRepository.updateAdventure).not.toHaveBeenCalled();
     });
 
-    it.each([
-        ['getWorldMasterById', 'WorldMaster'],
-        ['getSystemPromptById', 'SystemPrompt'],
-        ['getWorldById', 'World'],
-        ['getLocationById', 'Location'],
-        ['getItemById', 'Item']
-    ] as const)('does not save when %s does not find the referenced entity', async (method, label) => {
+    it('does not save when getWorldMasterById does not find the referenced entity', async () => {
         const { useCase, found, adventureRepository } = buildEdit();
-        found[method].mockResolvedValue({ success: true });
+        found.getWorldMasterById.mockResolvedValue({ success: true });
 
         const response = await useCase.execute({ id: 'adv-1', editParams: REQUEST });
 
-        expect(response).toEqual({ success: false, error: `${label} not found: 1` });
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: 1 from World Masters' });
+        expect(adventureRepository.updateAdventure).not.toHaveBeenCalled();
+    });
+
+    it('does not save when getSystemPromptById does not find the referenced entity', async () => {
+        const { useCase, found, adventureRepository } = buildEdit();
+        found.getSystemPromptById.mockResolvedValue({ success: true });
+
+        const response = await useCase.execute({ id: 'adv-1', editParams: REQUEST });
+
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: 1 from System Prompts' });
+        expect(adventureRepository.updateAdventure).not.toHaveBeenCalled();
+    });
+
+    it('does not save when getWorldById does not find the referenced entity', async () => {
+        const { useCase, found, adventureRepository } = buildEdit();
+        found.getWorldById.mockResolvedValue({ success: true });
+
+        const response = await useCase.execute({ id: 'adv-1', editParams: REQUEST });
+
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: 1 from Worlds' });
+        expect(adventureRepository.updateAdventure).not.toHaveBeenCalled();
+    });
+
+    it('does not save when getLocationById does not find the referenced entity', async () => {
+        const { useCase, found, adventureRepository } = buildEdit();
+        found.getLocationById.mockResolvedValue({ success: true });
+
+        const response = await useCase.execute({ id: 'adv-1', editParams: REQUEST });
+
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: 1 from Locations' });
+        expect(adventureRepository.updateAdventure).not.toHaveBeenCalled();
+    });
+
+    it('does not save when getItemById does not find the referenced entity', async () => {
+        const { useCase, found, adventureRepository } = buildEdit();
+        found.getItemById.mockResolvedValue({ success: true });
+
+        const response = await useCase.execute({ id: 'adv-1', editParams: REQUEST });
+
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: 1 from Items' });
         expect(adventureRepository.updateAdventure).not.toHaveBeenCalled();
     });
 
@@ -177,15 +231,25 @@ describe('EditAdventureUseCase', () => {
         expect(response).toEqual({ success: true, id: 'adv-1' });
     });
 
-    it.each([
-        [{ success: false, error: 'Disk full' }, 'Disk full'],
-        [{ success: false }, 'Failed to save edited adventure']
-    ])('fails when saving answers %j', async (updateResponse, error) => {
+    it('fails when saving answers { success: false, error: "Disk full" }', async () => {
+        const updateResponse = { success: false, error: 'Disk full' };
+
         const { useCase, adventureRepository } = buildEdit();
         adventureRepository.updateAdventure.mockResolvedValue(updateResponse);
 
         const response = await useCase.execute({ id: 'adv-1', editParams: REQUEST });
 
-        expect(response).toEqual({ success: false, error });
+        expect(response).toEqual({ success: false, error: 'Disk full' });
+    });
+
+    it('fails when saving answers { success: false }', async () => {
+        const updateResponse = { success: false };
+
+        const { useCase, adventureRepository } = buildEdit();
+        adventureRepository.updateAdventure.mockResolvedValue(updateResponse);
+
+        const response = await useCase.execute({ id: 'adv-1', editParams: REQUEST });
+
+        expect(response).toEqual({ success: false, error: 'Failed to save edited adventure' });
     });
 });

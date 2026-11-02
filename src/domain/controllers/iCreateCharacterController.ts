@@ -1,10 +1,10 @@
 import { Attribute } from '../entities';
 
 export interface ICreateCharacterController {
-    handle (params: CreateCharacterControllerPrams): Promise<CreateCharacterControllerResponse>;
+    handle (params: CreateCharacterControllerParams): Promise<CreateCharacterControllerResponse>;
 }
 
-export type CreateCharacterControllerPrams = {
+export type CreateCharacterControllerParams = {
     name: string;
     activationWord: string;
     prompt: string;

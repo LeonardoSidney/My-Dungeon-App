@@ -24,7 +24,7 @@ export class EraseAssistantUseCase implements IEraseAssistantUseCase {
     }
 
     private validate (params: EraseAssistantUseCaseParams): string | null {
-        if (!params.id) {
+        if (!params.id?.trim()) {
             return 'An assistant id is required to erase an assistant';
         }
 

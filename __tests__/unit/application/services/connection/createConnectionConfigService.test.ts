@@ -184,4 +184,15 @@ describe('CreateConnectionConfigService', () => {
         expect(result.connection?.port).toBeUndefined();
         expect(result.connection?.auth).toBeUndefined();
     });
+
+    it('should trim the start and the end of the name', () => {
+        mockIdGenerator.generate.mockReturnValue('connection-trim');
+
+        const result: CreateConnectionConfigServiceReturn = service.createConnectionConfig({
+            name: '  Local  Server\n',
+            ip: 'localhost'
+        });
+
+        expect(result.connection?.name).toBe('Local  Server');
+    });
 });

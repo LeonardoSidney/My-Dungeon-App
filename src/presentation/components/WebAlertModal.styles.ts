@@ -50,4 +50,7 @@ export const styles = StyleSheet.create({
     cancelButtonText: {
         color: colors.textSecondary,
     },
+    destructiveButtonText: {
+        color: colors.dangerSoft,
+    },
 });

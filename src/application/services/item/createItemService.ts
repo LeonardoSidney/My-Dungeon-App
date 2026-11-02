@@ -16,7 +16,7 @@ export class CreateItemService implements ICreateItemService {
             success: true,
             item: {
                 id: this.idGenerator.generate(),
-                name: params.name,
+                name: params.name.trim(),
                 activationWord: params.activationWord,
                 prompt: params.prompt,
                 observation: params.observation,

@@ -3,9 +3,9 @@ export type Sampler = {
     name: string;
     observation?: string;
     systemDefault: boolean;
-    adaptativeDecay?: number;
-    adaptativeTarget?: number;
-    dryAllowedLenght?: number;
+    adaptiveDecay?: number;
+    adaptiveTarget?: number;
+    dryAllowedLength?: number;
     dryBase?: number;
     dryMultiplier?: number;
     drySequenceBreakers?: string;
@@ -27,7 +27,7 @@ export type Sampler = {
     topP?: number;
     typicalP?: number;
     xtcProbability?: number;
-    xtcThreshould?: number;
+    xtcThreshold?: number;
     createdAt: Date;
     updatedAt: Date;
 };

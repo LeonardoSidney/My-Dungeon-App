@@ -10,6 +10,11 @@ export function useAppBootstrap (controllers: AppControllers): boolean {
 
     useEffect(() => {
         const seed = async () => {
+            const isSeedEnabled = typeof __SEED__ !== 'undefined' && __SEED__;
+            if (!isSeedEnabled) {
+                return;
+            }
+
             const response = await runSeed();
             if (!response.success) {
                 showError(alert, response.error, 'Failed to seed data');

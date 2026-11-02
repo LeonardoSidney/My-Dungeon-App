@@ -1,3 +1,4 @@
+import { WORLD_MASTER_STORAGE_NAMESPACE } from '@domain/constants/general';
 import { ILogger } from '@domain/logger';
 import { IAdventureRepository, IWorldMasterRepository } from '@domain/repository';
 import {
@@ -5,6 +6,7 @@ import {
     GetAdventureWorldMasterUseCaseReturn,
     IGetAdventureWorldMasterUseCase,
 } from '@domain/use-cases';
+import { formatEntityNotFound } from '@application/shared/formatEntityNotFound';
 
 export class GetAdventureWorldMasterUseCase implements IGetAdventureWorldMasterUseCase {
     constructor (
@@ -44,7 +46,7 @@ export class GetAdventureWorldMasterUseCase implements IGetAdventureWorldMasterU
 
         const worldMaster = worldMasterResponse.worldMaster;
         if (!worldMaster) {
-            return { success: false, error: `World master with id ${adventure.worldMasterId} not found` };
+            this.logger.warning('GetAdventureWorldMasterUseCase::execute - world master is missing', formatEntityNotFound(adventure.worldMasterId, WORLD_MASTER_STORAGE_NAMESPACE));
         }
 
         return { success: true, worldMaster };

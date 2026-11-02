@@ -40,9 +40,9 @@ export async function seedSamplers (seeds: SeedSampler[]): Promise<MigrationRetu
             editParams: {
                 name: seed.name,
                 observation: seed.observation,
-                adaptativeDecay: seed.adaptativeDecay,
-                adaptativeTarget: seed.adaptativeTarget,
-                dryAllowedLenght: seed.dryAllowedLenght,
+                adaptiveDecay: seed.adaptiveDecay,
+                adaptiveTarget: seed.adaptiveTarget,
+                dryAllowedLength: seed.dryAllowedLength,
                 dryBase: seed.dryBase,
                 dryMultiplier: seed.dryMultiplier,
                 drySequenceBreakers: seed.drySequenceBreakers,
@@ -64,7 +64,7 @@ export async function seedSamplers (seeds: SeedSampler[]): Promise<MigrationRetu
                 topP: seed.topP,
                 typicalP: seed.typicalP,
                 xtcProbability: seed.xtcProbability,
-                xtcThreshould: seed.xtcThreshould,
+                xtcThreshold: seed.xtcThreshold,
             },
         });
         if (!response.success) {

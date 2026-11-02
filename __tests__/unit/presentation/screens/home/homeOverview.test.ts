@@ -57,24 +57,35 @@ describe('summarizeServers', () => {
 });
 
 describe('formatCount', () => {
-    it.each([
-        [0, '0'],
-        [999, '999'],
-        [1000, '1.0k'],
-        [98450, '98.5k'],
-    ])('formats %p as %p', (value, expected) => {
-        expect(formatCount(value)).toBe(expected);
+    it('formats 0 as "0"', () => {
+        expect(formatCount(0)).toBe('0');
+    });
+
+    it('formats 999 as "999"', () => {
+        expect(formatCount(999)).toBe('999');
+    });
+
+    it('formats 1000 as "1.0k"', () => {
+        expect(formatCount(1000)).toBe('1.0k');
+    });
+
+    it('formats 98450 as "98.5k"', () => {
+        expect(formatCount(98450)).toBe('98.5k');
     });
 });
 
 describe('formatDaysAgo', () => {
     const now = new Date('2026-10-26T12:00:00.000Z');
 
-    it.each([
-        ['2026-10-26T08:00:00.000Z', 'today'],
-        ['2026-10-25T08:00:00.000Z', 'yesterday'],
-        ['2026-10-20T08:00:00.000Z', '6 days ago'],
-    ])('describes %p as %p', (date, expected) => {
-        expect(formatDaysAgo(date, now)).toBe(expected);
+    it('describes "2026-10-26T08:00:00.000Z" as "today"', () => {
+        expect(formatDaysAgo('2026-10-26T08:00:00.000Z', now)).toBe('today');
+    });
+
+    it('describes "2026-10-25T08:00:00.000Z" as "yesterday"', () => {
+        expect(formatDaysAgo('2026-10-25T08:00:00.000Z', now)).toBe('yesterday');
+    });
+
+    it('describes "2026-10-20T08:00:00.000Z" as "6 days ago"', () => {
+        expect(formatDaysAgo('2026-10-20T08:00:00.000Z', now)).toBe('6 days ago');
     });
 });

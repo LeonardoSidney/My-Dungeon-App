@@ -13,7 +13,10 @@ export class EditWorldService implements IEditWorldService {
 
         const editedWorld: World = {
             ...world,
-            ...editParams,
+            name: editParams.name.trim(),
+            activationWord: editParams.activationWord,
+            prompt: editParams.prompt,
+            observation: editParams.observation,
             updatedAt: new Date()
         };
 

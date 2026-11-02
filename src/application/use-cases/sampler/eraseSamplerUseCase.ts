@@ -32,7 +32,7 @@ export class EraseSamplerUseCase implements IEraseSamplerUseCase {
     }
 
     private validate (params: EraseSamplerUseCaseParams): string | null {
-        if (!params.id) {
+        if (!params.id?.trim()) {
             return 'A sampler id is required to erase a sampler';
         }
 

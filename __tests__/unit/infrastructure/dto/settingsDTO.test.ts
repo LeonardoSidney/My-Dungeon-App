@@ -1,12 +1,31 @@
 import { SettingsDTO } from '@infra/dto';
 
 describe('SettingsDTO', () => {
-    it.each([
-        [{ systemPromptLoadOrder: '{characters}' }, { systemPromptLoadOrder: '{characters}' }],
-        [{ systemPromptLoadOrder: '' }, { systemPromptLoadOrder: '' }],
-        [{}, {}],
-        [{ systemPromptLoadOrder: undefined }, {}],
-    ])('converts %j into %j', (data, expected) => {
+    it('converts { systemPromptLoadOrder: "{characters}" } into { systemPromptLoadOrder: "{characters}" }', () => {
+        const data = { systemPromptLoadOrder: '{characters}' };
+        const expected = { systemPromptLoadOrder: '{characters}' };
+
+        expect(SettingsDTO.fromStorage(data)?.toEntity()).toEqual(expected);
+    });
+
+    it('converts { systemPromptLoadOrder: "" } into { systemPromptLoadOrder: "" }', () => {
+        const data = { systemPromptLoadOrder: '' };
+        const expected = { systemPromptLoadOrder: '' };
+
+        expect(SettingsDTO.fromStorage(data)?.toEntity()).toEqual(expected);
+    });
+
+    it('converts {} into {}', () => {
+        const data = {};
+        const expected = {};
+
+        expect(SettingsDTO.fromStorage(data)?.toEntity()).toEqual(expected);
+    });
+
+    it('converts { systemPromptLoadOrder: undefined } into {}', () => {
+        const data = { systemPromptLoadOrder: undefined };
+        const expected = {};
+
         expect(SettingsDTO.fromStorage(data)?.toEntity()).toEqual(expected);
     });
 
@@ -16,16 +35,43 @@ describe('SettingsDTO', () => {
         expect(settings && Object.keys(settings)).toEqual([]);
     });
 
-    it.each([
-        null,
-        undefined,
-        'settings',
-        42,
-        [],
-        { systemPromptLoadOrder: 42 },
-        { systemPromptLoadOrder: null },
-        { systemPromptLoadOrder: ['{characters}'] },
-    ])('rejects %j', (data) => {
+    it('rejects null', () => {
+        expect(SettingsDTO.fromStorage(null)).toBeNull();
+    });
+
+    it('rejects undefined', () => {
+        expect(SettingsDTO.fromStorage(undefined)).toBeNull();
+    });
+
+    it('rejects settings', () => {
+        expect(SettingsDTO.fromStorage('settings')).toBeNull();
+    });
+
+    it('rejects 42', () => {
+        expect(SettingsDTO.fromStorage(42)).toBeNull();
+    });
+
+    it('rejects []', () => {
+        const data: unknown[] = [];
+
+        expect(SettingsDTO.fromStorage(data)).toBeNull();
+    });
+
+    it('rejects { systemPromptLoadOrder: 42 }', () => {
+        const data = { systemPromptLoadOrder: 42 };
+
+        expect(SettingsDTO.fromStorage(data)).toBeNull();
+    });
+
+    it('rejects { systemPromptLoadOrder: null }', () => {
+        const data = { systemPromptLoadOrder: null };
+
+        expect(SettingsDTO.fromStorage(data)).toBeNull();
+    });
+
+    it('rejects { systemPromptLoadOrder: ["{characters}"] }', () => {
+        const data = { systemPromptLoadOrder: ['{characters}'] };
+
         expect(SettingsDTO.fromStorage(data)).toBeNull();
     });
 

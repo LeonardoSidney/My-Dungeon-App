@@ -69,13 +69,14 @@ export class CreateAdventureUseCase implements ICreateAdventureUseCase {
 
         const entries = indexResponse.entries;
         this.logger.debug('adventureRepository executed successfully', entries);
-        const alreadyExists = entries.find((entry) => entry.name === params.name);
+        const adventureName = response.adventure.name;
+        const alreadyExists = entries.find((entry) => entry.name === adventureName);
 
         if (alreadyExists) {
-            this.logger.warning(`An adventure name ${params.name} already exists`);
+            this.logger.warning(`An adventure name ${adventureName} already exists`);
             return {
                 success: false,
-                error: `An adventure name ${params.name} already exists`
+                error: `An adventure name ${adventureName} already exists`
             };
         }
 

@@ -26,6 +26,10 @@ export class AlertNativeUseCase implements IAlertUseCase {
             return 'cancel';
         }
 
+        if (style === AlertActionStyleEnum.DESTRUCTIVE) {
+            return 'destructive';
+        }
+
         return 'default';
     }
 }

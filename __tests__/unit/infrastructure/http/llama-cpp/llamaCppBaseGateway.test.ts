@@ -171,10 +171,17 @@ describe('LlamaCppBaseGateway', () => {
             expect(result).toEqual({ success: false, error: 'Error reading models from http://192.168.0.1:8080/models: not json' });
         });
 
-        it.each([
-            ['the body is not a record', 'not a record'],
-            ['the body has no data list', { data: 'nope' }]
-        ])('should fail when %s', async (_, body) => {
+        it('should fail when the body is not a record', async () => {
+            globalThis.fetch = jest.fn().mockResolvedValue(mockResponse('not a record'));
+
+            const result = await createGateway().getModels(createConnectionHelper());
+
+            expect(result).toEqual({ success: false, error: 'Models response does not contain a models list' });
+        });
+
+        it('should fail when the body has no data list', async () => {
+            const body = { data: 'nope' };
+
             globalThis.fetch = jest.fn().mockResolvedValue(mockResponse(body));
 
             const result = await createGateway().getModels(createConnectionHelper());
@@ -436,16 +443,32 @@ describe('LlamaCppBaseGateway', () => {
             expect(result).toEqual({ success: false, error: 'Error calling getProps on http://192.168.0.1:8080/props?model=model-a&autoload=false: not json' });
         });
 
-        it.each([
-            ['the error body is not a record', 'Bad Gateway', 'no error details'],
-            ['the error has no message', { error: { code: 500 } }, '{"error":{"code":500}}'],
-            ['the body has no error object', { detail: 'boom' }, '{"detail":"boom"}']
-        ])('should describe the failure when %s', async (_, body, message) => {
+        it('should describe the failure when the error body is not a record', async () => {
+            globalThis.fetch = jest.fn().mockResolvedValue(mockResponse('Bad Gateway', false, 502));
+
+            const result = await createGateway().getProps({ connection, modelId: 'model-a' });
+
+            expect(result).toEqual({ success: false, error: 'getProps failed with status 502: no error details' });
+        });
+
+        it('should describe the failure when the error has no message', async () => {
+            const body = { error: { code: 500 } };
+
             globalThis.fetch = jest.fn().mockResolvedValue(mockResponse(body, false, 502));
 
             const result = await createGateway().getProps({ connection, modelId: 'model-a' });
 
-            expect(result).toEqual({ success: false, error: `getProps failed with status 502: ${message}` });
+            expect(result).toEqual({ success: false, error: 'getProps failed with status 502: {"error":{"code":500}}' });
+        });
+
+        it('should describe the failure when the body has no error object', async () => {
+            const body = { detail: 'boom' };
+
+            globalThis.fetch = jest.fn().mockResolvedValue(mockResponse(body, false, 502));
+
+            const result = await createGateway().getProps({ connection, modelId: 'model-a' });
+
+            expect(result).toEqual({ success: false, error: 'getProps failed with status 502: {"detail":"boom"}' });
         });
     });
 });

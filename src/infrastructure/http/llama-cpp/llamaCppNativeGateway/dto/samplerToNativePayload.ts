@@ -9,6 +9,9 @@ export type NativePayload = {
     top_k?: number;
     top_p?: number;
     min_p?: number;
+    top_n_sigma?: number;
+    adaptive_target?: number;
+    adaptive_decay?: number;
     n_predict?: number;
     n_keep?: number;
     n_indent?: number;
@@ -51,6 +54,19 @@ export type NativePayload = {
     n_cache_reuse?: number;
 };
 
+const ADAPTIVE_SAMPLER_CHAIN = [
+    'penalties',
+    'dry',
+    'top_n_sigma',
+    'top_k',
+    'typ_p',
+    'top_p',
+    'min_p',
+    'xtc',
+    'temperature',
+    'adaptive_p',
+];
+
 export function mapSamplerToNativePayload (
     sampler: Sampler,
     modelId: string,
@@ -67,15 +83,20 @@ export function mapSamplerToNativePayload (
     const frequencyPenalty = sampler.frequencyPenalty;
     const dryMultiplier = sampler.dryMultiplier;
     const dryBase = sampler.dryBase;
-    const dryAllowedLength = sampler.dryAllowedLenght;
+    const dryAllowedLength = sampler.dryAllowedLength;
     const drySequenceBreakers = sampler.drySequenceBreakers;
     const xtcProbability = sampler.xtcProbability;
-    const xtcThreshold = sampler.xtcThreshould;
+    const xtcThreshold = sampler.xtcThreshold;
     const mirostat = sampler.mirostat;
     const mirostatTau = sampler.mirostatEnt;
     const mirostatEta = sampler.mirostatLr;
     const seed = sampler.seed ? parseInt(sampler.seed, 10) : -1;
     const ignoreEos = sampler.ignoreEOS;
+    const dynaTempRange = sampler.dynaTempRange;
+    const dynaTempExponent = sampler.dynaTempExp;
+    const topNSigma = sampler.topNSigma;
+    const adaptiveTarget = sampler.adaptiveTarget;
+    const adaptiveDecay = sampler.adaptiveDecay;
 
     const body: NativePayload = {
         model: modelId,
@@ -86,6 +107,27 @@ export function mapSamplerToNativePayload (
         min_p: minP,
         stream: true,
     };
+
+    if (dynaTempRange !== undefined) {
+        body.dynatemp_range = dynaTempRange;
+    }
+
+    if (dynaTempExponent !== undefined) {
+        body.dynatemp_exponent = dynaTempExponent;
+    }
+
+    if (topNSigma !== undefined) {
+        body.top_n_sigma = topNSigma;
+    }
+
+    if (adaptiveTarget !== undefined) {
+        body.adaptive_target = adaptiveTarget;
+        body.samplers = [...ADAPTIVE_SAMPLER_CHAIN];
+    }
+
+    if (adaptiveDecay !== undefined) {
+        body.adaptive_decay = adaptiveDecay;
+    }
 
     if (typicalP !== undefined) {
         body.typical_p = typicalP;

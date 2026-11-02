@@ -88,7 +88,7 @@ export class EditLocationUseCase implements IEditLocationUseCase {
     }
 
     private validate (params: EditLocationParams): string | null {
-        if (!params.id) {
+        if (!params.id?.trim()) {
             return 'An id is required to edit a location';
         }
 

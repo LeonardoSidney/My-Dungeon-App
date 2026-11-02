@@ -89,7 +89,7 @@ export class EditSystemPromptUseCase implements IEditSystemPromptUseCase {
     }
 
     private validate (params: EditSystemPromptParams): string | null {
-        if (!params.id) {
+        if (!params.id?.trim()) {
             return 'System prompt id is required';
         }
 

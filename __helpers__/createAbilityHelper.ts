@@ -4,7 +4,7 @@ export function createAbilityHelper (overrides?: Partial<Ability>): Ability {
     return {
         id: '1',
         name: 'Test Ability',
-        activationWord: 'activation world',
+        activationWord: 'activation word',
         prompt: 'Ability prompt',
         observation: 'Test observation',
         createdAt: new Date(),

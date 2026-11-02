@@ -15,12 +15,12 @@ export class CreateSamplerService implements ICreateSamplerService {
         const createdAt = new Date();
         const sampler: Sampler = {
             id: this.idGenerator.generate(),
-            name: params.name,
+            name: params.name.trim(),
             observation: params.observation,
             systemDefault: false,
-            adaptativeDecay: params.adaptativeDecay,
-            adaptativeTarget: params.adaptativeTarget,
-            dryAllowedLenght: params.dryAllowedLenght,
+            adaptiveDecay: params.adaptiveDecay,
+            adaptiveTarget: params.adaptiveTarget,
+            dryAllowedLength: params.dryAllowedLength,
             dryBase: params.dryBase,
             dryMultiplier: params.dryMultiplier,
             drySequenceBreakers: params.drySequenceBreakers,
@@ -42,7 +42,7 @@ export class CreateSamplerService implements ICreateSamplerService {
             topP: params.topP,
             typicalP: params.typicalP,
             xtcProbability: params.xtcProbability,
-            xtcThreshould: params.xtcThreshould,
+            xtcThreshold: params.xtcThreshold,
             createdAt: createdAt,
             updatedAt: createdAt
         };

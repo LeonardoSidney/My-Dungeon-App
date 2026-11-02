@@ -1,7 +1,7 @@
 import { Text, TouchableOpacity } from 'react-native';
-import { Pencil, Trash2 } from 'lucide-react-native';
+import { Pencil } from 'lucide-react-native';
 import { ConnectionListItem } from '@domain/controllers';
-import { CollapsibleSection, EntityItem, IconButton, screenStyles } from '@presentation/components';
+import { CollapsibleSection, DeleteButton, EntityItem, IconButton, screenStyles } from '@presentation/components';
 
 type ConnectionPanelProps = {
   connections: ConnectionListItem[];
@@ -35,7 +35,7 @@ export function ConnectionPanel ({ connections, isLoading, isError, onAdd, onEdi
         actions={(
           <>
             <IconButton icon={Pencil} accessibilityLabel="Edit" onPress={() => onEdit(connection)} />
-            <IconButton icon={Trash2} accessibilityLabel="Delete" onPress={() => onDelete(connection)} />
+            <DeleteButton itemName={connection.name} onConfirm={() => onDelete(connection)} />
           </>
         )}
       />

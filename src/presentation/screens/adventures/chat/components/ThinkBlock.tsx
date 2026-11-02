@@ -13,17 +13,18 @@ type ThinkBlockProps = {
   think: ChatThinkView;
   isStreaming: boolean;
   editingThinkChatId: string | null;
+  canGenerate: boolean;
   actions: ChatMessageActions;
 };
 
-function ThinkBlockBase ({ chatId, think, isStreaming, editingThinkChatId, actions }: ThinkBlockProps) {
+function ThinkBlockBase ({ chatId, think, isStreaming, editingThinkChatId, canGenerate, actions }: ThinkBlockProps) {
   const content = think.content ?? '';
   const isEditing = !isStreaming && editingThinkChatId === chatId;
   const [draft, setDraft] = useEditDraft(content, isEditing);
   const canAct = !isEditing && !isStreaming;
 
   const buttons: MessageAction[] = [];
-  if (canAct) {
+  if (canAct && canGenerate) {
     buttons.push({ key: 'regenerate', icon: '↻', tone: 'accent', onPress: () => actions.regenerateFromThink(chatId) });
   }
   if (canAct && content) {

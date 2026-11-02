@@ -6,7 +6,7 @@ import type { RootParamList } from '@presentation/navigation/routes';
 import { useControllers } from '@presentation/providers/ControllersProvider';
 import { colors } from '@presentation/theme';
 import { detailHeaderStyles } from '../DetailHeader';
-import { useAdventureCharacters, useAdventureSummary, useAdventureWorldMaster, useChatMessages } from '../adventureQueries';
+import { useAdventureCharacters, useAdventureMissingReferences, useAdventureSummary, useAdventureWorldMaster, useChatMessages } from '../adventureQueries';
 import { AdventureChat } from './AdventureChat';
 import { styles } from './AdventureChatScreen.styles';
 
@@ -19,13 +19,14 @@ export function AdventureChatScreen ({ route, navigation }: AdventureChatScreenP
   const characters = useAdventureCharacters(adventureId, controllers.getAdventureCharacters);
   const worldMaster = useAdventureWorldMaster(adventureId, controllers.getAdventureWorldMaster);
   const chatMessages = useChatMessages(adventureId, controllers.getChatMessages);
+  const missingReferences = useAdventureMissingReferences(adventureId, controllers.getAdventureMissingReferences);
   const { setData: setMessages } = chatMessages;
 
   const updateMessages = useCallback((update: (messages: ChatMessageView[]) => ChatMessageView[]) => {
     setMessages(current => (current ? update(current) : current));
   }, [setMessages]);
 
-  if (summary.data && characters.data && worldMaster.isLoaded && chatMessages.data) {
+  if (summary.data && characters.data && worldMaster.isLoaded && chatMessages.data && missingReferences.data) {
     return (
       <AdventureChat
         adventureId={adventureId}
@@ -33,6 +34,7 @@ export function AdventureChatScreen ({ route, navigation }: AdventureChatScreenP
         characters={characters.data}
         worldMaster={worldMaster.data}
         messages={chatMessages.data}
+        missingReferenceIssues={missingReferences.data}
         setMessages={setMessages}
         updateMessages={updateMessages}
         onBack={navigation.goBack}
@@ -41,7 +43,7 @@ export function AdventureChatScreen ({ route, navigation }: AdventureChatScreenP
     );
   }
 
-  const error = summary.error ?? characters.error ?? worldMaster.error ?? chatMessages.error;
+  const error = summary.error ?? characters.error ?? worldMaster.error ?? chatMessages.error ?? missingReferences.error;
   if (error) {
     return (
       <View style={styles.loadingContainer}>

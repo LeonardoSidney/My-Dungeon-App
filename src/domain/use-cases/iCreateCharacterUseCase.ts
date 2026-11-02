@@ -1,10 +1,10 @@
 import { Attribute } from '../entities';
 
 export interface ICreateCharacterUseCase {
-    execute (params: CreateCharacterUseCasePrams): Promise<CreateCharacterUseCaseResponse>;
+    execute (params: CreateCharacterUseCaseParams): Promise<CreateCharacterUseCaseResponse>;
 }
 
-export type CreateCharacterUseCasePrams = {
+export type CreateCharacterUseCaseParams = {
     name: string;
     activationWord: string;
     prompt: string;

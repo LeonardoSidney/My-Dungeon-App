@@ -1,4 +1,4 @@
-import { CreateCharacterControllerPrams, CreateCharacterControllerResponse, ICreateCharacterController } from '@domain/controllers';
+import { CreateCharacterControllerParams, CreateCharacterControllerResponse, ICreateCharacterController } from '@domain/controllers';
 import { ILogger } from '@domain/logger';
 import { ICreateCharacterUseCase } from '@domain/use-cases';
 
@@ -7,7 +7,7 @@ export class CreateCharacterController implements ICreateCharacterController {
         private readonly logger: ILogger,
         private readonly useCase: ICreateCharacterUseCase
     ) { }
-    async handle (params: CreateCharacterControllerPrams): Promise<CreateCharacterControllerResponse> {
+    async handle (params: CreateCharacterControllerParams): Promise<CreateCharacterControllerResponse> {
         this.logger.info('Executing CreateCharacterController::handle');
         this.logger.debug('CreateCharacterController::handle - params', params);
         const { name, activationWord, prompt, observation, abilityIds, proficiencyIds, statusIds, attributes, assistantId } = params;

@@ -88,7 +88,7 @@ export class EditStatusUseCase implements IEditStatusUseCase {
     }
 
     private validate (params: EditStatusParams): string | null {
-        if (!params.id) {
+        if (!params.id?.trim()) {
             return 'An id is required to edit a status';
         }
 

@@ -50,4 +50,10 @@ describe('CreateAdventureService', () => {
         expect(response.success).toBe(false);
         expect(response.error).toBeDefined();
     });
+
+    it('trims the start and the end of the name', () => {
+        const response = service.createAdventure(createAdventureRequestHelper({ name: '  The  Quest\n' }));
+
+        expect(response.adventure?.name).toBe('The  Quest');
+    });
 });

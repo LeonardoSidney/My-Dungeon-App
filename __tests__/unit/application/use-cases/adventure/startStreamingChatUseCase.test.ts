@@ -45,15 +45,25 @@ describe('StartStreamingChatUseCase', () => {
         expect(response).toEqual({ success: true, chat, adventure: updatedAdventure });
     });
 
-    it.each([
-        [{ adventureId: ' ' }, 'Adventure id is required'],
-        [{ characterId: ' ' }, 'Character id is required'],
-    ])('fails without loading anything when the params are %j', async (override, error) => {
+    it('fails without loading anything when the params are { adventureId: " " }', async () => {
+        const override = { adventureId: ' ' };
+
         const { useCase, repository } = buildUseCase();
 
         const response = await useCase.execute({ ...PARAMS, ...override });
 
-        expect(response).toEqual({ success: false, error });
+        expect(response).toEqual({ success: false, error: 'Adventure id is required' });
+        expect(repository.getAdventureById).not.toHaveBeenCalled();
+    });
+
+    it('fails without loading anything when the params are { characterId: " " }', async () => {
+        const override = { characterId: ' ' };
+
+        const { useCase, repository } = buildUseCase();
+
+        const response = await useCase.execute({ ...PARAMS, ...override });
+
+        expect(response).toEqual({ success: false, error: 'Character id is required' });
         expect(repository.getAdventureById).not.toHaveBeenCalled();
     });
 
@@ -86,13 +96,21 @@ describe('StartStreamingChatUseCase', () => {
         expect(await useCase.execute(PARAMS)).toEqual({ success: false, error: 'Service returned success but no adventure object' });
     });
 
-    it.each([
-        [{ success: false, error: 'Disk full' }, 'Disk full'],
-        [{ success: false }, 'Failed to save adventure'],
-    ])('returns the save error when the update answers %j', async (update, error) => {
+    it('returns the save error when the update answers { success: false, error: "Disk full" }', async () => {
+        const update = { success: false, error: 'Disk full' };
+
         const { useCase, repository } = buildUseCase();
         repository.updateAdventure.mockResolvedValue(update);
 
-        expect(await useCase.execute(PARAMS)).toEqual({ success: false, error });
+        expect(await useCase.execute(PARAMS)).toEqual({ success: false, error: 'Disk full' });
+    });
+
+    it('returns the save error when the update answers { success: false }', async () => {
+        const update = { success: false };
+
+        const { useCase, repository } = buildUseCase();
+        repository.updateAdventure.mockResolvedValue(update);
+
+        expect(await useCase.execute(PARAMS)).toEqual({ success: false, error: 'Failed to save adventure' });
     });
 });

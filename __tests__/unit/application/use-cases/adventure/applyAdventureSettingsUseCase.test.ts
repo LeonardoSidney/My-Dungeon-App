@@ -97,19 +97,19 @@ describe('ApplyAdventureSettingsUseCase', () => {
         expect(samplerEdit.editParams.topK).toBeUndefined();
     });
 
-    it('stops before touching any entity when the adventure cannot be saved', async () => {
+    it('does not edit any entity when the adventure cannot be saved', async () => {
         const { useCase, mocks } = buildUseCase();
         mocks.editAdventure.execute.mockResolvedValue({ success: false, error: 'A system prompt is required' });
 
         const response = await useCase.execute({ adventureId: 'adv-1', adventure: ADVENTURE, ...NO_GENERATION_EDITS, characterAssistants: { bram: 'as-2' } });
 
         expect(response).toEqual({ success: false, error: 'A system prompt is required' });
-        expect(mocks.getCharacter.execute).not.toHaveBeenCalled();
+        expect(mocks.editCharacter.execute).not.toHaveBeenCalled();
     });
 
     it('stops at the first failing step and returns its error', async () => {
         const { useCase, mocks } = buildUseCase();
-        mocks.editCharacter.execute.mockResolvedValue({ success: false, error: 'Assistant not found: as-9' });
+        mocks.editCharacter.execute.mockResolvedValue({ success: false, error: 'Entity not found for id: as-9 from Assistants' });
 
         const response = await useCase.execute({
             adventureId: 'adv-1',
@@ -119,7 +119,7 @@ describe('ApplyAdventureSettingsUseCase', () => {
             assistantSamplers: { 'as-1': 's-2' },
         });
 
-        expect(response).toEqual({ success: false, error: 'Assistant not found: as-9' });
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: as-9 from Assistants' });
         expect(mocks.editAssistant.execute).not.toHaveBeenCalled();
     });
 
@@ -132,46 +132,136 @@ describe('ApplyAdventureSettingsUseCase', () => {
         expect(response).toEqual({ success: false, error: 'Failed to save the adventure' });
     });
 
-    it.each([
-        ['character', 'getCharacter', { characterAssistants: { bram: 'as-2' } }, 'Character not found: bram'],
-        ['world master', 'getWorldMaster', { worldMasterAssistants: { luna: 'as-2' } }, 'World master not found: luna'],
-        ['assistant', 'getAssistant', { assistantSamplers: { 'as-1': 's-2' } }, 'Assistant not found: as-1'],
-        ['sampler', 'getSampler', { samplerParameters: { 's-1': { topK: 5 } } }, 'Sampler not found: s-1'],
-    ] as const)('stops when the %s does not exist', async (_, getter, edits, error) => {
+    it('stops when the character does not exist', async () => {
+        const edits = { characterAssistants: { bram: 'as-2' } };
+
         const { useCase, mocks } = buildUseCase();
-        mocks[getter].execute.mockResolvedValue({ success: true } as never);
+        mocks.getCharacter.execute.mockResolvedValue({ success: true } as never);
 
         const response = await useCase.execute({ adventureId: 'adv-1', adventure: ADVENTURE, ...NO_GENERATION_EDITS, ...edits });
 
-        expect(response).toEqual({ success: false, error });
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: bram from Characters' });
     });
 
-    it.each([
-        ['character', 'getCharacter', { characterAssistants: { bram: 'as-2' } }],
-        ['world master', 'getWorldMaster', { worldMasterAssistants: { luna: 'as-2' } }],
-        ['assistant', 'getAssistant', { assistantSamplers: { 'as-1': 's-2' } }],
-        ['sampler', 'getSampler', { samplerParameters: { 's-1': { topK: 5 } } }],
-    ] as const)('returns the load error of the %s', async (_, getter, edits) => {
+    it('stops when the world master does not exist', async () => {
+        const edits = { worldMasterAssistants: { luna: 'as-2' } };
+
         const { useCase, mocks } = buildUseCase();
-        mocks[getter].execute.mockResolvedValue({ success: false, error: 'Storage unavailable' } as never);
+        mocks.getWorldMaster.execute.mockResolvedValue({ success: true } as never);
+
+        const response = await useCase.execute({ adventureId: 'adv-1', adventure: ADVENTURE, ...NO_GENERATION_EDITS, ...edits });
+
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: luna from World Masters' });
+    });
+
+    it('stops when the assistant does not exist', async () => {
+        const edits = { assistantSamplers: { 'as-1': 's-2' } };
+
+        const { useCase, mocks } = buildUseCase();
+        mocks.getAssistant.execute.mockResolvedValue({ success: true } as never);
+
+        const response = await useCase.execute({ adventureId: 'adv-1', adventure: ADVENTURE, ...NO_GENERATION_EDITS, ...edits });
+
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: as-1 from Assistants' });
+    });
+
+    it('stops when the sampler does not exist', async () => {
+        const edits = { samplerParameters: { 's-1': { topK: 5 } } };
+
+        const { useCase, mocks } = buildUseCase();
+        mocks.getSampler.execute.mockResolvedValue({ success: true } as never);
+
+        const response = await useCase.execute({ adventureId: 'adv-1', adventure: ADVENTURE, ...NO_GENERATION_EDITS, ...edits });
+
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: s-1 from Samplers' });
+    });
+
+    it('returns the load error of the character', async () => {
+        const edits = { characterAssistants: { bram: 'as-2' } };
+
+        const { useCase, mocks } = buildUseCase();
+        mocks.getCharacter.execute.mockResolvedValue({ success: false, error: 'Storage unavailable' } as never);
 
         const response = await useCase.execute({ adventureId: 'adv-1', adventure: ADVENTURE, ...NO_GENERATION_EDITS, ...edits });
 
         expect(response).toEqual({ success: false, error: 'Storage unavailable' });
     });
 
-    it.each([
-        ['editCharacter', { characterAssistants: { bram: 'as-2' } }, 'Failed to update the assistant of Bram'],
-        ['editWorldMaster', { worldMasterAssistants: { luna: 'as-2' } }, 'Failed to update the assistant of Luna'],
-        ['editAssistant', { assistantSamplers: { 'as-1': 's-2' } }, 'Failed to update the sampler of Qwen'],
-        ['editSampler', { samplerParameters: { 's-1': { topK: 5 } } }, 'Failed to update the sampler Balanced'],
-    ] as const)('uses a default message when %s fails without one', async (editor, edits, error) => {
+    it('returns the load error of the world master', async () => {
+        const edits = { worldMasterAssistants: { luna: 'as-2' } };
+
         const { useCase, mocks } = buildUseCase();
-        mocks[editor].execute.mockResolvedValue({ success: false });
+        mocks.getWorldMaster.execute.mockResolvedValue({ success: false, error: 'Storage unavailable' } as never);
 
         const response = await useCase.execute({ adventureId: 'adv-1', adventure: ADVENTURE, ...NO_GENERATION_EDITS, ...edits });
 
-        expect(response).toEqual({ success: false, error });
+        expect(response).toEqual({ success: false, error: 'Storage unavailable' });
+    });
+
+    it('returns the load error of the assistant', async () => {
+        const edits = { assistantSamplers: { 'as-1': 's-2' } };
+
+        const { useCase, mocks } = buildUseCase();
+        mocks.getAssistant.execute.mockResolvedValue({ success: false, error: 'Storage unavailable' } as never);
+
+        const response = await useCase.execute({ adventureId: 'adv-1', adventure: ADVENTURE, ...NO_GENERATION_EDITS, ...edits });
+
+        expect(response).toEqual({ success: false, error: 'Storage unavailable' });
+    });
+
+    it('returns the load error of the sampler', async () => {
+        const edits = { samplerParameters: { 's-1': { topK: 5 } } };
+
+        const { useCase, mocks } = buildUseCase();
+        mocks.getSampler.execute.mockResolvedValue({ success: false, error: 'Storage unavailable' } as never);
+
+        const response = await useCase.execute({ adventureId: 'adv-1', adventure: ADVENTURE, ...NO_GENERATION_EDITS, ...edits });
+
+        expect(response).toEqual({ success: false, error: 'Storage unavailable' });
+    });
+
+    it('uses a default message when editCharacter fails without one', async () => {
+        const edits = { characterAssistants: { bram: 'as-2' } };
+
+        const { useCase, mocks } = buildUseCase();
+        mocks.editCharacter.execute.mockResolvedValue({ success: false });
+
+        const response = await useCase.execute({ adventureId: 'adv-1', adventure: ADVENTURE, ...NO_GENERATION_EDITS, ...edits });
+
+        expect(response).toEqual({ success: false, error: 'Failed to update the assistant of Bram' });
+    });
+
+    it('uses a default message when editWorldMaster fails without one', async () => {
+        const edits = { worldMasterAssistants: { luna: 'as-2' } };
+
+        const { useCase, mocks } = buildUseCase();
+        mocks.editWorldMaster.execute.mockResolvedValue({ success: false });
+
+        const response = await useCase.execute({ adventureId: 'adv-1', adventure: ADVENTURE, ...NO_GENERATION_EDITS, ...edits });
+
+        expect(response).toEqual({ success: false, error: 'Failed to update the assistant of Luna' });
+    });
+
+    it('uses a default message when editAssistant fails without one', async () => {
+        const edits = { assistantSamplers: { 'as-1': 's-2' } };
+
+        const { useCase, mocks } = buildUseCase();
+        mocks.editAssistant.execute.mockResolvedValue({ success: false });
+
+        const response = await useCase.execute({ adventureId: 'adv-1', adventure: ADVENTURE, ...NO_GENERATION_EDITS, ...edits });
+
+        expect(response).toEqual({ success: false, error: 'Failed to update the sampler of Qwen' });
+    });
+
+    it('uses a default message when editSampler fails without one', async () => {
+        const edits = { samplerParameters: { 's-1': { topK: 5 } } };
+
+        const { useCase, mocks } = buildUseCase();
+        mocks.editSampler.execute.mockResolvedValue({ success: false });
+
+        const response = await useCase.execute({ adventureId: 'adv-1', adventure: ADVENTURE, ...NO_GENERATION_EDITS, ...edits });
+
+        expect(response).toEqual({ success: false, error: 'Failed to update the sampler Balanced' });
     });
 
     it('refuses to edit a system sampler', async () => {
@@ -191,5 +281,175 @@ describe('ApplyAdventureSettingsUseCase', () => {
 
         expect(response).toEqual({ success: false, error: 'Adventure id is required' });
         expect(mocks.editAdventure.execute).not.toHaveBeenCalled();
+    });
+
+    it('checks every entity before saving the adventure', async () => {
+        const { useCase, mocks } = buildUseCase();
+
+        await useCase.execute({
+            adventureId: 'adv-1',
+            adventure: ADVENTURE,
+            characterAssistants: { bram: 'as-2' },
+            worldMasterAssistants: { luna: 'as-3' },
+            assistantSamplers: { 'as-4': 's-2' },
+            samplerParameters: { 's-3': { topK: 5 } },
+        });
+
+        const adventureOrder = mocks.editAdventure.execute.mock.invocationCallOrder[0];
+        const loadOrders = [
+            ...mocks.getCharacter.execute.mock.invocationCallOrder,
+            ...mocks.getWorldMaster.execute.mock.invocationCallOrder,
+            ...mocks.getAssistant.execute.mock.invocationCallOrder,
+            ...mocks.getSampler.execute.mock.invocationCallOrder,
+        ];
+        expect(loadOrders.every(order => order < adventureOrder)).toBe(true);
+        expect(mocks.getCharacter.execute).toHaveBeenCalledWith({ id: 'bram' });
+        expect(mocks.getWorldMaster.execute).toHaveBeenCalledWith({ id: 'luna' });
+    });
+
+    it('checks the assistants that are being edited and the ones being assigned', async () => {
+        const { useCase, mocks } = buildUseCase();
+
+        await useCase.execute({
+            adventureId: 'adv-1',
+            adventure: ADVENTURE,
+            ...NO_GENERATION_EDITS,
+            characterAssistants: { bram: 'as-2' },
+            worldMasterAssistants: { luna: 'as-3' },
+            assistantSamplers: { 'as-4': 's-2' },
+        });
+
+        const checkedIds = mocks.getAssistant.execute.mock.calls.map(([params]) => params.id);
+        expect(checkedIds).toEqual(['as-4', 'as-2', 'as-3']);
+    });
+
+    it('checks the samplers that are being edited and the ones being assigned', async () => {
+        const { useCase, mocks } = buildUseCase();
+
+        await useCase.execute({
+            adventureId: 'adv-1',
+            adventure: ADVENTURE,
+            ...NO_GENERATION_EDITS,
+            assistantSamplers: { 'as-1': 's-2' },
+            samplerParameters: { 's-3': { topK: 5 } },
+        });
+
+        const checkedIds = mocks.getSampler.execute.mock.calls.map(([params]) => params.id);
+        expect(checkedIds).toEqual(['s-3', 's-2']);
+    });
+
+    it('checks an id used twice only once', async () => {
+        const { useCase, mocks } = buildUseCase();
+
+        await useCase.execute({
+            adventureId: 'adv-1',
+            adventure: ADVENTURE,
+            ...NO_GENERATION_EDITS,
+            characterAssistants: { bram: 'as-2', ana: 'as-2' },
+        });
+
+        expect(mocks.getAssistant.execute).toHaveBeenCalledTimes(1);
+    });
+
+    it('reuses the loaded entities instead of loading them again', async () => {
+        const { useCase, mocks } = buildUseCase();
+
+        await useCase.execute({ adventureId: 'adv-1', adventure: ADVENTURE, ...NO_GENERATION_EDITS, characterAssistants: { bram: 'as-2' } });
+
+        expect(mocks.getCharacter.execute).toHaveBeenCalledTimes(1);
+    });
+
+    it('saves nothing when a character does not exist', async () => {
+        const { useCase, mocks } = buildUseCase();
+        mocks.getCharacter.execute.mockResolvedValue({ success: true } as never);
+
+        await useCase.execute({ adventureId: 'adv-1', adventure: ADVENTURE, ...NO_GENERATION_EDITS, characterAssistants: { bram: 'as-2' } });
+
+        expect(mocks.editAdventure.execute).not.toHaveBeenCalled();
+    });
+
+    it('saves nothing when a world master does not exist', async () => {
+        const { useCase, mocks } = buildUseCase();
+        mocks.getWorldMaster.execute.mockResolvedValue({ success: true } as never);
+
+        await useCase.execute({ adventureId: 'adv-1', adventure: ADVENTURE, ...NO_GENERATION_EDITS, worldMasterAssistants: { luna: 'as-2' } });
+
+        expect(mocks.editAdventure.execute).not.toHaveBeenCalled();
+    });
+
+    it('saves nothing when the assistant assigned to a character does not exist', async () => {
+        const { useCase, mocks } = buildUseCase();
+        mocks.getAssistant.execute.mockResolvedValue({ success: true } as never);
+
+        const response = await useCase.execute({ adventureId: 'adv-1', adventure: ADVENTURE, ...NO_GENERATION_EDITS, characterAssistants: { bram: 'as-9' } });
+
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: as-9 from Assistants' });
+        expect(mocks.editAdventure.execute).not.toHaveBeenCalled();
+    });
+
+    it('saves nothing when the assistant assigned to a world master does not exist', async () => {
+        const { useCase, mocks } = buildUseCase();
+        mocks.getAssistant.execute.mockResolvedValue({ success: true } as never);
+
+        const response = await useCase.execute({ adventureId: 'adv-1', adventure: ADVENTURE, ...NO_GENERATION_EDITS, worldMasterAssistants: { luna: 'as-9' } });
+
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: as-9 from Assistants' });
+        expect(mocks.editAdventure.execute).not.toHaveBeenCalled();
+    });
+
+    it('saves nothing when the sampler assigned to an assistant does not exist', async () => {
+        const { useCase, mocks } = buildUseCase();
+        mocks.getSampler.execute.mockResolvedValue({ success: true } as never);
+
+        const response = await useCase.execute({ adventureId: 'adv-1', adventure: ADVENTURE, ...NO_GENERATION_EDITS, assistantSamplers: { 'as-1': 's-9' } });
+
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: s-9 from Samplers' });
+        expect(mocks.editAdventure.execute).not.toHaveBeenCalled();
+    });
+
+    it('saves nothing when the sampler to edit is a system sampler', async () => {
+        const { useCase, mocks } = buildUseCase();
+        mocks.getSampler.execute.mockResolvedValue({ success: true, sampler: createSamplerHelper({ id: 's-0', name: 'top_k', systemDefault: true }) });
+
+        await useCase.execute({ adventureId: 'adv-1', adventure: ADVENTURE, ...NO_GENERATION_EDITS, samplerParameters: { 's-0': { topK: 5 } } });
+
+        expect(mocks.editAdventure.execute).not.toHaveBeenCalled();
+    });
+
+    it('accepts a system sampler as the sampler assigned to an assistant', async () => {
+        const { useCase, mocks } = buildUseCase();
+        mocks.getSampler.execute.mockResolvedValue({ success: true, sampler: createSamplerHelper({ id: 's-0', systemDefault: true }) });
+
+        const response = await useCase.execute({ adventureId: 'adv-1', adventure: ADVENTURE, ...NO_GENERATION_EDITS, assistantSamplers: { 'as-1': 's-0' } });
+
+        expect(response).toEqual({ success: true });
+    });
+
+    it('saves nothing when the new adaptive value is out of range', async () => {
+        const { useCase, mocks } = buildUseCase();
+
+        const response = await useCase.execute({ adventureId: 'adv-1', adventure: ADVENTURE, ...NO_GENERATION_EDITS, samplerParameters: { 's-1': { adaptiveTarget: 5 } } });
+
+        expect(response).toEqual({ success: false, error: 'Adaptive target must be greater than 0 and up to 1 to edit a sampler' });
+        expect(mocks.editAdventure.execute).not.toHaveBeenCalled();
+    });
+
+    it('saves nothing when the stored adaptive value is out of range', async () => {
+        const { useCase, mocks } = buildUseCase();
+        mocks.getSampler.execute.mockResolvedValue({ success: true, sampler: createSamplerHelper({ id: 's-1', adaptiveDecay: 1.1 }) });
+
+        const response = await useCase.execute({ adventureId: 'adv-1', adventure: ADVENTURE, ...NO_GENERATION_EDITS, samplerParameters: { 's-1': { topK: 5 } } });
+
+        expect(response).toEqual({ success: false, error: 'Adaptive decay must be greater than 0 and up to 0.99 to edit a sampler' });
+        expect(mocks.editAdventure.execute).not.toHaveBeenCalled();
+    });
+
+    it('fixes a stored adaptive value that the new parameters bring back into range', async () => {
+        const { useCase, mocks } = buildUseCase();
+        mocks.getSampler.execute.mockResolvedValue({ success: true, sampler: createSamplerHelper({ id: 's-1', adaptiveDecay: 1.1 }) });
+
+        const response = await useCase.execute({ adventureId: 'adv-1', adventure: ADVENTURE, ...NO_GENERATION_EDITS, samplerParameters: { 's-1': { adaptiveDecay: 0.9 } } });
+
+        expect(response).toEqual({ success: true });
     });
 });

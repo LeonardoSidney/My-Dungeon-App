@@ -19,16 +19,31 @@ describe('DraftDTO', () => {
         expect(DraftDTO.fromStorage({ ...STORED, content: '' })?.toEntity().content).toBe('');
     });
 
-    it.each([null, 'draft', 42])('rejects %p because it is not a record', (data) => {
-        expect(DraftDTO.fromStorage(data)).toBeNull();
+    it('rejects null because it is not a record', () => {
+        expect(DraftDTO.fromStorage(null)).toBeNull();
     });
 
-    it.each([
-        ['id', 1],
-        ['content', 42],
-        ['createdAt', 'not a date'],
-        ['updatedAt', undefined]
-    ])('rejects a stored draft with an invalid %s', (field, value) => {
-        expect(DraftDTO.fromStorage({ ...STORED, [field]: value })).toBeNull();
+    it('rejects "draft" because it is not a record', () => {
+        expect(DraftDTO.fromStorage('draft')).toBeNull();
+    });
+
+    it('rejects 42 because it is not a record', () => {
+        expect(DraftDTO.fromStorage(42)).toBeNull();
+    });
+
+    it('rejects a stored draft with an invalid id', () => {
+        expect(DraftDTO.fromStorage({ ...STORED, id: 1 })).toBeNull();
+    });
+
+    it('rejects a stored draft with an invalid content', () => {
+        expect(DraftDTO.fromStorage({ ...STORED, content: 42 })).toBeNull();
+    });
+
+    it('rejects a stored draft with an invalid createdAt', () => {
+        expect(DraftDTO.fromStorage({ ...STORED, createdAt: 'not a date' })).toBeNull();
+    });
+
+    it('rejects a stored draft with an invalid updatedAt', () => {
+        expect(DraftDTO.fromStorage({ ...STORED, updatedAt: undefined })).toBeNull();
     });
 });

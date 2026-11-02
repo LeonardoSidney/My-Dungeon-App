@@ -15,7 +15,7 @@ export class CreateProficiencyService implements ICreateProficiencyService {
             success: true,
             proficiency: {
                 id: this.idGenerator.generate(),
-                name: params.name,
+                name: params.name.trim(),
                 prompt: params.prompt,
                 activationWord: params.activationWord,
                 observation: params.observation,

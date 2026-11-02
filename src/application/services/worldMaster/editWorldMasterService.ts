@@ -13,7 +13,11 @@ export class EditWorldMasterService implements IEditWorldMasterService {
 
         const editedWorldMaster: WorldMaster = {
             ...worldMaster,
-            ...editParams,
+            name: editParams.name.trim(),
+            activationWord: editParams.activationWord,
+            prompt: editParams.prompt,
+            observation: editParams.observation,
+            assistantId: editParams.assistantId,
             updatedAt: new Date()
         };
 

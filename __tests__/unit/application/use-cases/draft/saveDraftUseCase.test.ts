@@ -113,15 +113,25 @@ describe('SaveDraftUseCase', () => {
         expect(channel.publish).not.toHaveBeenCalled();
     });
 
-    it.each([
-        [{ draftId: ' ', content: 'text' }, 'Draft id is required'],
-        [{ draftId: 'home', content: undefined as unknown as string }, 'Draft content is required']
-    ])('validates %p before reading the draft', async (params, error) => {
+    it('validates { draftId: " ", content: "text" } before reading the draft', async () => {
+        const params = { draftId: ' ', content: 'text' };
+
         const { useCase, repository } = build();
 
         const response = await useCase.execute(params);
 
-        expect(response).toEqual({ success: false, error });
+        expect(response).toEqual({ success: false, error: 'Draft id is required' });
+        expect(repository.getDraftById).not.toHaveBeenCalled();
+    });
+
+    it('validates a missing content before reading the draft', async () => {
+        const params = { draftId: 'home', content: undefined as unknown as string };
+
+        const { useCase, repository } = build();
+
+        const response = await useCase.execute(params);
+
+        expect(response).toEqual({ success: false, error: 'Draft content is required' });
         expect(repository.getDraftById).not.toHaveBeenCalled();
     });
 

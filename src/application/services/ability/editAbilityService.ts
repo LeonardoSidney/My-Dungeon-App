@@ -13,7 +13,10 @@ export class EditAbilityService implements IEditAbilityService {
 
         const editedAbility: Ability = {
             ...ability,
-            ...editParams,
+            name: editParams.name.trim(),
+            activationWord: editParams.activationWord,
+            prompt: editParams.prompt,
+            observation: editParams.observation,
             updatedAt: new Date()
         };
 

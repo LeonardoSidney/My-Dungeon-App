@@ -21,6 +21,7 @@ import {
     SetAdventureWorldMasterController,
     GetAdventureCharactersController,
     GetAdventureWorldMasterController,
+    GetAdventureMissingReferencesController,
     GetAdventureSummaryController,
     GetChatMessagesController,
     GetChatMessageController,
@@ -34,6 +35,7 @@ import {
     ChatMessagesPresenter,
     GetAdventureCharactersPresenter,
     GetAdventureWorldMasterPresenter,
+    GetAdventureMissingReferencesPresenter,
     GetAdventureSummaryPresenter,
     GetAdventurePresenter,
     GetAdventuresPresenter,
@@ -56,6 +58,7 @@ import {
     FinishStreamingChatService,
     GetSamplersService,
     HydrateAdventureService,
+    FindAdventureMissingReferencesService,
     SelectChatVersionService,
     SetAdventureWorldMasterService,
     RecoverInterruptedChatsService,
@@ -89,6 +92,7 @@ import {
     SetAdventureWorldMasterUseCase,
     GetAdventureCharactersUseCase,
     GetAdventureWorldMasterUseCase,
+    GetAdventureMissingReferencesUseCase,
     GetChatMessagesUseCase,
     GetChatByIdUseCase,
     GenerateChatReplyUseCase,
@@ -121,6 +125,7 @@ import {
     ISetAdventureWorldMasterController,
     IGetAdventureCharactersController,
     IGetAdventureWorldMasterController,
+    IGetAdventureMissingReferencesController,
     IGetAdventureSummaryController,
     IGetChatMessagesController,
     IGetChatMessageController,
@@ -452,6 +457,42 @@ export function getAdventureWorldMasterController (): IGetAdventureWorldMasterCo
         createWorldMasterRepository(storage, logger)
     );
     return new GetAdventureWorldMasterController(logger, useCase, new GetAdventureWorldMasterPresenter());
+}
+
+export function getAdventureMissingReferencesController (): IGetAdventureMissingReferencesController {
+    const adventureRepository = createAdventureRepository(storage, logger);
+    const characterRepository = createCharacterRepository(storage, logger);
+    const worldMasterRepository = createWorldMasterRepository(storage, logger);
+    const assistantRepository = createAssistantRepository(storage, logger);
+    const connectionRepository = createConnectionRepository(storage, logger);
+    const samplerRepository = createSamplerRepository(storage, logger);
+    const getSamplersService = new GetSamplersService(logger);
+    const worldRepository = createWorldRepository(storage, logger);
+    const locationRepository = createLocationRepository(storage, logger);
+    const itemRepository = createItemRepository(storage, logger);
+    const systemPromptRepository = createSystemPromptRepository(storage, logger);
+    const abilityRepository = createAbilityRepository(storage, logger);
+    const proficiencyRepository = createProficiencyRepository(storage, logger);
+    const statusRepository = createStatusRepository(storage, logger);
+    const findAdventureMissingReferencesService = new FindAdventureMissingReferencesService(
+        logger,
+        characterRepository,
+        worldMasterRepository,
+        assistantRepository,
+        connectionRepository,
+        samplerRepository,
+        getSamplersService,
+        worldRepository,
+        locationRepository,
+        itemRepository,
+        systemPromptRepository,
+        abilityRepository,
+        proficiencyRepository,
+        statusRepository
+    );
+    const getAdventureMissingReferencesUseCase = new GetAdventureMissingReferencesUseCase(logger, adventureRepository, findAdventureMissingReferencesService);
+    const getAdventureMissingReferencesPresenter = new GetAdventureMissingReferencesPresenter();
+    return new GetAdventureMissingReferencesController(logger, getAdventureMissingReferencesUseCase, getAdventureMissingReferencesPresenter);
 }
 
 export function getAdventureSummaryController (): IGetAdventureSummaryController {

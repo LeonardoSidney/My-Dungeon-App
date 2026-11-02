@@ -27,6 +27,7 @@ const responses: Record<string, unknown> = {
   },
   getAdventureCharacters: { success: true, items: [{ id: 'c1', name: 'Hero' }] },
   getAdventureWorldMaster: { success: true, data: { id: 'wm1', name: 'Narrator' } },
+  getAdventureMissingReferences: { success: true, issues: [] },
   getChatMessages: { success: true, messages: [message('m1', RoleEnum.USER, 'I open the door'), message('m2', RoleEnum.ASSISTANT, 'It creaks')] },
   getAdventureSystemPrompt: { success: true, data: 'SYSTEM PROMPT TEXT' },
   getAbilities: { success: true, items: [{ id: 'ab1', name: 'Fireball', activationWord: 'fire' }] },
@@ -138,5 +139,37 @@ describe('RootNavigator', () => {
 
     await fireEvent.press(screen.getByLabelText('Back'));
     await waitFor(() => expect(screen.getByLabelText('Open chat')).toBeDefined());
+  }, 60000);
+
+  it('opens an adventure with missing references for reading only, until they are fixed', async () => {
+    const issue = 'Characters > Hero: an entry from Abilities is no longer available';
+    responses.getAdventureMissingReferences = { success: true, issues: [issue] };
+
+    await render(
+      <ControllersProvider controllers={controllers}>
+        <RootNavigator />
+      </ControllersProvider>,
+    );
+
+    await waitFor(() => expect(screen.getByText('Your world')).toBeDefined());
+    await fireEvent.press(screen.getAllByText('Adventures')[0]);
+    await waitFor(() => expect(screen.getByLabelText('Open chat')).toBeDefined());
+    await fireEvent.press(screen.getByLabelText('Open chat'));
+
+    await waitFor(() => expect(screen.getByText('It creaks')).toBeDefined());
+    expect(screen.getByText(issue)).toBeDefined();
+    expect(screen.queryByPlaceholderText('Type a message...')).toBeNull();
+    expect(screen.queryByText('Send')).toBeNull();
+    expect(screen.queryByText('Skip turn')).toBeNull();
+    expect(screen.queryByText('↻')).toBeNull();
+    expect(calls.alert?.at(-1)).toEqual(expect.objectContaining({ message: expect.stringContaining(issue) }));
+
+    responses.getAdventureMissingReferences = { success: true, issues: [] };
+    await fireEvent.press(screen.getByText('settings'));
+    await waitFor(() => expect(screen.getByText('Lost Kingdom · Settings')).toBeDefined());
+    await fireEvent.press(screen.getByLabelText('Back'));
+
+    await waitFor(() => expect(screen.getByPlaceholderText('Type a message...')).toBeDefined());
+    expect(screen.queryByText(issue)).toBeNull();
   }, 60000);
 });

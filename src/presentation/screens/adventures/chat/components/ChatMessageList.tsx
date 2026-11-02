@@ -11,10 +11,11 @@ type ChatMessageListProps = {
   editingChatId: string | null;
   editingThinkChatId: string | null;
   showThinkBlocks: boolean;
+  canGenerate: boolean;
   actions: ChatMessageActions;
 };
 
-function ChatMessageListBase ({ messages, characterNameById, editingChatId, editingThinkChatId, showThinkBlocks, actions }: ChatMessageListProps) {
+function ChatMessageListBase ({ messages, characterNameById, editingChatId, editingThinkChatId, showThinkBlocks, canGenerate, actions }: ChatMessageListProps) {
   return (
     <View style={styles.container}>
       {messages.map(message => (
@@ -25,6 +26,7 @@ function ChatMessageListBase ({ messages, characterNameById, editingChatId, edit
           editingChatId={editingChatId}
           editingThinkChatId={editingThinkChatId}
           showThinkBlocks={showThinkBlocks}
+          canGenerate={canGenerate}
           actions={actions}
         />
       ))}

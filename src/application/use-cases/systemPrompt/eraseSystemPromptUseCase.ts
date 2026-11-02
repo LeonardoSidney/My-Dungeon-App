@@ -32,7 +32,7 @@ export class EraseSystemPromptUseCase implements IEraseSystemPromptUseCase {
     }
 
     private validate (params: EraseSystemPromptUseCaseParams): string | null {
-        if (!params.id) {
+        if (!params.id?.trim()) {
             return 'A system prompt id is required to erase a system prompt';
         }
 

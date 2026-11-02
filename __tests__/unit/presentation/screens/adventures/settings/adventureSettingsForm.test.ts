@@ -6,6 +6,7 @@ import {
     getGenerationVoices,
     getModifiedSections,
     getPlayerVoices,
+    hasDroppedReferences,
     switchNarratorMode,
     toAdventureSettingsForm,
     toApplySettingsRequest,
@@ -38,6 +39,36 @@ const adventure = {
 function buildForm (): AdventureSettingsForm {
     return toAdventureSettingsForm(adventure, options);
 }
+
+describe('hasDroppedReferences', () => {
+    it('finds nothing when every reference still exists', () => {
+        expect(hasDroppedReferences(adventure, buildForm().adventure)).toBe(false);
+    });
+
+    it('finds a list reference that no longer exists', () => {
+        const source = { ...adventure, worldIds: ['world-1', 'erased'] };
+
+        expect(hasDroppedReferences(source, toAdventureSettingsForm(source, options).adventure)).toBe(true);
+    });
+
+    it('finds an AI controlled character that no longer exists', () => {
+        const source = { ...adventure, aiControlledCharacterIds: ['erased'] };
+
+        expect(hasDroppedReferences(source, toAdventureSettingsForm(source, options).adventure)).toBe(true);
+    });
+
+    it('finds a world master that no longer exists', () => {
+        const source = { ...adventure, worldMasterId: 'erased' };
+
+        expect(hasDroppedReferences(source, toAdventureSettingsForm(source, options).adventure)).toBe(true);
+    });
+
+    it('finds a character acting as world master that no longer exists', () => {
+        const source = { ...adventure, worldMasterId: undefined, characterAsWorldMasterId: 'erased' };
+
+        expect(hasDroppedReferences(source, toAdventureSettingsForm(source, options).adventure)).toBe(true);
+    });
+});
 
 describe('toAdventureSettingsForm', () => {
     it('maps the adventure and starts with no generation edits', () => {

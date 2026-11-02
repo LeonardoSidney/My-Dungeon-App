@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { ChatMessageView, ChatThinkView } from '@domain/controllers';
 import type { AppControllers } from '@presentation/providers/appControllers';
+import { confirmDelete } from '@presentation/utils/confirmDelete';
 import { showError } from '@presentation/utils/showError';
 import { handleReplyAction, navigateVersion } from '../chatActions';
 import type { ChatMessageActions, StreamReply, VersionDirection } from '../types';
@@ -66,21 +67,35 @@ export function useMessageActions ({
             selectChatVersion,
         });
 
-        return {
-            deleteMessage: async (message: ChatMessageView) => {
-                const hasOtherVersions = message.contentCount > 1;
-                const response = hasOtherVersions
-                    ? await deleteChatVersion.handle({ adventureId, chatId: message.id, versionIndex: message.contentIndex })
-                    : await deleteChatAdventure.handle({ adventureId, chatId: message.id });
+        const eraseMessage = async (message: ChatMessageView, hasOtherVersions: boolean) => {
+            const response = hasOtherVersions
+                ? await deleteChatVersion.handle({ adventureId, chatId: message.id, versionIndex: message.contentIndex })
+                : await deleteChatAdventure.handle({ adventureId, chatId: message.id });
 
-                if (!response.success) {
-                    showError(alert, response.error, 'Failed to delete message');
-                    return;
-                }
-                if (!hasOtherVersions) {
-                    setComposerMessage(message.content);
-                }
-                await reloadMessages();
+            if (!response.success) {
+                showError(alert, response.error, 'Failed to delete message');
+                return;
+            }
+            if (!hasOtherVersions) {
+                setComposerMessage(message.content);
+            }
+            await reloadMessages();
+        };
+
+        const eraseThink = async (chatId: string, think: ChatThinkView) => {
+            const response = await deleteThinkVersion.handle({ adventureId, chatId, versionIndex: think.index });
+            if (!response.success) {
+                showError(alert, response.error, 'Failed to delete think');
+                return;
+            }
+            await reloadMessages();
+        };
+
+        return {
+            deleteMessage: (message: ChatMessageView) => {
+                const hasOtherVersions = message.contentCount > 1;
+                const itemName = hasOtherVersions ? 'this version' : 'this message';
+                confirmDelete(alert, { itemName, onConfirm: () => eraseMessage(message, hasOtherVersions) });
             },
 
             startEdit: (chatId: string) => setEditingChatId(chatId),
@@ -124,13 +139,8 @@ export function useMessageActions ({
                 setEditingThinkChatId(null);
                 await reloadMessages();
             },
-            deleteThink: async (chatId: string, think: ChatThinkView) => {
-                const response = await deleteThinkVersion.handle({ adventureId, chatId, versionIndex: think.index });
-                if (!response.success) {
-                    showError(alert, response.error, 'Failed to delete think');
-                    return;
-                }
-                await reloadMessages();
+            deleteThink: (chatId: string, think: ChatThinkView) => {
+                confirmDelete(alert, { itemName: 'this thought', onConfirm: () => eraseThink(chatId, think) });
             },
         };
     }, [

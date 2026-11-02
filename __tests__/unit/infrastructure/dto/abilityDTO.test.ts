@@ -22,19 +22,43 @@ describe('AbilityDTO', () => {
         expect(AbilityDTO.fromStorage({ ...STORED, observation: undefined })?.toEntity().observation).toBeUndefined();
     });
 
-    it.each([null, 'ability', 42])('rejects %p because it is not a record', (data) => {
-        expect(AbilityDTO.fromStorage(data)).toBeNull();
+    it('rejects null because it is not a record', () => {
+        expect(AbilityDTO.fromStorage(null)).toBeNull();
     });
 
-    it.each([
-        ['id', 1],
-        ['name', undefined],
-        ['activationWord', false],
-        ['prompt', null],
-        ['observation', 3],
-        ['createdAt', 'not a date'],
-        ['updatedAt', undefined]
-    ])('rejects a stored ability with an invalid %s', (field, value) => {
-        expect(AbilityDTO.fromStorage({ ...STORED, [field]: value })).toBeNull();
+    it('rejects "ability" because it is not a record', () => {
+        expect(AbilityDTO.fromStorage('ability')).toBeNull();
+    });
+
+    it('rejects 42 because it is not a record', () => {
+        expect(AbilityDTO.fromStorage(42)).toBeNull();
+    });
+
+    it('rejects a stored ability with an invalid id', () => {
+        expect(AbilityDTO.fromStorage({ ...STORED, id: 1 })).toBeNull();
+    });
+
+    it('rejects a stored ability with an invalid name', () => {
+        expect(AbilityDTO.fromStorage({ ...STORED, name: undefined })).toBeNull();
+    });
+
+    it('rejects a stored ability with an invalid activationWord', () => {
+        expect(AbilityDTO.fromStorage({ ...STORED, activationWord: false })).toBeNull();
+    });
+
+    it('rejects a stored ability with an invalid prompt', () => {
+        expect(AbilityDTO.fromStorage({ ...STORED, prompt: null })).toBeNull();
+    });
+
+    it('rejects a stored ability with an invalid observation', () => {
+        expect(AbilityDTO.fromStorage({ ...STORED, observation: 3 })).toBeNull();
+    });
+
+    it('rejects a stored ability with an invalid createdAt', () => {
+        expect(AbilityDTO.fromStorage({ ...STORED, createdAt: 'not a date' })).toBeNull();
+    });
+
+    it('rejects a stored ability with an invalid updatedAt', () => {
+        expect(AbilityDTO.fromStorage({ ...STORED, updatedAt: undefined })).toBeNull();
     });
 });

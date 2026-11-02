@@ -1,3 +1,5 @@
+import { formatEntityNotFound } from '@application/shared/formatEntityNotFound';
+import { ASSISTANT_STORAGE_NAMESPACE, CONNECTION_STORAGE_NAMESPACE } from '@domain/constants/general';
 import { ILogger } from '@domain/logger';
 import { ITextGeneration, TurnPromptPurposeEnum } from '@domain/providers';
 import { IModelProviderGateway } from '@domain/gateways';
@@ -125,12 +127,12 @@ export class GetAdventureTemplatedPromptUseCase implements IGetAdventureTemplate
     private getSpeakerConnection (hydrated: HydratedAdventure, speaker: TurnSpeaker): SpeakerConnectionReturn {
         const assistant = hydrated.assistants[speaker.assistantId];
         if (!assistant) {
-            return { success: false, error: `Assistant not found: ${speaker.assistantId}` };
+            return { success: false, error: formatEntityNotFound(speaker.assistantId, ASSISTANT_STORAGE_NAMESPACE) };
         }
 
         const connection = hydrated.connections.find(c => c.id === assistant.connectionId);
         if (!connection) {
-            return { success: false, error: `Connection not found: ${assistant.connectionId}` };
+            return { success: false, error: formatEntityNotFound(assistant.connectionId, CONNECTION_STORAGE_NAMESPACE) };
         }
 
         return {

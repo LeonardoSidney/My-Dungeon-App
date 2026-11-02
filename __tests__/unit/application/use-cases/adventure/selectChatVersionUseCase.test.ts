@@ -110,11 +110,9 @@ describe('SelectChatVersionUseCase', () => {
         expect(mockAdventureRepository.updateAdventure).not.toHaveBeenCalled();
     });
 
-    it.each([
-        [{ success: false, error: 'Selection failed' }, 'Selection failed'],
-        [{ success: false }, 'Failed to select chat version'],
-        [{ success: true }, 'Failed to select chat version']
-    ])('returns an error without persisting when the service answers %j', async (serviceResponse, error) => {
+    it('returns an error without persisting when the service answers { success: false, error: "Selection failed" }', async () => {
+        const serviceResponse = { success: false, error: 'Selection failed' };
+
         mockAdventureRepository.getAdventureById.mockResolvedValue({ success: true, adventure: createAdventureHelper({
             chat: [createChatHelper({ content: ['a', 'b'], index: 0 })]
         }) });
@@ -126,14 +124,49 @@ describe('SelectChatVersionUseCase', () => {
 
         const response = await useCase.execute({ adventureId: 'adventure-1', chatId: 'chat-1', direction: 1, kind: 'content' });
 
-        expect(response).toEqual({ success: false, error });
+        expect(response).toEqual({ success: false, error: 'Selection failed' });
         expect(mockAdventureRepository.updateAdventure).not.toHaveBeenCalled();
     });
 
-    it.each([
-        [{ success: false, error: 'Disk full' }, 'Disk full'],
-        [{ success: false }, 'Failed to save selected chat version']
-    ])('returns an error when persistence answers %j', async (updateResponse, error) => {
+    it('returns an error without persisting when the service answers { success: false }', async () => {
+        const serviceResponse = { success: false };
+
+        mockAdventureRepository.getAdventureById.mockResolvedValue({ success: true, adventure: createAdventureHelper({
+            chat: [createChatHelper({ content: ['a', 'b'], index: 0 })]
+        }) });
+        const useCase = new SelectChatVersionUseCase(
+            mockLogger,
+            { selectVersion: jest.fn().mockReturnValue(serviceResponse) },
+            mockAdventureRepository as unknown as IAdventureRepository
+        );
+
+        const response = await useCase.execute({ adventureId: 'adventure-1', chatId: 'chat-1', direction: 1, kind: 'content' });
+
+        expect(response).toEqual({ success: false, error: 'Failed to select chat version' });
+        expect(mockAdventureRepository.updateAdventure).not.toHaveBeenCalled();
+    });
+
+    it('returns an error without persisting when the service answers { success: true }', async () => {
+        const serviceResponse = { success: true };
+
+        mockAdventureRepository.getAdventureById.mockResolvedValue({ success: true, adventure: createAdventureHelper({
+            chat: [createChatHelper({ content: ['a', 'b'], index: 0 })]
+        }) });
+        const useCase = new SelectChatVersionUseCase(
+            mockLogger,
+            { selectVersion: jest.fn().mockReturnValue(serviceResponse) },
+            mockAdventureRepository as unknown as IAdventureRepository
+        );
+
+        const response = await useCase.execute({ adventureId: 'adventure-1', chatId: 'chat-1', direction: 1, kind: 'content' });
+
+        expect(response).toEqual({ success: false, error: 'Failed to select chat version' });
+        expect(mockAdventureRepository.updateAdventure).not.toHaveBeenCalled();
+    });
+
+    it('returns an error when persistence answers { success: false, error: "Disk full" }', async () => {
+        const updateResponse = { success: false, error: 'Disk full' };
+
         mockAdventureRepository.getAdventureById.mockResolvedValue({ success: true, adventure: createAdventureHelper({
             chat: [createChatHelper({ content: ['a', 'b'], index: 0 })]
         }) });
@@ -141,6 +174,19 @@ describe('SelectChatVersionUseCase', () => {
 
         const response = await buildUseCase().execute({ adventureId: 'adventure-1', chatId: 'chat-1', direction: 1, kind: 'content' });
 
-        expect(response).toEqual({ success: false, error });
+        expect(response).toEqual({ success: false, error: 'Disk full' });
+    });
+
+    it('returns an error when persistence answers { success: false }', async () => {
+        const updateResponse = { success: false };
+
+        mockAdventureRepository.getAdventureById.mockResolvedValue({ success: true, adventure: createAdventureHelper({
+            chat: [createChatHelper({ content: ['a', 'b'], index: 0 })]
+        }) });
+        mockAdventureRepository.updateAdventure.mockResolvedValueOnce(updateResponse);
+
+        const response = await buildUseCase().execute({ adventureId: 'adventure-1', chatId: 'chat-1', direction: 1, kind: 'content' });
+
+        expect(response).toEqual({ success: false, error: 'Failed to save selected chat version' });
     });
 });

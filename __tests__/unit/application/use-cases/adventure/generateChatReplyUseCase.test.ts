@@ -408,14 +408,14 @@ describe('GenerateChatReplyUseCase', () => {
         const mocks = buildMocks(['Hello'], createChat({ role: RoleEnum.AI_PERSONA, characterId: 'cleric' }));
         mocks.turnSpeaker.resolveNextSpeaker
             .mockReturnValueOnce({ success: true, speaker: clericSpeaker })
-            .mockReturnValueOnce({ success: false, error: 'AI controlled character not found: necromancer' });
+            .mockReturnValueOnce({ success: false, error: 'Entity not found for id: necromancer from Characters' });
 
         await buildUseCase(mocks).execute({ adventureId: 'adventure-1' });
         await mocks.settled;
 
         expect(mocks.events[mocks.events.length - 1]).toEqual(expect.objectContaining({
             status: ChatReplyStatusEnum.FINISHED,
-            error: 'AI controlled character not found: necromancer'
+            error: 'Entity not found for id: necromancer from Characters'
         }));
         expect(mocks.registry.isActive('adventure-1')).toBe(false);
     });
@@ -603,11 +603,11 @@ describe('GenerateChatReplyUseCase', () => {
 
     it('fails without starting a chat when the next speaker cannot be resolved', async () => {
         const mocks = buildMocks();
-        mocks.turnSpeaker.resolveNextSpeaker.mockReturnValue({ success: false, error: 'WorldMaster not found' });
+        mocks.turnSpeaker.resolveNextSpeaker.mockReturnValue({ success: false, error: 'World Masters not found' });
 
         const response = await buildUseCase(mocks).execute({ adventureId: 'adventure-1' });
 
-        expect(response).toEqual({ success: false, error: 'WorldMaster not found' });
+        expect(response).toEqual({ success: false, error: 'World Masters not found' });
         expect(mocks.startStreaming.execute).not.toHaveBeenCalled();
     });
 

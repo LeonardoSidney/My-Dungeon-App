@@ -9,6 +9,7 @@ module.exports = (env, argv) => {
     const mode = argv.mode ?? DEVELOPMENT_MODE;
     const isDevelopment = mode !== PRODUCTION_MODE;
     const devtool = isDevelopment ? 'eval-source-map' : false;
+    const isSeedEnabled = process.env.SEED === 'true';
     const isStorageLogEnabled = process.env.STORAGE === 'true';
     const isStreamingLogEnabled = process.env.STREAMING === 'true';
 
@@ -80,6 +81,7 @@ module.exports = (env, argv) => {
             }),
             new webpack.DefinePlugin({
                 __DEV__: JSON.stringify(isDevelopment),
+                __SEED__: JSON.stringify(isSeedEnabled),
                 __STORAGE__: JSON.stringify(isStorageLogEnabled),
                 __STREAMING__: JSON.stringify(isStreamingLogEnabled),
             }),

@@ -13,7 +13,10 @@ export class EditProficiencyService implements IEditProficiencyService {
 
         const editedProficiency: Proficiency = {
             ...proficiency,
-            ...editParams,
+            name: editParams.name.trim(),
+            activationWord: editParams.activationWord,
+            prompt: editParams.prompt,
+            observation: editParams.observation,
             updatedAt: new Date()
         };
 

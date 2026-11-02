@@ -120,7 +120,7 @@ const CASES: Array<{ guard: Guard; valid: Record<string, unknown>; optional: str
         invalid: [
             ['name', ''],
             ['temperature', '0.8'],
-            ['xtcThreshould', null],
+            ['xtcThreshold', null],
             ['mirostat', 3],
             ['observation', ''],
             ['drySequenceBreakers', 1],
@@ -141,8 +141,16 @@ describe.each(CASES)('$guard.name', ({ guard, valid, optional, invalid }) => {
         expect(guard(minimal)).toBe(true);
     });
 
-    it.each([null, 'seed', 42])('rejects %p because it is not a record', (value) => {
-        expect(guard(value)).toBe(false);
+    it('rejects null because it is not a record', () => {
+        expect(guard(null)).toBe(false);
+    });
+
+    it('rejects "seed" because it is not a record', () => {
+        expect(guard('seed')).toBe(false);
+    });
+
+    it('rejects 42 because it is not a record', () => {
+        expect(guard(42)).toBe(false);
     });
 
     it.each(invalid)('rejects a seed with an invalid %s (%p)', (field, value) => {
@@ -151,8 +159,16 @@ describe.each(CASES)('$guard.name', ({ guard, valid, optional, invalid }) => {
 });
 
 describe('isSeedSampler mirostat modes', () => {
-    it.each([MirostatEnum.DEFAULT, MirostatEnum.MIROSTAT1, MirostatEnum.MIROSTAT2])('accepts the mirostat mode %p', (mirostat) => {
-        expect(isSeedSampler({ name: 'Creative', mirostat })).toBe(true);
+    it('accepts the mirostat mode MirostatEnum.DEFAULT', () => {
+        expect(isSeedSampler({ name: 'Creative', mirostat: MirostatEnum.DEFAULT })).toBe(true);
+    });
+
+    it('accepts the mirostat mode MirostatEnum.MIROSTAT1', () => {
+        expect(isSeedSampler({ name: 'Creative', mirostat: MirostatEnum.MIROSTAT1 })).toBe(true);
+    });
+
+    it('accepts the mirostat mode MirostatEnum.MIROSTAT2', () => {
+        expect(isSeedSampler({ name: 'Creative', mirostat: MirostatEnum.MIROSTAT2 })).toBe(true);
     });
 });
 

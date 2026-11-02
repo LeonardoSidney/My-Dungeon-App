@@ -23,7 +23,7 @@ export type SamplerFormData = {
     mirostatEnt: string;
     mirostatLr: string;
     seed: string;
-    dryAllowedLenght: string;
+    dryAllowedLength: string;
     dryBase: string;
     dryMultiplier: string;
     drySequenceBreakers: string;
@@ -32,9 +32,9 @@ export type SamplerFormData = {
     topNSigma: string;
     typicalP: string;
     xtcProbability: string;
-    xtcThreshould: string;
-    adaptativeDecay: string;
-    adaptativeTarget: string;
+    xtcThreshold: string;
+    adaptiveDecay: string;
+    adaptiveTarget: string;
     ignoreEOS: string;
 };
 
@@ -59,7 +59,7 @@ export function toSamplerFormState (sampler: SamplerDetails): SamplerFormData {
         mirostatEnt: sampler.mirostatEnt?.toString() ?? '',
         mirostatLr: sampler.mirostatLr?.toString() ?? '',
         seed: sampler.seed ?? '',
-        dryAllowedLenght: sampler.dryAllowedLenght?.toString() ?? '',
+        dryAllowedLength: sampler.dryAllowedLength?.toString() ?? '',
         dryBase: sampler.dryBase?.toString() ?? '',
         dryMultiplier: sampler.dryMultiplier?.toString() ?? '',
         drySequenceBreakers: sampler.drySequenceBreakers ?? '',
@@ -68,9 +68,9 @@ export function toSamplerFormState (sampler: SamplerDetails): SamplerFormData {
         topNSigma: sampler.topNSigma?.toString() ?? '',
         typicalP: sampler.typicalP?.toString() ?? '',
         xtcProbability: sampler.xtcProbability?.toString() ?? '',
-        xtcThreshould: sampler.xtcThreshould?.toString() ?? '',
-        adaptativeDecay: sampler.adaptativeDecay?.toString() ?? '',
-        adaptativeTarget: sampler.adaptativeTarget?.toString() ?? '',
+        xtcThreshold: sampler.xtcThreshold?.toString() ?? '',
+        adaptiveDecay: sampler.adaptiveDecay?.toString() ?? '',
+        adaptiveTarget: sampler.adaptiveTarget?.toString() ?? '',
         ignoreEOS: sampler.ignoreEOS ? 'true' : '',
     };
 }
@@ -92,7 +92,7 @@ export function initialSamplerForm (): SamplerFormData {
         mirostatEnt: '',
         mirostatLr: '',
         seed: '',
-        dryAllowedLenght: '',
+        dryAllowedLength: '',
         dryBase: '',
         dryMultiplier: '',
         drySequenceBreakers: '',
@@ -101,9 +101,9 @@ export function initialSamplerForm (): SamplerFormData {
         topNSigma: '',
         typicalP: '',
         xtcProbability: '',
-        xtcThreshould: '',
-        adaptativeDecay: '',
-        adaptativeTarget: '',
+        xtcThreshold: '',
+        adaptiveDecay: '',
+        adaptiveTarget: '',
         ignoreEOS: '',
     };
 }
@@ -148,18 +148,18 @@ export function toSamplerRequest (form: SamplerFormData): CreateSamplerControlle
         mirostatEnt: toOptionalFloat(form.mirostatEnt),
         mirostatLr: toOptionalFloat(form.mirostatLr),
         seed: form.seed.trim() || undefined,
-        dryAllowedLenght: toOptionalInt(form.dryAllowedLenght),
+        dryAllowedLength: toOptionalInt(form.dryAllowedLength),
         dryBase: toOptionalFloat(form.dryBase),
         dryMultiplier: toOptionalFloat(form.dryMultiplier),
         drySequenceBreakers: form.drySequenceBreakers.trim() || undefined,
         dynaTempExp: toOptionalFloat(form.dynaTempExp),
-        dynaTempRange: toOptionalInt(form.dynaTempRange),
+        dynaTempRange: toOptionalFloat(form.dynaTempRange),
         topNSigma: toOptionalFloat(form.topNSigma),
         typicalP: toOptionalFloat(form.typicalP),
         xtcProbability: toOptionalFloat(form.xtcProbability),
-        xtcThreshould: toOptionalFloat(form.xtcThreshould),
-        adaptativeDecay: toOptionalFloat(form.adaptativeDecay),
-        adaptativeTarget: toOptionalFloat(form.adaptativeTarget),
+        xtcThreshold: toOptionalFloat(form.xtcThreshold),
+        adaptiveDecay: toOptionalFloat(form.adaptiveDecay),
+        adaptiveTarget: toOptionalFloat(form.adaptiveTarget),
         ignoreEOS: toIgnoreEOS(form.ignoreEOS),
     };
 }

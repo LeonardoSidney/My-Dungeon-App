@@ -103,6 +103,30 @@ export function toAdventureSettingsForm (adventure: AdventureDetails, options: A
     };
 }
 
+export function hasDroppedReferences (source: AdventureDetails, form: AdventureFormData): boolean {
+    const sourceReferences = [
+        ...source.systemPromptIds,
+        ...source.playableCharacterIds,
+        ...source.aiControlledCharacterIds,
+        ...source.worldIds,
+        ...source.locationIds,
+        ...source.itemIds,
+        source.worldMasterId,
+        source.characterAsWorldMasterId,
+    ];
+    const formReferences = [
+        ...toIds(form.systemPrompts),
+        ...toIds(form.characters),
+        ...form.charactersControlledByAi,
+        ...toIds(form.worlds),
+        ...toIds(form.locations),
+        ...toIds(form.items),
+        form.worldMaster?.id,
+        form.characterAsWorldMasterId,
+    ];
+    return sourceReferences.filter(Boolean).length !== formReferences.filter(Boolean).length;
+}
+
 function getCastCharacterIds (adventure: AdventureFormData): string[] {
     const narratorCharacterIds = adventure.characterAsWorldMasterId ? [adventure.characterAsWorldMasterId] : [];
     return [...narratorCharacterIds, ...adventure.charactersControlledByAi, ...toIds(adventure.characters)];

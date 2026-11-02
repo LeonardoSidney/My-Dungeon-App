@@ -1,4 +1,4 @@
-import type { SamplerParameters } from '@domain/entities';
+import type { Assistant, Character, Sampler, SamplerParameters, WorldMaster } from '@domain/entities';
 import type { AdventureFormFields } from '@domain/services';
 
 export interface IApplyAdventureSettingsUseCase {
@@ -16,6 +16,28 @@ export type ApplyAdventureSettingsParams = {
 
 export type ApplyAdventureSettingsReturn = {
     success: boolean;
+    error?: string;
+};
+
+export type ApplyAdventureSettingsEntities = {
+    characters: Record<string, Character>;
+    worldMasters: Record<string, WorldMaster>;
+    assistants: Record<string, Assistant>;
+    samplers: Record<string, Sampler>;
+};
+
+export type ApplyAdventureSettingsLoadResult = {
+    entities?: ApplyAdventureSettingsEntities;
+    error?: string;
+};
+
+export type ApplyAdventureSettingsLoadedEntity<TEntity> = {
+    entity?: TEntity;
+    error?: string;
+};
+
+export type ApplyAdventureSettingsLoadedGroup<TEntity> = {
+    group?: Record<string, TEntity>;
     error?: string;
 };
 

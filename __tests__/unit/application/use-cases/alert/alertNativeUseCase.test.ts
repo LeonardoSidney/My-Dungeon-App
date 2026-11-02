@@ -43,4 +43,18 @@ describe('AlertNativeUseCase', () => {
             { text: 'Open', style: 'default', onPress },
         ]);
     });
+
+    it('turns the destructive action into a destructive button', () => {
+        const onPress = jest.fn();
+
+        new AlertNativeUseCase(mockLogger).execute({
+            title: 'Delete Aria?',
+            message: 'This action cannot be undone.',
+            actions: [{ label: 'Delete', style: AlertActionStyleEnum.DESTRUCTIVE, onPress }],
+        });
+
+        expect(Alert.alert).toHaveBeenCalledWith('Delete Aria?', 'This action cannot be undone.', [
+            { text: 'Delete', style: 'destructive', onPress },
+        ]);
+    });
 });

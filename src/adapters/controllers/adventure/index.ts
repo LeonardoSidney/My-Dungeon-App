@@ -26,5 +26,6 @@ export * from './recoverInterruptedRepliesController';
 export * from './getAdventureSummaryController';
 export * from './getAdventureCharactersController';
 export * from './getAdventureWorldMasterController';
+export * from './getAdventureMissingReferencesController';
 export * from './getAdventureSystemPromptController';
 export * from './getAdventureTemplatedPromptController';

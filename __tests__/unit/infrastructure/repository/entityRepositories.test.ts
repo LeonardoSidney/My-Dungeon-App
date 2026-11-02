@@ -211,11 +211,19 @@ describe.each(CASES)('$Repository.name', ({ Repository, create, name, plural, fi
             expect(storage.save).toHaveBeenCalledWith(KEY, [kept, edited]);
         });
 
-        it.each([
-            ['the entity does not exist', [] as unknown[]],
-            ['nothing is stored yet', null]
-        ])('fails without writing when %s', async (_, stored) => {
+        it('fails without writing when the entity does not exist', async () => {
+            const stored = [] as unknown[];
+
             const { repository, storage } = buildRepository(stored);
+
+            const result = await repository[edit]({ [field]: entity('e1') });
+
+            expect(result).toEqual({ success: false, error: `${idLabel} with id e1 does not exist` });
+            expect(storage.save).not.toHaveBeenCalled();
+        });
+
+        it('fails without writing when nothing is stored yet', async () => {
+            const { repository, storage } = buildRepository(null);
 
             const result = await repository[edit]({ [field]: entity('e1') });
 
@@ -254,11 +262,19 @@ describe.each(CASES)('$Repository.name', ({ Repository, create, name, plural, fi
             expect(storage.save).toHaveBeenCalledWith(KEY, [kept]);
         });
 
-        it.each([
-            ['the entity does not exist', [] as unknown[]],
-            ['nothing is stored yet', null]
-        ])('fails without writing when %s', async (_, stored) => {
+        it('fails without writing when the entity does not exist', async () => {
+            const stored = [] as unknown[];
+
             const { repository, storage } = buildRepository(stored);
+
+            const result = await repository[erase]('e1');
+
+            expect(result).toEqual({ success: false, error: `${idLabel} with id e1 does not exist` });
+            expect(storage.save).not.toHaveBeenCalled();
+        });
+
+        it('fails without writing when nothing is stored yet', async () => {
+            const { repository, storage } = buildRepository(null);
 
             const result = await repository[erase]('e1');
 

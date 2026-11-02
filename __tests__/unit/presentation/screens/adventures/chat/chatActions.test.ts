@@ -191,13 +191,23 @@ describe('handleReplyAction', () => {
 });
 
 describe('navigateVersion', () => {
-    it.each(['content', 'think'] as const)('sends only the direction for %s versions and re-reads the messages', async (kind) => {
+    it('sends only the direction for content versions and re-reads the messages', async () => {
         const selectChatVersion = { handle: jest.fn().mockResolvedValue({ success: true }) };
         const reloadMessages = jest.fn().mockResolvedValue(undefined);
 
-        await navigateVersion({ adventureId: 'adventure-1', chatId: 'chat-1', kind, direction: 1, reloadMessages, selectChatVersion });
+        await navigateVersion({ adventureId: 'adventure-1', chatId: 'chat-1', kind: 'content', direction: 1, reloadMessages, selectChatVersion });
 
-        expect(selectChatVersion.handle).toHaveBeenCalledWith({ adventureId: 'adventure-1', chatId: 'chat-1', direction: 1, kind });
+        expect(selectChatVersion.handle).toHaveBeenCalledWith({ adventureId: 'adventure-1', chatId: 'chat-1', direction: 1, kind: 'content' });
+        expect(reloadMessages).toHaveBeenCalled();
+    });
+
+    it('sends only the direction for think versions and re-reads the messages', async () => {
+        const selectChatVersion = { handle: jest.fn().mockResolvedValue({ success: true }) };
+        const reloadMessages = jest.fn().mockResolvedValue(undefined);
+
+        await navigateVersion({ adventureId: 'adventure-1', chatId: 'chat-1', kind: 'think', direction: 1, reloadMessages, selectChatVersion });
+
+        expect(selectChatVersion.handle).toHaveBeenCalledWith({ adventureId: 'adventure-1', chatId: 'chat-1', direction: 1, kind: 'think' });
         expect(reloadMessages).toHaveBeenCalled();
     });
 

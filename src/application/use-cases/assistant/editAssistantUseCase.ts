@@ -105,7 +105,7 @@ export class EditAssistantUseCase implements IEditAssistantUseCase {
     }
 
     private validate (params: EditAssistantParams): string | null {
-        if (!params.id) {
+        if (!params.id?.trim()) {
             return 'An id is required to edit an assistant';
         }
 

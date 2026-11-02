@@ -1,3 +1,5 @@
+import { formatEntityNotFound } from '@application/shared/formatEntityNotFound';
+import { CONNECTION_STORAGE_NAMESPACE, SAMPLER_STORAGE_NAMESPACE } from '@domain/constants/general';
 import { IModelProviderGateway } from '@domain/gateways';
 import { ILogger } from '@domain/logger';
 import { IConnectionRepository, ISamplerRepository } from '@domain/repository';
@@ -37,7 +39,7 @@ export class StreamCompletionUseCase implements IStreamCompletionUseCase {
         if (!connection) {
             return {
                 success: false,
-                error: `Connection not found: ${params.connectionId}`,
+                error: formatEntityNotFound(params.connectionId, CONNECTION_STORAGE_NAMESPACE),
             };
         }
 
@@ -52,7 +54,7 @@ export class StreamCompletionUseCase implements IStreamCompletionUseCase {
         if (!sampler) {
             return {
                 success: false,
-                error: `Sampler not found: ${params.samplerId}`,
+                error: formatEntityNotFound(params.samplerId, SAMPLER_STORAGE_NAMESPACE),
             };
         }
 

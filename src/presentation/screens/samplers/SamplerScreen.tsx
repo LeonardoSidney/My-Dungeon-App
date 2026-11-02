@@ -1,6 +1,6 @@
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { Pencil, Trash2 } from 'lucide-react-native';
-import { EntityItem, IconButton, screenStyles } from '@presentation/components';
+import { Pencil } from 'lucide-react-native';
+import { DeleteButton, EntityItem, IconButton, screenStyles } from '@presentation/components';
 import { useEntityScreen } from '@presentation/hooks';
 import { useControllers } from '@presentation/providers/ControllersProvider';
 import { SamplerForm } from './SamplerForm';
@@ -40,7 +40,7 @@ export function SamplerScreen () {
         actions={!sampler.systemDefault && (
           <>
             <IconButton icon={Pencil} accessibilityLabel="Edit" onPress={() => screen.openEdit(sampler)} />
-            <IconButton icon={Trash2} accessibilityLabel="Delete" onPress={() => screen.eraseEntity(sampler)} />
+            <DeleteButton itemName={sampler.name} onConfirm={() => screen.eraseEntity(sampler)} />
           </>
         )}
       />

@@ -92,13 +92,20 @@ describe('WebStreamProvider', () => {
         expect(reader.releaseLock).toHaveBeenCalled();
     });
 
-    it.each([
-        ['an empty body', {}],
-        ['no body', undefined]
-    ])('sends the request without a body when given %s', async (_, body) => {
+    it('sends the request without a body when given an empty body', async () => {
+        const body = {};
+
         const fetchMock = mockFetch(okResponse(fakeReader([])));
 
         await collect(buildProvider().stream({ url: URL, method: 'GET', body }).stream);
+
+        expect(fetchMock.mock.calls[0][1]).not.toHaveProperty('body');
+    });
+
+    it('sends the request without a body when given no body', async () => {
+        const fetchMock = mockFetch(okResponse(fakeReader([])));
+
+        await collect(buildProvider().stream({ url: URL, method: 'GET', body: undefined }).stream);
 
         expect(fetchMock.mock.calls[0][1]).not.toHaveProperty('body');
     });

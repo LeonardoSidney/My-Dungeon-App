@@ -13,7 +13,7 @@ const samplerAttributes = [
     { key: 'mirostatEnt', label: 'Mirostat Tau' },
     { key: 'mirostatLr', label: 'Mirostat Eta' },
     { key: 'seed', label: 'Seed' },
-    { key: 'dryAllowedLenght', label: 'Dry Allowed Length' },
+    { key: 'dryAllowedLength', label: 'Dry Allowed Length' },
     { key: 'dryBase', label: 'Dry Base' },
     { key: 'dryMultiplier', label: 'Dry Multiplier' },
     { key: 'drySequenceBreakers', label: 'Dry Seq Breakers' },
@@ -22,9 +22,9 @@ const samplerAttributes = [
     { key: 'topNSigma', label: 'Top N Sigma' },
     { key: 'typicalP', label: 'Typical P' },
     { key: 'xtcProbability', label: 'XTC Probability' },
-    { key: 'xtcThreshould', label: 'XTC Threshold' },
-    { key: 'adaptativeDecay', label: 'Adaptative Decay' },
-    { key: 'adaptativeTarget', label: 'Adaptative Target' },
+    { key: 'xtcThreshold', label: 'XTC Threshold' },
+    { key: 'adaptiveDecay', label: 'Adaptive Decay' },
+    { key: 'adaptiveTarget', label: 'Adaptive Target' },
     { key: 'ignoreEOS', label: 'Ignore EOS' },
 ] as const;
 

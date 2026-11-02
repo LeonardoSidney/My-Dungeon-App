@@ -23,20 +23,47 @@ describe('ModelTemplateDTO', () => {
         expect(ModelTemplateDTO.fromStorage({ ...STORED, hash: undefined })?.toEntity().hash).toBeUndefined();
     });
 
-    it.each([null, 'template', 42])('rejects %p because it is not a record', (data) => {
-        expect(ModelTemplateDTO.fromStorage(data)).toBeNull();
+    it('rejects null because it is not a record', () => {
+        expect(ModelTemplateDTO.fromStorage(null)).toBeNull();
     });
 
-    it.each([
-        ['id', 1],
-        ['modelId', undefined],
-        ['connection', null],
-        ['template', 42],
-        ['hash', 123],
-        ['editedByUser', 'false'],
-        ['createdAt', 'not a date'],
-        ['updatedAt', undefined]
-    ])('rejects a stored model template with an invalid %s', (field, value) => {
-        expect(ModelTemplateDTO.fromStorage({ ...STORED, [field]: value })).toBeNull();
+    it('rejects "template" because it is not a record', () => {
+        expect(ModelTemplateDTO.fromStorage('template')).toBeNull();
+    });
+
+    it('rejects 42 because it is not a record', () => {
+        expect(ModelTemplateDTO.fromStorage(42)).toBeNull();
+    });
+
+    it('rejects a stored model template with an invalid id', () => {
+        expect(ModelTemplateDTO.fromStorage({ ...STORED, id: 1 })).toBeNull();
+    });
+
+    it('rejects a stored model template with an invalid modelId', () => {
+        expect(ModelTemplateDTO.fromStorage({ ...STORED, modelId: undefined })).toBeNull();
+    });
+
+    it('rejects a stored model template with an invalid connection', () => {
+        expect(ModelTemplateDTO.fromStorage({ ...STORED, connection: null })).toBeNull();
+    });
+
+    it('rejects a stored model template with an invalid template', () => {
+        expect(ModelTemplateDTO.fromStorage({ ...STORED, template: 42 })).toBeNull();
+    });
+
+    it('rejects a stored model template with an invalid hash', () => {
+        expect(ModelTemplateDTO.fromStorage({ ...STORED, hash: 123 })).toBeNull();
+    });
+
+    it('rejects a stored model template with an invalid editedByUser', () => {
+        expect(ModelTemplateDTO.fromStorage({ ...STORED, editedByUser: 'false' })).toBeNull();
+    });
+
+    it('rejects a stored model template with an invalid createdAt', () => {
+        expect(ModelTemplateDTO.fromStorage({ ...STORED, createdAt: 'not a date' })).toBeNull();
+    });
+
+    it('rejects a stored model template with an invalid updatedAt', () => {
+        expect(ModelTemplateDTO.fromStorage({ ...STORED, updatedAt: undefined })).toBeNull();
     });
 });

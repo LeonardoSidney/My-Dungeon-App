@@ -28,12 +28,12 @@ const generationRows: FieldRow[] = [
 const mirostatRow: FieldRow = [decimal('mirostatEnt', 'Mirostat Tau', '5.0'), decimal('mirostatLr', 'Mirostat Eta', '0.1')];
 
 const advancedRows: FieldRow[] = [
-  [integer('dryAllowedLenght', 'Dry Allowed Length', '3'), decimal('dryBase', 'Dry Base', '1.7')],
+  [integer('dryAllowedLength', 'Dry Allowed Length', '3'), decimal('dryBase', 'Dry Base', '1.7')],
   [decimal('dryMultiplier', 'Dry Multiplier', '0.4'), decimal('dynaTempExp', 'Dyna Temp Exp', '1.0')],
-  [integer('dynaTempRange', 'Dyna Temp Range', '0'), decimal('xtcProbability', 'XTC Probability', '0.1')],
-  [decimal('xtcThreshould', 'XTC Threshold', '0.5')],
+  [decimal('dynaTempRange', 'Dyna Temp Range', '0.0'), decimal('xtcProbability', 'XTC Probability', '0.1')],
+  [decimal('xtcThreshold', 'XTC Threshold', '0.5')],
   [decimal('topNSigma', 'Top N Sigma', '2.5'), decimal('typicalP', 'Typical P', '1.0')],
-  [decimal('adaptativeDecay', 'Adaptative Decay', '1.1'), decimal('adaptativeTarget', 'Adaptative Target', '5.0')],
+  [decimal('adaptiveDecay', 'Adaptive Decay', '0.9'), decimal('adaptiveTarget', 'Adaptive Target', '0.5')],
 ];
 
 const mirostatOptions = [

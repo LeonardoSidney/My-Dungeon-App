@@ -1,14 +1,6 @@
-const METRO_CALLER = 'metro';
-const BUILD_FLAG_ENVS = {
-    __STORAGE__: 'STORAGE',
-    __STREAMING__: 'STREAMING',
-};
+const { readBuildFlags } = require('./scripts/buildFlags');
 
-function readBuildFlags () {
-    return Object.fromEntries(
-        Object.entries(BUILD_FLAG_ENVS).map(([globalName, envName]) => [globalName, process.env[envName] === 'true'])
-    );
-}
+const METRO_CALLER = 'metro';
 
 function createDefineBuildFlagsPlugin (buildFlags) {
     return ({ types }) => ({

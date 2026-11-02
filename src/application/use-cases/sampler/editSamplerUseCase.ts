@@ -1,3 +1,5 @@
+import { getAdaptiveRangeError } from '@application/shared/adaptiveSamplerRules';
+import { SamplerActionEnum } from '@domain/constants/sampler';
 import { ILogger } from '@domain/logger';
 import { ISamplerRepository } from '@domain/repository';
 import { IEditSamplerService, IGetSamplersService } from '@domain/services';
@@ -21,7 +23,7 @@ export class EditSamplerUseCase implements IEditSamplerUseCase {
             };
         }
 
-        const reservedNameError = this.getReservedNameError(params.editParams.name);
+        const reservedNameError = this.getReservedNameError(params.editParams.name.trim());
         if (reservedNameError) {
             return {
                 success: false,
@@ -107,7 +109,7 @@ export class EditSamplerUseCase implements IEditSamplerUseCase {
             return 'A name is required to edit a sampler';
         }
 
-        return null;
+        return getAdaptiveRangeError(params.editParams, SamplerActionEnum.EDIT);
     }
 
     private getReservedNameError (name: string): string | null {

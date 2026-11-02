@@ -81,8 +81,16 @@ describe.each(CASES)('$DTO.name', ({ DTO, stored, entity, optional, invalid }) =
         expect(DTO.fromStorage({ ...stored, [optional]: undefined })?.toEntity()).toEqual({ ...entity, [optional]: undefined });
     });
 
-    it.each([null, 'text', 42])('rejects %p because it is not a record', (data) => {
-        expect(DTO.fromStorage(data)).toBeNull();
+    it('rejects null because it is not a record', () => {
+        expect(DTO.fromStorage(null)).toBeNull();
+    });
+
+    it('rejects "text" because it is not a record', () => {
+        expect(DTO.fromStorage('text')).toBeNull();
+    });
+
+    it('rejects 42 because it is not a record', () => {
+        expect(DTO.fromStorage(42)).toBeNull();
     });
 
     it.each(invalid)('rejects a stored value with an invalid %s', (field, value) => {

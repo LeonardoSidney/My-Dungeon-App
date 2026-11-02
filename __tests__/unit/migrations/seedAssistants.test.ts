@@ -84,16 +84,23 @@ describe('seedAssistants', () => {
         expect(response).toEqual({ success: false, error: 'Migration: sampler "Ghost" does not exist' });
     });
 
-    it.each([
-        ['samplers', 'samplers'],
-        ['list', 'assistants']
-    ] as const)('fails without seeding when the %s cannot be listed', async (key, label) => {
+    it('fails without seeding when the samplers cannot be listed', async () => {
         const controllers = setup();
-        controllers[key].handle.mockResolvedValue({ success: false, error: 'storage offline' });
+        controllers.samplers.handle.mockResolvedValue({ success: false, error: 'storage offline' });
 
         const response = await seedAssistants([seed('New')], CONNECTION, MODELS);
 
-        expect(response).toEqual({ success: false, error: `Migration: failed to load ${label}: storage offline` });
+        expect(response).toEqual({ success: false, error: 'Migration: failed to load samplers: storage offline' });
+        expect(controllers.create.handle).not.toHaveBeenCalled();
+    });
+
+    it('fails without seeding when the list cannot be listed', async () => {
+        const controllers = setup();
+        controllers.list.handle.mockResolvedValue({ success: false, error: 'storage offline' });
+
+        const response = await seedAssistants([seed('New')], CONNECTION, MODELS);
+
+        expect(response).toEqual({ success: false, error: 'Migration: failed to load assistants: storage offline' });
         expect(controllers.create.handle).not.toHaveBeenCalled();
     });
 

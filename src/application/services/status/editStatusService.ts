@@ -13,7 +13,10 @@ export class EditStatusService implements IEditStatusService {
 
         const editedStatus: Status = {
             ...status,
-            ...editParams,
+            name: editParams.name.trim(),
+            activationWord: editParams.activationWord,
+            prompt: editParams.prompt,
+            observation: editParams.observation,
             updatedAt: new Date()
         };
 

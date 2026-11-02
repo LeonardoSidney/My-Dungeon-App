@@ -17,13 +17,18 @@ describe('UUIDGenerator', () => {
         expect(ids.size).toBe(50);
     });
 
-    it.each([
-        [0, '00000000-0000-4000-8000-000000000000'],
-        [0.999, 'ffffffff-ffff-4fff-bfff-ffffffffffff']
-    ])('uses Math.random %p for every hex digit and the variant', (random, expected) => {
-        const spy = jest.spyOn(Math, 'random').mockReturnValue(random);
+    it('uses Math.random 0 for every hex digit and the variant', () => {
+        const spy = jest.spyOn(Math, 'random').mockReturnValue(0);
 
-        expect(generator.generate()).toBe(expected);
+        expect(generator.generate()).toBe('00000000-0000-4000-8000-000000000000');
+
+        spy.mockRestore();
+    });
+
+    it('uses Math.random 0.999 for every hex digit and the variant', () => {
+        const spy = jest.spyOn(Math, 'random').mockReturnValue(0.999);
+
+        expect(generator.generate()).toBe('ffffffff-ffff-4fff-bfff-ffffffffffff');
 
         spy.mockRestore();
     });

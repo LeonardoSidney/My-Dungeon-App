@@ -28,7 +28,7 @@ const actions: ChatMessageActions = {
   deleteThink: jest.fn(),
 };
 
-const setup = (chat: Chat, showThinkBlocks = true) =>
+const setup = (chat: Chat, showThinkBlocks = true, canGenerate = true) =>
   render(
     <ChatItem
       message={new ChatMessagesPresenter().presentOne(chat)}
@@ -36,6 +36,7 @@ const setup = (chat: Chat, showThinkBlocks = true) =>
       editingChatId={null}
       editingThinkChatId={null}
       showThinkBlocks={showThinkBlocks}
+      canGenerate={canGenerate}
       actions={actions}
     />,
   );
@@ -150,6 +151,44 @@ describe('ChatItem regenerate content controls', () => {
   });
 });
 
+describe('ChatItem when the adventure cannot generate', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('hides the regenerate content button', async () => {
+    await setup(createChatHelper({ role: RoleEnum.ASSISTANT }), true, false);
+
+    expect(screen.queryByLabelText('Regenerar conteúdo')).toBeNull();
+  });
+
+  it('hides the continue button', async () => {
+    await setup(createChatHelper({ role: RoleEnum.ASSISTANT }), true, false);
+
+    expect(screen.queryByText('▶')).toBeNull();
+  });
+
+  it('hides the regenerate button of the player messages', async () => {
+    await setup(createChatHelper({ role: RoleEnum.USER }), true, false);
+
+    expect(screen.queryByText('↻')).toBeNull();
+  });
+
+  it('hides the regenerate button of the thoughts', async () => {
+    const chat = createChatHelper({ role: RoleEnum.ASSISTANT, think: [{ id: 'think-1', content: 'reasoning', enabled: true }] });
+
+    await setup(chat, true, false);
+
+    expect(screen.queryByText('↻')).toBeNull();
+  });
+
+  it('keeps the edit button, which does not need the model', async () => {
+    await setup(createChatHelper({ role: RoleEnum.ASSISTANT }), true, false);
+
+    expect(screen.getByText('✏️')).toBeDefined();
+  });
+});
+
 describe('ChatItem edit input', () => {
   const setupEditing = (chat: Chat) =>
     render(
@@ -159,6 +198,7 @@ describe('ChatItem edit input', () => {
         editingChatId={chat.id}
         editingThinkChatId={null}
         showThinkBlocks
+        canGenerate
         actions={actions}
       />,
     );

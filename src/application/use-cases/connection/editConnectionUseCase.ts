@@ -1,3 +1,4 @@
+import { isValidPort } from '@application/shared/isValidPort';
 import { ILogger } from '@domain/logger';
 import { IConnectionRepository } from '@domain/repository';
 import { IEditConnectionConfigService } from '@domain/services';
@@ -98,7 +99,7 @@ export class EditConnectionUseCase implements IEditConnectionUseCase {
             return 'An IP is required to edit a connection config';
         }
 
-        if (params.editParams.port && params.editParams.port <= 0) {
+        if (params.editParams.port !== undefined && !isValidPort(params.editParams.port)) {
             return 'A valid port is required to edit a connection config';
         }
 

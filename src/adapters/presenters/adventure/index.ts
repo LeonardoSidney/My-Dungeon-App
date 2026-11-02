@@ -4,3 +4,4 @@ export * from './chatMessagesPresenter';
 export * from './getAdventureSummaryPresenter';
 export * from './getAdventureCharactersPresenter';
 export * from './getAdventureWorldMasterPresenter';
+export * from './getAdventureMissingReferencesPresenter';

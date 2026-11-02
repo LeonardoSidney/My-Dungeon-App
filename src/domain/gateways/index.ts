@@ -1,1 +1,1 @@
-export * from './ImodelProviderGateway';
+export * from './iModelProviderGateway';

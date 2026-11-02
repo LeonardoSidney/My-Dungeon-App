@@ -94,17 +94,47 @@ describe('seedCharacters', () => {
         expect(controllers.create.handle).not.toHaveBeenCalled();
     });
 
-    it.each([
-        ['assistant', { assistant: 'Ghost' }, 'Migration: assistant "Ghost" for character "New" does not exist'],
-        ['ability', { abilities: ['Ghost'] }, 'Migration: ability "Ghost" for character "New" does not exist'],
-        ['proficiency', { proficiencies: ['Ghost'] }, 'Migration: proficiency "Ghost" for character "New" does not exist'],
-        ['status', { statuses: ['Ghost'] }, 'Migration: status "Ghost" for character "New" does not exist']
-    ])('fails without creating when the %s reference does not exist', async (_, override, error) => {
+    it('fails without creating when the assistant reference does not exist', async () => {
+        const override = { assistant: 'Ghost' };
+
         const controllers = setup();
 
         const response = await run([{ ...seed('New'), ...override }]);
 
-        expect(response).toEqual({ success: false, error });
+        expect(response).toEqual({ success: false, error: 'Migration: assistant "Ghost" for character "New" does not exist' });
+        expect(controllers.create.handle).not.toHaveBeenCalled();
+    });
+
+    it('fails without creating when the ability reference does not exist', async () => {
+        const override = { abilities: ['Ghost'] };
+
+        const controllers = setup();
+
+        const response = await run([{ ...seed('New'), ...override }]);
+
+        expect(response).toEqual({ success: false, error: 'Migration: ability "Ghost" for character "New" does not exist' });
+        expect(controllers.create.handle).not.toHaveBeenCalled();
+    });
+
+    it('fails without creating when the proficiency reference does not exist', async () => {
+        const override = { proficiencies: ['Ghost'] };
+
+        const controllers = setup();
+
+        const response = await run([{ ...seed('New'), ...override }]);
+
+        expect(response).toEqual({ success: false, error: 'Migration: proficiency "Ghost" for character "New" does not exist' });
+        expect(controllers.create.handle).not.toHaveBeenCalled();
+    });
+
+    it('fails without creating when the status reference does not exist', async () => {
+        const override = { statuses: ['Ghost'] };
+
+        const controllers = setup();
+
+        const response = await run([{ ...seed('New'), ...override }]);
+
+        expect(response).toEqual({ success: false, error: 'Migration: status "Ghost" for character "New" does not exist' });
         expect(controllers.create.handle).not.toHaveBeenCalled();
     });
 

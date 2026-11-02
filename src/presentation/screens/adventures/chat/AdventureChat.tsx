@@ -7,11 +7,13 @@ import { useControllers } from '@presentation/providers/ControllersProvider';
 import { DetailHeader, detailHeaderStyles } from '../DetailHeader';
 import { ChatMessageList } from './components/ChatMessageList';
 import { MessageInput } from './components/MessageInput';
+import { MissingReferencesNotice } from './components/MissingReferencesNotice';
 import { isWaitingForPlayers } from './chatActions';
 import { useChatAutoScroll } from './hooks/useChatAutoScroll';
 import { useChatReplies } from './hooks/useChatReplies';
 import { useComposer } from './hooks/useComposer';
 import { useMessageActions } from './hooks/useMessageActions';
+import { useMissingReferencesAlert } from './hooks/useMissingReferencesAlert';
 import { useThinkBlocksVisibility } from './hooks/useThinkBlocksVisibility';
 import type { SetMessages, UpdateMessages } from './types';
 import { styles } from './AdventureChatScreen.styles';
@@ -22,6 +24,7 @@ type AdventureChatProps = {
   characters: AdventureChatCharacter[];
   worldMaster: AdventureChatWorldMaster | null;
   messages: ChatMessageView[];
+  missingReferenceIssues: string[];
   setMessages: SetMessages;
   updateMessages: UpdateMessages;
   onBack: () => void;
@@ -34,6 +37,7 @@ export function AdventureChat ({
   characters,
   worldMaster,
   messages,
+  missingReferenceIssues,
   setMessages,
   updateMessages,
   onBack,
@@ -107,6 +111,11 @@ export function AdventureChat ({
   const isPlayersTurn = useMemo(() => isWaitingForPlayers(messages), [messages]);
   const canSkipTurn = isPlayersTurn && !replies.isReplying && !editingChatId && !composer.message.trim();
 
+  useMissingReferencesAlert(missingReferenceIssues, controllers.alert);
+
+  const canGenerate = missingReferenceIssues.length === 0;
+  const showMissingReferencesNotice = !canGenerate && !replies.isReplying;
+
   return (
     <View style={[styles.container, { paddingBottom: keyboardHeight }]}>
       <DetailHeader
@@ -145,6 +154,7 @@ export function AdventureChat ({
             editingChatId={editingChatId}
             editingThinkChatId={editingThinkChatId}
             showThinkBlocks={thinkBlocks.showThinkBlocks}
+            canGenerate={canGenerate}
             actions={actions}
           />
         </ScrollView>
@@ -155,20 +165,23 @@ export function AdventureChat ({
         )}
       </View>
 
-      <MessageInput
-        value={composer.message}
-        onChangeText={composer.setMessage}
-        onKeyPress={composer.handleKeyPress}
-        isStreaming={replies.isReplying}
-        onSend={composer.send}
-        onStop={replies.stopReply}
-        canSkipTurn={canSkipTurn}
-        onSkipTurn={replies.skipTurn}
-        onResend={composer.resend}
-        characters={characters}
-        selectedCharacter={selectedCharacter}
-        onCharacterSelect={handleCharacterSelect}
-      />
+      {showMissingReferencesNotice && <MissingReferencesNotice issues={missingReferenceIssues} />}
+      {!showMissingReferencesNotice && (
+        <MessageInput
+          value={composer.message}
+          onChangeText={composer.setMessage}
+          onKeyPress={composer.handleKeyPress}
+          isStreaming={replies.isReplying}
+          onSend={composer.send}
+          onStop={replies.stopReply}
+          canSkipTurn={canSkipTurn}
+          onSkipTurn={replies.skipTurn}
+          onResend={composer.resend}
+          characters={characters}
+          selectedCharacter={selectedCharacter}
+          onCharacterSelect={handleCharacterSelect}
+        />
+      )}
     </View>
   );
 }

@@ -156,7 +156,7 @@ describe('TurnSpeakerService', () => {
         it('fails when the next AI character is not hydrated', () => {
             const hydrated = { ...buildHydrated([line('chat-1', 'swordsman'), line('chat-2', 'mage')]), characters: [swordsman, mage] };
 
-            expect(service.resolveNextSpeaker(hydrated)).toEqual({ success: false, error: 'AI controlled character not found: cleric' });
+            expect(service.resolveNextSpeaker(hydrated)).toEqual({ success: false, error: 'Entity not found for id: cleric from Characters' });
         });
 
         it('keeps giving the turn to the AI characters once one spoke even when a player was skipped', () => {
@@ -260,7 +260,7 @@ describe('TurnSpeakerService', () => {
         it('fails when there is neither a world master nor a character acting as one', () => {
             const hydrated = createHydratedAdventureHelper({ characters: [swordsman], withoutWorldMaster: true });
 
-            expect(service.resolveWorldMaster(hydrated)).toEqual({ success: false, error: 'WorldMaster not found' });
+            expect(service.resolveWorldMaster(hydrated)).toEqual({ success: false, error: 'World Masters not found' });
         });
     });
 });

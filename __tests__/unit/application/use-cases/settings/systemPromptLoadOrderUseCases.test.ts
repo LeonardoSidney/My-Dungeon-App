@@ -49,17 +49,37 @@ describe('GetSystemPromptLoadOrderUseCase', () => {
         expect(response).toEqual({ success: true, loadOrder: '' });
     });
 
-    it.each([
-        [{ success: false, error: 'Failed to load settings' }, 'Failed to load settings'],
-        [{ success: false }, 'Failed to load settings'],
-        [{ success: true }, 'Failed to load settings'],
-    ])('fails when the repository answers %j', async (repositoryResponse, error) => {
+    it('fails when the repository answers { success: false, error: "Failed to load settings" }', async () => {
+        const repositoryResponse = { success: false, error: 'Failed to load settings' };
+
         const repository = createRepository();
         repository.getSettings.mockResolvedValue(repositoryResponse);
 
         const response = await new GetSystemPromptLoadOrderUseCase(logger, repository).execute();
 
-        expect(response).toEqual({ success: false, error });
+        expect(response).toEqual({ success: false, error: 'Failed to load settings' });
+    });
+
+    it('fails when the repository answers { success: false }', async () => {
+        const repositoryResponse = { success: false };
+
+        const repository = createRepository();
+        repository.getSettings.mockResolvedValue(repositoryResponse);
+
+        const response = await new GetSystemPromptLoadOrderUseCase(logger, repository).execute();
+
+        expect(response).toEqual({ success: false, error: 'Failed to load settings' });
+    });
+
+    it('fails when the repository answers { success: true }', async () => {
+        const repositoryResponse = { success: true };
+
+        const repository = createRepository();
+        repository.getSettings.mockResolvedValue(repositoryResponse);
+
+        const response = await new GetSystemPromptLoadOrderUseCase(logger, repository).execute();
+
+        expect(response).toEqual({ success: false, error: 'Failed to load settings' });
     });
 });
 
@@ -100,17 +120,41 @@ describe('SaveSystemPromptLoadOrderUseCase', () => {
         expect(repository.saveSettings).toHaveBeenCalledWith({ settings: { systemPromptLoadOrder: '{items}' } });
     });
 
-    it.each([
-        [{ success: false, error: 'Invalid tag: {abacate}' }, 'Invalid tag: {abacate}'],
-        [{ success: false }, 'Invalid system prompt load order'],
-        [{ success: true }, 'Invalid system prompt load order'],
-    ])('fails without touching the storage when the validation answers %j', async (validation, error) => {
+    it('fails without touching the storage when the validation answers { success: false, error: "Invalid tag: {abacate}" }', async () => {
+        const validation = { success: false, error: 'Invalid tag: {abacate}' };
+
         const repository = createRepository();
         const validateService = { validate: jest.fn().mockReturnValue(validation) };
 
         const response = await buildUseCase(repository, validateService).execute({ loadOrder: '{abacate}' });
 
-        expect(response).toEqual({ success: false, error });
+        expect(response).toEqual({ success: false, error: 'Invalid tag: {abacate}' });
+        expect(repository.getSettings).not.toHaveBeenCalled();
+        expect(repository.saveSettings).not.toHaveBeenCalled();
+    });
+
+    it('fails without touching the storage when the validation answers { success: false }', async () => {
+        const validation = { success: false };
+
+        const repository = createRepository();
+        const validateService = { validate: jest.fn().mockReturnValue(validation) };
+
+        const response = await buildUseCase(repository, validateService).execute({ loadOrder: '{abacate}' });
+
+        expect(response).toEqual({ success: false, error: 'Invalid system prompt load order' });
+        expect(repository.getSettings).not.toHaveBeenCalled();
+        expect(repository.saveSettings).not.toHaveBeenCalled();
+    });
+
+    it('fails without touching the storage when the validation answers { success: true }', async () => {
+        const validation = { success: true };
+
+        const repository = createRepository();
+        const validateService = { validate: jest.fn().mockReturnValue(validation) };
+
+        const response = await buildUseCase(repository, validateService).execute({ loadOrder: '{abacate}' });
+
+        expect(response).toEqual({ success: false, error: 'Invalid system prompt load order' });
         expect(repository.getSettings).not.toHaveBeenCalled();
         expect(repository.saveSettings).not.toHaveBeenCalled();
     });
@@ -126,16 +170,27 @@ describe('SaveSystemPromptLoadOrderUseCase', () => {
         expect(repository.saveSettings).not.toHaveBeenCalled();
     });
 
-    it.each([
-        [{ success: false, error: 'Storage unavailable' }, 'Storage unavailable'],
-        [{ success: false }, 'Failed to load settings'],
-    ])('fails without saving when the settings load answers %j', async (loaded, error) => {
+    it('fails without saving when the settings load answers { success: false, error: "Storage unavailable" }', async () => {
+        const loaded = { success: false, error: 'Storage unavailable' };
+
         const repository = createRepository();
         repository.getSettings.mockResolvedValue(loaded);
 
         const response = await buildUseCase(repository).execute({ loadOrder: '{items}' });
 
-        expect(response).toEqual({ success: false, error });
+        expect(response).toEqual({ success: false, error: 'Storage unavailable' });
+        expect(repository.saveSettings).not.toHaveBeenCalled();
+    });
+
+    it('fails without saving when the settings load answers { success: false }', async () => {
+        const loaded = { success: false };
+
+        const repository = createRepository();
+        repository.getSettings.mockResolvedValue(loaded);
+
+        const response = await buildUseCase(repository).execute({ loadOrder: '{items}' });
+
+        expect(response).toEqual({ success: false, error: 'Failed to load settings' });
         expect(repository.saveSettings).not.toHaveBeenCalled();
     });
 

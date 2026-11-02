@@ -57,14 +57,22 @@ describe('SelectChatVersionService', () => {
         expect(result).toEqual({ success: false, error: 'Chat with id missing was not found' });
     });
 
-    it.each([
-        ['content', -1],
-        ['content', 2],
-        ['think', 2]
-    ] as const)('rejects the %s version index %p as out of bounds', (kind, index) => {
-        const result = service.selectVersion({ adventure: buildAdventure(), chatId: 'chat-1', kind, index });
+    it('rejects the content version index -1 as out of bounds', () => {
+        const result = service.selectVersion({ adventure: buildAdventure(), chatId: 'chat-1', kind: 'content', index: -1 });
 
-        expect(result).toEqual({ success: false, error: `Version index ${index} is out of bounds` });
+        expect(result).toEqual({ success: false, error: 'Version index -1 is out of bounds' });
+    });
+
+    it('rejects the content version index 2 as out of bounds', () => {
+        const result = service.selectVersion({ adventure: buildAdventure(), chatId: 'chat-1', kind: 'content', index: 2 });
+
+        expect(result).toEqual({ success: false, error: 'Version index 2 is out of bounds' });
+    });
+
+    it('rejects the think version index 2 as out of bounds', () => {
+        const result = service.selectVersion({ adventure: buildAdventure(), chatId: 'chat-1', kind: 'think', index: 2 });
+
+        expect(result).toEqual({ success: false, error: 'Version index 2 is out of bounds' });
     });
 
     it('rejects any think version of a chat without thinks', () => {

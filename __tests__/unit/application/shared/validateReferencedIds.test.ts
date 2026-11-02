@@ -1,6 +1,6 @@
 import { checkReferencedId, checkReferencedIds } from '@application/shared/validateReferencedIds';
 
-const WORLD = { key: 'world', label: 'World' } as const;
+const WORLD = { key: 'world', collection: 'world' } as const;
 
 type WorldLookup = { success: boolean; error?: string; world?: { id: string; }; };
 
@@ -26,14 +26,19 @@ describe('validateReferencedIds', () => {
         });
 
         it('reports an id that does not resolve to an entity', async () => {
-            await expect(checkReferencedId(lookup({}), WORLD, 'w1')).resolves.toBe('World not found: w1');
+            await expect(checkReferencedId(lookup({}), WORLD, 'w1')).resolves.toBe('Entity not found for id: w1 from Worlds');
         });
 
-        it.each([
-            [{ success: false, error: 'storage offline' }, 'storage offline'],
-            [{ success: false }, 'Failed to load World: w1']
-        ])('reports a lookup that answers %j', async (response, error) => {
-            await expect(checkReferencedId(lookup({ w1: response }), WORLD, 'w1')).resolves.toBe(error);
+        it('reports a lookup that answers { success: false, error: "storage offline" }', async () => {
+            const response = { success: false, error: 'storage offline' };
+
+            await expect(checkReferencedId(lookup({ w1: response }), WORLD, 'w1')).resolves.toBe('storage offline');
+        });
+
+        it('reports a lookup that answers { success: false }', async () => {
+            const response = { success: false };
+
+            await expect(checkReferencedId(lookup({ w1: response }), WORLD, 'w1')).resolves.toBe('Failed to load Worlds: w1');
         });
     });
 
@@ -48,7 +53,7 @@ describe('validateReferencedIds', () => {
         it('stops at the first id that does not resolve', async () => {
             const resolve = lookup({ w1: { success: true, world: { id: 'w1' } } });
 
-            await expect(checkReferencedIds(resolve, WORLD, ['w1', 'w2', 'w3'])).resolves.toBe('World not found: w2');
+            await expect(checkReferencedIds(resolve, WORLD, ['w1', 'w2', 'w3'])).resolves.toBe('Entity not found for id: w2 from Worlds');
             expect(resolve).toHaveBeenCalledTimes(2);
         });
     });

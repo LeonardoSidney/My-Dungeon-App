@@ -24,7 +24,7 @@ export class EraseConnectionUseCase implements IEraseConnectionUseCase {
     }
 
     private validate (params: EraseConnectionUseCaseParams): string | null {
-        if (!params.id) {
+        if (!params.id?.trim()) {
             return 'A connection id is required to erase a connection';
         }
 

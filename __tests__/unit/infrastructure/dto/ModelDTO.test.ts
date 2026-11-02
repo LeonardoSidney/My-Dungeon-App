@@ -13,17 +13,35 @@ describe('ModelDTO', () => {
         expect(ModelDTO.fromStorage(STORED)?.toEntity()).toEqual(STORED);
     });
 
-    it.each([null, 'model', 42])('rejects %p because it is not a record', (data) => {
-        expect(ModelDTO.fromStorage(data)).toBeNull();
+    it('rejects null because it is not a record', () => {
+        expect(ModelDTO.fromStorage(null)).toBeNull();
     });
 
-    it.each([
-        ['id', 1],
-        ['name', undefined],
-        ['connectionId', null],
-        ['ownedBy', 42],
-        ['nCtx', '4096']
-    ])('rejects a stored model with an invalid %s', (field, value) => {
-        expect(ModelDTO.fromStorage({ ...STORED, [field]: value })).toBeNull();
+    it('rejects "model" because it is not a record', () => {
+        expect(ModelDTO.fromStorage('model')).toBeNull();
+    });
+
+    it('rejects 42 because it is not a record', () => {
+        expect(ModelDTO.fromStorage(42)).toBeNull();
+    });
+
+    it('rejects a stored model with an invalid id', () => {
+        expect(ModelDTO.fromStorage({ ...STORED, id: 1 })).toBeNull();
+    });
+
+    it('rejects a stored model with an invalid name', () => {
+        expect(ModelDTO.fromStorage({ ...STORED, name: undefined })).toBeNull();
+    });
+
+    it('rejects a stored model with an invalid connectionId', () => {
+        expect(ModelDTO.fromStorage({ ...STORED, connectionId: null })).toBeNull();
+    });
+
+    it('rejects a stored model with an invalid ownedBy', () => {
+        expect(ModelDTO.fromStorage({ ...STORED, ownedBy: 42 })).toBeNull();
+    });
+
+    it('rejects a stored model with an invalid nCtx', () => {
+        expect(ModelDTO.fromStorage({ ...STORED, nCtx: '4096' })).toBeNull();
     });
 });

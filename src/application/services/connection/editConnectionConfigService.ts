@@ -13,7 +13,10 @@ export class EditConnectionConfigService implements IEditConnectionConfigService
 
         const editedConnection: Connection = {
             ...connection,
-            ...editParams,
+            name: editParams.name.trim(),
+            ip: editParams.ip,
+            port: editParams.port,
+            auth: editParams.auth,
             updatedAt: new Date()
         };
 

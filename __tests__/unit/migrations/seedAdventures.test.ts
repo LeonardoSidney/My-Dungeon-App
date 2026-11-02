@@ -96,20 +96,80 @@ describe('seedAdventures', () => {
         expect(controllers.create.handle).not.toHaveBeenCalled();
     });
 
-    it.each([
-        ['world master', { worldMaster: 'Ghost' }],
-        ['character', { characters: ['Ghost'] }],
-        ['character', { charactersControlledByAi: ['Ghost'] }],
-        ['system prompt', { systemPrompts: ['Ghost'] }],
-        ['world', { worlds: ['Ghost'] }],
-        ['location', { locations: ['Ghost'] }],
-        ['item', { items: ['Ghost'] }]
-    ])('fails without creating when a %s reference does not exist (%j)', async (label, override) => {
+    it('fails without creating when a world master reference does not exist ({ worldMaster: "Ghost" })', async () => {
+        const override = { worldMaster: 'Ghost' };
+
         const controllers = setup();
 
         const response = await run([{ ...seed('New'), ...override }]);
 
-        expect(response).toEqual({ success: false, error: `Migration: ${label} "Ghost" for adventure "New" does not exist` });
+        expect(response).toEqual({ success: false, error: 'Migration: world master "Ghost" for adventure "New" does not exist' });
+        expect(controllers.create.handle).not.toHaveBeenCalled();
+    });
+
+    it('fails without creating when a character reference does not exist ({ characters: ["Ghost"] })', async () => {
+        const override = { characters: ['Ghost'] };
+
+        const controllers = setup();
+
+        const response = await run([{ ...seed('New'), ...override }]);
+
+        expect(response).toEqual({ success: false, error: 'Migration: character "Ghost" for adventure "New" does not exist' });
+        expect(controllers.create.handle).not.toHaveBeenCalled();
+    });
+
+    it('fails without creating when a character reference does not exist ({ charactersControlledByAi: ["Ghost"] })', async () => {
+        const override = { charactersControlledByAi: ['Ghost'] };
+
+        const controllers = setup();
+
+        const response = await run([{ ...seed('New'), ...override }]);
+
+        expect(response).toEqual({ success: false, error: 'Migration: character "Ghost" for adventure "New" does not exist' });
+        expect(controllers.create.handle).not.toHaveBeenCalled();
+    });
+
+    it('fails without creating when a system prompt reference does not exist ({ systemPrompts: ["Ghost"] })', async () => {
+        const override = { systemPrompts: ['Ghost'] };
+
+        const controllers = setup();
+
+        const response = await run([{ ...seed('New'), ...override }]);
+
+        expect(response).toEqual({ success: false, error: 'Migration: system prompt "Ghost" for adventure "New" does not exist' });
+        expect(controllers.create.handle).not.toHaveBeenCalled();
+    });
+
+    it('fails without creating when a world reference does not exist ({ worlds: ["Ghost"] })', async () => {
+        const override = { worlds: ['Ghost'] };
+
+        const controllers = setup();
+
+        const response = await run([{ ...seed('New'), ...override }]);
+
+        expect(response).toEqual({ success: false, error: 'Migration: world "Ghost" for adventure "New" does not exist' });
+        expect(controllers.create.handle).not.toHaveBeenCalled();
+    });
+
+    it('fails without creating when a location reference does not exist ({ locations: ["Ghost"] })', async () => {
+        const override = { locations: ['Ghost'] };
+
+        const controllers = setup();
+
+        const response = await run([{ ...seed('New'), ...override }]);
+
+        expect(response).toEqual({ success: false, error: 'Migration: location "Ghost" for adventure "New" does not exist' });
+        expect(controllers.create.handle).not.toHaveBeenCalled();
+    });
+
+    it('fails without creating when a item reference does not exist ({ items: ["Ghost"] })', async () => {
+        const override = { items: ['Ghost'] };
+
+        const controllers = setup();
+
+        const response = await run([{ ...seed('New'), ...override }]);
+
+        expect(response).toEqual({ success: false, error: 'Migration: item "Ghost" for adventure "New" does not exist' });
         expect(controllers.create.handle).not.toHaveBeenCalled();
     });
 

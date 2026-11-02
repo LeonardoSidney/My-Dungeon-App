@@ -1,7 +1,7 @@
 import {
     CharacterDetails,
     EntityOption,
-    CreateCharacterControllerPrams,
+    CreateCharacterControllerParams,
     EditCharacterControllerParams,
     ICreateCharacterController,
     IEditCharacterController,
@@ -66,7 +66,7 @@ export function initialCharacterForm (): CharacterFormData {
     };
 }
 
-function toCharacterRequest (form: CharacterFormData, assistantId: string): CreateCharacterControllerPrams {
+function toCharacterRequest (form: CharacterFormData, assistantId: string): CreateCharacterControllerParams {
     return {
         name: form.name,
         activationWord: form.activationWord,

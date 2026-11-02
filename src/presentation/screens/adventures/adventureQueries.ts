@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import {
     IGetAdventureCharactersController,
+    IGetAdventureMissingReferencesController,
     IGetAdventureWorldMasterController,
     IGetAdventureSummaryController,
     IGetChatMessagesController,
@@ -30,6 +31,15 @@ export function useAdventureWorldMaster (adventureId: string, getAdventureWorldM
         const response = await getAdventureWorldMaster.handle({ adventureId });
         return { success: response.success, value: response.success ? response.data ?? null : undefined, error: response.error };
     }, [adventureId, getAdventureWorldMaster]);
+
+    return useFocusedQuery(load);
+}
+
+export function useAdventureMissingReferences (adventureId: string, getAdventureMissingReferences: IGetAdventureMissingReferencesController) {
+    const load = useCallback(async () => {
+        const response = await getAdventureMissingReferences.handle({ adventureId });
+        return { success: response.success, value: response.issues, error: response.error };
+    }, [adventureId, getAdventureMissingReferences]);
 
     return useFocusedQuery(load);
 }

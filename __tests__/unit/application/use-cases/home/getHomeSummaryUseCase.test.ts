@@ -105,16 +105,27 @@ describe('GetHomeSummaryUseCase', () => {
         expect(activitySummary.summarize).toHaveBeenCalledWith(expect.objectContaining({ adventures: [], characters: [] }));
     });
 
-    it.each([
-        [{ success: false, error: 'Storage unavailable' }, 'Storage unavailable'],
-        [{ success: false }, 'Failed to load the home summary'],
-    ])('fails without summarizing when a list answers %j', async (failure, error) => {
+    it('fails without summarizing when a list answers { success: false, error: "Storage unavailable" }', async () => {
+        const failure = { success: false, error: 'Storage unavailable' };
+
         const { useCase, mocks } = buildUseCase();
         mocks.getSamplers.execute.mockResolvedValue(failure);
 
         const response = await useCase.execute();
 
-        expect(response).toEqual({ success: false, error });
+        expect(response).toEqual({ success: false, error: 'Storage unavailable' });
+        expect(mocks.activitySummary.summarize).not.toHaveBeenCalled();
+    });
+
+    it('fails without summarizing when a list answers { success: false }', async () => {
+        const failure = { success: false };
+
+        const { useCase, mocks } = buildUseCase();
+        mocks.getSamplers.execute.mockResolvedValue(failure);
+
+        const response = await useCase.execute();
+
+        expect(response).toEqual({ success: false, error: 'Failed to load the home summary' });
         expect(mocks.activitySummary.summarize).not.toHaveBeenCalled();
     });
 

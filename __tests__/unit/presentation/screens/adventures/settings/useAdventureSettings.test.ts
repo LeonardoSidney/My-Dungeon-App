@@ -144,6 +144,31 @@ describe('useAdventureSettings', () => {
         expect(result.current.draft?.generation.voiceAssistants).toEqual({});
     });
 
+    it('offers to apply when a reference of the adventure no longer exists', async () => {
+        const controllers = buildControllers({
+            getAdventure: { handle: jest.fn().mockResolvedValue({ success: true, data: { ...adventure, aiControlledCharacterIds: ['erased'] } }) },
+        });
+
+        const { result } = await renderLoaded(controllers);
+
+        expect(result.current.draft?.adventure.charactersControlledByAi).toEqual([]);
+        expect(result.current.hasUnsavedChanges).toBe(true);
+    });
+
+    it('has nothing left to apply after saving the repaired adventure', async () => {
+        const applySettings = jest.fn().mockResolvedValue({ success: true });
+        const controllers = buildControllers({
+            getAdventure: { handle: jest.fn().mockResolvedValue({ success: true, data: { ...adventure, aiControlledCharacterIds: ['erased'] } }) },
+            applyAdventureSettings: { handle: applySettings },
+        });
+        const { result } = await renderLoaded(controllers);
+
+        await act(async () => { await result.current.apply(); });
+
+        expect(applySettings.mock.calls[0][0].adventure.aiControlledCharacterIds).toEqual([]);
+        expect(result.current.hasUnsavedChanges).toBe(false);
+    });
+
     it('discards the draft back to the applied values', async () => {
         const { result } = await renderLoaded();
 

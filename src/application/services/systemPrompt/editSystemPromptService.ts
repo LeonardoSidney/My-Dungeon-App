@@ -15,7 +15,9 @@ export class EditSystemPromptService implements IEditSystemPromptService {
 
         const editedSystemPrompt: SystemPrompt = {
             ...systemPrompt,
-            ...editParams,
+            name: editParams.name.trim(),
+            content: editParams.content,
+            observation: editParams.observation,
             updatedAt: new Date(),
         };
 

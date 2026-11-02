@@ -103,4 +103,18 @@ describe('CreateItemService', () => {
         expect(result.item).toHaveProperty('createdAt', expect.any(Date));
         expect(result.item).toHaveProperty('updatedAt', expect.any(Date));
     });
+
+    it('should trim the start and the end of the name', () => {
+        mockIdGenerator.generate.mockReturnValue('item-trim');
+
+        const result: CreateItemServiceResponse = service.createItem({
+            name: '  Iron  Sword\n',
+            activationWord: ' sword ',
+            prompt: ' A sword '
+        });
+
+        expect(result.item?.name).toBe('Iron  Sword');
+        expect(result.item?.activationWord).toBe(' sword ');
+        expect(result.item?.prompt).toBe(' A sword ');
+    });
 });

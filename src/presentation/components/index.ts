@@ -17,6 +17,7 @@ export { SegmentedControl } from './select/SegmentedControl';
 export type { SegmentOption } from './select/SegmentedControl';
 export { CollapsibleSection } from './CollapsibleSection';
 export { IconButton } from './IconButton';
+export { DeleteButton } from './DeleteButton';
 export type { IconComponent } from './IconButton';
 export { WebAlertModal } from './WebAlertModal';
 export { screenStyles } from './screenStyles';

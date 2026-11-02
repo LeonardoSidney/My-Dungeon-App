@@ -38,12 +38,13 @@ describe('GetAdventureWorldMasterUseCase', () => {
         expect(worldMasterRepository.getWorldMasterById).not.toHaveBeenCalled();
     });
 
-    it('fails when the referenced world master no longer exists', async () => {
-        const { adventure, useCase } = build('wm', null as never);
+    it('answers without a world master when the referenced one no longer exists, so the adventure still opens', async () => {
+        const { adventure, useCase, worldMasterRepository } = build('wm');
+        worldMasterRepository.getWorldMasterById.mockResolvedValue({ success: true, worldMaster: undefined });
 
         const response = await useCase.execute({ adventureId: adventure.id });
 
-        expect(response).toEqual({ success: false, error: 'World master with id wm not found' });
+        expect(response).toEqual({ success: true, worldMaster: undefined });
     });
 
     it('fails without reading the adventure when the id is blank', async () => {
@@ -56,15 +57,24 @@ describe('GetAdventureWorldMasterUseCase', () => {
         expect(adventureRepository.getAdventureById).not.toHaveBeenCalled();
     });
 
-    it.each([
-        [{ success: false, error: 'storage offline' }, 'storage offline'],
-        [{ success: true, adventure: undefined }, 'Adventure with id adventure-1 not found']
-    ])('fails when loading the adventure answers %j', async (adventureResponse, error) => {
+    it('fails when loading the adventure answers { success: false, error: "storage offline" }', async () => {
+        const adventureResponse = { success: false, error: 'storage offline' };
+
         const useCase = new GetAdventureWorldMasterUseCase(logger, { getAdventureById: jest.fn().mockResolvedValue(adventureResponse) } as never, {} as never);
 
         const response = await useCase.execute({ adventureId: 'adventure-1' });
 
-        expect(response).toEqual({ success: false, error });
+        expect(response).toEqual({ success: false, error: 'storage offline' });
+    });
+
+    it('fails when loading the adventure answers { success: true, adventure: undefined }', async () => {
+        const adventureResponse = { success: true, adventure: undefined };
+
+        const useCase = new GetAdventureWorldMasterUseCase(logger, { getAdventureById: jest.fn().mockResolvedValue(adventureResponse) } as never, {} as never);
+
+        const response = await useCase.execute({ adventureId: 'adventure-1' });
+
+        expect(response).toEqual({ success: false, error: 'Adventure with id adventure-1 not found' });
     });
 
     it('propagates a failure to load the world master', async () => {

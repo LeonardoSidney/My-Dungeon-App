@@ -1,3 +1,5 @@
+import { formatEntityNotFound } from '@application/shared/formatEntityNotFound';
+import { CONNECTION_STORAGE_NAMESPACE } from '@domain/constants/general';
 import { IModelProviderGateway } from '@domain/gateways';
 import { ILogger } from '@domain/logger';
 import { IConnectionRepository } from '@domain/repository';
@@ -26,7 +28,7 @@ export class GetModelsFromProviderUseCase implements IGetModelsFromProviderUseCa
 
         const connection = connectionResponse.connection;
         if (!connection) {
-            return { success: false, error: `Connection not found: ${params.connectionId}` };
+            return { success: false, error: formatEntityNotFound(params.connectionId, CONNECTION_STORAGE_NAMESPACE) };
         }
 
         const response = await this.gateway.getModels(connection);

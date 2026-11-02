@@ -75,12 +75,42 @@ describe('seedConnections', () => {
             expect(response).toEqual({ success: true, connection: LOCAL, models });
         });
 
-        it.each([
-            ['is unreachable', { success: false, error: 'offline' }],
-            ['is unreachable without a reason', { success: false }],
-            ['has no loaded models', { success: true, models: [] }],
-            ['does not serve the assistant models', { success: true, models: [createModelHelper({ id: 'other', loaded: true })] }]
-        ])('skips a connection that %s', async (_, localResponse) => {
+        it('skips a connection that is unreachable', async () => {
+            const localResponse = { success: false, error: 'offline' };
+
+            const models = [createModelHelper({ id: 'model-a', loaded: true })];
+            modelsByConnection({ 'connection-1': localResponse, 'connection-2': { success: true, models } });
+
+            const response = await resolveActiveConnection([LOCAL, REMOTE], [{ name: 'Narrator', modelId: 'model-a', sampler: 'Creative' }]);
+
+            expect(response).toEqual({ success: true, connection: REMOTE, models });
+        });
+
+        it('skips a connection that is unreachable without a reason', async () => {
+            const localResponse = { success: false };
+
+            const models = [createModelHelper({ id: 'model-a', loaded: true })];
+            modelsByConnection({ 'connection-1': localResponse, 'connection-2': { success: true, models } });
+
+            const response = await resolveActiveConnection([LOCAL, REMOTE], [{ name: 'Narrator', modelId: 'model-a', sampler: 'Creative' }]);
+
+            expect(response).toEqual({ success: true, connection: REMOTE, models });
+        });
+
+        it('skips a connection that has no loaded models', async () => {
+            const localResponse = { success: true, models: [] };
+
+            const models = [createModelHelper({ id: 'model-a', loaded: true })];
+            modelsByConnection({ 'connection-1': localResponse, 'connection-2': { success: true, models } });
+
+            const response = await resolveActiveConnection([LOCAL, REMOTE], [{ name: 'Narrator', modelId: 'model-a', sampler: 'Creative' }]);
+
+            expect(response).toEqual({ success: true, connection: REMOTE, models });
+        });
+
+        it('skips a connection that does not serve the assistant models', async () => {
+            const localResponse = { success: true, models: [createModelHelper({ id: 'other', loaded: true })] };
+
             const models = [createModelHelper({ id: 'model-a', loaded: true })];
             modelsByConnection({ 'connection-1': localResponse, 'connection-2': { success: true, models } });
 
@@ -148,16 +178,26 @@ describe('seedConnections', () => {
             expect(controllers.create.handle).not.toHaveBeenCalled();
         });
 
-        it.each([
-            [{ success: false, error: 'refused' }, 'refused'],
-            [{ success: true }, 'undefined']
-        ])('fails when creating a connection answers %j', async (createResponse, reason) => {
+        it('fails when creating a connection answers { success: false, error: "refused" }', async () => {
+            const createResponse = { success: false, error: 'refused' };
+
             const controllers = setup();
             controllers.create.handle.mockResolvedValue(createResponse);
 
             const response = await seedConnections([{ name: 'New', ip: '10.0.0.3' }]);
 
-            expect(response).toEqual({ success: false, error: `Migration: failed to create connection "New": ${reason}` });
+            expect(response).toEqual({ success: false, error: 'Migration: failed to create connection "New": refused' });
+        });
+
+        it('fails when creating a connection answers { success: true }', async () => {
+            const createResponse = { success: true };
+
+            const controllers = setup();
+            controllers.create.handle.mockResolvedValue(createResponse);
+
+            const response = await seedConnections([{ name: 'New', ip: '10.0.0.3' }]);
+
+            expect(response).toEqual({ success: false, error: 'Migration: failed to create connection "New": undefined' });
         });
 
         it('fails when a connection cannot be restored', async () => {

@@ -1,6 +1,7 @@
 import { memo, useEffect, useRef, type ReactNode } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { Pencil, Trash2 } from 'lucide-react-native';
+import { Pencil } from 'lucide-react-native';
+import { DeleteButton } from '../DeleteButton';
 import { IconButton } from '../IconButton';
 import { screenStyles } from '../screenStyles';
 import { EntityItem } from './EntityItem';
@@ -47,7 +48,7 @@ function CrudEntityRowBase<T extends CrudEntityListItem> ({
       actions={renderActions ? renderActions(item) : (
         <>
           <IconButton icon={Pencil} accessibilityLabel="Edit" onPress={() => onEdit(item)} />
-          <IconButton icon={Trash2} accessibilityLabel="Delete" onPress={() => onDelete(item)} />
+          <DeleteButton itemName={item.name} onConfirm={() => onDelete(item)} />
         </>
       )}
     />

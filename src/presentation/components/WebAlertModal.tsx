@@ -1,5 +1,5 @@
 import { Modal, Text, TouchableOpacity, View } from 'react-native';
-import { AlertAction, AlertActionStyleEnum } from '@domain/use-cases';
+import { AlertAction, AlertActionStyle, AlertActionStyleEnum } from '@domain/use-cases';
 import { styles } from './WebAlertModal.styles';
 
 export type WebAlertModalProps = {
@@ -10,6 +10,16 @@ export type WebAlertModalProps = {
 };
 
 const DEFAULT_ACTIONS: AlertAction[] = [{ label: 'OK' }];
+
+function getLabelStyle (style?: AlertActionStyle) {
+  if (style === AlertActionStyleEnum.CANCEL) {
+    return [styles.buttonText, styles.cancelButtonText];
+  }
+  if (style === AlertActionStyleEnum.DESTRUCTIVE) {
+    return [styles.buttonText, styles.destructiveButtonText];
+  }
+  return styles.buttonText;
+}
 
 export function WebAlertModal (params: WebAlertModalProps) {
   const { title, message, actions = DEFAULT_ACTIONS, onDismiss } = params;
@@ -22,8 +32,6 @@ export function WebAlertModal (params: WebAlertModalProps) {
           <Text style={styles.message}>{message}</Text>
           <View style={styles.footer}>
             {actions.map(action => {
-              const isCancel = action.style === AlertActionStyleEnum.CANCEL;
-              const labelStyle = isCancel ? [styles.buttonText, styles.cancelButtonText] : styles.buttonText;
               const handlePress = () => {
                 onDismiss();
                 action.onPress?.();
@@ -37,7 +45,7 @@ export function WebAlertModal (params: WebAlertModalProps) {
                   style={styles.button}
                   onPress={handlePress}
                 >
-                  <Text style={labelStyle}>{action.label}</Text>
+                  <Text style={getLabelStyle(action.style)}>{action.label}</Text>
                 </TouchableOpacity>
               );
             })}

@@ -91,14 +91,32 @@ describe('SubscribeChatReplyController', () => {
         expect(response).toEqual({ success: true, isReplying: true, unsubscribe, error: undefined });
     });
 
-    it.each([
-        [ChatReplyStatusEnum.STREAMING, { isFinished: false, isRemoved: false }],
-        [ChatReplyStatusEnum.FINISHED, { isFinished: true, isRemoved: false }],
-        [ChatReplyStatusEnum.REMOVED, { isFinished: true, isRemoved: true }],
-    ] as const)('maps a %s event into an update view', (status, flags) => {
+    it('maps a ChatReplyStatusEnum.STREAMING event into an update view', () => {
+        const flags = { isFinished: false, isRemoved: false };
+
         const { onUpdate, emit } = subscribe();
 
-        emit({ adventureId: 'adventure-1', chatId: 'chat-1', status, error: 'oops' });
+        emit({ adventureId: 'adventure-1', chatId: 'chat-1', status: ChatReplyStatusEnum.STREAMING, error: 'oops' });
+
+        expect(onUpdate).toHaveBeenCalledWith({ chatId: 'chat-1', ...flags, error: 'oops' });
+    });
+
+    it('maps a ChatReplyStatusEnum.FINISHED event into an update view', () => {
+        const flags = { isFinished: true, isRemoved: false };
+
+        const { onUpdate, emit } = subscribe();
+
+        emit({ adventureId: 'adventure-1', chatId: 'chat-1', status: ChatReplyStatusEnum.FINISHED, error: 'oops' });
+
+        expect(onUpdate).toHaveBeenCalledWith({ chatId: 'chat-1', ...flags, error: 'oops' });
+    });
+
+    it('maps a ChatReplyStatusEnum.REMOVED event into an update view', () => {
+        const flags = { isFinished: true, isRemoved: true };
+
+        const { onUpdate, emit } = subscribe();
+
+        emit({ adventureId: 'adventure-1', chatId: 'chat-1', status: ChatReplyStatusEnum.REMOVED, error: 'oops' });
 
         expect(onUpdate).toHaveBeenCalledWith({ chatId: 'chat-1', ...flags, error: 'oops' });
     });

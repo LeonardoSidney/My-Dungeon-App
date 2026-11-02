@@ -46,19 +46,45 @@ describe('SettingsRepository', () => {
         expect(response).toEqual({ success: true, settings: { systemPromptLoadOrder: '' } });
     });
 
-    it.each([null, undefined])('returns empty settings when nothing was saved (%s)', async (stored) => {
-        const { repository } = buildRepository(stored);
+    it('returns empty settings when nothing was saved (null)', async () => {
+        const { repository } = buildRepository(null);
 
         const response = await repository.getSettings();
 
         expect(response).toEqual({ success: true, settings: {} });
     });
 
-    it.each([
-        ['a list', []],
-        ['a string', 'settings'],
-        ['a load order that is not a string', { systemPromptLoadOrder: 42 }],
-    ])('falls back to empty settings when the stored value is %s', async (_, stored) => {
+    it('returns empty settings when nothing was saved (undefined)', async () => {
+        const { repository } = buildRepository(undefined);
+
+        const response = await repository.getSettings();
+
+        expect(response).toEqual({ success: true, settings: {} });
+    });
+
+    it('falls back to empty settings when the stored value is a list', async () => {
+        const stored: unknown[] = [];
+
+        const { repository } = buildRepository(stored);
+
+        const response = await repository.getSettings();
+
+        expect(response).toEqual({ success: true, settings: {} });
+        expect(mockLogger.warning).toHaveBeenCalled();
+    });
+
+    it('falls back to empty settings when the stored value is a string', async () => {
+        const { repository } = buildRepository('settings');
+
+        const response = await repository.getSettings();
+
+        expect(response).toEqual({ success: true, settings: {} });
+        expect(mockLogger.warning).toHaveBeenCalled();
+    });
+
+    it('falls back to empty settings when the stored value is a load order that is not a string', async () => {
+        const stored = { systemPromptLoadOrder: 42 };
+
         const { repository } = buildRepository(stored);
 
         const response = await repository.getSettings();

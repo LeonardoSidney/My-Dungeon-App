@@ -24,7 +24,7 @@ export class EraseWorldMasterUseCase implements IEraseWorldMasterUseCase {
     }
 
     private validate (params: EraseWorldMasterUseCaseParams): string | null {
-        if (!params.id) {
+        if (!params.id?.trim()) {
             return 'A world master id is required to erase a world master';
         }
 

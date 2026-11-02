@@ -59,20 +59,47 @@ describe('CharacterDTO', () => {
         expect(entity?.attributes).toEqual([{ name: 'Strength', value: 10 }]);
     });
 
-    it.each([null, 'character', 42])('rejects %p because it is not a record', (data) => {
-        expect(CharacterDTO.fromStorage(data)).toBeNull();
+    it('rejects null because it is not a record', () => {
+        expect(CharacterDTO.fromStorage(null)).toBeNull();
     });
 
-    it.each([
-        ['id', 1],
-        ['name', undefined],
-        ['activationWord', false],
-        ['prompt', null],
-        ['observation', 3],
-        ['assistantId', 42],
-        ['createdAt', 'not a date'],
-        ['updatedAt', undefined]
-    ])('rejects a stored character with an invalid %s', (field, value) => {
-        expect(CharacterDTO.fromStorage({ ...STORED, [field]: value })).toBeNull();
+    it('rejects "character" because it is not a record', () => {
+        expect(CharacterDTO.fromStorage('character')).toBeNull();
+    });
+
+    it('rejects 42 because it is not a record', () => {
+        expect(CharacterDTO.fromStorage(42)).toBeNull();
+    });
+
+    it('rejects a stored character with an invalid id', () => {
+        expect(CharacterDTO.fromStorage({ ...STORED, id: 1 })).toBeNull();
+    });
+
+    it('rejects a stored character with an invalid name', () => {
+        expect(CharacterDTO.fromStorage({ ...STORED, name: undefined })).toBeNull();
+    });
+
+    it('rejects a stored character with an invalid activationWord', () => {
+        expect(CharacterDTO.fromStorage({ ...STORED, activationWord: false })).toBeNull();
+    });
+
+    it('rejects a stored character with an invalid prompt', () => {
+        expect(CharacterDTO.fromStorage({ ...STORED, prompt: null })).toBeNull();
+    });
+
+    it('rejects a stored character with an invalid observation', () => {
+        expect(CharacterDTO.fromStorage({ ...STORED, observation: 3 })).toBeNull();
+    });
+
+    it('rejects a stored character with an invalid assistantId', () => {
+        expect(CharacterDTO.fromStorage({ ...STORED, assistantId: 42 })).toBeNull();
+    });
+
+    it('rejects a stored character with an invalid createdAt', () => {
+        expect(CharacterDTO.fromStorage({ ...STORED, createdAt: 'not a date' })).toBeNull();
+    });
+
+    it('rejects a stored character with an invalid updatedAt', () => {
+        expect(CharacterDTO.fromStorage({ ...STORED, updatedAt: undefined })).toBeNull();
     });
 });

@@ -24,6 +24,14 @@ export class CreateAssistantUseCase implements ICreateAssistantUseCase {
         this.logger.info('Executing CreateAssistantUseCase::execute');
         this.logger.debug('Execute CreateAssistantUseCase::execute - params: ', params);
 
+        const validationError = this.validate(params);
+        if (validationError) {
+            return {
+                success: false,
+                error: validationError
+            };
+        }
+
         const missingIdError = await this.validateReferencedIds(params);
         if (missingIdError) {
             return {
@@ -64,7 +72,7 @@ export class CreateAssistantUseCase implements ICreateAssistantUseCase {
 
         const assistants = assistantsResponse.assistants;
         this.logger.debug('Execute CreateAssistantUseCase::execute - assistants: ', assistants);
-        const alreadyExists = assistants.some((assistant) => assistant.name === name);
+        const alreadyExists = assistants.some((assistant) => assistant.name === response.assistant?.name);
 
         if (alreadyExists) {
             this.logger.warning(`Assistant with name ${response.assistant.name} already exists`);
@@ -84,6 +92,14 @@ export class CreateAssistantUseCase implements ICreateAssistantUseCase {
             success: true,
             id: response.assistant.id
         };
+    }
+
+    private validate (params: CreateAssistantUseCaseParams): string | null {
+        if (!params.name?.trim()) {
+            return 'A name is required to create an assistant';
+        }
+
+        return null;
     }
 
     private async validateReferencedIds (params: CreateAssistantUseCaseParams): Promise<string | null> {

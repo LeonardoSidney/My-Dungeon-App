@@ -29,5 +29,6 @@ export * from './iChatMessagesPresenter';
 export * from './iGetAdventureSummaryPresenter';
 export * from './iGetAdventureCharactersPresenter';
 export * from './iGetAdventureWorldMasterPresenter';
+export * from './iGetAdventureMissingReferencesPresenter';
 export * from './iDraftPresenter';
 export * from './iGetHomeSummaryPresenter';

@@ -1,4 +1,18 @@
 import {
+    ABILITY_STORAGE_NAMESPACE,
+    ASSISTANT_STORAGE_NAMESPACE,
+    CHARACTER_STORAGE_NAMESPACE,
+    CONNECTION_STORAGE_NAMESPACE,
+    ITEM_STORAGE_NAMESPACE,
+    LOCATION_STORAGE_NAMESPACE,
+    PROFICIENCY_STORAGE_NAMESPACE,
+    SAMPLER_STORAGE_NAMESPACE,
+    STATUS_STORAGE_NAMESPACE,
+    SYSTEM_PROMPT_STORAGE_NAMESPACE,
+    WORLD_MASTER_STORAGE_NAMESPACE,
+    WORLD_STORAGE_NAMESPACE,
+} from '@domain/constants/general';
+import {
     Ability,
     Assistant,
     Character,
@@ -29,6 +43,7 @@ import {
     HydratedCharacter,
     IHydrateAdventureService,
 } from '@domain/services';
+import { formatEntityNotFound } from '@application/shared/formatEntityNotFound';
 import { createSamplerResolver } from '@application/shared/resolveSampler';
 
 export class HydrateAdventureService implements IHydrateAdventureService {
@@ -53,7 +68,7 @@ export class HydrateAdventureService implements IHydrateAdventureService {
         this.logger.info('Execute HydrateAdventureService::hydrate');
         const { adventure } = params;
 
-        const characters = await this.resolveByIds(adventure.characterIds, (id) => this.characterRepository.getCharacterById(id), (r) => r.character);
+        const characters = await this.resolveByIds(adventure.characterIds, (id) => this.characterRepository.getCharacterById(id), (r) => r.character, CHARACTER_STORAGE_NAMESPACE);
         if (!characters.success || !characters.entities) {
             return this.fail('characters', characters.error);
         }
@@ -64,6 +79,9 @@ export class HydrateAdventureService implements IHydrateAdventureService {
             if (!worldMasterResponse.success) {
                 return this.fail('world master', worldMasterResponse.error);
             }
+            if (!worldMasterResponse.worldMaster) {
+                return this.fail('world master', formatEntityNotFound(adventure.worldMasterId, WORLD_MASTER_STORAGE_NAMESPACE));
+            }
             worldMaster = worldMasterResponse.worldMaster;
         }
 
@@ -73,51 +91,51 @@ export class HydrateAdventureService implements IHydrateAdventureService {
         }
 
         const samplerIds = this.uniqueIds(Object.values(assistants.assistants).map((a) => a.samplerId));
-        const samplers = await this.resolveByIds(samplerIds, createSamplerResolver(this.samplerRepository, this.getSamplersService), (r) => r.sampler);
+        const samplers = await this.resolveByIds(samplerIds, createSamplerResolver(this.samplerRepository, this.getSamplersService), (r) => r.sampler, SAMPLER_STORAGE_NAMESPACE);
         if (!samplers.success || !samplers.entities) {
             return this.fail('samplers', samplers.error);
         }
 
         const connectionIds = this.uniqueIds(Object.values(assistants.assistants).map((a) => a.connectionId));
-        const connections = await this.resolveByIds(connectionIds, (id) => this.connectionRepository.getConnectionById(id), (r) => r.connection);
+        const connections = await this.resolveByIds(connectionIds, (id) => this.connectionRepository.getConnectionById(id), (r) => r.connection, CONNECTION_STORAGE_NAMESPACE);
         if (!connections.success || !connections.entities) {
             return this.fail('connections', connections.error);
         }
 
-        const worlds = await this.resolveByIds(adventure.worldIds, (id) => this.worldRepository.getWorldById(id), (r) => r.world);
+        const worlds = await this.resolveByIds(adventure.worldIds, (id) => this.worldRepository.getWorldById(id), (r) => r.world, WORLD_STORAGE_NAMESPACE);
         if (!worlds.success || !worlds.entities) {
             return this.fail('worlds', worlds.error);
         }
 
-        const locations = await this.resolveByIds(adventure.locationIds, (id) => this.locationRepository.getLocationById(id), (r) => r.location);
+        const locations = await this.resolveByIds(adventure.locationIds, (id) => this.locationRepository.getLocationById(id), (r) => r.location, LOCATION_STORAGE_NAMESPACE);
         if (!locations.success || !locations.entities) {
             return this.fail('locations', locations.error);
         }
 
-        const items = await this.resolveByIds(adventure.itemIds, (id) => this.itemRepository.getItemById(id), (r) => r.item);
+        const items = await this.resolveByIds(adventure.itemIds, (id) => this.itemRepository.getItemById(id), (r) => r.item, ITEM_STORAGE_NAMESPACE);
         if (!items.success || !items.entities) {
             return this.fail('items', items.error);
         }
 
-        const systemPrompts = await this.resolveByIds(adventure.systemPromptIds, (id) => this.systemPromptRepository.getSystemPromptById(id), (r) => r.systemPrompt);
+        const systemPrompts = await this.resolveByIds(adventure.systemPromptIds, (id) => this.systemPromptRepository.getSystemPromptById(id), (r) => r.systemPrompt, SYSTEM_PROMPT_STORAGE_NAMESPACE);
         if (!systemPrompts.success || !systemPrompts.entities) {
             return this.fail('system prompts', systemPrompts.error);
         }
 
         const abilityIds = this.collectIds(characters.entities, 'abilityIds');
-        const abilities = await this.resolveByIds(abilityIds, (id) => this.abilityRepository.getAbilityById(id), (r) => r.ability);
+        const abilities = await this.resolveByIds(abilityIds, (id) => this.abilityRepository.getAbilityById(id), (r) => r.ability, ABILITY_STORAGE_NAMESPACE);
         if (!abilities.success || !abilities.entities) {
             return this.fail('abilities', abilities.error);
         }
 
         const proficiencyIds = this.collectIds(characters.entities, 'proficiencyIds');
-        const proficiencies = await this.resolveByIds(proficiencyIds, (id) => this.proficiencyRepository.getProficiencyById(id), (r) => r.proficiency);
+        const proficiencies = await this.resolveByIds(proficiencyIds, (id) => this.proficiencyRepository.getProficiencyById(id), (r) => r.proficiency, PROFICIENCY_STORAGE_NAMESPACE);
         if (!proficiencies.success || !proficiencies.entities) {
             return this.fail('proficiencies', proficiencies.error);
         }
 
         const statusIds = this.collectIds(characters.entities, 'statusIds');
-        const statuses = await this.resolveByIds(statusIds, (id) => this.statusRepository.getStatusById(id), (r) => r.status);
+        const statuses = await this.resolveByIds(statusIds, (id) => this.statusRepository.getStatusById(id), (r) => r.status, STATUS_STORAGE_NAMESPACE);
         if (!statuses.success || !statuses.entities) {
             return this.fail('statuses', statuses.error);
         }
@@ -186,7 +204,7 @@ export class HydrateAdventureService implements IHydrateAdventureService {
             }
 
             if (!response.assistant) {
-                return { success: false, error: `Assistant not found: ${assistantId}` };
+                return { success: false, error: formatEntityNotFound(assistantId, ASSISTANT_STORAGE_NAMESPACE) };
             }
 
             assistants[response.assistant.id] = response.assistant;
@@ -199,7 +217,8 @@ export class HydrateAdventureService implements IHydrateAdventureService {
     private async resolveByIds<TResponse extends { success: boolean; error?: string; }, TEntity> (
         ids: string[],
         resolve: (id: string) => Promise<TResponse>,
-        select: (response: TResponse) => TEntity | undefined
+        select: (response: TResponse) => TEntity | undefined,
+        collection: string
     ): Promise<ResolvedEntities<TEntity>> {
         const entities: TEntity[] = [];
         for (const id of ids) {
@@ -210,7 +229,7 @@ export class HydrateAdventureService implements IHydrateAdventureService {
 
             const entity = select(response);
             if (!entity) {
-                return { success: false, error: `Entity not found for id: ${id}` };
+                return { success: false, error: formatEntityNotFound(id, collection) };
             }
 
             entities.push(entity);

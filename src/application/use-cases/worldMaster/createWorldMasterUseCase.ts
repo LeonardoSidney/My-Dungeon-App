@@ -83,7 +83,7 @@ export class CreateWorldMasterUseCase implements ICreateWorldMasterUseCase {
         };
     }
 
-    validate (params: CreateWorldMasterUseCaseParams): string | null {
+    private validate (params: CreateWorldMasterUseCaseParams): string | null {
         if (!params.name?.trim()) {
             return 'Name is required to create a world master';
         }

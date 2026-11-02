@@ -235,15 +235,39 @@ describe('TextGeneration', () => {
                     expect(sections.characters).toBe('CHARACTERS<## HERO\nHero prompt\n>');
                 });
 
-                it.each([
-                    ['{abilities}', abilitiesReference, [proficienciesReference, statusesReference]],
-                    ['{proficiencies}', proficienciesReference, [abilitiesReference, statusesReference]],
-                    ['{statuses}', statusesReference, [abilitiesReference, proficienciesReference]],
-                ])('lists only the %s references when only that tag is in the load order', (tag, kept, removed) => {
-                    const sections = buildSections(`{characterAsWorldMaster}|{characters}${tag}`);
+                it('lists only the {abilities} references when only that tag is in the load order', () => {
+                    const removed = [proficienciesReference, statusesReference];
+
+                    const sections = buildSections('{characterAsWorldMaster}|{characters}{abilities}');
 
                     for (const section of [sections.iaControlledCharacter, sections.characters]) {
-                        expect(section).toContain(kept);
+                        expect(section).toContain(abilitiesReference);
+                        for (const reference of removed) {
+                            expect(section).not.toContain(reference);
+                        }
+                    }
+                });
+
+                it('lists only the {proficiencies} references when only that tag is in the load order', () => {
+                    const removed = [abilitiesReference, statusesReference];
+
+                    const sections = buildSections('{characterAsWorldMaster}|{characters}{proficiencies}');
+
+                    for (const section of [sections.iaControlledCharacter, sections.characters]) {
+                        expect(section).toContain(proficienciesReference);
+                        for (const reference of removed) {
+                            expect(section).not.toContain(reference);
+                        }
+                    }
+                });
+
+                it('lists only the {statuses} references when only that tag is in the load order', () => {
+                    const removed = [abilitiesReference, proficienciesReference];
+
+                    const sections = buildSections('{characterAsWorldMaster}|{characters}{statuses}');
+
+                    for (const section of [sections.iaControlledCharacter, sections.characters]) {
+                        expect(section).toContain(statusesReference);
                         for (const reference of removed) {
                             expect(section).not.toContain(reference);
                         }

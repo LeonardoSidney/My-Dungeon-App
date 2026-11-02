@@ -88,7 +88,7 @@ describe('adventure read controllers', () => {
 
 describe('ApplyAdventureSettingsController', () => {
     it('forwards the settings to the use case and returns its result', async () => {
-        const execute = jest.fn().mockResolvedValue({ success: false, error: 'Assistant not found: as-9' });
+        const execute = jest.fn().mockResolvedValue({ success: false, error: 'Entity not found for id: as-9 from Assistants' });
         const params = {
             adventureId: 'adv-1',
             adventure: REQUEST,
@@ -101,6 +101,6 @@ describe('ApplyAdventureSettingsController', () => {
         const response = await new ApplyAdventureSettingsController(logger, { execute }).handle(params);
 
         expect(execute).toHaveBeenCalledWith(params);
-        expect(response).toEqual({ success: false, error: 'Assistant not found: as-9' });
+        expect(response).toEqual({ success: false, error: 'Entity not found for id: as-9 from Assistants' });
     });
 });

@@ -69,12 +69,22 @@ describe('ActivitySummaryService', () => {
         expect(dailyActivity.map(day => day.messageCount)).toEqual([0, 0, 0, 0, 2, 2, 2]);
     });
 
-    it.each([
-        ['today was played', at(26, 15), 3],
-        ['today was not played yet', at(27, 9), 3],
-        ['the last day played was two days ago', at(28, 9), 0],
-    ])('counts the streak when %s', (_, now, streak) => {
-        expect(summarize(now).streak).toBe(streak);
+    it('counts the streak when today was played', () => {
+        const now = at(26, 15);
+
+        expect(summarize(now).streak).toBe(3);
+    });
+
+    it('counts the streak when today was not played yet', () => {
+        const now = at(27, 9);
+
+        expect(summarize(now).streak).toBe(3);
+    });
+
+    it('counts the streak when the last day played was two days ago', () => {
+        const now = at(28, 9);
+
+        expect(summarize(now).streak).toBe(0);
     });
 
     it('finds the most played adventure, the character with the most lines and the model with the most replies', () => {

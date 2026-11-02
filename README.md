@@ -1,5 +1,7 @@
 # My dungeon app
 
+Read this in [Portuguese](./docs/LEIAME.md).
+
 Welcome to the My dungeon app, an app I lovingly made for my dear wife Luna 🌙
 
 The goal is to simulate an RPG table where you follow a narrative driven by a local AI acting as the world master, with the total freedom of a solo campaign to explore the limits of an AI-assisted story.
@@ -87,6 +89,8 @@ Settings also lets you rewrite the text the app wraps around everything, for eve
 The answer arrives **streaming** straight from the server, with Markdown and LaTeX rendered in the chat, and reasoning models can _think_: the _thinking_ is recorded with the message in the chat, can be edited or removed, and a switch in the chat header shows or hides it. On Android the app stays alive in the background while a reply streams.
 
 Your messages can be edited, deleted or resent. AI messages can be edited, regenerated or continued, and each regeneration is kept as a version you can flip through.
+
+Everything with a trash icon asks for confirmation before deleting. If something an adventure depends on is deleted, like a character's ability or an assistant's connection, the adventure still opens for reading, lists what needs fixing and stops generating until it is fixed.
 
 ## The server: llama.cpp
 
@@ -302,4 +306,11 @@ The `[STREAMING]` logs print every intermediate save of a reply while it streams
 ```sh
 STREAMING=true npm start
 STREAMING=true npm run web
+```
+
+The app starts empty: the seed in `src/migrations/data` only runs when Metro or the web dev server starts with `SEED=true`. While the flag is on, the seed runs on every app start and overwrites whatever you edited in the entities that share a name with a seed:
+
+```sh
+SEED=true npm start
+SEED=true npm run web
 ```

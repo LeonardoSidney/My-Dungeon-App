@@ -16,7 +16,7 @@ export class CreateSystemPromptService implements ICreateSystemPromptService {
             success: true,
             systemPrompt: {
                 id: this.idGenerator.generate(),
-                name: params.name,
+                name: params.name.trim(),
                 content: params.content,
                 observation: params.observation,
                 createdAt,

@@ -7,6 +7,7 @@ export * from './Chat';
 export * from './Connection';
 export * from './Item';
 export * from './Location';
+export * from './MissingReference';
 export * from './Model';
 export * from './ModelTemplate';
 export * from './Role';

@@ -7,7 +7,7 @@ import {
     IStatusRepository,
 } from '@domain/repository';
 import { ICreateCharacterService } from '@domain/services';
-import { CreateCharacterUseCasePrams, CreateCharacterUseCaseResponse, ICreateCharacterUseCase } from '@domain/use-cases';
+import { CreateCharacterUseCaseParams, CreateCharacterUseCaseResponse, ICreateCharacterUseCase } from '@domain/use-cases';
 import { REFERENCED_ENTITIES } from '@domain/constants/referencedEntities';
 import { checkReferencedId, checkReferencedIds } from '@application/shared/validateReferencedIds';
 
@@ -22,7 +22,7 @@ export class CreateCharacterUseCase implements ICreateCharacterUseCase {
         private readonly statusRepository: IStatusRepository
     ) { }
 
-    async execute (params: CreateCharacterUseCasePrams): Promise<CreateCharacterUseCaseResponse> {
+    async execute (params: CreateCharacterUseCaseParams): Promise<CreateCharacterUseCaseResponse> {
         this.logger.info('Executing CreateCharacterUseCase::execute');
         this.logger.debug('CreateCharacterUseCase::execute - params:', params);
 
@@ -89,7 +89,7 @@ export class CreateCharacterUseCase implements ICreateCharacterUseCase {
         };
     }
 
-    validate (params: CreateCharacterUseCasePrams): string | null {
+    private validate (params: CreateCharacterUseCaseParams): string | null {
         if (!params.name?.trim()) {
             return 'Name is required to create a character';
         }
@@ -105,7 +105,7 @@ export class CreateCharacterUseCase implements ICreateCharacterUseCase {
         return null;
     }
 
-    private async validateReferencedIds (params: CreateCharacterUseCasePrams): Promise<string | null> {
+    private async validateReferencedIds (params: CreateCharacterUseCaseParams): Promise<string | null> {
         const assistantError = await checkReferencedId(
             (id: string) => this.assistantRepository.getAssistantById(id),
             REFERENCED_ENTITIES.ASSISTANT,

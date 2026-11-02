@@ -79,16 +79,36 @@ describe('GetAdventureSystemPromptUseCase', () => {
         expect(response).toEqual({ success: false, error: 'Failed to load chat templates' });
     });
 
-    it.each([
-        [{ success: false, error: 'Failed to load settings' }, 'Failed to load settings'],
-        [{ success: false }, 'Failed to load system prompt load order'],
-        [{ success: true }, 'Failed to load system prompt load order']
-    ])('should fail without building the system prompt when the load order answers %j', async (loadOrderResponse, error) => {
+    it('should fail without building the system prompt when the load order answers { success: false, error: "Failed to load settings" }', async () => {
+        const loadOrderResponse = { success: false, error: 'Failed to load settings' };
+
         mockGetSystemPromptLoadOrderUseCase.execute.mockResolvedValue(loadOrderResponse);
 
         const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
 
-        expect(response).toEqual({ success: false, error });
+        expect(response).toEqual({ success: false, error: 'Failed to load settings' });
+        expect(mockTextGeneration.buildAdventureTextSystemPrompt).not.toHaveBeenCalled();
+    });
+
+    it('should fail without building the system prompt when the load order answers { success: false }', async () => {
+        const loadOrderResponse = { success: false };
+
+        mockGetSystemPromptLoadOrderUseCase.execute.mockResolvedValue(loadOrderResponse);
+
+        const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
+
+        expect(response).toEqual({ success: false, error: 'Failed to load system prompt load order' });
+        expect(mockTextGeneration.buildAdventureTextSystemPrompt).not.toHaveBeenCalled();
+    });
+
+    it('should fail without building the system prompt when the load order answers { success: true }', async () => {
+        const loadOrderResponse = { success: true };
+
+        mockGetSystemPromptLoadOrderUseCase.execute.mockResolvedValue(loadOrderResponse);
+
+        const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
+
+        expect(response).toEqual({ success: false, error: 'Failed to load system prompt load order' });
         expect(mockTextGeneration.buildAdventureTextSystemPrompt).not.toHaveBeenCalled();
     });
 
@@ -101,10 +121,19 @@ describe('GetAdventureSystemPromptUseCase', () => {
         expect(mockTextGeneration.buildAdventureTextSystemPrompt).not.toHaveBeenCalled();
     });
 
-    it.each([
-        [{ success: false }],
-        [{ success: true }]
-    ])('should fail with a generic error when hydration answers %j', async (hydrateResponse) => {
+    it('should fail with a generic error when hydration answers { success: false }', async () => {
+        const hydrateResponse = { success: false };
+
+        mockHydrateAdventureUseCase.execute.mockResolvedValue(hydrateResponse);
+
+        const response = await buildUseCase().execute({ adventureId: 'adventure-1' });
+
+        expect(response).toEqual({ success: false, error: 'Failed to hydrate adventure' });
+    });
+
+    it('should fail with a generic error when hydration answers { success: true }', async () => {
+        const hydrateResponse = { success: true };
+
         mockHydrateAdventureUseCase.execute.mockResolvedValue(hydrateResponse);
 
         const response = await buildUseCase().execute({ adventureId: 'adventure-1' });

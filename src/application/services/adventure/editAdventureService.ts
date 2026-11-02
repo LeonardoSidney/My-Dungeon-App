@@ -31,7 +31,7 @@ export class EditAdventureService implements IEditAdventureService {
 
         const editedAdventure: Adventure = {
             ...adventure,
-            name: editParams.name,
+            name: editParams.name.trim(),
             systemPromptIds: editParams.systemPromptIds,
             ...roster,
             worldIds: editParams.worldIds,

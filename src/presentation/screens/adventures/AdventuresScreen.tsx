@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 import { View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { MessageSquare, Pencil, Scroll, Trash2 } from 'lucide-react-native';
+import { MessageSquare, Pencil, Scroll } from 'lucide-react-native';
 import { AdventureDetails, AdventureListItem } from '@domain/controllers';
-import { CrudEntityList, IconButton, screenStyles } from '@presentation/components';
+import { CrudEntityList, DeleteButton, IconButton, screenStyles } from '@presentation/components';
 import { useEntityScreen } from '@presentation/hooks';
 import { useControllers } from '@presentation/providers/ControllersProvider';
 import { AdventureForm } from './form/AdventureForm';
@@ -50,7 +50,7 @@ export function AdventuresScreen () {
         onPress={() => navigation.navigate('adventurePrompt', { adventureId: adventure.id })}
       />
       <IconButton icon={Pencil} accessibilityLabel="Edit" onPress={() => openEdit(adventure)} />
-      <IconButton icon={Trash2} accessibilityLabel="Delete" onPress={() => eraseEntity(adventure)} />
+      <DeleteButton itemName={adventure.name} onConfirm={() => eraseEntity(adventure)} />
     </>
   ), [navigation, openEdit, eraseEntity]);
 

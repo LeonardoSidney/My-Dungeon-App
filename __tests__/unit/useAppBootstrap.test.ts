@@ -17,6 +17,7 @@ jest.mock('@presentation/utils/showError', () => ({
 const mockRunSeed = runSeed as jest.Mock;
 const mockRunStorageMigration = runStorageMigration as jest.Mock;
 const mockShowError = showError as jest.Mock;
+const globals = globalThis as typeof globalThis & { __SEED__?: boolean; };
 
 function buildControllers () {
     const recoverInterruptedReplies = { handle: jest.fn().mockResolvedValue({ success: true }) };
@@ -29,8 +30,52 @@ function buildControllers () {
 describe('useAppBootstrap', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        globals.__SEED__ = true;
         mockRunStorageMigration.mockResolvedValue({ success: true });
         mockRunSeed.mockResolvedValue({ success: true });
+    });
+
+    afterEach(() => {
+        delete globals.__SEED__;
+    });
+
+    it('skips the seed and still recovers the replies when the seed flag is not defined', async () => {
+        delete globals.__SEED__;
+        const { controllers, recoverInterruptedReplies } = buildControllers();
+
+        await renderHook(() => useAppBootstrap(controllers));
+
+        await waitFor(() => expect(recoverInterruptedReplies.handle).toHaveBeenCalled());
+        expect(mockRunSeed).not.toHaveBeenCalled();
+    });
+
+    it('skips the seed and still recovers the replies when the seed flag is false', async () => {
+        globals.__SEED__ = false;
+        const { controllers, recoverInterruptedReplies } = buildControllers();
+
+        await renderHook(() => useAppBootstrap(controllers));
+
+        await waitFor(() => expect(recoverInterruptedReplies.handle).toHaveBeenCalled());
+        expect(mockRunSeed).not.toHaveBeenCalled();
+    });
+
+    it('reports the storage as ready without the seed', async () => {
+        delete globals.__SEED__;
+        const { controllers } = buildControllers();
+
+        const view = await renderHook(() => useAppBootstrap(controllers));
+
+        await waitFor(() => expect(view.result.current).toBe(true));
+    });
+
+    it('does not save an initial draft without the seed', async () => {
+        delete globals.__SEED__;
+        const { controllers, recoverInterruptedReplies, saveDraft } = buildControllers();
+
+        await renderHook(() => useAppBootstrap(controllers));
+
+        await waitFor(() => expect(recoverInterruptedReplies.handle).toHaveBeenCalled());
+        expect(saveDraft.handle).not.toHaveBeenCalled();
     });
 
     it('runs the migration, then the seed, then the recovery', async () => {

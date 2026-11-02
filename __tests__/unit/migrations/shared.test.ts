@@ -9,11 +9,16 @@ describe('migrations shared helpers', () => {
             expect(listItems({ success: true, items: [hero] }, 'characters')).toEqual({ success: true, items: [hero] });
         });
 
-        it.each([
-            [{ success: false, error: 'storage offline' }, 'Migration: failed to load characters: storage offline'],
-            [{ success: true }, 'Migration: failed to load characters: undefined']
-        ])('fails when the response is %j', (response, error) => {
-            expect(listItems(response, 'characters')).toEqual({ success: false, error });
+        it('fails when the response is { success: false, error: "storage offline" }', () => {
+            const response = { success: false, error: 'storage offline' };
+
+            expect(listItems(response, 'characters')).toEqual({ success: false, error: 'Migration: failed to load characters: storage offline' });
+        });
+
+        it('fails when the response is { success: true }', () => {
+            const response = { success: true };
+
+            expect(listItems(response, 'characters')).toEqual({ success: false, error: 'Migration: failed to load characters: undefined' });
         });
     });
 

@@ -254,15 +254,25 @@ describe('StartDraftCompletionUseCase', () => {
         expect(mocks.channel.publish).not.toHaveBeenCalled();
     });
 
-    it.each([
-        [{ draftId: '', prompt: 'Once' }, 'Draft id is required'],
-        [{ draftId: 'home', prompt: '  ' }, 'Prompt is required'],
-    ])('validates %p before doing anything', async (params, error) => {
+    it('validates { draftId: "", prompt: "Once" } before doing anything', async () => {
+        const params = { draftId: '', prompt: 'Once' };
+
         const mocks = buildMocks();
 
         const response = await buildUseCase(mocks).execute(params);
 
-        expect(response).toEqual({ success: false, error });
+        expect(response).toEqual({ success: false, error: 'Draft id is required' });
+        expect(mocks.repository.getDraftById).not.toHaveBeenCalled();
+    });
+
+    it('validates { draftId: "home", prompt: " " } before doing anything', async () => {
+        const params = { draftId: 'home', prompt: '  ' };
+
+        const mocks = buildMocks();
+
+        const response = await buildUseCase(mocks).execute(params);
+
+        expect(response).toEqual({ success: false, error: 'Prompt is required' });
         expect(mocks.repository.getDraftById).not.toHaveBeenCalled();
     });
 

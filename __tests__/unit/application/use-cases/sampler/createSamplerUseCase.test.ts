@@ -119,23 +119,47 @@ describe('CreateSamplerUseCase', () => {
         expect(mockService.createSampler).not.toHaveBeenCalled();
     });
 
-    it.each([0, -0.5, 1.5])('should fail when the adaptative target is %p', async (adaptativeTarget) => {
-        const response = await buildUseCase().execute({ name: 'custom', adaptativeTarget });
+    it('should fail when the adaptive target is 0', async () => {
+        const response = await buildUseCase().execute({ name: 'custom', adaptiveTarget: 0 });
 
-        expect(response).toEqual({ success: false, error: 'Adaptative target must be greater than 0 and up to 1 to create a sampler' });
+        expect(response).toEqual({ success: false, error: 'Adaptive target must be greater than 0 and up to 1 to create a sampler' });
     });
 
-    it.each([0, -0.5, 1.5])('should fail when the adaptative decay is %p', async (adaptativeDecay) => {
-        const response = await buildUseCase().execute({ name: 'custom', adaptativeDecay });
+    it('should fail when the adaptive target is -0.5', async () => {
+        const response = await buildUseCase().execute({ name: 'custom', adaptiveTarget: -0.5 });
 
-        expect(response).toEqual({ success: false, error: 'Adaptative decay must be greater than 0 and up to 1 to create a sampler' });
+        expect(response).toEqual({ success: false, error: 'Adaptive target must be greater than 0 and up to 1 to create a sampler' });
     });
 
-    it('should accept adaptative values inside the allowed range', async () => {
+    it('should fail when the adaptive target is 1.5', async () => {
+        const response = await buildUseCase().execute({ name: 'custom', adaptiveTarget: 1.5 });
+
+        expect(response).toEqual({ success: false, error: 'Adaptive target must be greater than 0 and up to 1 to create a sampler' });
+    });
+
+    it('should fail when the adaptive decay is 0', async () => {
+        const response = await buildUseCase().execute({ name: 'custom', adaptiveDecay: 0 });
+
+        expect(response).toEqual({ success: false, error: 'Adaptive decay must be greater than 0 and up to 0.99 to create a sampler' });
+    });
+
+    it('should fail when the adaptive decay is -0.5', async () => {
+        const response = await buildUseCase().execute({ name: 'custom', adaptiveDecay: -0.5 });
+
+        expect(response).toEqual({ success: false, error: 'Adaptive decay must be greater than 0 and up to 0.99 to create a sampler' });
+    });
+
+    it('should fail when the adaptive decay is 1.5', async () => {
+        const response = await buildUseCase().execute({ name: 'custom', adaptiveDecay: 1.5 });
+
+        expect(response).toEqual({ success: false, error: 'Adaptive decay must be greater than 0 and up to 0.99 to create a sampler' });
+    });
+
+    it('should accept adaptive values inside the allowed range', async () => {
         const created: Sampler = createSamplerHelper({ name: 'custom' });
         mockService.createSampler.mockReturnValue({ success: true, sampler: created });
 
-        const response = await buildUseCase().execute({ name: 'custom', adaptativeTarget: 1, adaptativeDecay: 0.5 });
+        const response = await buildUseCase().execute({ name: 'custom', adaptiveTarget: 1, adaptiveDecay: 0.5 });
 
         expect(response).toEqual({ success: true, id: created.id });
     });
@@ -187,5 +211,12 @@ describe('CreateSamplerUseCase', () => {
         const response = await buildUseCase().execute({ name: 'custom' });
 
         expect(response).toEqual({ success: false, error: 'Disk full' });
+    });
+
+    it('should fail when the name only matches a system default sampler after trimming', async () => {
+        const response = await buildUseCase().execute({ name: '  top_k  ' });
+
+        expect(response.success).toBe(false);
+        expect(response.error).toContain('"top_k" is reserved');
     });
 });

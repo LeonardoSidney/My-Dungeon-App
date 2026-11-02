@@ -39,4 +39,13 @@ describe('EditAdventureService', () => {
 
         expect(response).toEqual({ success: false, error: 'You need at least 1 playable character' });
     });
+
+    it('trims the start and the end of the name', () => {
+        const response = new EditAdventureService(logger).editAdventure({
+            adventure: createAdventureHelper({ id: 'adv-1' }),
+            editParams: createAdventureRequestHelper({ name: '  The  Quest\n' }),
+        });
+
+        expect(response.adventure?.name).toBe('The  Quest');
+    });
 });

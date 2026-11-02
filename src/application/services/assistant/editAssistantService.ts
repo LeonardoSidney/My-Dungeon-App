@@ -13,7 +13,11 @@ export class EditAssistantService implements IEditAssistantService {
 
         const editedAssistant: Assistant = {
             ...assistant,
-            ...editParams,
+            name: editParams.name.trim(),
+            observation: editParams.observation,
+            modelId: editParams.modelId,
+            samplerId: editParams.samplerId,
+            connectionId: editParams.connectionId,
             updatedAt: new Date()
         };
 

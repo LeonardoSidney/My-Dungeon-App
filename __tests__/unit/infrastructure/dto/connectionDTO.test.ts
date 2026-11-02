@@ -24,19 +24,43 @@ describe('ConnectionDTO', () => {
         expect(entity).toEqual({ ...STORED, port: undefined, auth: undefined, createdAt, updatedAt });
     });
 
-    it.each([null, 'connection', 42])('rejects %p because it is not a record', (data) => {
-        expect(ConnectionDTO.fromStorage(data)).toBeNull();
+    it('rejects null because it is not a record', () => {
+        expect(ConnectionDTO.fromStorage(null)).toBeNull();
     });
 
-    it.each([
-        ['id', 1],
-        ['name', undefined],
-        ['ip', null],
-        ['port', '8080'],
-        ['auth', 42],
-        ['createdAt', 'not a date'],
-        ['updatedAt', undefined]
-    ])('rejects a stored connection with an invalid %s', (field, value) => {
-        expect(ConnectionDTO.fromStorage({ ...STORED, [field]: value })).toBeNull();
+    it('rejects "connection" because it is not a record', () => {
+        expect(ConnectionDTO.fromStorage('connection')).toBeNull();
+    });
+
+    it('rejects 42 because it is not a record', () => {
+        expect(ConnectionDTO.fromStorage(42)).toBeNull();
+    });
+
+    it('rejects a stored connection with an invalid id', () => {
+        expect(ConnectionDTO.fromStorage({ ...STORED, id: 1 })).toBeNull();
+    });
+
+    it('rejects a stored connection with an invalid name', () => {
+        expect(ConnectionDTO.fromStorage({ ...STORED, name: undefined })).toBeNull();
+    });
+
+    it('rejects a stored connection with an invalid ip', () => {
+        expect(ConnectionDTO.fromStorage({ ...STORED, ip: null })).toBeNull();
+    });
+
+    it('rejects a stored connection with an invalid port', () => {
+        expect(ConnectionDTO.fromStorage({ ...STORED, port: '8080' })).toBeNull();
+    });
+
+    it('rejects a stored connection with an invalid auth', () => {
+        expect(ConnectionDTO.fromStorage({ ...STORED, auth: 42 })).toBeNull();
+    });
+
+    it('rejects a stored connection with an invalid createdAt', () => {
+        expect(ConnectionDTO.fromStorage({ ...STORED, createdAt: 'not a date' })).toBeNull();
+    });
+
+    it('rejects a stored connection with an invalid updatedAt', () => {
+        expect(ConnectionDTO.fromStorage({ ...STORED, updatedAt: undefined })).toBeNull();
     });
 });

@@ -9,3 +9,18 @@ export const DEFAULT_SAMPLER: Sampler = {
     createdAt: new Date(1),
     updatedAt: new Date(1)
 };
+
+export const LEGACY_SAMPLER_FIELDS = {
+    adaptativeDecay: 'adaptiveDecay',
+    adaptativeTarget: 'adaptiveTarget',
+    dryAllowedLenght: 'dryAllowedLength',
+    xtcThreshould: 'xtcThreshold',
+};
+
+export const MAX_ADAPTIVE_TARGET = 1;
+export const MAX_ADAPTIVE_DECAY = 0.99;
+
+export enum SamplerActionEnum {
+    CREATE = 'create',
+    EDIT = 'edit',
+}

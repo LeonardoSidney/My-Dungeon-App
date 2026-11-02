@@ -294,4 +294,19 @@ describe('CreateAbilityService', () => {
         expect(ability2.createdAt).toBeInstanceOf(Date);
         expect(ability2.updatedAt).toBeInstanceOf(Date);
     });
+
+    it('should trim the start and the end of the name', () => {
+        mockIdGenerator.generate.mockReturnValue('ability-trim');
+
+        const result: CreateAbilityServiceReturn = service.createAbility({
+            name: '  Fire  ball\n',
+            activationWord: ' fire ',
+            prompt: ' Burn '
+        });
+        const ability: Ability = result.ability ?? createAbilityHelper();
+
+        expect(ability.name).toBe('Fire  ball');
+        expect(ability.activationWord).toBe(' fire ');
+        expect(ability.prompt).toBe(' Burn ');
+    });
 });

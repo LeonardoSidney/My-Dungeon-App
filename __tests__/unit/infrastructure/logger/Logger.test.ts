@@ -16,16 +16,44 @@ describe('Logger', () => {
         jest.restoreAllMocks();
     });
 
-    it.each([
-        ['debug', '[DEBUG]', () => info],
-        ['info', '[INFO]', () => info],
-        ['warning', '[WARN]', () => info],
-        ['error', '[ERROR]', () => error],
-        ['log', '[LOG]', () => log]
-    ] as const)('writes %s messages with the %s prefix', (method, prefix, consoleMethod) => {
-        new Logger()[method]('something happened', 'detail', 42);
+    it('writes debug messages with the [DEBUG] prefix', () => {
+        const consoleMethod = () => info;
 
-        expect(consoleMethod()).toHaveBeenCalledWith(`${prefix} something happened`, 'detail', 42);
+        new Logger().debug('something happened', 'detail', 42);
+
+        expect(consoleMethod()).toHaveBeenCalledWith('[DEBUG] something happened', 'detail', 42);
+    });
+
+    it('writes info messages with the [INFO] prefix', () => {
+        const consoleMethod = () => info;
+
+        new Logger().info('something happened', 'detail', 42);
+
+        expect(consoleMethod()).toHaveBeenCalledWith('[INFO] something happened', 'detail', 42);
+    });
+
+    it('writes warning messages with the [WARN] prefix', () => {
+        const consoleMethod = () => info;
+
+        new Logger().warning('something happened', 'detail', 42);
+
+        expect(consoleMethod()).toHaveBeenCalledWith('[WARN] something happened', 'detail', 42);
+    });
+
+    it('writes error messages with the [ERROR] prefix', () => {
+        const consoleMethod = () => error;
+
+        new Logger().error('something happened', 'detail', 42);
+
+        expect(consoleMethod()).toHaveBeenCalledWith('[ERROR] something happened', 'detail', 42);
+    });
+
+    it('writes log messages with the [LOG] prefix', () => {
+        const consoleMethod = () => log;
+
+        new Logger().log('something happened', 'detail', 42);
+
+        expect(consoleMethod()).toHaveBeenCalledWith('[LOG] something happened', 'detail', 42);
     });
 
     it('serializes objects as JSON', () => {

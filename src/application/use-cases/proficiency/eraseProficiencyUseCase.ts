@@ -32,7 +32,7 @@ export class EraseProficiencyUseCase implements IEraseProficiencyUseCase {
     }
 
     private validate (params: EraseProficiencyUseCaseParams): string | null {
-        if (!params.id) {
+        if (!params.id?.trim()) {
             return 'A proficiency id is required to erase a proficiency';
         }
 
