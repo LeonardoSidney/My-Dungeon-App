@@ -14,6 +14,7 @@ export * from './setAdventureWorldMasterController';
 export * from './getAdventuresController';
 export * from './getAdventureController';
 export * from './eraseAdventuresController';
+export * from './migrateAdventureStorageController';
 export * from './eraseAdventureController';
 export * from './generateChatReplyController';
 export * from './deleteChatVersionController';

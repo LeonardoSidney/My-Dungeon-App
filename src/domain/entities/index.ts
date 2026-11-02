@@ -1,4 +1,5 @@
 export * from './Adventure';
+export * from './AdventureIndexEntry';
 export * from './Assistant';
 export * from './Attribute';
 export * from './Character';

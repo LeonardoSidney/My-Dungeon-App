@@ -14,6 +14,7 @@ import {
     ResendChatController,
     EraseAdventuresController,
     EraseAdventureController,
+    MigrateAdventureStorageController,
     GetAdventureSystemPromptController,
     GetAdventureTemplatedPromptController,
     SelectChatVersionController,
@@ -64,6 +65,7 @@ import {
     CreateAdventureUseCase,
     EditAdventureUseCase,
     GetAdventuresUseCase,
+    GetAdventureIndexUseCase,
     GetAdventureByIdUseCase,
     GetAdventureTemplatedPromptUseCase,
     GetAdventureSystemPromptUseCase,
@@ -78,6 +80,7 @@ import {
     ResendChatUseCase,
     EraseAdventuresUseCase,
     EraseAdventureUseCase,
+    MigrateAdventureStorageUseCase,
     StartStreamingChatUseCase,
     UpdateStreamingChatUseCase,
     FinishStreamingChatUseCase,
@@ -111,6 +114,7 @@ import {
     IResendChatController,
     IEraseAdventuresController,
     IEraseAdventureController,
+    IMigrateAdventureStorageController,
     IGetAdventureSystemPromptController,
     IGetAdventureTemplatedPromptController,
     ISelectChatVersionController,
@@ -264,8 +268,9 @@ export function createGetAdventuresUseCase (): IGetAdventuresUseCase {
 }
 
 export function getAdventuresController (): IGetAdventuresController {
-    const getAdventuresUseCase = createGetAdventuresUseCase();
-    return new GetAdventuresController(logger, getAdventuresUseCase, new GetAdventuresPresenter());
+    const adventureRepository = createAdventureRepository(storage, logger);
+    const getAdventureIndexUseCase = new GetAdventureIndexUseCase(logger, adventureRepository);
+    return new GetAdventuresController(logger, getAdventureIndexUseCase, new GetAdventuresPresenter());
 }
 
 export function getAdventureController (): IGetAdventureController {
@@ -373,6 +378,12 @@ export function eraseAdventuresController (): IEraseAdventuresController {
     const adventureRepository = createAdventureRepository(storage, logger);
     const eraseAdventuresUseCase = new EraseAdventuresUseCase(logger, adventureRepository);
     return new EraseAdventuresController(logger, eraseAdventuresUseCase);
+}
+
+export function migrateAdventureStorageController (): IMigrateAdventureStorageController {
+    const adventureRepository = createAdventureRepository(storage, logger);
+    const migrateAdventureStorageUseCase = new MigrateAdventureStorageUseCase(logger, adventureRepository);
+    return new MigrateAdventureStorageController(logger, migrateAdventureStorageUseCase);
 }
 
 export function eraseAdventureController (): IEraseAdventureController {

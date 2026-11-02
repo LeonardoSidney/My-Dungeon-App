@@ -15,8 +15,8 @@ export class RecoverInterruptedRepliesUseCase implements IRecoverInterruptedRepl
     async execute (): Promise<RecoverInterruptedRepliesUseCaseReturn> {
         this.logger.info('Executing RecoverInterruptedRepliesUseCase::execute');
 
-        const response = await this.adventureRepository.getAdventures();
-        if (!response.success || !response.adventures) {
+        const response = await this.adventureRepository.getAdventureIndex();
+        if (!response.success || !response.entries) {
             this.logger.warning('RecoverInterruptedRepliesUseCase::execute - failed to load adventures', response.error);
             return { success: false, error: response.error };
         }
@@ -24,11 +24,16 @@ export class RecoverInterruptedRepliesUseCase implements IRecoverInterruptedRepl
         const recoveredChatIds: string[] = [];
         const errors: string[] = [];
 
-        for (const adventure of response.adventures) {
-            if (this.registry.isActive(adventure.id) || !adventure.chat.some(chat => chat.isStreaming)) {
+        const interruptedEntries = response.entries.filter(entry => entry.hasStreamingChat && !this.registry.isActive(entry.id));
+
+        for (const entry of interruptedEntries) {
+            const adventureResponse = await this.adventureRepository.getAdventureById(entry.id);
+            if (!adventureResponse.success || !adventureResponse.adventure) {
+                errors.push(adventureResponse.error ?? `Adventure with id ${entry.id} not found`);
                 continue;
             }
 
+            const adventure = adventureResponse.adventure;
             const recovered = this.recoverInterruptedChatsService.recover({ adventure });
             if (!recovered.success || !recovered.adventure) {
                 errors.push(recovered.error ?? `Failed to recover adventure ${adventure.id}`);

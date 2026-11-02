@@ -1,11 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { HOME_DRAFT_ID } from '@domain/constants/draft';
 import type { AppControllers } from '@presentation/providers/appControllers';
 import { showError } from '@presentation/utils/showError';
-import { runSeed } from './migration';
+import { runSeed, runStorageMigration } from './migration';
 
-export function useAppBootstrap (controllers: AppControllers): void {
+export function useAppBootstrap (controllers: AppControllers): boolean {
     const { alert, recoverInterruptedReplies, saveDraft } = controllers;
+    const [isStorageReady, setIsStorageReady] = useState(false);
 
     useEffect(() => {
         const seed = async () => {
@@ -32,6 +33,20 @@ export function useAppBootstrap (controllers: AppControllers): void {
             }
         };
 
-        seed().then(recoverReplies);
+        const start = async () => {
+            const migrated = await runStorageMigration();
+            if (!migrated.success) {
+                showError(alert, migrated.error, 'Failed to migrate the stored data');
+                return;
+            }
+
+            setIsStorageReady(true);
+            await seed();
+            await recoverReplies();
+        };
+
+        start();
     }, [alert, recoverInterruptedReplies, saveDraft]);
+
+    return isStorageReady;
 }

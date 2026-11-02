@@ -61,15 +61,15 @@ export class CreateAdventureUseCase implements ICreateAdventureUseCase {
             };
         }
 
-        const adventuresResponse = await this.adventureRepository.getAdventures();
-        if (!adventuresResponse.success || !adventuresResponse.adventures) {
-            this.logger.warning('CreateAdventureUseCase::execute - failed to load adventures', adventuresResponse.error);
-            return { success: false, error: adventuresResponse.error };
+        const indexResponse = await this.adventureRepository.getAdventureIndex();
+        if (!indexResponse.success || !indexResponse.entries) {
+            this.logger.warning('CreateAdventureUseCase::execute - failed to load adventures', indexResponse.error);
+            return { success: false, error: indexResponse.error };
         }
 
-        const adventures = adventuresResponse.adventures;
-        this.logger.debug('adventureRepository executed successfully', adventures);
-        const alreadyExists = adventures.find((adventure) => adventure.name === params.name);
+        const entries = indexResponse.entries;
+        this.logger.debug('adventureRepository executed successfully', entries);
+        const alreadyExists = entries.find((entry) => entry.name === params.name);
 
         if (alreadyExists) {
             this.logger.warning(`An adventure name ${params.name} already exists`);

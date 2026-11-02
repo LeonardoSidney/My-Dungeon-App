@@ -57,7 +57,7 @@ describe('adventure write controllers', () => {
 describe('adventure read controllers', () => {
     it('lists adventures with only id, name and creation date', async () => {
         const createdAt = new Date('2026-01-02T03:04:05.000Z');
-        const execute = jest.fn().mockResolvedValue({ success: true, adventures: [createAdventureHelper({ id: 'adv-1', name: 'Quest', createdAt })] });
+        const execute = jest.fn().mockResolvedValue({ success: true, entries: [{ id: 'adv-1', name: 'Quest', hasStreamingChat: false, createdAt, updatedAt: createdAt }] });
 
         const response = await new GetAdventuresController(logger, { execute }, new GetAdventuresPresenter()).handle();
 

@@ -1,6 +1,6 @@
-import type { Adventure } from '../entities';
+import type { AdventureIndexEntry } from '../entities';
 import type { AdventureListItem } from '../controllers';
 
 export interface IGetAdventuresPresenter {
-    present (adventures: Adventure[]): AdventureListItem[];
+    present (entries: AdventureIndexEntry[]): AdventureListItem[];
 }

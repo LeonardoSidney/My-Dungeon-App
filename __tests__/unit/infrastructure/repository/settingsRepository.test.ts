@@ -15,7 +15,11 @@ const mockLogger: ILogger = {
 function buildRepository (stored: unknown, loadSuccess = true) {
     const storage: IStorage = {
         load: jest.fn().mockResolvedValue(loadSuccess ? { success: true, data: stored } : { success: false, error: 'disk error' }),
-        save: jest.fn().mockResolvedValue({ success: true })
+        save: jest.fn().mockResolvedValue({ success: true }),
+        saveMany: jest.fn(),
+        loadMany: jest.fn(),
+        remove: jest.fn(),
+        removeMany: jest.fn()
     };
     return { repository: new SettingsRepository(mockLogger, storage), storage };
 }

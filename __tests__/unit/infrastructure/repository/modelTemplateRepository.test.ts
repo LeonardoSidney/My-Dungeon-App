@@ -17,7 +17,11 @@ const mockLogger: ILogger = {
 function createStorage (stored: unknown): IStorage {
     return {
         load: jest.fn().mockResolvedValue({ success: true, data: stored }),
-        save: jest.fn().mockResolvedValue({ success: true })
+        save: jest.fn().mockResolvedValue({ success: true }),
+        saveMany: jest.fn(),
+        loadMany: jest.fn(),
+        remove: jest.fn(),
+        removeMany: jest.fn()
     };
 }
 

@@ -78,15 +78,14 @@ export class EditAdventureUseCase implements IEditAdventureUseCase {
             };
         }
 
-        const existingAdventuresResponse = await this.adventureRepository.getAdventures();
-        if (!existingAdventuresResponse.success || !existingAdventuresResponse.adventures) {
-            this.logger.warning('EditAdventureUseCase::execute - failed to load adventures', existingAdventuresResponse.error);
-            return { success: false, error: existingAdventuresResponse.error };
+        const indexResponse = await this.adventureRepository.getAdventureIndex();
+        if (!indexResponse.success || !indexResponse.entries) {
+            this.logger.warning('EditAdventureUseCase::execute - failed to load adventures', indexResponse.error);
+            return { success: false, error: indexResponse.error };
         }
 
-        const existingAdventures = existingAdventuresResponse.adventures;
-        const duplicateAdventure = existingAdventures.find(
-            (a) => a.name === editedAdventure.name && a.id !== editedAdventure.id
+        const duplicateAdventure = indexResponse.entries.find(
+            (entry) => entry.name === editedAdventure.name && entry.id !== editedAdventure.id
         );
 
         if (duplicateAdventure) {

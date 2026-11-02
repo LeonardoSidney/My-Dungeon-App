@@ -1,12 +1,12 @@
 import { GetAdventuresControllerResponse, IGetAdventuresController } from '@domain/controllers';
 import { ILogger } from '@domain/logger';
 import { IGetAdventuresPresenter } from '@domain/presenters';
-import { IGetAdventuresUseCase } from '@domain/use-cases';
+import { IGetAdventureIndexUseCase } from '@domain/use-cases';
 
 export class GetAdventuresController implements IGetAdventuresController {
     constructor (
         private readonly logger: ILogger,
-        private readonly useCase: IGetAdventuresUseCase,
+        private readonly useCase: IGetAdventureIndexUseCase,
         private readonly presenter: IGetAdventuresPresenter
     ) { }
 
@@ -17,7 +17,7 @@ export class GetAdventuresController implements IGetAdventuresController {
 
         return {
             success: response.success,
-            items: response.adventures && this.presenter.present(response.adventures),
+            items: response.entries && this.presenter.present(response.entries),
             error: response.error,
         };
     }

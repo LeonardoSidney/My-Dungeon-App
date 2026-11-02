@@ -45,7 +45,7 @@ import {
     parseSeedArray,
 } from './migrations/guards';
 import { seedConnections, resolveActiveConnection } from './migrations/seedConnections';
-import { listItems } from './migrations/shared';
+import { listItems, MigrationReturn } from './migrations/shared';
 import { seedSamplers } from './migrations/seedSamplers';
 import { seedAssistants } from './migrations/seedAssistants';
 import { seedAbilities } from './migrations/seedAbilities';
@@ -58,6 +58,7 @@ import { seedWorlds } from './migrations/seedWorlds';
 import { seedLocations } from './migrations/seedLocations';
 import { seedItems } from './migrations/seedItems';
 import { seedAdventures } from './migrations/seedAdventures';
+import { splitAdventureStorage } from './migrations/splitAdventureStorage';
 import connectionsData from './migrations/data/connections.json';
 import samplersData from './migrations/data/samplers.json';
 import assistantsData from './migrations/data/assistants.json';
@@ -81,6 +82,15 @@ type RunSeedReturn = {
 function fail (error: string | undefined): RunSeedReturn {
     logger.error('Migration: seed failed', error);
     return { success: false, error: error ?? 'Failed to seed data' };
+}
+
+export async function runStorageMigration (): Promise<MigrationReturn> {
+    logger.info('Migration: starting storage migration');
+
+    const splitAdventures = await splitAdventureStorage();
+    if (!splitAdventures.success) return fail(splitAdventures.error);
+
+    return { success: true };
 }
 
 export async function runSeed (): Promise<RunSeedReturn> {

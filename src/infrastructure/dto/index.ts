@@ -11,6 +11,7 @@ export * from './locationDTO';
 export * from './itemDTO';
 export * from './systemPromptDTO';
 export * from './adventureDTO';
+export * from './adventureIndexEntryDTO';
 export * from './chatDTO';
 export * from './thinkDTO';
 export * from './ModelDTO';

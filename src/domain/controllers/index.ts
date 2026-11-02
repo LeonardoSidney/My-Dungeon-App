@@ -41,6 +41,7 @@ export * from './iEraseSystemPromptController';
 export * from './iCreateWorldController';
 export * from './iCreateWorldMasterController';
 export * from './iEraseAdventuresController';
+export * from './iMigrateAdventureStorageController';
 export * from './iEraseAdventureController';
 export * from './iEraseConnectionController';
 export * from './iEraseWorldController';

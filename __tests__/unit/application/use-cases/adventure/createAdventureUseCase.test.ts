@@ -26,7 +26,7 @@ function buildRepositories (missingCharacter?: string) {
         getItemById: jest.fn().mockResolvedValue({ success: true, item: {} }),
     };
     const adventureRepository = {
-        getAdventures: jest.fn().mockResolvedValue({ success: true, adventures: [] }),
+        getAdventureIndex: jest.fn().mockResolvedValue({ success: true, entries: [] }),
         getAdventureById: jest.fn().mockResolvedValue({ success: true, adventure: createAdventureHelper({ id: 'adv-1' }) }),
         saveAdventure: jest.fn().mockResolvedValue({ success: true }),
         updateAdventure: jest.fn().mockResolvedValue({ success: true }),
@@ -133,7 +133,7 @@ describe('CreateAdventureUseCase', () => {
 
     it('returns the repository error when the adventures cannot be loaded', async () => {
         const { useCase, adventureRepository } = buildCreate();
-        adventureRepository.getAdventures.mockResolvedValue({ success: false, error: 'Database error' });
+        adventureRepository.getAdventureIndex.mockResolvedValue({ success: false, error: 'Database error' });
 
         const response = await useCase.execute(REQUEST);
 
@@ -143,9 +143,9 @@ describe('CreateAdventureUseCase', () => {
 
     it('fails when an adventure with the same name already exists', async () => {
         const { useCase, adventureRepository } = buildCreate();
-        adventureRepository.getAdventures.mockResolvedValue({
+        adventureRepository.getAdventureIndex.mockResolvedValue({
             success: true,
-            adventures: [createAdventureHelper({ id: 'other', name: 'Another Adventure' }), createAdventureHelper({ id: 'old', name: REQUEST.name })]
+            entries: [createAdventureHelper({ id: 'other', name: 'Another Adventure' }), createAdventureHelper({ id: 'old', name: REQUEST.name })]
         });
 
         const response = await useCase.execute(REQUEST);

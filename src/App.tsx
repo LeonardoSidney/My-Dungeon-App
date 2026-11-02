@@ -10,14 +10,14 @@ import { useAppBootstrap } from './useAppBootstrap';
 
 function App () {
   const controllers = useMemo(() => buildControllers(), []);
-  useAppBootstrap(controllers);
+  const isStorageReady = useAppBootstrap(controllers);
 
   return (
     <SafeAreaProvider>
       <WebAlertProvider>
         <ControllersProvider controllers={controllers}>
           <SafeAreaView style={styles.safeArea}>
-            <RootNavigator />
+            {isStorageReady && <RootNavigator />}
           </SafeAreaView>
         </ControllersProvider>
       </WebAlertProvider>

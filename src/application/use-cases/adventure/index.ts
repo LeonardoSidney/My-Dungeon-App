@@ -1,6 +1,7 @@
 export * from './createAdventureUseCase';
 export * from './editAdventureUseCase';
 export * from './getAdventuresUseCase';
+export * from './getAdventureIndexUseCase';
 export * from './getAdventureByIdUseCase';
 export * from './getAdventureTemplatedPromptUseCase';
 export * from './getAdventureSystemPromptUseCase';
@@ -16,6 +17,7 @@ export * from './addChatVersionUseCase';
 export * from './addThinkVersionUseCase';
 export * from './deleteThinkVersionUseCase';
 export * from './eraseAdventuresUseCase';
+export * from './migrateAdventureStorageUseCase';
 export * from './eraseAdventureUseCase';
 export * from './startStreamingChatUseCase';
 export * from './updateStreamingChatUseCase';

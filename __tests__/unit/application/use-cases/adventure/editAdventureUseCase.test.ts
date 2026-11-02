@@ -26,7 +26,7 @@ function buildRepositories () {
         getItemById: jest.fn().mockResolvedValue({ success: true, item: {} }),
     };
     const adventureRepository = {
-        getAdventures: jest.fn().mockResolvedValue({ success: true, adventures: [] }),
+        getAdventureIndex: jest.fn().mockResolvedValue({ success: true, entries: [] }),
         getAdventureById: jest.fn().mockResolvedValue({ success: true, adventure: createAdventureHelper({ id: 'adv-1' }) }),
         saveAdventure: jest.fn().mockResolvedValue({ success: true }),
         updateAdventure: jest.fn().mockResolvedValue({ success: true }),
@@ -144,7 +144,7 @@ describe('EditAdventureUseCase', () => {
 
     it('returns the repository error when the adventures cannot be loaded', async () => {
         const { useCase, adventureRepository } = buildEdit();
-        adventureRepository.getAdventures.mockResolvedValue({ success: false, error: 'Database error' });
+        adventureRepository.getAdventureIndex.mockResolvedValue({ success: false, error: 'Database error' });
 
         const response = await useCase.execute({ id: 'adv-1', editParams: REQUEST });
 
@@ -154,9 +154,9 @@ describe('EditAdventureUseCase', () => {
 
     it('fails when another adventure already has the new name', async () => {
         const { useCase, adventureRepository } = buildEdit();
-        adventureRepository.getAdventures.mockResolvedValue({
+        adventureRepository.getAdventureIndex.mockResolvedValue({
             success: true,
-            adventures: [createAdventureHelper({ id: 'adv-1', name: REQUEST.name }), createAdventureHelper({ id: 'adv-2', name: REQUEST.name })]
+            entries: [createAdventureHelper({ id: 'adv-1', name: REQUEST.name }), createAdventureHelper({ id: 'adv-2', name: REQUEST.name })]
         });
 
         const response = await useCase.execute({ id: 'adv-1', editParams: REQUEST });
@@ -167,9 +167,9 @@ describe('EditAdventureUseCase', () => {
 
     it('keeps the name of the adventure being edited', async () => {
         const { useCase, adventureRepository } = buildEdit();
-        adventureRepository.getAdventures.mockResolvedValue({
+        adventureRepository.getAdventureIndex.mockResolvedValue({
             success: true,
-            adventures: [createAdventureHelper({ id: 'adv-1', name: REQUEST.name })]
+            entries: [createAdventureHelper({ id: 'adv-1', name: REQUEST.name })]
         });
 
         const response = await useCase.execute({ id: 'adv-1', editParams: REQUEST });
