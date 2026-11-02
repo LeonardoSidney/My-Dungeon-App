@@ -1,4 +1,5 @@
 import { TextInput, type StyleProp, type TextStyle } from 'react-native';
+import { colors } from '@presentation/theme';
 import { editInputStyle } from '../chatMessage.styles';
 
 type EditDraftInputProps = {
@@ -15,7 +16,8 @@ export function EditDraftInput ({ value, onChangeText, style }: EditDraftInputPr
       onChangeText={onChangeText}
       multiline
       textAlignVertical="top"
-      selectionColor="transparent"
+      selectionColor={colors.primary}
+      cursorColor={colors.text}
     />
   );
 }

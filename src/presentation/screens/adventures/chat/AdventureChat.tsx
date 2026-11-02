@@ -115,6 +115,7 @@ export function AdventureChat ({
 
   const canGenerate = missingReferenceIssues.length === 0;
   const showMissingReferencesNotice = !canGenerate && !replies.isReplying;
+  const isEditingMessage = editingChatId !== null || editingThinkChatId !== null;
 
   return (
     <View style={[styles.container, { paddingBottom: keyboardHeight }]}>
@@ -144,6 +145,7 @@ export function AdventureChat ({
           ref={autoScroll.scrollViewRef}
           style={styles.messagesContainer}
           nestedScrollEnabled
+          scrollsChildToFocus={isEditingMessage}
           onScroll={autoScroll.handleScroll}
           scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}

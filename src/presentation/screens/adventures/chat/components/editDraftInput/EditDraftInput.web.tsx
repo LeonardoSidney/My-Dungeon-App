@@ -35,7 +35,6 @@ export function EditDraftInput ({ value, onChangeText, style }: EditDraftInputWe
       onChangeText={onChangeText}
       multiline
       textAlignVertical="top"
-      selectionColor="transparent"
     />
   );
 }

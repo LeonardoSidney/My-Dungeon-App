@@ -3,7 +3,8 @@ import { colors } from '@presentation/theme';
 
 export const styles = StyleSheet.create({
     text: {
-        color: colors.text
+        color: colors.text,
+        userSelect: 'text'
     },
     bold: {
         fontWeight: 'bold'
@@ -125,7 +126,8 @@ export const styles = StyleSheet.create({
         fontFamily: 'monospace',
         fontSize: 14,
         color: '#e0e0e0',
-        lineHeight: 20
+        lineHeight: 20,
+        userSelect: 'text'
     },
     list: {
         marginBottom: 8,

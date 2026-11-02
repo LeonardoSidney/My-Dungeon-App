@@ -55,7 +55,7 @@ function MessageInputBase ({
         onChangeText={onChangeText}
         placeholder="Type a message..."
         multiline
-        selectionColor="transparent"
+        selectionColor={colors.primary}
         cursorColor={colors.text}
         placeholderTextColor={colors.textSubtle}
         autoCorrect={false}
