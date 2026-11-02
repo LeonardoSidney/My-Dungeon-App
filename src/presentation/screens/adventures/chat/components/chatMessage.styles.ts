@@ -10,6 +10,5 @@ export const { editInputStyle } = StyleSheet.create({
         padding: 12,
         color: colors.text,
         minHeight: 64,
-        maxHeight: 240,
     },
 });

@@ -1,4 +1,5 @@
 import React from 'react';
+import { StyleSheet } from 'react-native';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { ChatItem } from '@presentation/screens/adventures/chat/components/ChatItem';
 import type { ChatMessageActions } from '@presentation/screens/adventures/chat/types';
@@ -146,5 +147,39 @@ describe('ChatItem regenerate content controls', () => {
     fireEvent.press(screen.getByLabelText('Regenerar conteúdo'));
 
     expect(actions.regenerateContent).toHaveBeenCalledWith('assistant-1');
+  });
+});
+
+describe('ChatItem edit input', () => {
+  const setupEditing = (chat: Chat) =>
+    render(
+      <ChatItem
+        message={new ChatMessagesPresenter().presentOne(chat)}
+        characterName="Hero"
+        editingChatId={chat.id}
+        editingThinkChatId={null}
+        showThinkBlocks
+        actions={actions}
+      />,
+    );
+
+  it('shows the message content in a multiline input', async () => {
+    const chat = createChatHelper({ id: 'chat-1', role: RoleEnum.ASSISTANT, content: ['long reply'], index: 0 });
+
+    await setupEditing(chat);
+
+    const input = screen.getByDisplayValue('long reply');
+
+    expect(input.props.multiline).toBe(true);
+  });
+
+  it('does not cap the input height so it can grow with the text', async () => {
+    const chat = createChatHelper({ id: 'chat-1', role: RoleEnum.ASSISTANT, content: ['long reply'], index: 0 });
+
+    await setupEditing(chat);
+
+    const inputStyle = StyleSheet.flatten(screen.getByDisplayValue('long reply').props.style);
+
+    expect(inputStyle.maxHeight).toBeUndefined();
   });
 });

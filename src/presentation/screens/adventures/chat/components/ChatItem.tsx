@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { ChatMessageView } from '@domain/controllers';
 import { RoleEnum } from '@domain/entities';
 import { colors } from '@presentation/theme';
@@ -8,7 +8,7 @@ import { MessageActionBar, type MessageAction } from './MessageActionBar';
 import { TextMarkdown } from './textMarkdown';
 import { ThinkBlock } from './ThinkBlock';
 import { useEditDraft } from './useEditDraft';
-import { editInputStyle } from './chatMessage.styles';
+import { EditDraftInput } from './editDraftInput';
 
 type ChatItemProps = {
   message: ChatMessageView;
@@ -61,16 +61,7 @@ function ChatItemBase ({ message, characterName, editingChatId, editingThinkChat
       return <Text style={styles.text}>{content}</Text>;
     }
     if (isEditing) {
-      return (
-        <TextInput
-          style={editInputStyle}
-          value={draft}
-          onChangeText={setDraft}
-          multiline
-          textAlignVertical="top"
-          selectionColor="transparent"
-        />
-      );
+      return <EditDraftInput value={draft} onChangeText={setDraft} />;
     }
     return <TextMarkdown content={content} />;
   };

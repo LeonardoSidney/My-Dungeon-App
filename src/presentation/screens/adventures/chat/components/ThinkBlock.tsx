@@ -1,12 +1,12 @@
 import { memo } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { ChatThinkView } from '@domain/controllers';
 import { colors } from '@presentation/theme';
 import type { ChatMessageActions } from '../types';
 import { MessageActionBar, type MessageAction } from './MessageActionBar';
 import { TextMarkdown } from './textMarkdown';
 import { useEditDraft } from './useEditDraft';
-import { editInputStyle } from './chatMessage.styles';
+import { EditDraftInput } from './editDraftInput';
 
 type ThinkBlockProps = {
   chatId: string;
@@ -42,13 +42,10 @@ function ThinkBlockBase ({ chatId, think, isStreaming, editingThinkChatId, actio
   const renderContent = () => {
     if (isEditing) {
       return (
-        <TextInput
-          style={[editInputStyle, styles.thinkText, styles.editInputText]}
+        <EditDraftInput
+          style={[styles.thinkText, styles.editInputText]}
           value={draft}
           onChangeText={setDraft}
-          multiline
-          textAlignVertical="top"
-          selectionColor="transparent"
         />
       );
     }
