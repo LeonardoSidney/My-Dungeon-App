@@ -2,7 +2,7 @@ import { Adventure } from '@domain/entities';
 import { ILogger } from '@domain/logger';
 import { CreateAdventureServiceParams, CreateAdventureServiceReturn, ICreateAdventureService } from '@domain/services';
 import { IIdGenerator } from '@domain/providers';
-import { buildAdventureCharacterIds, validateAdventureCharacterSelection } from '@application/shared/adventureCharacterRules';
+import { buildAdventureCharacterIds } from '@application/shared/adventureCharacterRules';
 
 export class CreateAdventureService implements ICreateAdventureService {
     constructor (
@@ -17,17 +17,6 @@ export class CreateAdventureService implements ICreateAdventureService {
             characterAsWorldMasterId: params.characterAsWorldMasterId,
             charactersControlledByAi: params.aiControlledCharacterIds,
         });
-        const roster = {
-            characterIds,
-            worldMasterId: params.worldMasterId,
-            characterAsWorldMasterId: params.characterAsWorldMasterId,
-            charactersControlledByAi: params.aiControlledCharacterIds,
-        };
-
-        const validationError = validateAdventureCharacterSelection(roster, params.systemPromptIds.length);
-        if (validationError) {
-            return { success: false, error: validationError };
-        }
 
         const createdAt = new Date();
         const adventure: Adventure = {
@@ -35,7 +24,10 @@ export class CreateAdventureService implements ICreateAdventureService {
             name: params.name.trim(),
             chat: [],
             systemPromptIds: params.systemPromptIds,
-            ...roster,
+            characterIds,
+            worldMasterId: params.worldMasterId,
+            characterAsWorldMasterId: params.characterAsWorldMasterId,
+            charactersControlledByAi: params.aiControlledCharacterIds,
             worldIds: params.worldIds,
             locationIds: params.locationIds,
             itemIds: params.itemIds,

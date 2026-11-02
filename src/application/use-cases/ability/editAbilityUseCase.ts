@@ -24,7 +24,7 @@ export class EditAbilityUseCase implements IEditAbilityUseCase {
         const abilityResponse = await this.abilityRepository.getAbilityById(id);
         if (!abilityResponse.success) {
             this.logger.warning('EditAbilityUseCase::execute - failed to load ability', abilityResponse.error);
-            return { success: false, error: abilityResponse.error };
+            return { success: false, error: abilityResponse.error || 'Failed to load ability' };
         }
 
         const ability = abilityResponse.ability;
@@ -57,7 +57,7 @@ export class EditAbilityUseCase implements IEditAbilityUseCase {
         const existingAbilitiesResponse = await this.abilityRepository.getAbilities();
         if (!existingAbilitiesResponse.success || !existingAbilitiesResponse.abilities) {
             this.logger.warning('EditAbilityUseCase::execute - failed to load abilities', existingAbilitiesResponse.error);
-            return { success: false, error: existingAbilitiesResponse.error };
+            return { success: false, error: existingAbilitiesResponse.error || 'Failed to load abilities' };
         }
 
         const existingAbilities = existingAbilitiesResponse.abilities;

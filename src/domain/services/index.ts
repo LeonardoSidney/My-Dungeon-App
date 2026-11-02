@@ -48,5 +48,7 @@ export * from './iRecoverInterruptedChatsService';
 export * from './iWriteDraftService';
 export * from './iValidateSystemPromptLoadOrderService';
 export * from './iValidateChatTemplatesService';
+export * from './iValidateAdventureCharacterSelectionService';
+export * from './iValidateUniqueIdsService';
 export * from './iActivitySummaryService';
 export * from './iTurnSpeakerService';

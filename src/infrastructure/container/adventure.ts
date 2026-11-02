@@ -63,6 +63,8 @@ import {
     SetAdventureWorldMasterService,
     RecoverInterruptedChatsService,
     TurnSpeakerService,
+    ValidateAdventureCharacterSelectionService,
+    ValidateUniqueIdsService,
 } from '@application/services';
 import {
     CreateAdventureUseCase,
@@ -191,19 +193,26 @@ export function createHydrateAdventureService (): IHydrateAdventureService {
 
 export function createHydrateAdventureUseCase (): IHydrateAdventureUseCase {
     const adventureRepository = createAdventureRepository(storage, logger);
+    const hydrateAdventureService = createHydrateAdventureService();
+    const validateUniqueIdsService = new ValidateUniqueIdsService(logger);
     return new HydrateAdventureUseCase(
         logger,
         adventureRepository,
-        createHydrateAdventureService()
+        hydrateAdventureService,
+        validateUniqueIdsService
     );
 }
 
 export function createAdventureController (): ICreateAdventureController {
     const adventureRepository = createAdventureRepository(storage, logger);
     const createAdventureService = new CreateAdventureService(logger, idGenerate);
+    const validateAdventureCharacterSelectionService = new ValidateAdventureCharacterSelectionService(logger);
+    const validateUniqueIdsService = new ValidateUniqueIdsService(logger);
     const createAdventureUseCase = new CreateAdventureUseCase(
         logger,
         createAdventureService,
+        validateAdventureCharacterSelectionService,
+        validateUniqueIdsService,
         adventureRepository,
         createCharacterRepository(storage, logger),
         createSystemPromptRepository(storage, logger),
@@ -217,6 +226,8 @@ export function createAdventureController (): ICreateAdventureController {
 
 function createEditAdventureUseCase (): IEditAdventureUseCase {
     const editAdventureService = new EditAdventureService(logger);
+    const validateAdventureCharacterSelectionService = new ValidateAdventureCharacterSelectionService(logger);
+    const validateUniqueIdsService = new ValidateUniqueIdsService(logger);
     const adventureRepository = createAdventureRepository(storage, logger);
     const characterRepository = createCharacterRepository(storage, logger);
     const systemPromptRepository = createSystemPromptRepository(storage, logger);
@@ -227,6 +238,8 @@ function createEditAdventureUseCase (): IEditAdventureUseCase {
     return new EditAdventureUseCase(
         logger,
         editAdventureService,
+        validateAdventureCharacterSelectionService,
+        validateUniqueIdsService,
         adventureRepository,
         characterRepository,
         systemPromptRepository,

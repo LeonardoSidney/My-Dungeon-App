@@ -6,7 +6,7 @@ import {
     IProficiencyRepository,
     IStatusRepository,
 } from '@domain/repository';
-import { ICreateCharacterService } from '@domain/services';
+import { ICreateCharacterService, IValidateUniqueIdsService } from '@domain/services';
 import { CreateCharacterUseCaseParams, CreateCharacterUseCaseResponse, ICreateCharacterUseCase } from '@domain/use-cases';
 import { REFERENCED_ENTITIES } from '@domain/constants/referencedEntities';
 import { checkReferencedId, checkReferencedIds } from '@application/shared/validateReferencedIds';
@@ -16,6 +16,7 @@ export class CreateCharacterUseCase implements ICreateCharacterUseCase {
         private readonly logger: ILogger,
         private readonly characterRepository: ICharacterRepository,
         private readonly service: ICreateCharacterService,
+        private readonly validateUniqueIdsService: IValidateUniqueIdsService,
         private readonly assistantRepository: IAssistantRepository,
         private readonly abilityRepository: IAbilityRepository,
         private readonly proficiencyRepository: IProficiencyRepository,
@@ -33,6 +34,21 @@ export class CreateCharacterUseCase implements ICreateCharacterUseCase {
                 error: validationError
             };
         }
+
+        const uniqueIdsResponse = this.validateUniqueIdsService.validate({
+            idLists: [
+                { collection: REFERENCED_ENTITIES.ABILITY.collection, ids: params.abilityIds },
+                { collection: REFERENCED_ENTITIES.PROFICIENCY.collection, ids: params.proficiencyIds },
+                { collection: REFERENCED_ENTITIES.STATUS.collection, ids: params.statusIds },
+            ],
+        });
+        if (!uniqueIdsResponse.success) {
+            return {
+                success: false,
+                error: uniqueIdsResponse.error
+            };
+        }
+
         const missingIdError = await this.validateReferencedIds(params);
         if (missingIdError) {
             return {

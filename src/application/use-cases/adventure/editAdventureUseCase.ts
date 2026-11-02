@@ -8,9 +8,16 @@ import {
     IWorldRepository,
     IWorldMasterRepository,
 } from '@domain/repository';
-import { IEditAdventureService } from '@domain/services';
+import {
+    AdventureFormFields,
+    IEditAdventureService,
+    IValidateAdventureCharacterSelectionService,
+    IValidateUniqueIdsService,
+    UniqueIdList,
+} from '@domain/services';
 import { Adventure } from '@domain/entities';
 import { EditAdventureParams, EditAdventureReturn, IEditAdventureUseCase } from '@domain/use-cases';
+import { MINIMUM_NUMBER_SYSTEM_PROMPT } from '@domain/constants/adventure';
 import { REFERENCED_ENTITIES } from '@domain/constants/referencedEntities';
 import { checkReferencedId, checkReferencedIds } from '@application/shared/validateReferencedIds';
 
@@ -18,6 +25,8 @@ export class EditAdventureUseCase implements IEditAdventureUseCase {
     constructor (
         private readonly logger: ILogger,
         private readonly service: IEditAdventureService,
+        private readonly validateAdventureCharacterSelectionService: IValidateAdventureCharacterSelectionService,
+        private readonly validateUniqueIdsService: IValidateUniqueIdsService,
         private readonly adventureRepository: IAdventureRepository,
         private readonly characterRepository: ICharacterRepository,
         private readonly systemPromptRepository: ISystemPromptRepository,
@@ -37,10 +46,18 @@ export class EditAdventureUseCase implements IEditAdventureUseCase {
             };
         }
         const { id, editParams } = params;
+        const uniqueIdsResponse = this.validateUniqueIdsService.validate({ idLists: this.buildIdLists(editParams) });
+        if (!uniqueIdsResponse.success) {
+            return {
+                success: false,
+                error: uniqueIdsResponse.error
+            };
+        }
+
         const adventureResponse = await this.adventureRepository.getAdventureById(id);
         if (!adventureResponse.success) {
             this.logger.warning('EditAdventureUseCase::execute - failed to load adventure', adventureResponse.error);
-            return { success: false, error: adventureResponse.error };
+            return { success: false, error: adventureResponse.error || 'Failed to load adventure' };
         }
 
         const adventure = adventureResponse.adventure;
@@ -70,6 +87,14 @@ export class EditAdventureUseCase implements IEditAdventureUseCase {
         }
 
         const editedAdventure = response.adventure;
+        const selectionResponse = this.validateAdventureCharacterSelectionService.validate(editedAdventure);
+        if (!selectionResponse.success) {
+            return {
+                success: false,
+                error: selectionResponse.error
+            };
+        }
+
         const missingIdError = await this.validateReferencedIds(editedAdventure);
         if (missingIdError) {
             return {
@@ -81,7 +106,7 @@ export class EditAdventureUseCase implements IEditAdventureUseCase {
         const indexResponse = await this.adventureRepository.getAdventureIndex();
         if (!indexResponse.success || !indexResponse.entries) {
             this.logger.warning('EditAdventureUseCase::execute - failed to load adventures', indexResponse.error);
-            return { success: false, error: indexResponse.error };
+            return { success: false, error: indexResponse.error || 'Failed to load adventures' };
         }
 
         const duplicateAdventure = indexResponse.entries.find(
@@ -118,7 +143,21 @@ export class EditAdventureUseCase implements IEditAdventureUseCase {
         if (!params.editParams.name?.trim()) {
             return 'Adventure name is required';
         }
+        if (params.editParams.systemPromptIds.length < MINIMUM_NUMBER_SYSTEM_PROMPT) {
+            return 'A system prompt is required';
+        }
         return null;
+    }
+
+    private buildIdLists (editParams: AdventureFormFields): UniqueIdList[] {
+        return [
+            { collection: REFERENCED_ENTITIES.CHARACTER.collection, ids: editParams.playableCharacterIds },
+            { collection: REFERENCED_ENTITIES.CHARACTER.collection, ids: editParams.aiControlledCharacterIds },
+            { collection: REFERENCED_ENTITIES.SYSTEM_PROMPT.collection, ids: editParams.systemPromptIds },
+            { collection: REFERENCED_ENTITIES.WORLD.collection, ids: editParams.worldIds },
+            { collection: REFERENCED_ENTITIES.LOCATION.collection, ids: editParams.locationIds },
+            { collection: REFERENCED_ENTITIES.ITEM.collection, ids: editParams.itemIds },
+        ];
     }
 
     private async validateReferencedIds (editParams: Adventure): Promise<string | null> {

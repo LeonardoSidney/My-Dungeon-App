@@ -1,312 +1,154 @@
 import { CreateAbilityService } from '@application/services/ability';
-import {
-    CreateAbilityServiceParams,
-    CreateAbilityServiceReturn
-} from '@domain/services';
 import { ILogger } from '@domain/logger';
-import { Ability } from '@domain/entities';
 import { IIdGenerator } from '@domain/providers';
-import { createAbilityHelper } from '@test/helpers';
+import { CreateAbilityServiceParams } from '@domain/services';
 
-// Mocks dos dependentes
+const NOW = '2026-06-15T12:00:00.000Z';
+const LATER = '2026-06-16T08:30:00.000Z';
+
 const mockLogger = {
-    info: jest.fn(),
-    error: jest.fn(),
-    warn: jest.fn(),
     debug: jest.fn(),
     storage: jest.fn(),
-    streaming: jest.fn()
+    streaming: jest.fn(),
+    info: jest.fn(),
+    warning: jest.fn(),
+    error: jest.fn(),
+    log: jest.fn()
 };
 
 const mockIdGenerator = {
     generate: jest.fn()
 };
 
+function createParams (): Required<CreateAbilityServiceParams> {
+    return {
+        name: 'Fireball',
+        activationWord: 'combat',
+        prompt: 'Deal fire damage to target',
+        observation: 'Cannot be cast underwater'
+    };
+}
+
 describe('CreateAbilityService', () => {
     let service: CreateAbilityService;
 
     beforeEach(() => {
         jest.clearAllMocks();
+        jest.useFakeTimers({ now: new Date(NOW) });
+        mockIdGenerator.generate.mockReturnValue('generated-id');
         service = new CreateAbilityService(
             mockLogger as unknown as ILogger,
             mockIdGenerator as unknown as IIdGenerator
         );
     });
 
-    it('should be defined', () => {
-        expect(service).toBeDefined();
+    afterEach(() => {
+        jest.useRealTimers();
     });
 
-    it('should call logger.info when creating an ability', () => {
-        const params: CreateAbilityServiceParams = {
-            name: 'Fireball',
-            activationWord: 'combat',
-            prompt: 'Deal fire damage to target'
-        };
+    it('should log the execution once', () => {
+        service.createAbility(createParams());
 
-        mockIdGenerator.generate.mockReturnValue('ability-123');
-
-        service.createAbility(params);
-
+        expect(mockLogger.info).toHaveBeenCalledTimes(1);
         expect(mockLogger.info).toHaveBeenCalledWith('Executing CreateAbilityService::createAbility');
     });
 
-    it('should call idGenerator.generate to create ability id', () => {
-        const params: CreateAbilityServiceParams = {
-            name: 'Fireball',
-            activationWord: 'combat',
-            prompt: 'Deal fire damage to target'
-        };
-
-        mockIdGenerator.generate.mockReturnValue('ability-456');
-
-        service.createAbility(params);
+    it('should generate the id once', () => {
+        service.createAbility(createParams());
 
         expect(mockIdGenerator.generate).toHaveBeenCalledTimes(1);
     });
 
-    it('should return success: true when ability is created', () => {
-        const params: CreateAbilityServiceParams = {
+    it('should return only success and the created ability with every entity field', () => {
+        const params: Required<CreateAbilityServiceParams> = createParams();
+
+        const response = service.createAbility(params);
+
+        expect(response).toStrictEqual({
+            success: true,
+            ability: {
+                ...params,
+                id: 'generated-id',
+                createdAt: new Date(NOW),
+                updatedAt: new Date(NOW)
+            }
+        });
+    });
+
+    it('should leave the observation undefined when it is omitted', () => {
+        const response = service.createAbility({
             name: 'Fireball',
             activationWord: 'combat',
             prompt: 'Deal fire damage to target'
-        };
+        });
 
-        mockIdGenerator.generate.mockReturnValue('ability-789');
-
-        const result: CreateAbilityServiceReturn = service.createAbility(params);
-
-        expect(result.success).toBe(true);
+        expect(response).toStrictEqual({
+            success: true,
+            ability: {
+                name: 'Fireball',
+                activationWord: 'combat',
+                prompt: 'Deal fire damage to target',
+                observation: undefined,
+                id: 'generated-id',
+                createdAt: new Date(NOW),
+                updatedAt: new Date(NOW)
+            }
+        });
     });
 
-    it('should return ability with correct id', () => {
-        const params: CreateAbilityServiceParams = {
-            name: 'Fireball',
-            activationWord: 'combat',
-            prompt: 'Deal fire damage to target'
-        };
+    it('should keep an empty observation', () => {
+        const response = service.createAbility({ ...createParams(), observation: '' });
 
-        mockIdGenerator.generate.mockReturnValue('ability-abc');
-
-        const result: CreateAbilityServiceReturn = service.createAbility(params);
-        const ability: Ability = result.ability ?? createAbilityHelper();
-
-        expect(ability.id).toBe('ability-abc');
+        expect(response.ability?.observation).toBe('');
     });
 
-    it('should return ability with correct name', () => {
-        const params: CreateAbilityServiceParams = {
-            name: 'Ice Storm',
-            activationWord: 'magic',
-            prompt: 'Freeze enemies in area'
-        };
+    it('should keep empty text fields, since rejecting them is up to the use case', () => {
+        const response = service.createAbility({ name: '', activationWord: '', prompt: '' });
 
-        mockIdGenerator.generate.mockReturnValue('ability-ice');
-
-        const result: CreateAbilityServiceReturn = service.createAbility(params);
-        const ability: Ability = result.ability ?? createAbilityHelper();
-
-        expect(ability.name).toBe('Ice Storm');
-    });
-
-    it('should return ability with correct activationWord', () => {
-        const params: CreateAbilityServiceParams = {
-            name: 'Shield',
-            activationWord: 'defense',
-            prompt: 'Block incoming damage'
-        };
-
-        mockIdGenerator.generate.mockReturnValue('ability-shield');
-
-        const result: CreateAbilityServiceReturn = service.createAbility(params);
-        const ability: Ability = result.ability ?? createAbilityHelper();
-
-        expect(ability.activationWord).toBe('defense');
-    });
-
-    it('should return ability with correct prompt', () => {
-        const params: CreateAbilityServiceParams = {
-            name: 'Heal',
-            activationWord: 'support',
-            prompt: 'Restore health to ally'
-        };
-
-        mockIdGenerator.generate.mockReturnValue('ability-heal');
-
-        const result: CreateAbilityServiceReturn = service.createAbility(params);
-        const ability: Ability = result.ability ?? createAbilityHelper();
-
-        expect(ability.prompt).toBe('Restore health to ally');
-    });
-
-    it('should return ability with correct observation when provided', () => {
-        const params: CreateAbilityServiceParams = {
-            name: 'Stealth',
-            activationWord: 'infiltration',
-            prompt: 'Become invisible',
-            observation: 'Cannot be detected by normal senses'
-        };
-
-        mockIdGenerator.generate.mockReturnValue('ability-stealth');
-
-        const result: CreateAbilityServiceReturn = service.createAbility(params);
-        const ability: Ability = result.ability ?? createAbilityHelper();
-
-        expect(ability.observation).toBe('Cannot be detected by normal senses');
-    });
-
-    it('should return ability with undefined observation when not provided', () => {
-        const params: CreateAbilityServiceParams = {
-            name: 'Fireball',
-            activationWord: 'combat',
-            prompt: 'Deal fire damage to target'
-        };
-
-        mockIdGenerator.generate.mockReturnValue('ability-fire');
-
-        const result: CreateAbilityServiceReturn = service.createAbility(params);
-        const ability: Ability = result.ability ?? createAbilityHelper();
-
-        expect(ability.observation).toBeUndefined();
-    });
-
-    it('should set createdAt and updatedAt to same Date instance', () => {
-        const params: CreateAbilityServiceParams = {
-            name: 'Lightning Bolt',
-            activationWord: 'combat',
-            prompt: 'Strike target with lightning'
-        };
-
-        mockIdGenerator.generate.mockReturnValue('ability-lightning');
-
-        const result: CreateAbilityServiceReturn = service.createAbility(params);
-        const ability: Ability = result.ability ?? createAbilityHelper();
-
-        expect(ability.createdAt).toBeInstanceOf(Date);
-        expect(ability.updatedAt).toBeInstanceOf(Date);
-        expect(ability.createdAt).toEqual(ability.updatedAt);
-    });
-
-    it('should return ability with all required fields', () => {
-        const params: CreateAbilityServiceParams = {
-            name: 'Teleport',
-            activationWord: 'movement',
-            prompt: 'Instantly move to target location'
-        };
-
-        mockIdGenerator.generate.mockReturnValue('ability-teleport');
-
-        const result: CreateAbilityServiceReturn = service.createAbility(params);
-        const ability: Ability = result.ability ?? createAbilityHelper();
-
-        expect(ability).toHaveProperty('id');
-        expect(ability).toHaveProperty('name');
-        expect(ability).toHaveProperty('activationWord');
-        expect(ability).toHaveProperty('prompt');
-        expect(ability).toHaveProperty('observation');
-        expect(ability).toHaveProperty('createdAt');
-        expect(ability).toHaveProperty('updatedAt');
-    });
-
-    it('should create ability with empty strings for name, activationWord, and prompt', () => {
-        const params: CreateAbilityServiceParams = {
-            name: '',
-            activationWord: '',
-            prompt: ''
-        };
-
-        mockIdGenerator.generate.mockReturnValue('ability-empty');
-
-        const result: CreateAbilityServiceReturn = service.createAbility(params);
-        const ability: Ability = result.ability ?? createAbilityHelper();
-
-        expect(ability.name).toBe('');
-        expect(ability.activationWord).toBe('');
-        expect(ability.prompt).toBe('');
-    });
-
-    it('should create ability when observation is empty string', () => {
-        const params: CreateAbilityServiceParams = {
-            name: 'Test Ability',
-            activationWord: 'test',
-            prompt: 'Test prompt',
-            observation: ''
-        };
-
-        mockIdGenerator.generate.mockReturnValue('ability-empty-obs');
-
-        const result: CreateAbilityServiceReturn = service.createAbility(params);
-        const ability: Ability = result.ability ?? createAbilityHelper();
-
-        expect(ability.observation).toBe('');
-    });
-
-    it('should call logger.info exactly once per createAbility call', () => {
-        const params: CreateAbilityServiceParams = {
-            name: 'Dragon Breath',
-            activationWord: 'combat',
-            prompt: 'Breathe dragon fire'
-        };
-
-        mockIdGenerator.generate.mockReturnValue('ability-dragon');
-
-        service.createAbility(params);
-
-        expect(mockLogger.info).toHaveBeenCalledTimes(1);
-    });
-
-    it('should call idGenerator.generate exactly once per createAbility call', () => {
-        const params: CreateAbilityServiceParams = {
-            name: 'Warp Strike',
-            activationWord: 'combat',
-            prompt: 'Teleport and strike enemy'
-        };
-
-        mockIdGenerator.generate.mockReturnValue('ability-warp');
-
-        service.createAbility(params);
-
-        expect(mockIdGenerator.generate).toHaveBeenCalledTimes(1);
-    });
-
-    it('should return createdAt and updatedAt as Date instances for separate calls', () => {
-        mockIdGenerator.generate.mockReturnValue('ability-1');
-
-        const params1: CreateAbilityServiceParams = {
-            name: 'Ability 1',
-            activationWord: 'test',
-            prompt: 'Prompt 1'
-        };
-
-        const params2: CreateAbilityServiceParams = {
-            name: 'Ability 2',
-            activationWord: 'test',
-            prompt: 'Prompt 2'
-        };
-
-        const result1: CreateAbilityServiceReturn = service.createAbility(params1);
-        const result2: CreateAbilityServiceReturn = service.createAbility(params2);
-        const ability1: Ability = result1.ability ?? createAbilityHelper();
-        const ability2: Ability = result2.ability ?? createAbilityHelper();
-
-        expect(ability1.createdAt).toBeInstanceOf(Date);
-        expect(ability1.updatedAt).toBeInstanceOf(Date);
-        expect(ability2.createdAt).toBeInstanceOf(Date);
-        expect(ability2.updatedAt).toBeInstanceOf(Date);
+        expect(response.ability).toEqual(expect.objectContaining({ name: '', activationWord: '', prompt: '' }));
     });
 
     it('should trim the start and the end of the name', () => {
-        mockIdGenerator.generate.mockReturnValue('ability-trim');
+        const response = service.createAbility({ ...createParams(), name: '  Fire  ball\n' });
 
-        const result: CreateAbilityServiceReturn = service.createAbility({
-            name: '  Fire  ball\n',
-            activationWord: ' fire ',
-            prompt: ' Burn '
-        });
-        const ability: Ability = result.ability ?? createAbilityHelper();
+        expect(response.ability?.name).toBe('Fire  ball');
+    });
 
-        expect(ability.name).toBe('Fire  ball');
-        expect(ability.activationWord).toBe(' fire ');
-        expect(ability.prompt).toBe(' Burn ');
+    it('should reduce a name made only of whitespace to an empty string', () => {
+        const response = service.createAbility({ ...createParams(), name: ' \t\n ' });
+
+        expect(response.ability?.name).toBe('');
+    });
+
+    it('should store the other text fields exactly as sent', () => {
+        const response = service.createAbility({ ...createParams(), activationWord: ' fire ', prompt: ' Burn ' });
+
+        expect(response.ability).toEqual(expect.objectContaining({ activationWord: ' fire ', prompt: ' Burn ' }));
+    });
+
+    it('should use the same Date instance for createdAt and updatedAt', () => {
+        const response = service.createAbility(createParams());
+
+        expect(response.ability?.createdAt).toBeInstanceOf(Date);
+        expect(response.ability?.updatedAt).toBe(response.ability?.createdAt);
+    });
+
+    it('should give each call its own id and timestamps', () => {
+        mockIdGenerator.generate.mockReturnValueOnce('first-id').mockReturnValueOnce('second-id');
+
+        const firstResponse = service.createAbility(createParams());
+        jest.setSystemTime(new Date(LATER));
+        const secondResponse = service.createAbility(createParams());
+
+        expect(firstResponse.ability).toEqual(expect.objectContaining({ id: 'first-id', createdAt: new Date(NOW), updatedAt: new Date(NOW) }));
+        expect(secondResponse.ability).toEqual(expect.objectContaining({ id: 'second-id', createdAt: new Date(LATER), updatedAt: new Date(LATER) }));
+    });
+
+    it('should not mutate the given params', () => {
+        const params = createParams();
+
+        service.createAbility(params);
+
+        expect(params).toStrictEqual(createParams());
     });
 });

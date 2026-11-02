@@ -6,7 +6,7 @@ import {
     IProficiencyRepository,
     IStatusRepository,
 } from '@domain/repository';
-import { CharacterEditParams, IEditCharacterService } from '@domain/services';
+import { CharacterEditParams, IEditCharacterService, IValidateUniqueIdsService } from '@domain/services';
 import { EditCharacterParams, EditCharacterReturn, IEditCharacterUseCase } from '@domain/use-cases';
 import { REFERENCED_ENTITIES } from '@domain/constants/referencedEntities';
 import { checkReferencedId, checkReferencedIds } from '@application/shared/validateReferencedIds';
@@ -15,6 +15,7 @@ export class EditCharacterUseCase implements IEditCharacterUseCase {
     constructor (
         private readonly logger: ILogger,
         private readonly service: IEditCharacterService,
+        private readonly validateUniqueIdsService: IValidateUniqueIdsService,
         private readonly characterRepository: ICharacterRepository,
         private readonly assistantRepository: IAssistantRepository,
         private readonly abilityRepository: IAbilityRepository,
@@ -31,6 +32,21 @@ export class EditCharacterUseCase implements IEditCharacterUseCase {
                 error: validationError
             };
         }
+
+        const uniqueIdsResponse = this.validateUniqueIdsService.validate({
+            idLists: [
+                { collection: REFERENCED_ENTITIES.ABILITY.collection, ids: params.editParams.abilityIds },
+                { collection: REFERENCED_ENTITIES.PROFICIENCY.collection, ids: params.editParams.proficiencyIds },
+                { collection: REFERENCED_ENTITIES.STATUS.collection, ids: params.editParams.statusIds },
+            ],
+        });
+        if (!uniqueIdsResponse.success) {
+            return {
+                success: false,
+                error: uniqueIdsResponse.error
+            };
+        }
+
         const missingIdError = await this.validateReferencedIds(params.editParams);
         if (missingIdError) {
             return {

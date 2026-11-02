@@ -1,7 +1,6 @@
 import {
     buildAdventureCharacterIds,
     summarizeAdventureCharacters,
-    validateAdventureCharacterSelection,
 } from '@application/shared/adventureCharacterRules';
 
 describe('adventureCharacterRules', () => {
@@ -59,6 +58,19 @@ describe('adventureCharacterRules', () => {
             expect(summary.playableCharacterCount).toBe(2);
         });
 
+        it('should not treat a blank worldMasterId as a dedicated world master', () => {
+            const summary = summarizeAdventureCharacters({
+                characterIds: ['wmChar', 'playable'],
+                worldMasterId: '',
+                characterAsWorldMasterId: 'wmChar',
+                charactersControlledByAi: [],
+            });
+
+            expect(summary.hasDedicatedWorldMaster).toBe(false);
+            expect(summary.characterAsWorldMasterId).toBe('wmChar');
+            expect(summary.playableCharacterIds).toEqual(['playable']);
+        });
+
         it('should exclude AI controlled characters from the playable count', () => {
             const summary = summarizeAdventureCharacters({
                 characterIds: ['playable', 'ai1', 'ai2'],
@@ -70,98 +82,8 @@ describe('adventureCharacterRules', () => {
             expect(summary.playableCharacterIds).toEqual(['playable']);
             expect(summary.playableCharacterCount).toBe(1);
         });
-    });
 
-    describe('validateAdventureCharacterSelection', () => {
-        it('should require at least one system prompt', () => {
-            const error = validateAdventureCharacterSelection({
-                characterIds: ['playable', 'wmChar'],
-                worldMasterId: 'wm-entity',
-                characterAsWorldMasterId: undefined,
-                charactersControlledByAi: [],
-            }, 0);
-
-            expect(error).toBe('A system prompt is required');
-        });
-
-        it('should reject both a dedicated world master and a character acting as world master', () => {
-            const error = validateAdventureCharacterSelection({
-                characterIds: ['playable', 'wmChar'],
-                worldMasterId: 'wm-entity',
-                characterAsWorldMasterId: 'wmChar',
-                charactersControlledByAi: [],
-            }, 1);
-
-            expect(error).toBe('An adventure cannot have both a world master and a character acting as world master');
-        });
-
-        it('should reject a character acting as world master that is not part of the adventure', () => {
-            const error = validateAdventureCharacterSelection({
-                characterIds: ['playable'],
-                worldMasterId: undefined,
-                characterAsWorldMasterId: 'missing',
-                charactersControlledByAi: [],
-            }, 1);
-
-            expect(error).toBe('The character acting as world master must be part of the adventure');
-        });
-
-        it('should reject an AI controlled character that is not part of the adventure', () => {
-            const error = validateAdventureCharacterSelection({
-                characterIds: ['playable', 'wmChar'],
-                worldMasterId: undefined,
-                characterAsWorldMasterId: 'wmChar',
-                charactersControlledByAi: ['missing'],
-            }, 1);
-
-            expect(error).toBe('Every AI controlled character must be part of the adventure');
-        });
-
-        it('should reject a character acting as world master that is also AI controlled', () => {
-            const error = validateAdventureCharacterSelection({
-                characterIds: ['playable', 'wmChar'],
-                worldMasterId: undefined,
-                characterAsWorldMasterId: 'wmChar',
-                charactersControlledByAi: ['wmChar'],
-            }, 1);
-
-            expect(error).toBe('The character acting as world master cannot be AI controlled');
-        });
-
-        it('should require at least one playable character', () => {
-            const error = validateAdventureCharacterSelection({
-                characterIds: ['wmChar'],
-                worldMasterId: undefined,
-                characterAsWorldMasterId: 'wmChar',
-                charactersControlledByAi: [],
-            }, 1);
-
-            expect(error).toBe('You need at least 1 playable character');
-        });
-
-        it('should reject an adventure without a world master that has no character acting as world master', () => {
-            const error = validateAdventureCharacterSelection({
-                characterIds: ['playable', 'playable2'],
-                worldMasterId: undefined,
-                characterAsWorldMasterId: undefined,
-                charactersControlledByAi: [],
-            }, 1);
-
-            expect(error).toBe('An adventure without a world master needs a character acting as world master');
-        });
-
-        it('should accept a no-world-master adventure with a world master character and one playable character', () => {
-            const error = validateAdventureCharacterSelection({
-                characterIds: ['wmChar', 'playable'],
-                worldMasterId: undefined,
-                characterAsWorldMasterId: 'wmChar',
-                charactersControlledByAi: [],
-            }, 1);
-
-            expect(error).toBeNull();
-        });
-
-        it('should count the world master character toward the minimum when there is no dedicated world master', () => {
+        it('should count the world master character toward the non AI characters but not the playable ones', () => {
             const summary = summarizeAdventureCharacters({
                 characterIds: ['wmChar', 'playable'],
                 worldMasterId: undefined,
@@ -171,28 +93,6 @@ describe('adventureCharacterRules', () => {
 
             expect(summary.nonAiCharacterCount).toBe(2);
             expect(summary.playableCharacterCount).toBe(1);
-        });
-
-        it('should pass a valid dedicated world master selection with one playable character', () => {
-            const error = validateAdventureCharacterSelection({
-                characterIds: ['playable'],
-                worldMasterId: 'wm-entity',
-                characterAsWorldMasterId: undefined,
-                charactersControlledByAi: [],
-            }, 1);
-
-            expect(error).toBeNull();
-        });
-
-        it('should pass a valid no-world-master selection with character acting as world master', () => {
-            const error = validateAdventureCharacterSelection({
-                characterIds: ['playable1', 'playable2', 'wmChar', 'ai'],
-                worldMasterId: undefined,
-                characterAsWorldMasterId: 'wmChar',
-                charactersControlledByAi: ['ai'],
-            }, 1);
-
-            expect(error).toBeNull();
         });
     });
 });

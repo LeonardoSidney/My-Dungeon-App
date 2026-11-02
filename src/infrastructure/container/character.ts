@@ -9,7 +9,7 @@ import {
     GetCharacterPresenter,
     GetCharactersPresenter,
 } from '@adapters/presenters';
-import { CreateCharacterService, EditCharacterService } from '@application/services';
+import { CreateCharacterService, EditCharacterService, ValidateUniqueIdsService } from '@application/services';
 import {
     CreateCharacterUseCase,
     GetCharactersUseCase,
@@ -37,10 +37,12 @@ import {
 export function createCharacterController (): ICreateCharacterController {
     const characterRepository = createCharacterRepository(storage, logger);
     const createCharacterService = new CreateCharacterService(logger, idGenerate);
+    const validateUniqueIdsService = new ValidateUniqueIdsService(logger);
     const createCharacterUseCase = new CreateCharacterUseCase(
         logger,
         characterRepository,
         createCharacterService,
+        validateUniqueIdsService,
         createAssistantRepository(storage, logger),
         createAbilityRepository(storage, logger),
         createProficiencyRepository(storage, logger),
@@ -61,6 +63,7 @@ export function getCharactersController (): IGetCharactersController {
 
 export function createEditCharacterUseCase (): IEditCharacterUseCase {
     const editCharacterService = new EditCharacterService(logger);
+    const validateUniqueIdsService = new ValidateUniqueIdsService(logger);
     const characterRepository = createCharacterRepository(storage, logger);
     const assistantRepository = createAssistantRepository(storage, logger);
     const abilityRepository = createAbilityRepository(storage, logger);
@@ -69,6 +72,7 @@ export function createEditCharacterUseCase (): IEditCharacterUseCase {
     return new EditCharacterUseCase(
         logger,
         editCharacterService,
+        validateUniqueIdsService,
         characterRepository,
         assistantRepository,
         abilityRepository,

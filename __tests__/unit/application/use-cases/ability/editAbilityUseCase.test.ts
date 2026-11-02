@@ -109,6 +109,15 @@ describe('EditAbilityUseCase', () => {
         expect(mockService.editAbility).not.toHaveBeenCalled();
     });
 
+    it('should return a fallback error when the ability cannot be loaded and there is no error', async () => {
+        mockAbilityRepository.getAbilityById.mockResolvedValue({ success: false });
+
+        const response = await buildUseCase().execute({ id: 'ability-1', editParams: createEditParams() });
+
+        expect(response).toEqual({ success: false, error: 'Failed to load ability' });
+        expect(mockService.editAbility).not.toHaveBeenCalled();
+    });
+
     it('should fail when the ability does not exist', async () => {
         mockAbilityRepository.getAbilityById.mockResolvedValue({ success: true, ability: undefined });
 
@@ -150,12 +159,12 @@ describe('EditAbilityUseCase', () => {
         expect(mockAbilityRepository.editAbility).not.toHaveBeenCalled();
     });
 
-    it('should fail when the abilities list is missing', async () => {
+    it('should return a fallback error when the abilities list is missing', async () => {
         mockAbilityRepository.getAbilities.mockResolvedValue({ success: true });
 
         const response = await buildUseCase().execute({ id: 'ability-1', editParams: createEditParams() });
 
-        expect(response.success).toBe(false);
+        expect(response).toEqual({ success: false, error: 'Failed to load abilities' });
         expect(mockAbilityRepository.editAbility).not.toHaveBeenCalled();
     });
 

@@ -1,8 +1,3 @@
-import {
-    MINIMUM_NUMBER_SYSTEM_PROMPT,
-    MINIMUM_PLAYABLE_CHARACTERS,
-} from '@domain/constants/adventure';
-
 export type AdventureCharacterFields = {
     characterIds: string[];
     worldMasterId?: string;
@@ -35,7 +30,7 @@ export function buildAdventureCharacterIds (selection: {
 }
 
 export function summarizeAdventureCharacters (fields: AdventureCharacterFields): AdventureCharacterSummary {
-    const hasDedicatedWorldMaster = fields.worldMasterId !== undefined;
+    const hasDedicatedWorldMaster = Boolean(fields.worldMasterId);
     const characterAsWorldMasterId = hasDedicatedWorldMaster ? undefined : fields.characterAsWorldMasterId;
 
     const aiControlledSet = new Set(fields.charactersControlledByAi);
@@ -57,44 +52,4 @@ export function summarizeAdventureCharacters (fields: AdventureCharacterFields):
         playableCharacterCount: playableCharacterIds.length,
         nonAiCharacterCount,
     };
-}
-
-export function validateAdventureCharacterSelection (
-    fields: AdventureCharacterFields,
-    systemPromptCount: number
-): string | null {
-    const { characterIds, worldMasterId, characterAsWorldMasterId, charactersControlledByAi } = fields;
-
-    if (systemPromptCount < MINIMUM_NUMBER_SYSTEM_PROMPT) {
-        return 'A system prompt is required';
-    }
-
-    if (worldMasterId && characterAsWorldMasterId) {
-        return 'An adventure cannot have both a world master and a character acting as world master';
-    }
-
-    if (characterAsWorldMasterId && !characterIds.includes(characterAsWorldMasterId)) {
-        return 'The character acting as world master must be part of the adventure';
-    }
-
-    const orphanedAiCharacter = charactersControlledByAi.find(id => !characterIds.includes(id));
-    if (orphanedAiCharacter) {
-        return 'Every AI controlled character must be part of the adventure';
-    }
-
-    if (characterAsWorldMasterId && charactersControlledByAi.includes(characterAsWorldMasterId)) {
-        return 'The character acting as world master cannot be AI controlled';
-    }
-
-    const summary = summarizeAdventureCharacters(fields);
-
-    if (summary.playableCharacterCount < MINIMUM_PLAYABLE_CHARACTERS) {
-        return `You need at least ${MINIMUM_PLAYABLE_CHARACTERS} playable character`;
-    }
-
-    if (!worldMasterId && !characterAsWorldMasterId) {
-        return 'An adventure without a world master needs a character acting as world master';
-    }
-
-    return null;
 }

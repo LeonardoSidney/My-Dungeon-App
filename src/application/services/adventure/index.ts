@@ -19,3 +19,4 @@ export * from './deleteChatVersionService';
 export * from './recoverInterruptedChatsService';
 export * from './turnSpeakerService';
 export * from './findAdventureMissingReferencesService';
+export * from './validateAdventureCharacterSelectionService';

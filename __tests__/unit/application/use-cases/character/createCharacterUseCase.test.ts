@@ -1,3 +1,4 @@
+import { ValidateUniqueIdsService } from '@application/services';
 import { CreateCharacterUseCase } from '@application/use-cases';
 import { ILogger } from '@domain/logger';
 import {
@@ -72,6 +73,7 @@ function buildUseCase (): CreateCharacterUseCase {
         mockLogger,
         mockCharacterRepository as unknown as ICharacterRepository,
         mockService as unknown as ICreateCharacterService,
+        new ValidateUniqueIdsService(mockLogger),
         mockAssistantRepository as unknown as IAssistantRepository,
         mockAbilityRepository as unknown as IAbilityRepository,
         mockProficiencyRepository as unknown as IProficiencyRepository,
@@ -127,6 +129,27 @@ describe('CreateCharacterUseCase', () => {
         const response = await buildUseCase().execute(createParams({ activationWord: '   ' }));
 
         expect(response).toEqual({ success: false, error: 'Activation word is required to create a character' });
+    });
+
+    it('should fail before looking up references when an ability id is repeated', async () => {
+        const response = await buildUseCase().execute(createParams({ abilityIds: ['ability-1', 'ability-1'] }));
+
+        expect(response).toEqual({ success: false, error: 'Repeated id: ability-1 from Abilities' });
+        expect(mockAssistantRepository.getAssistantById).not.toHaveBeenCalled();
+    });
+
+    it('should fail before looking up references when a proficiency id is repeated', async () => {
+        const response = await buildUseCase().execute(createParams({ proficiencyIds: ['proficiency-1', 'proficiency-1'] }));
+
+        expect(response).toEqual({ success: false, error: 'Repeated id: proficiency-1 from Proficiencies' });
+        expect(mockAssistantRepository.getAssistantById).not.toHaveBeenCalled();
+    });
+
+    it('should fail before looking up references when a status id is repeated', async () => {
+        const response = await buildUseCase().execute(createParams({ statusIds: ['status-1', 'status-1'] }));
+
+        expect(response).toEqual({ success: false, error: 'Repeated id: status-1 from Statuses' });
+        expect(mockAssistantRepository.getAssistantById).not.toHaveBeenCalled();
     });
 
     it('should fail when the assistant does not exist', async () => {

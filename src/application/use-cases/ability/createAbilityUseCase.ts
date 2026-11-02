@@ -28,7 +28,7 @@ export class CreateAbilityUseCase implements ICreateAbilityUseCase {
         if (!response.success) {
             return {
                 success: response.success,
-                error: response.error
+                error: response.error || 'An unknown error occurred on CreateAbilityService'
             };
         }
 
@@ -42,7 +42,7 @@ export class CreateAbilityUseCase implements ICreateAbilityUseCase {
         const abilitiesResponse = await this.abilityRepository.getAbilities();
         if (!abilitiesResponse.success || !abilitiesResponse.abilities) {
             this.logger.warning('CreateAbilityUseCase::execute - failed to load abilities', abilitiesResponse.error);
-            return { success: false, error: abilitiesResponse.error };
+            return { success: false, error: abilitiesResponse.error || 'Failed to load abilities' };
         }
 
         const abilities = abilitiesResponse.abilities;
@@ -60,7 +60,7 @@ export class CreateAbilityUseCase implements ICreateAbilityUseCase {
         const saveResult = await this.abilityRepository.saveAbility({ ability: response.ability });
         if (!saveResult.success) {
             this.logger.warning('CreateAbilityUseCase::execute - failed to save ability', saveResult.error);
-            return { success: false, error: saveResult.error };
+            return { success: false, error: saveResult.error || 'Failed to save ability' };
         }
 
         return {

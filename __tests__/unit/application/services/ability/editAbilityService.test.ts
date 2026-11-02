@@ -195,7 +195,10 @@ describe('EditAbilityService', () => {
             editParams: createEditParams({ observation: undefined })
         });
 
-        expect(response.ability?.observation).toBeUndefined();
+        expect(response.ability).toStrictEqual(createStoredAbility({
+            observation: undefined,
+            updatedAt: new Date(NOW)
+        }));
     });
 
     it('should clear the observation when the key is omitted', () => {
@@ -208,7 +211,10 @@ describe('EditAbilityService', () => {
             }
         });
 
-        expect(response.ability?.observation).toBeUndefined();
+        expect(response.ability).toStrictEqual(createStoredAbility({
+            observation: undefined,
+            updatedAt: new Date(NOW)
+        }));
     });
 
     it('should store an empty observation as an empty string', () => {
@@ -235,7 +241,10 @@ describe('EditAbilityService', () => {
             editParams: createEditParams({ observation: undefined })
         });
 
-        expect(response.ability?.observation).toBeUndefined();
+        expect(response.ability).toStrictEqual(createStoredAbility({
+            observation: undefined,
+            updatedAt: new Date(NOW)
+        }));
     });
 
     it('should set updatedAt to the current time', () => {
@@ -339,6 +348,15 @@ describe('EditAbilityService', () => {
         });
 
         expect(response.ability?.name).toBe('Fire  ball');
+    });
+
+    it('should reduce a name made only of whitespace to an empty string', () => {
+        const response = service.editAbility({
+            ability: createStoredAbility(),
+            editParams: createEditParams({ name: ' \t\n ' })
+        });
+
+        expect(response.ability?.name).toBe('');
     });
 
     it('should store the other text fields without trimming them', () => {
