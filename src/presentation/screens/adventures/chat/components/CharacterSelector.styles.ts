@@ -21,6 +21,10 @@ export const styles = StyleSheet.create({
         minHeight: 48,
         justifyContent: 'center',
     },
+    dropdownButtonCompact: {
+        minWidth: 48,
+        alignItems: 'center',
+    },
     dropdownItem: {
         paddingVertical: 12,
         paddingHorizontal: 12,
@@ -37,6 +41,9 @@ export const styles = StyleSheet.create({
     dropdownItemLast: {
         borderBottomLeftRadius: 8,
         borderBottomRightRadius: 8,
+    },
+    dropdownItemSelected: {
+        backgroundColor: colors.surfaceRaised,
     },
     dropdownText: {
         color: colors.text,

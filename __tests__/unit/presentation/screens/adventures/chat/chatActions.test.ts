@@ -1,6 +1,7 @@
-import { ChatMessageView } from '@domain/controllers';
+import { AdventureChatCharacter, ChatMessageView } from '@domain/controllers';
 import { RoleEnum } from '@domain/entities';
 import {
+    getShortCharacterName,
     handleChatReplyUpdate,
     handleReplyAction,
     isWaitingForPlayers,
@@ -20,6 +21,89 @@ function createMessage (id: string, content: string): ChatMessageView {
         isStreaming: false
     };
 }
+
+function createCharacter (name: string): AdventureChatCharacter {
+    return { id: name, name } as AdventureChatCharacter;
+}
+
+describe('getShortCharacterName', () => {
+    it('uses the first word when no other character starts with it', () => {
+        const john = createCharacter('John Jones');
+        const jeanne = createCharacter('Jeanne Jones');
+
+        expect(getShortCharacterName(john, [john, jeanne])).toBe('John');
+    });
+
+    it('uses the first word of the only character', () => {
+        const john = createCharacter('John Jones');
+
+        expect(getShortCharacterName(john, [john])).toBe('John');
+    });
+
+    it('adds the next word when another character shares the first one', () => {
+        const john = createCharacter('John Jones');
+        const wick = createCharacter('John Wick');
+
+        expect(getShortCharacterName(john, [john, wick])).toBe('John Jones');
+    });
+
+    it('tells apart both characters that share the first word', () => {
+        const john = createCharacter('John Jones');
+        const wick = createCharacter('John Wick');
+
+        expect(getShortCharacterName(wick, [john, wick])).toBe('John Wick');
+    });
+
+    it('stops adding words as soon as the name is distinct', () => {
+        const couple = createCharacter('John Jones & Cristina Jones');
+        const wick = createCharacter('John Wick');
+
+        expect(getShortCharacterName(couple, [couple, wick])).toBe('John Jones');
+    });
+
+    it('keeps adding words while the names are still the same', () => {
+        const watson = createCharacter('Mary Jane Watson');
+        const parker = createCharacter('Mary Jane Parker');
+
+        expect(getShortCharacterName(watson, [watson, parker])).toBe('Mary Jane Watson');
+    });
+
+    it('compares against every other character', () => {
+        const john = createCharacter('John Jones Junior');
+        const wick = createCharacter('John Wick');
+        const senior = createCharacter('John Jones Senior');
+
+        expect(getShortCharacterName(john, [john, wick, senior])).toBe('John Jones Junior');
+    });
+
+    it('keeps a one-word name that starts a longer name', () => {
+        const john = createCharacter('John');
+        const wick = createCharacter('John Wick');
+
+        expect(getShortCharacterName(john, [john, wick])).toBe('John');
+    });
+
+    it('tells a longer name apart from a one-word name that starts it', () => {
+        const john = createCharacter('John');
+        const wick = createCharacter('John Wick');
+
+        expect(getShortCharacterName(wick, [john, wick])).toBe('John Wick');
+    });
+
+    it('shows the full name when two characters have the same name', () => {
+        const john = createCharacter('John Jones');
+        const twin = { id: 'twin', name: 'John Jones' } as AdventureChatCharacter;
+
+        expect(getShortCharacterName(john, [john, twin])).toBe('John Jones');
+    });
+
+    it('ignores the spaces around and between the words', () => {
+        const john = createCharacter('  John   Jones ');
+        const wick = createCharacter('John Wick');
+
+        expect(getShortCharacterName(john, [john, wick])).toBe('John Jones');
+    });
+});
 
 describe('requestChatReply', () => {
     function buildParams (response: Record<string, unknown>) {

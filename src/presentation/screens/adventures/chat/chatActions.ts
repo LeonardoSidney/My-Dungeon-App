@@ -1,4 +1,5 @@
 import {
+    AdventureChatCharacter,
     ChatMessageView,
     ChatReplyUpdateView,
     ChatVersionKind,
@@ -64,6 +65,22 @@ export function isWaitingForPlayers (messages: ChatMessageView[]): boolean {
     const currentTurn = messages.slice(lastWorldMasterIndex + 1);
 
     return !currentTurn.some(message => message.role === RoleEnum.AI_PERSONA);
+}
+
+export function getShortCharacterName (character: AdventureChatCharacter, characters: AdventureChatCharacter[]): string {
+    const toWords = (name: string) => name.trim().split(/\s+/);
+    const words = toWords(character.name);
+    const otherNames = characters.filter(other => other.id !== character.id).map(other => toWords(other.name));
+
+    for (let wordCount = 1; wordCount < words.length; wordCount++) {
+        const shortName = words.slice(0, wordCount).join(' ');
+        const isDistinct = otherNames.every(otherWords => otherWords.slice(0, wordCount).join(' ') !== shortName);
+        if (isDistinct) {
+            return shortName;
+        }
+    }
+
+    return words.join(' ');
 }
 
 export function upsertChatMessage (messages: ChatMessageView[], message: ChatMessageView): ChatMessageView[] {

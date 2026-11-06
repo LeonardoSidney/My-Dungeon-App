@@ -38,6 +38,7 @@ function MessageInputBase ({
   const idleButtonAction = canSkipTurn ? onSkipTurn : onSend;
   const buttonLabel = isStreaming ? 'Stop' : idleButtonLabel;
   const buttonAction = isStreaming ? onStop : idleButtonAction;
+  const hasDraft = Boolean(value.trim());
 
   return (
     <View style={styles.inputContainer}>
@@ -46,6 +47,7 @@ function MessageInputBase ({
           characters={characters}
           selectedCharacter={selectedCharacter}
           onSelect={onCharacterSelect}
+          isCompact={hasDraft}
           style={styles.characterSelector}
         />
       )}
@@ -62,7 +64,7 @@ function MessageInputBase ({
         underlineColorAndroid="transparent"
         onKeyPress={onKeyPress}
       />
-      {!isStreaming && (
+      {!isStreaming && !hasDraft && (
         <TouchableOpacity style={styles.resendButtonContainer} onPress={onResend}>
           <Text style={styles.resendButtonText}>↻</Text>
         </TouchableOpacity>
